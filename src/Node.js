@@ -4,50 +4,30 @@ import {
   Text,
   Group,
 } from "react-konva";
-import Konva from 'konva';
+import {
+  xPad,
+  yPad,
+  fontFamily,
+  fontSize,
+  textHeight,
+  holeWidth,
+  computePiecesPositions,
+  computeNodeWidth,
+} from './layout.js';
 
-function Node({pieces, row}) {
-  const xPad = 10;
-  const yPad = 10;
-  const gapWidth = 5;
-  const fontFamily = "Ubuntu Mono, Courier";
-  const fontSize = 24;
-  const oText = new Konva.Text({
-    text: "o",
-    fontFamily: fontFamily,
-    fontSize: fontSize
-  });
-  const textHeight = oText.fontSize();
-  const holeWidth = oText.getTextWidth();
-  const widths = pieces.map(p => {
-    if (p==null) {
-      return holeWidth;
-    } else {
-      const text = new Konva.Text({
-        text: p,
-        fontFamily: fontFamily,
-        fontSize: fontSize,
-      });
-      return text.getTextWidth();
-    }
-  });
-  let x = 0;
-  const xes = widths.map(w => {
-    let myX = x;
-    x += w + gapWidth;
-    return myX;
-  });
-  x -= gapWidth;
+function Node({pieces, x, y}) {
+  const xes = computePiecesPositions(pieces);
+  const nodeWidth = computeNodeWidth(pieces);
   return (
     <Group
-      x={xPad}
-      y={yPad + row * (3*yPad + textHeight)}
+      x={x}
+      y={y}
       draggable
     >
       <Rect
         x={0}
         y={0}
-        width={2*xPad + x}
+        width={2*xPad + nodeWidth}
         height={2*yPad + textHeight}
         fill="#208020"
         cornerRadius={5}
