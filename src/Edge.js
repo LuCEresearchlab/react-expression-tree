@@ -19,9 +19,9 @@ function Edge({parentPieces, parentPieceId, childPieces, parentX, parentY, child
     <Line
       points={[
         parentX + xPad + xes[parentPieceId] + holeWidth/2, 
-        parentY + yPad + textHeight/2,
+        parentY + yPad + textHeight,
         childX + xPad + childWidth/2, 
-        childY + yPad + textHeight/2
+        childY + yPad
       ]}
       stroke='black'
       strokeWidth={3}

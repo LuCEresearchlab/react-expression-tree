@@ -15,14 +15,36 @@ import {
   computeNodeWidth,
 } from './layout.js';
 
-function Node({pieces, x, y}) {
+function Node({id, pieces, x, y, onMove}) {
   const xes = computePiecesPositions(pieces);
   const nodeWidth = computeNodeWidth(pieces);
+  const handleDragStart = (e) => {
+    const id = e.target.id();
+    console.log("dragStart", id, e);
+  }
+  const handleDragMove = (e) => {
+    const id = e.target.id();
+    console.log("dragMove", id, e);
+    const x = e.target.x();
+    const y = e.target.y();
+    onMove(id, x, y);
+  }
+  const handleDragEnd = (e) => {
+    const id = e.target.id();
+    console.log("dragEnd", id, e);
+    const x = e.target.x();
+    const y = e.target.y();
+    onMove(id, x, y);
+  }
   return (
     <Group
+      id={id}
       x={x}
       y={y}
       draggable
+      onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
+      onDragEnd={handleDragEnd}
     >
       <Rect
         x={0}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Node from './Node.js';
 import Edge from './Edge.js';
 import { 
@@ -23,9 +23,21 @@ function App() {
   const edges = [
     [[3, 1], 0],
     [[4, 0], 3],
-    [[4, 2], 1]
+    [[4, 2], 1],
+    [[7, 0], 4],
+    [[7, 2], 9],
+    [[9, 0], 2]
   ];
-  const nodePositions = nodes.map((n, i) => ({x: 10, y: 10+i*50}));
+  const initialNodePositions = nodes.map((n, i) => ({x: 10, y: 10+i*50}));
+  const [nodePositions, setNodePositions] = useState(initialNodePositions);
+  const handleNodeMove = (id, x, y) => {
+    setNodePositions(
+      nodePositions.map((nodePosition, i) => 
+        i===id ? {x: x, y: y} : nodePosition
+      )
+    )
+    nodePositions[id] = {x: x, y: y};
+  }
   return (
     <Stage width={window.innerWidth} height={window.innerHeight}>
       <Layer>
@@ -47,9 +59,11 @@ function App() {
           nodes.map((node,i) => (
             <Node
               key={i}
+              id={i}
               x={nodePositions[i].x}
               y={nodePositions[i].y}
               pieces={node}
+              onMove={handleNodeMove}
             />
           ))
         }
