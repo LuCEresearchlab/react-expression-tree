@@ -59,9 +59,7 @@ function App() {
     };
   };
   const computeEdgeParentPos = (parentNodeId, parentPieceId) => {
-    //TODO
     const nodePos = nodePositionById(parentNodeId);
-
     return {
       x: nodePos.x + xPad + computePiecesPositions(nodeById(parentNodeId).pieces)[parentPieceId] + holeWidth/2, 
       y: nodePos.y + yPad + textHeight
@@ -118,6 +116,7 @@ function App() {
         childY: childPos.y,
       });
     } else {
+      console.log("no edge found");
       setDragEdge({
         originalEdgeId: undefined,
         updateParent: false,
@@ -149,6 +148,11 @@ function App() {
   const handleStageMouseUp = (e) => {
     console.log("App.handleStageMouseUp(", e, ")");
     if (dragEdge) {
+      if (dragEdge.updateParent) {
+        //TODO
+      } else {
+        //TODO
+      }
       setDragEdge(null);
     }
   };
