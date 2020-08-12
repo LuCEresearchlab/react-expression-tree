@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Node from './Node.js';
 import Edge from './Edge.js';
 import { 
@@ -6,11 +6,18 @@ import {
   Layer, 
 } from "react-konva";
 import DragEdge from './DragEdge.js';
-import { computeNodeWidth, xPad, yPad, textHeight, computePiecesPositions, holeWidth } from './layout.js';
+import { 
+  computeNodeWidth, 
+  computePiecesPositions, 
+  xPad, 
+  yPad, 
+  textHeight, 
+  targetRange,
+  holeWidth,
+} from './layout.js';
 
 function App() {
   // Initial state
-  
   const initialNodes = [
     { id: 0, pieces: [ "19" ] },
     { id: 1, pieces: [ "age" ] },
@@ -53,8 +60,7 @@ function App() {
   const [edges, setEdges] = useState(initialEdges);
   const [nodePositions, setNodePositions] = useState(initialNodePositions);
   const [dragEdge, setDragEdge] = useState(null);
-
-  //console.log("State:", nodes, edges, nodePositions, dragEdge);
+  const [selectedNodeId, setSelectedNodeId] = useState(undefined);
 
   // Lookup functions
   const nodeById = (nodeId) => {
@@ -82,6 +88,17 @@ function App() {
     const maxId = edges.map(e=>e.id).reduce((id1, id2) => Math.max(id1, id2), 0);
     return [...edges, {...edge, id: maxId + 1}];
   }
+  const removeNode = (nodes, nodeId) => {
+    console.log("removeNode(", nodes, nodeId, ")");
+    // TODO: Also remove connected edges!
+    // TODO: Also set selectedNodeId to undefined!
+    return nodes.filter(node => node.id!==nodeId);
+  }
+  const addNode = (nodes, node) => {
+    console.log("addNode(", nodes, node, ")");
+    const maxId = nodes.map(n=>n.id).reduce((id1, id2) => Math.max(id1, id2), 0);
+    return [...nodes, {...node, id: maxId + 1}];
+  }
 
   // Layout functions
   const computeEdgeChildPos = (childNodeId) => {
@@ -98,7 +115,6 @@ function App() {
       y: nodePos.y + yPad + textHeight
     };
   };
-  const targetRange = textHeight;
   const distance = (x1, y1, x2, y2) => {
     return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
   }
@@ -137,6 +153,36 @@ function App() {
     return closestPiece;
   };
 
+  // Get access to DOM node corresponding to <Stage>
+  // because we need to get key events from the DOM
+  // (Konva doesn't provide key events).
+  const stageRef = React.useRef();
+
+  // Effects
+  useEffect(()=>{
+    // Request focus, so we can respond to key events
+    const stage = stageRef.current;
+    console.log("stage:", stage);
+    console.log("stage.container():", stage.container());
+    stage.container().tabIndex = 1;
+    stage.container().focus();
+    // Register (and later unregister) keydown listener
+    const delListener = function (e) {
+      console.log("STAGE keydown event: ", e);
+      if (e.key === "Backspace" || e.key === "Delete") {
+        if (selectedNodeId!==undefined) {
+          setNodes(removeNode(nodes, selectedNodeId));
+        }
+      }
+    };
+    stage.container().addEventListener('keydown', delListener);
+    console.log("STAGE keydown registered");
+    return () => {
+      stage.container().removeEventListener('keydown', delListener);
+      console.log("STAGE keydown unregistered");
+    }
+  }, [nodes, selectedNodeId]);
+
   // Event handlers
   const handleNodeMove = (id, x, y) => {
     console.log("App.handleNodeMove(", id, x, y, ")");
@@ -145,6 +191,7 @@ function App() {
         nodePosition.id===id ? {...nodePosition, x: x, y: y} : nodePosition
       )
     );
+    setSelectedNodeId(id);
   };
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
     console.log("App.handleNodeConnectorDragStart(", nodeId, x, y, ")");
@@ -206,6 +253,8 @@ function App() {
   };
   const handleStageMouseMove = (e) => {
     //console.log("App.handleStageMouseMove(", e, ")");
+    //TODO: Provide drop target feedback
+    //      (e.g., DragEdge color, Node's connector color)
     if (dragEdge) {
       if (dragEdge.updateParent) {
         setDragEdge({
@@ -293,13 +342,28 @@ function App() {
       setDragEdge(null);
     }
   };
+  const handleStageClick = (e) => {
+    setSelectedNodeId(undefined);
+  }
+  const handleStageDblClick = (e) => {
+    //TODO: Also setNodePositions()!
+    setNodes(addNode(nodes, {
+      pieces: [ "(", null, ")" ],
+    }));
+  }
+  const handleNodeClick = (e, nodeId) => {
+    setSelectedNodeId(nodeId);
+  }
 
   return (
     <Stage 
+      ref={stageRef}
       width={window.innerWidth} 
       height={window.innerHeight}
       onMouseMove={handleStageMouseMove}
       onMouseUp={handleStageMouseUp}
+      onClick={handleStageClick}
+      onDblClick={handleStageDblClick}
     >
       <Layer>
         {
@@ -326,9 +390,11 @@ function App() {
               x={nodePositionById(node.id).x}
               y={nodePositionById(node.id).y}
               pieces={node.pieces}
+              selected={selectedNodeId===node.id}
               onNodeMove={handleNodeMove}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
               onPieceConnectorDragStart={handlePieceConnectorDragStart}
+              onNodeClick={(e) => handleNodeClick(e, node.id)}
             />
           ))
         }

@@ -16,7 +16,7 @@ import {
   computeNodeWidth,
 } from './layout.js';
 
-function Node({id, pieces, x, y, onNodeMove, onNodeConnectorDragStart, onPieceConnectorDragStart}) {
+function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart, onPieceConnectorDragStart, onNodeClick}) {
   const xes = computePiecesPositions(pieces);
   const nodeWidth = computeNodeWidth(pieces);
 
@@ -72,6 +72,11 @@ function Node({id, pieces, x, y, onNodeMove, onNodeConnectorDragStart, onPieceCo
     onPieceConnectorDragStart(nodeId, pieceId, pos.x + holeWidth/2, pos.y + textHeight);
   }
 
+  const handleNodeClick = (e) => {
+    e.cancelBubble=true; 
+    onNodeClick(e);
+  }
+
   return (
     <Group
       kind="Node"
@@ -83,6 +88,7 @@ function Node({id, pieces, x, y, onNodeMove, onNodeConnectorDragStart, onPieceCo
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
+      onClick={handleNodeClick}
     >
       <Rect
         kind="NodeRect"
@@ -93,7 +99,7 @@ function Node({id, pieces, x, y, onNodeMove, onNodeConnectorDragStart, onPieceCo
         height={2*yPad + textHeight}
         fill="#208020"
         cornerRadius={5}
-        shadowBlur={0}
+        shadowBlur={selected ? 4 : 0}
       />
       <Text
         x={0}
