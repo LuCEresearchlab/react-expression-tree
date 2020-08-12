@@ -40,25 +40,41 @@ function App() {
     )
     nodePositions[id] = {x: x, y: y};
   };
-  const [dragEdge, setDragEdge] = useState({x1: 100, y1: 100, x2: 300, y2: 200});
-  const handleNodeConnectorDragStart = (id, x, y) => {
-    console.log("App.handleNodeConnectorDragStart(", id, x, y, ")");
+  const [dragEdge, setDragEdge] = useState({visible: false, x1: 100, y1: 100, x2: 300, y2: 200});
+  const handleNodeConnectorDragStart = (nodeId, x, y) => {
+    console.log("App.handleNodeConnectorDragStart(", nodeId, x, y, ")");
     setDragEdge({
       ...dragEdge,
+      visible: true,
       x2: x,
       y2: y,
     });
   };
-  const handlePieceConnectorDragStart = (id, x, y) => {
-    console.log("App.handlePieceConnectorDragStart(", id, x, y, ")");
+  const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
+    console.log("App.handlePieceConnectorDragStart(", nodeId, pieceId, x, y, ")");
     setDragEdge({
       ...dragEdge,
+      visible: true,
       x1: x,
       y1: y,
     });
   };
+  const handleStageMouseMove = (e) => {
+    console.log("App.handleStageMouseMove(", e, ")");
+    if (dragEdge.visible) {
+      setDragEdge({
+        ...dragEdge,
+        x1: e.evt.x,
+        y1: e.evt.y,
+      });
+    }
+  }
   return (
-    <Stage width={window.innerWidth} height={window.innerHeight}>
+    <Stage 
+      width={window.innerWidth} 
+      height={window.innerHeight}
+      onMouseMove={handleStageMouseMove}
+    >
       <Layer>
         {
           edges.map((edge,i) => (
@@ -89,13 +105,15 @@ function App() {
             />
           ))
         }
-        <DragEdge
-          key="DragEdge"
-          x1={dragEdge.x1}
-          y1={dragEdge.y1}
-          x2={dragEdge.x2}
-          y2={dragEdge.y2}
-        />
+        { dragEdge.visible &&
+          <DragEdge
+            key="DragEdge"
+            x1={dragEdge.x1}
+            y1={dragEdge.y1}
+            x2={dragEdge.x2}
+            y2={dragEdge.y2}
+          />
+        }
       </Layer>
     </Stage>
   );
