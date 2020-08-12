@@ -8,7 +8,8 @@ import {
 import DragEdge from './DragEdge.js';
 
 function App() {
-  const nodes = [
+  // Initial state
+  const initialNodes = [
     { id: 0, pieces: [ "19" ] },
     { id: 1, pieces: [ "age" ] },
     { id: 2, pieces: [ "\"Hello World!\"" ] },
@@ -21,7 +22,7 @@ function App() {
     { id: 9, pieces: [ null, ".", "length()" ] },
     { id: 10, pieces: [ null, ".", "append(", null, ")" ] },
   ];
-  const edges = [
+  const initialEdges = [
     { id: 0, parentNodeId: 3, parentPieceId: 1, childNodeId: 0 },
     { id: 1, parentNodeId: 4, parentPieceId: 0, childNodeId: 3 },
     { id: 2, parentNodeId: 4, parentPieceId: 2, childNodeId: 1 },
@@ -29,14 +30,21 @@ function App() {
     { id: 4, parentNodeId: 7, parentPieceId: 2, childNodeId: 9 },
     { id: 5, parentNodeId: 9, parentPieceId: 0, childNodeId: 2 },
   ];
+  const initialNodePositions = initialNodes.map((n, i) => ({x: 10, y: 10+i*55}));
 
+  // State
+  const [nodes, setNodes] = useState(initialNodes);
+  const [edges, setEdges] = useState(initialEdges);
+  const [nodePositions, setNodePositions] = useState(initialNodePositions);
+  const [dragEdge, setDragEdge] = useState({visible: false, x1: 100, y1: 100, x2: 300, y2: 200});
+
+  // Lookup functions
   const nodeById = (nodeId) => nodes.find((node)=>node.id===nodeId);
   const edgeById = (edgeId) => edges.find((edge) => edge.id===edgeId);
   const edgeByChildNode = (childNodeId) => edges.find((edge)=>edge.childNodeId===childNodeId);
   const edgeByParentPiece = (parentNodeId, parentPieceId) => edges.find((edge)=>edge.parentNodeId===parentNodeId && edge.parentPieceId===parentPieceId);
 
-  const initialNodePositions = nodes.map((n, i) => ({x: 10, y: 10+i*55}));
-  const [nodePositions, setNodePositions] = useState(initialNodePositions);
+  // Event handlers
   const handleNodeMove = (id, x, y) => {
     console.log("App.handleNodeMove(", id, x, y, ")");
     setNodePositions(
@@ -46,7 +54,6 @@ function App() {
     )
     nodePositions[id] = {x: x, y: y};
   };
-  const [dragEdge, setDragEdge] = useState({visible: false, x1: 100, y1: 100, x2: 300, y2: 200});
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
     console.log("App.handleNodeConnectorDragStart(", nodeId, x, y, ")");
     const edge = edgeByChildNode(nodeId);
@@ -98,6 +105,7 @@ function App() {
       });
     }
   }
+
   return (
     <Stage 
       width={window.innerWidth} 
