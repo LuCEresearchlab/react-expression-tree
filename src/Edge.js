@@ -11,7 +11,7 @@ import {
   computeNodeWidth,
 } from './layout.js';
 
-function Edge({parentPieces, parentPieceId, childPieces, parentX, parentY, childX, childY}) {
+function Edge({parentPieces, parentPieceId, childPieces, parentX, parentY, childX, childY, beingDragged}) {
   const xes = computePiecesPositions(parentPieces);
   const childWidth = computeNodeWidth(childPieces);
 
@@ -23,7 +23,7 @@ function Edge({parentPieces, parentPieceId, childPieces, parentX, parentY, child
         childX + xPad + childWidth/2, 
         childY
       ]}
-      stroke='black'
+      stroke={beingDragged ? "#f0f0f0" : "black"}
       strokeWidth={3}
     />
   );

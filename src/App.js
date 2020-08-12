@@ -6,6 +6,7 @@ import {
   Layer, 
 } from "react-konva";
 import DragEdge from './DragEdge.js';
+import { computeNodeWidth, xPad, yPad, textHeight, computePiecesPositions, holeWidth } from './layout.js';
 
 function App() {
   // Initial state
@@ -30,81 +31,127 @@ function App() {
     { id: 4, parentNodeId: 7, parentPieceId: 2, childNodeId: 9 },
     { id: 5, parentNodeId: 9, parentPieceId: 0, childNodeId: 2 },
   ];
-  const initialNodePositions = initialNodes.map((n, i) => ({x: 10, y: 10+i*55}));
+  const initialNodePositions = initialNodes.map((node, i) => ({
+    id: node.id,
+    x: 10, 
+    y: 10 + i * 55,
+  }));
 
   // State
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
   const [nodePositions, setNodePositions] = useState(initialNodePositions);
-  const [dragEdge, setDragEdge] = useState({visible: false, x1: 100, y1: 100, x2: 300, y2: 200});
+  const [dragEdge, setDragEdge] = useState(null);
 
   // Lookup functions
   const nodeById = (nodeId) => nodes.find((node)=>node.id===nodeId);
   const edgeById = (edgeId) => edges.find((edge) => edge.id===edgeId);
   const edgeByChildNode = (childNodeId) => edges.find((edge)=>edge.childNodeId===childNodeId);
   const edgeByParentPiece = (parentNodeId, parentPieceId) => edges.find((edge)=>edge.parentNodeId===parentNodeId && edge.parentPieceId===parentPieceId);
+  const nodePositionById = (nodeId) => nodePositions.find((nodePosition)=>nodePosition.id===nodeId);
+
+  // Layout functions
+  const computeEdgeChildPos = (childNodeId) => {
+    const nodePos = nodePositionById(childNodeId);
+    return {
+      x: nodePos.x + xPad + computeNodeWidth(nodeById(childNodeId).pieces)/2, 
+      y: nodePos.y
+    };
+  };
+  const computeEdgeParentPos = (parentNodeId, parentPieceId) => {
+    //TODO
+    const nodePos = nodePositionById(parentNodeId);
+
+    return {
+      x: nodePos.x + xPad + computePiecesPositions(nodeById(parentNodeId).pieces)[parentPieceId] + holeWidth/2, 
+      y: nodePos.y + yPad + textHeight
+    };
+  };
 
   // Event handlers
   const handleNodeMove = (id, x, y) => {
     console.log("App.handleNodeMove(", id, x, y, ")");
     setNodePositions(
       nodePositions.map((nodePosition, i) => 
-        i===id ? {x: x, y: y} : nodePosition
+        nodePosition.id===id ? {...nodePosition, x: x, y: y} : nodePosition
       )
-    )
-    nodePositions[id] = {x: x, y: y};
+    );
   };
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
     console.log("App.handleNodeConnectorDragStart(", nodeId, x, y, ")");
     const edge = edgeByChildNode(nodeId);
     if (edge) {
       console.log("edge found:", edge);
-      // TODO
+      const parentPos = computeEdgeParentPos(edge.parentNodeId, edge.parentPieceId);
+      setDragEdge({
+        originalEdgeId: edge.id,
+        updateParent: false,
+        parentX: parentPos.x,
+        parentY: parentPos.y,
+        childX: x,
+        childY: y,
+      });
+    } else {
+      console.log("no edge found");
+      setDragEdge({
+        originalEdgeId: undefined,
+        updateParent: true,
+        parentX: x,
+        parentY: y,
+        childX: x,
+        childY: y,
+      });
     }
-    setDragEdge({
-      ...dragEdge,
-      visible: true,
-      x1: x,
-      y1: y,
-      x2: x,
-      y2: y,
-    });
   };
   const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
     console.log("App.handlePieceConnectorDragStart(", nodeId, pieceId, x, y, ")");
     const edge = edgeByParentPiece(nodeId, pieceId);
     if (edge) {
       console.log("edge found:", edge);
-      // TODO
+      const childPos = computeEdgeChildPos(edge.childNodeId);
+      setDragEdge({
+        originalEdgeId: edge.id,
+        updateParent: true,
+        parentX: x,
+        parentY: y,
+        childX: childPos.x,
+        childY: childPos.y,
+      });
+    } else {
+      setDragEdge({
+        originalEdgeId: undefined,
+        updateParent: false,
+        parentX: x,
+        parentY: y,
+        childX: x,
+        childY: y,
+      });
     }
-    setDragEdge({
-      ...dragEdge,
-      visible: true,
-      x1: x,
-      y1: y,
-      x2: x,
-      y2: y,
-    });
   };
   const handleStageMouseMove = (e) => {
     //console.log("App.handleStageMouseMove(", e, ")");
-    if (dragEdge.visible) {
-      setDragEdge({
-        ...dragEdge,
-        x1: e.evt.x,
-        y1: e.evt.y,
-      });
+    if (dragEdge) {
+      if (dragEdge.updateParent) {
+        setDragEdge({
+          ...dragEdge,
+          parentX: e.evt.x,
+          parentY: e.evt.y,
+        });
+      } else {
+        setDragEdge({
+          ...dragEdge,
+          childX: e.evt.x,
+          childY: e.evt.y,
+        });
+      }
     }
-  }
+  };
   const handleStageMouseUp = (e) => {
     console.log("App.handleStageMouseUp(", e, ")");
-    if (dragEdge.visible) {
-      setDragEdge({
-        ...dragEdge,
-        visible: false,
-      });
+    if (dragEdge) {
+      setDragEdge(null);
     }
-  }
+  };
 
   return (
     <Stage 
@@ -118,14 +165,15 @@ function App() {
           edges.map((edge,i) => (
             <Edge
               key={"Edge-"+edge.id}
-              id={edge.i}
+              id={edge.id}
+              beingDragged={dragEdge && dragEdge.originalEdgeId===edge.id}
               parentPieces={nodeById(edge.parentNodeId).pieces}
               parentPieceId={edge.parentPieceId}
               childPieces={nodeById(edge.childNodeId).pieces}
-              parentX={nodePositions[edge.parentNodeId].x}
-              parentY={nodePositions[edge.parentNodeId].y}
-              childX={nodePositions[edge.childNodeId].x}
-              childY={nodePositions[edge.childNodeId].y}
+              parentX={nodePositionById(edge.parentNodeId).x}
+              parentY={nodePositionById(edge.parentNodeId).y}
+              childX={nodePositionById(edge.childNodeId).x}
+              childY={nodePositionById(edge.childNodeId).y}
             />
           ))
         }
@@ -134,8 +182,8 @@ function App() {
             <Node
               key={"Node-"+node.id}
               id={node.id}
-              x={nodePositions[node.id].x}
-              y={nodePositions[node.id].y}
+              x={nodePositionById(node.id).x}
+              y={nodePositionById(node.id).y}
               pieces={node.pieces}
               onNodeMove={handleNodeMove}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
@@ -143,13 +191,13 @@ function App() {
             />
           ))
         }
-        { dragEdge.visible &&
+        { dragEdge &&
           <DragEdge
             key="DragEdge"
-            x1={dragEdge.x1}
-            y1={dragEdge.y1}
-            x2={dragEdge.x2}
-            y2={dragEdge.y2}
+            x1={dragEdge.parentX}
+            y1={dragEdge.parentY}
+            x2={dragEdge.childX}
+            y2={dragEdge.childY}
           />
         }
       </Layer>
