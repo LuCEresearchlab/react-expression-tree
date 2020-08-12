@@ -9,26 +9,32 @@ import DragEdge from './DragEdge.js';
 
 function App() {
   const nodes = [
-    [ "19" ],
-    [ "age" ],
-    [ "\"Hello World!\"" ],
-    [ "-", null ],
-    [ null, "<", null ],
-    [ null, "+", null ],
-    [ "(int)", null ],
-    [ null, "?", null, ":", null ],
-    [ null, ".", "length" ],
-    [ null, ".", "length()" ],
-    [ null, ".", "append(", null, ")" ],
+    { id: 0, pieces: [ "19" ] },
+    { id: 1, pieces: [ "age" ] },
+    { id: 2, pieces: [ "\"Hello World!\"" ] },
+    { id: 3, pieces: [ "-", null ] },
+    { id: 4, pieces: [ null, "<", null ] },
+    { id: 5, pieces: [ null, "+", null ] },
+    { id: 6, pieces: [ "(int)", null ] },
+    { id: 7, pieces: [ null, "?", null, ":", null ] },
+    { id: 8, pieces: [ null, ".", "length" ] },
+    { id: 9, pieces: [ null, ".", "length()" ] },
+    { id: 10, pieces: [ null, ".", "append(", null, ")" ] },
   ];
   const edges = [
-    [[3, 1], 0],
-    [[4, 0], 3],
-    [[4, 2], 1],
-    [[7, 0], 4],
-    [[7, 2], 9],
-    [[9, 0], 2]
+    { id: 0, parentNodeId: 3, parentPieceId: 1, childNodeId: 0 },
+    { id: 1, parentNodeId: 4, parentPieceId: 0, childNodeId: 3 },
+    { id: 2, parentNodeId: 4, parentPieceId: 2, childNodeId: 1 },
+    { id: 3, parentNodeId: 7, parentPieceId: 0, childNodeId: 4 },
+    { id: 4, parentNodeId: 7, parentPieceId: 2, childNodeId: 9 },
+    { id: 5, parentNodeId: 9, parentPieceId: 0, childNodeId: 2 },
   ];
+
+  const nodeById = (nodeId) => nodes.find((node)=>node.id===nodeId);
+  const edgeById = (edgeId) => edges.find((edge) => edge.id===edgeId);
+  const edgeByChildNode = (childNodeId) => edges.find((edge)=>edge.childNodeId===childNodeId);
+  const edgeByParentPiece = (parentNodeId, parentPieceId) => edges.find((edge)=>edge.parentNodeId===parentNodeId && edge.parentPieceId===parentPieceId);
+
   const initialNodePositions = nodes.map((n, i) => ({x: 10, y: 10+i*55}));
   const [nodePositions, setNodePositions] = useState(initialNodePositions);
   const handleNodeMove = (id, x, y) => {
@@ -43,24 +49,38 @@ function App() {
   const [dragEdge, setDragEdge] = useState({visible: false, x1: 100, y1: 100, x2: 300, y2: 200});
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
     console.log("App.handleNodeConnectorDragStart(", nodeId, x, y, ")");
+    const edge = edgeByChildNode(nodeId);
+    if (edge) {
+      console.log("edge found:", edge);
+      // TODO
+    }
     setDragEdge({
       ...dragEdge,
       visible: true,
+      x1: x,
+      y1: y,
       x2: x,
       y2: y,
     });
   };
   const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
     console.log("App.handlePieceConnectorDragStart(", nodeId, pieceId, x, y, ")");
+    const edge = edgeByParentPiece(nodeId, pieceId);
+    if (edge) {
+      console.log("edge found:", edge);
+      // TODO
+    }
     setDragEdge({
       ...dragEdge,
       visible: true,
       x1: x,
       y1: y,
+      x2: x,
+      y2: y,
     });
   };
   const handleStageMouseMove = (e) => {
-    console.log("App.handleStageMouseMove(", e, ")");
+    //console.log("App.handleStageMouseMove(", e, ")");
     if (dragEdge.visible) {
       setDragEdge({
         ...dragEdge,
@@ -69,36 +89,46 @@ function App() {
       });
     }
   }
+  const handleStageMouseUp = (e) => {
+    console.log("App.handleStageMouseUp(", e, ")");
+    if (dragEdge.visible) {
+      setDragEdge({
+        ...dragEdge,
+        visible: false,
+      });
+    }
+  }
   return (
     <Stage 
       width={window.innerWidth} 
       height={window.innerHeight}
       onMouseMove={handleStageMouseMove}
+      onMouseUp={handleStageMouseUp}
     >
       <Layer>
         {
           edges.map((edge,i) => (
             <Edge
-              key={"Edge-"+i}
-              id={i}
-              parentPieces={nodes[edge[0][0]]}
-              parentPieceId={edge[0][1]}
-              childPieces={nodes[edge[1]]}
-              parentX={nodePositions[edge[0][0]].x}
-              parentY={nodePositions[edge[0][0]].y}
-              childX={nodePositions[edge[1]].x}
-              childY={nodePositions[edge[1]].y}
+              key={"Edge-"+edge.id}
+              id={edge.i}
+              parentPieces={nodeById(edge.parentNodeId).pieces}
+              parentPieceId={edge.parentPieceId}
+              childPieces={nodeById(edge.childNodeId).pieces}
+              parentX={nodePositions[edge.parentNodeId].x}
+              parentY={nodePositions[edge.parentNodeId].y}
+              childX={nodePositions[edge.childNodeId].x}
+              childY={nodePositions[edge.childNodeId].y}
             />
           ))
         }
         {
           nodes.map((node,i) => (
             <Node
-              key={"Node-"+i}
-              id={i}
-              x={nodePositions[i].x}
-              y={nodePositions[i].y}
-              pieces={node}
+              key={"Node-"+node.id}
+              id={node.id}
+              x={nodePositions[node.id].x}
+              y={nodePositions[node.id].y}
+              pieces={node.pieces}
               onNodeMove={handleNodeMove}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
               onPieceConnectorDragStart={handlePieceConnectorDragStart}

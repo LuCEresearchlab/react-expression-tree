@@ -51,6 +51,7 @@ function Node({id, pieces, x, y, onNodeMove, onNodeConnectorDragStart, onPieceCo
   }
 
   const handleNodeConnectorDragStart = (e) => {
+    e.cancelBubble = true; // prevent onDragStart of Group
     const nodeId = e.target.id();
     const pos = e.target.absolutePosition();
     console.log("Node.handleNodeConnectorDragStart", nodeId, pos.x, pos.y, e);
@@ -61,6 +62,7 @@ function Node({id, pieces, x, y, onNodeMove, onNodeConnectorDragStart, onPieceCo
   }
 
   const handlePieceConnectorDragStart = (e, nodeId) => {
+    e.cancelBubble = true; // prevent onDragStart of Group
     const pieceId = e.target.id();
     const pos = e.target.absolutePosition();
     console.log("Node.handlePieceConnectorDragStart", nodeId, pieceId, pos.x, pos.y, e);
