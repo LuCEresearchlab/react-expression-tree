@@ -10,6 +10,7 @@ import { computeNodeWidth, xPad, yPad, textHeight, computePiecesPositions, holeW
 
 function App() {
   // Initial state
+  
   const initialNodes = [
     { id: 0, pieces: [ "19" ] },
     { id: 1, pieces: [ "age" ] },
@@ -31,6 +32,16 @@ function App() {
     { id: 4, parentNodeId: 7, parentPieceId: 2, childNodeId: 9 },
     { id: 5, parentNodeId: 9, parentPieceId: 0, childNodeId: 2 },
   ];
+  
+  /*
+  const initialNodes = [
+    { id: 2, pieces: [ "m(", null, ",", null, ")" ] },
+    { id: 1, pieces: [ "age" ] },
+    { id: 5, pieces: [ "19" ] },
+  ];
+  const initialEdges = [
+  ];
+  */
   const initialNodePositions = initialNodes.map((node, i) => ({
     id: node.id,
     x: 10, 
@@ -43,12 +54,34 @@ function App() {
   const [nodePositions, setNodePositions] = useState(initialNodePositions);
   const [dragEdge, setDragEdge] = useState(null);
 
+  //console.log("State:", nodes, edges, nodePositions, dragEdge);
+
   // Lookup functions
-  const nodeById = (nodeId) => nodes.find((node)=>node.id===nodeId);
+  const nodeById = (nodeId) => {
+    if (nodeId===undefined || nodeId===null) {
+      console.error("nodeById(): Illegal nodeId", nodeId);
+    }
+    const node = nodes.find((node)=>node.id===nodeId);
+    if (!node) {
+      console.error("nodeById(): Unknown nodeId", nodeId);
+    }
+    return node;
+  };
   const edgeById = (edgeId) => edges.find((edge) => edge.id===edgeId);
   const edgeByChildNode = (childNodeId) => edges.find((edge)=>edge.childNodeId===childNodeId);
   const edgeByParentPiece = (parentNodeId, parentPieceId) => edges.find((edge)=>edge.parentNodeId===parentNodeId && edge.parentPieceId===parentPieceId);
   const nodePositionById = (nodeId) => nodePositions.find((nodePosition)=>nodePosition.id===nodeId);
+
+  // Update functions
+  const removeEdge = (edges, edgeId) => {
+    console.log("removeEdge(", edges, edgeId, ")");
+    return edges.filter(edge => edge.id!==edgeId);
+  }
+  const addEdge = (edges, edge) => {
+    console.log("addEdge(", edges, edge, ")");
+    const maxId = edges.map(e=>e.id).reduce((id1, id2) => Math.max(id1, id2), 0);
+    return [...edges, {...edge, id: maxId + 1}];
+  }
 
   // Layout functions
   const computeEdgeChildPos = (childNodeId) => {
@@ -64,6 +97,44 @@ function App() {
       x: nodePos.x + xPad + computePiecesPositions(nodeById(parentNodeId).pieces)[parentPieceId] + holeWidth/2, 
       y: nodePos.y + yPad + textHeight
     };
+  };
+  const targetRange = textHeight;
+  const distance = (x1, y1, x2, y2) => {
+    return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+  }
+  const closestChildId = (x, y) => {
+    let closestNodeId = undefined;
+    let closestDist = undefined;
+    nodes.forEach(node => {
+      const pos = computeEdgeChildPos(node.id);
+      const dist = distance(pos.x, pos.y, x, y);
+      if (dist < targetRange && (!closestDist || dist<closestDist)) {
+        closestDist = dist;
+        closestNodeId = node.id;
+      }
+    });
+    return closestNodeId;
+  };
+  const closestParentPiece = (x, y) => {
+    let closestPiece = undefined;
+    let closestDist = undefined;
+    nodes.forEach(node => {
+      nodeById(node.id).pieces.forEach((piece, i) => {
+        if (piece===null) {
+          // only look for holes (represented by null)
+          const pos = computeEdgeParentPos(node.id, i);
+          const dist = distance(pos.x, pos.y, x, y);
+          if (dist < targetRange && (!closestDist || dist<closestDist)) {
+            closestDist = dist;
+            closestPiece = {
+              parentNodeId: node.id,
+              parentPieceId: i
+            };
+          }
+        }
+      });
+    });
+    return closestPiece;
   };
 
   // Event handlers
@@ -84,6 +155,8 @@ function App() {
       setDragEdge({
         originalEdgeId: edge.id,
         updateParent: false,
+        parentNodeId: edge.parentNodeId,
+        parentPieceId: edge.parentPieceId,
         parentX: parentPos.x,
         parentY: parentPos.y,
         childX: x,
@@ -94,10 +167,11 @@ function App() {
       setDragEdge({
         originalEdgeId: undefined,
         updateParent: true,
-        parentX: x,
-        parentY: y,
+        childNodeId: nodeId,
         childX: x,
         childY: y,
+        parentX: x,
+        parentY: y,
       });
     }
   };
@@ -110,16 +184,19 @@ function App() {
       setDragEdge({
         originalEdgeId: edge.id,
         updateParent: true,
-        parentX: x,
-        parentY: y,
+        childNodeId: edge.childNodeId,
         childX: childPos.x,
         childY: childPos.y,
+        parentX: x,
+        parentY: y,
       });
     } else {
       console.log("no edge found");
       setDragEdge({
         originalEdgeId: undefined,
         updateParent: false,
+        parentNodeId: nodeId,
+        parentPieceId: pieceId,
         parentX: x,
         parentY: y,
         childX: x,
@@ -148,10 +225,70 @@ function App() {
   const handleStageMouseUp = (e) => {
     console.log("App.handleStageMouseUp(", e, ")");
     if (dragEdge) {
+      console.log("  dragEdge: ", dragEdge);
       if (dragEdge.updateParent) {
-        //TODO
+        console.log("  updateParent");
+        const parentPiece = closestParentPiece(e.evt.x, e.evt.y);
+        console.log("    parentPiece: ", parentPiece);
+        if (dragEdge.originalEdgeId!==undefined) {
+          const originalEdge = edgeById(dragEdge.originalEdgeId);
+          console.log("    originalEdge: ", originalEdge);
+          if (parentPiece) {
+            const edge = {
+              childNodeId: originalEdge.childNodeId,
+              parentNodeId: parentPiece.parentNodeId, 
+              parentPieceId: parentPiece.parentPieceId,
+            };
+            setEdges(addEdge(removeEdge(edges, dragEdge.originalEdgeId), edge));
+          } else {
+            setEdges(removeEdge(edges, dragEdge.originalEdgeId));
+          }
+        } else {
+          console.log("    no original edge");
+          if (parentPiece) {
+            // Note: if we do this we somehow get the wrong childNodeId
+            // (Is the dragEdge.childY set wrong? Why?)
+            //const childNodeId = closestChildId(dragEdge.childX, dragEdge.childY);
+            //console.log("    childNodeId: ", childNodeId);
+            const edge = {
+              childNodeId: dragEdge.childNodeId,
+              parentNodeId: parentPiece.parentNodeId, 
+              parentPieceId: parentPiece.parentPieceId,
+            };
+            setEdges(addEdge(edges, edge));
+          }
+        }
       } else {
-        //TODO
+        console.log("  updateChild");
+        const childNodeId = closestChildId(e.evt.x, e.evt.y);
+        console.log("    childNodeId: ", childNodeId);
+        if (dragEdge.originalEdgeId!==undefined) {
+          const originalEdge = edgeById(dragEdge.originalEdgeId);
+          console.log("    originalEdge: ", originalEdge);
+          if (childNodeId) {
+            const edge = {
+              parentNodeId: originalEdge.parentNodeId,
+              parentPieceId: originalEdge.parentPieceId,
+              childNodeId: childNodeId,
+            };
+            setEdges(addEdge(removeEdge(edges, dragEdge.originalEdgeId), edge));
+          } else {
+            setEdges(removeEdge(edges, dragEdge.originalEdgeId));
+          }
+        } else {
+          console.log("    no original edge");
+          if (childNodeId) {
+            // Note: if we do this we somehow get the wrong parentPieceId
+            // (Is the dragEdge.parentX set wrong? Why?)
+            //const parentPiece = closestParentPiece(dragEdge.parentX, dragEdge.parentY);
+            const edge = {
+              parentNodeId: dragEdge.parentNodeId, 
+              parentPieceId: dragEdge.parentPieceId,
+              childNodeId: childNodeId,          
+            };
+            setEdges(addEdge(edges, edge));
+          }
+        }
       }
       setDragEdge(null);
     }

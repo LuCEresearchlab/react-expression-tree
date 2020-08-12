@@ -95,6 +95,14 @@ function Node({id, pieces, x, y, onNodeMove, onNodeConnectorDragStart, onPieceCo
         cornerRadius={5}
         shadowBlur={0}
       />
+      <Text
+        x={0}
+        y={0}
+        fill="white"
+        fontFamily={'Arial'}
+        fontSize={20}
+        text={""+id}
+      />
       <Circle
         kind="NodeConnector"
         key={"NodeConnector-"+id}
