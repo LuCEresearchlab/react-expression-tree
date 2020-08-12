@@ -5,6 +5,7 @@ import {
   Stage, 
   Layer, 
 } from "react-konva";
+import DragEdge from './DragEdge.js';
 
 function App() {
   const nodes = [
@@ -28,23 +29,42 @@ function App() {
     [[7, 2], 9],
     [[9, 0], 2]
   ];
-  const initialNodePositions = nodes.map((n, i) => ({x: 10, y: 10+i*50}));
+  const initialNodePositions = nodes.map((n, i) => ({x: 10, y: 10+i*55}));
   const [nodePositions, setNodePositions] = useState(initialNodePositions);
   const handleNodeMove = (id, x, y) => {
+    console.log("App.handleNodeMove(", id, x, y, ")");
     setNodePositions(
       nodePositions.map((nodePosition, i) => 
         i===id ? {x: x, y: y} : nodePosition
       )
     )
     nodePositions[id] = {x: x, y: y};
-  }
+  };
+  const [dragEdge, setDragEdge] = useState({x1: 100, y1: 100, x2: 300, y2: 200});
+  const handleNodeConnectorDragStart = (id, x, y) => {
+    console.log("App.handleNodeConnectorDragStart(", id, x, y, ")");
+    setDragEdge({
+      ...dragEdge,
+      x2: x,
+      y2: y,
+    });
+  };
+  const handlePieceConnectorDragStart = (id, x, y) => {
+    console.log("App.handlePieceConnectorDragStart(", id, x, y, ")");
+    setDragEdge({
+      ...dragEdge,
+      x1: x,
+      y1: y,
+    });
+  };
   return (
     <Stage width={window.innerWidth} height={window.innerHeight}>
       <Layer>
         {
           edges.map((edge,i) => (
             <Edge
-              key={i}
+              key={"Edge-"+i}
+              id={i}
               parentPieces={nodes[edge[0][0]]}
               parentPieceId={edge[0][1]}
               childPieces={nodes[edge[1]]}
@@ -58,15 +78,24 @@ function App() {
         {
           nodes.map((node,i) => (
             <Node
-              key={i}
+              key={"Node-"+i}
               id={i}
               x={nodePositions[i].x}
               y={nodePositions[i].y}
               pieces={node}
-              onMove={handleNodeMove}
+              onNodeMove={handleNodeMove}
+              onNodeConnectorDragStart={handleNodeConnectorDragStart}
+              onPieceConnectorDragStart={handlePieceConnectorDragStart}
             />
           ))
         }
+        <DragEdge
+          key="DragEdge"
+          x1={dragEdge.x1}
+          y1={dragEdge.y1}
+          x2={dragEdge.x2}
+          y2={dragEdge.y2}
+        />
       </Layer>
     </Stage>
   );

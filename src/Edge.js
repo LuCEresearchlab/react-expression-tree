@@ -21,7 +21,7 @@ function Edge({parentPieces, parentPieceId, childPieces, parentX, parentY, child
         parentX + xPad + xes[parentPieceId] + holeWidth/2, 
         parentY + yPad + textHeight,
         childX + xPad + childWidth/2, 
-        childY + yPad
+        childY
       ]}
       stroke='black'
       strokeWidth={3}
