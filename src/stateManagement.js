@@ -110,11 +110,11 @@ export default function reducer(state, action) {
       };
 
     case 'removeNode':
-      // TODO: Also remove connected edges!
       return {
         ...state,
         nodes: state.nodes.filter(node => node.id!==action.payload.nodeId),
         nodePositions: state.nodePositions.filter(p => p.id!==action.payload.nodeId),
+        edges: state.edges.filter(edge => edge.parentNodeId!==action.payload.nodeId && edge.childNodeId!==action.payload.nodeId),
         selectedNodeId: null,
       };
 
