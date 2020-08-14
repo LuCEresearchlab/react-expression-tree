@@ -49,20 +49,41 @@ export function getInitialDemoState() {
 
 
 // Lookup functions
-export const nodeById = (state, nodeId) => {
+export function nodeById(state, nodeId) {
   if (nodeId===undefined || nodeId===null) {
-    console.error("nodeById(): Illegal nodeId", nodeId);
+    throw new Error("Illegal nodeId", nodeId);
   }
   const node = state.nodes.find((node)=>node.id===nodeId);
   if (!node) {
-    console.error("nodeById(): Unknown nodeId", nodeId);
+    throw new Error("Unknown nodeId", nodeId);
   }
   return node;
-};
-export const edgeById = (state, edgeId) => state.edges.find((edge) => edge.id===edgeId);
-export const edgeByChildNode = (state, childNodeId) => state.edges.find((edge)=>edge.childNodeId===childNodeId);
-export const edgeByParentPiece = (state, parentNodeId, parentPieceId) => state.edges.find((edge)=>edge.parentNodeId===parentNodeId && edge.parentPieceId===parentPieceId);
-export const nodePositionById = (state, nodeId) => state.nodePositions.find((nodePosition)=>nodePosition.id===nodeId);
+}
+
+export function edgeById(state, edgeId) {
+  if (edgeId===undefined || edgeId===null) {
+    throw new Error("Illegal edgeId", edgeId);
+  }
+  const edge = state.edges.find((edge) => edge.id===edgeId);
+  if (!edge) {
+    throw new Error("Unknown edgeId", edgeId);
+  }
+  return edge;
+}
+
+//TODO: what if we have multiple edges to a child node?
+export function edgeByChildNode(state, childNodeId) {
+  return state.edges.find((edge)=>edge.childNodeId===childNodeId);
+}
+
+//TODO: what if we have multiple edges from a parent piece?
+export function edgeByParentPiece(state, parentNodeId, parentPieceId) {
+  return state.edges.find((edge)=>edge.parentNodeId===parentNodeId && edge.parentPieceId===parentPieceId);
+}
+
+export function nodePositionById(state, nodeId) {
+  return state.nodePositions.find((nodePosition)=>nodePosition.id===nodeId);
+}
 
 
 export function loggingReducer(state, action) {
@@ -115,7 +136,7 @@ export default function reducer(state, action) {
         nodes: state.nodes.filter(node => node.id!==action.payload.nodeId),
         nodePositions: state.nodePositions.filter(p => p.id!==action.payload.nodeId),
         edges: state.edges.filter(edge => edge.parentNodeId!==action.payload.nodeId && edge.childNodeId!==action.payload.nodeId),
-        selectedNodeId: null,
+        selectedNodeId: state.selectedNodeId===action.payload.nodeId?null:state.selectedNodeId,
       };
 
     case 'selectNode':
