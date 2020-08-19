@@ -15,6 +15,9 @@ import {
   computePiecesPositions,
   computeNodeWidth,
 } from './layout.js';
+import {
+  log
+} from './debug.js';
 
 function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart, onPieceConnectorDragStart, onNodeClick}) {
   const xes = computePiecesPositions(pieces);
@@ -28,12 +31,12 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
   const handleDragStart = (e) => {
     const id = e.target.id();
     setDraggingNode(true);
-    console.log("Node.handleDragStart", id, e);
+    log("Node.handleDragStart", id, e);
   }
   const handleDragMove = (e) => {
     if (draggingNode) {
       const id = e.target.id();
-      console.log("Node.handleDragMove", id, e);
+      log("Node.handleDragMove", id, e);
       const x = e.target.x();
       const y = e.target.y();
       onNodeMove(id, x, y);
@@ -43,7 +46,7 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
   const handleDragEnd = (e) => {
     if (draggingNode) {
       const id = e.target.id();
-      console.log("Node.handleDragEnd", id, e);
+      log("Node.handleDragEnd", id, e);
       const x = e.target.x();
       const y = e.target.y();
       onNodeMove(id, x, y);
@@ -56,7 +59,7 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
     e.cancelBubble = true; // prevent onDragStart of Group
     const nodeId = e.target.id();
     const pos = e.target.absolutePosition();
-    console.log("Node.handleNodeConnectorDragStart", nodeId, pos.x, pos.y, e);
+    log("Node.handleNodeConnectorDragStart", nodeId, pos.x, pos.y, e);
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
@@ -67,7 +70,7 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
     e.cancelBubble = true; // prevent onDragStart of Group
     const pieceId = e.target.id();
     const pos = e.target.absolutePosition();
-    console.log("Node.handlePieceConnectorDragStart", nodeId, pieceId, pos.x, pos.y, e);
+    log("Node.handlePieceConnectorDragStart", nodeId, pieceId, pos.x, pos.y, e);
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection

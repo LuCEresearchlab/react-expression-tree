@@ -18,6 +18,7 @@ import {
   holeWidth,
 } from './layout.js';
 import reducer, { 
+  loggingReducer,
   getInitialDemoState,
   nodeById,
   edgeById,
@@ -25,10 +26,13 @@ import reducer, {
   edgeByParentPiece,
   nodePositionById,
 } from './stateManagement.js';
-
+import {
+  logging,
+  log
+} from './debug.js';
 
 function ExpressionTreeEditor({width, height}) {
-  const [state, dispatch] = useReducer(reducer, getInitialDemoState());
+  const [state, dispatch] = useReducer(logging ? loggingReducer : reducer, getInitialDemoState());
 
   // Layout functions
   const computeEdgeChildPos = (childNodeId) => {
@@ -92,13 +96,13 @@ function ExpressionTreeEditor({width, height}) {
   useEffect(()=>{
     // Request focus, so we can respond to key events
     const stage = stageRef.current;
-    console.log("stage:", stage);
-    console.log("stage.container():", stage.container());
+    log("stage:", stage);
+    log("stage.container():", stage.container());
     stage.container().tabIndex = 1;
     stage.container().focus();
     // Register (and later unregister) keydown listener
     const delListener = function (e) {
-      console.log("STAGE keydown event: ", e);
+      log("STAGE keydown event: ", e);
       if (e.key === "Backspace" || e.key === "Delete") {
         if (state.selectedNodeId!==null) {
           dispatch({type: 'removeNode', payload: {nodeId: state.selectedNodeId}});
@@ -106,10 +110,10 @@ function ExpressionTreeEditor({width, height}) {
       }
     };
     stage.container().addEventListener('keydown', delListener);
-    console.log("STAGE keydown registered");
+    log("STAGE keydown registered");
     return () => {
       stage.container().removeEventListener('keydown', delListener);
-      console.log("STAGE keydown unregistered");
+      log("STAGE keydown unregistered");
     }
   }, [state.nodes, state.selectedNodeId]);
 
@@ -126,14 +130,14 @@ function ExpressionTreeEditor({width, height}) {
   };
   */
   const handleNodeMove = (id, x, y) => {
-    console.log("ExpressionTreeEditor.handleNodeMove(", id, x, y, ")");
+    log("ExpressionTreeEditor.handleNodeMove(", id, x, y, ")");
     dispatch({type: 'moveNodeTo', payload: {nodeId: id, x: x, y: y}});
   };
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
-    console.log("ExpressionTreeEditor.handleNodeConnectorDragStart(", nodeId, x, y, ")");
+    log("ExpressionTreeEditor.handleNodeConnectorDragStart(", nodeId, x, y, ")");
     const edge = edgeByChildNode(state, nodeId);
     if (edge) {
-      console.log("edge found:", edge);
+      log("edge found:", edge);
       const parentPos = computeEdgeParentPos(edge.parentNodeId, edge.parentPieceId);
       const dragEdge = {
         originalEdgeId: edge.id,
@@ -147,7 +151,7 @@ function ExpressionTreeEditor({width, height}) {
       };
       dispatch({type: 'setDragEdge', payload: {dragEdge}});
     } else {
-      console.log("no edge found");
+      log("no edge found");
       const dragEdge = {
         originalEdgeId: null,
         updateParent: true,
@@ -161,10 +165,10 @@ function ExpressionTreeEditor({width, height}) {
     }
   };
   const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
-    console.log("ExpressionTreeEditor.handlePieceConnectorDragStart(", nodeId, pieceId, x, y, ")");
+    log("ExpressionTreeEditor.handlePieceConnectorDragStart(", nodeId, pieceId, x, y, ")");
     const edge = edgeByParentPiece(state, nodeId, pieceId);
     if (edge) {
-      console.log("edge found:", edge);
+      log("edge found:", edge);
       const childPos = computeEdgeChildPos(edge.childNodeId);
       const dragEdge = {
         originalEdgeId: edge.id,
@@ -177,7 +181,7 @@ function ExpressionTreeEditor({width, height}) {
       };
       dispatch({type: 'setDragEdge', payload: {dragEdge}});
     } else {
-      console.log("no edge found");
+      log("no edge found");
       const dragEdge = {
         originalEdgeId: null,
         updateParent: false,
@@ -204,16 +208,16 @@ function ExpressionTreeEditor({width, height}) {
     }
   };
   const handleStageMouseUp = (e) => {
-    console.log("ExpressionTreeEditor.handleStageMouseUp(", e, ")");
+    log("ExpressionTreeEditor.handleStageMouseUp(", e, ")");
     if (state.dragEdge) {
-      console.log("  dragEdge: ", state.dragEdge);
+      log("  dragEdge: ", state.dragEdge);
       if (state.dragEdge.updateParent) {
-        console.log("  updateParent");
+        log("  updateParent");
         const parentPiece = closestParentPiece(e.evt.x, e.evt.y);
-        console.log("    parentPiece: ", parentPiece);
+        log("    parentPiece: ", parentPiece);
         if (state.dragEdge.originalEdgeId!==null) {
           const originalEdge = edgeById(state.dragEdge.originalEdgeId);
-          console.log("    originalEdge: ", originalEdge);
+          log("    originalEdge: ", originalEdge);
           dispatch({type: 'removeEdge', payload: {edgeId: state.dragEdge.originalEdgeId}});
           if (parentPiece) {
             const edge = {
@@ -224,7 +228,7 @@ function ExpressionTreeEditor({width, height}) {
             dispatch({type: 'addEdge', payload: {edge}});
           }
         } else {
-          console.log("    no original edge");
+          log("    no original edge");
           if (parentPiece) {
             // Note: if we do this we somehow get the wrong childNodeId
             // (Is the dragEdge.childY set wrong? Why?)
@@ -239,12 +243,12 @@ function ExpressionTreeEditor({width, height}) {
           }
         }
       } else {
-        console.log("  updateChild");
+        log("  updateChild");
         const childNodeId = closestChildId(e.evt.x, e.evt.y);
-        console.log("    childNodeId: ", childNodeId);
+        log("    childNodeId: ", childNodeId);
         if (state.dragEdge.originalEdgeId!==null) {
           const originalEdge = edgeById(state, state.dragEdge.originalEdgeId);
-          console.log("    originalEdge: ", originalEdge);
+          log("    originalEdge: ", originalEdge);
           dispatch({type: 'removeEdge', payload: {edgeId: state.dragEdge.originalEdgeId}});
           if (childNodeId) {
             const edge = {
@@ -255,7 +259,7 @@ function ExpressionTreeEditor({width, height}) {
             dispatch({type: 'addEdge', payload: {edge}});
           }
         } else {
-          console.log("    no original edge");
+          log("    no original edge");
           if (childNodeId) {
             // Note: if we do this we somehow get the wrong parentPieceId
             // (Is the dragEdge.parentX set wrong? Why?)
@@ -273,15 +277,15 @@ function ExpressionTreeEditor({width, height}) {
     }
   };
   const handleStageClick = (e) => {
-    console.log("ExpressionTreeEditor.handleStageClick(", e, ")");
+    log("ExpressionTreeEditor.handleStageClick(", e, ")");
     dispatch({type: 'clearNodeSelection', debug: {e}});
   }
   const handleStageDblClick = (e) => {
-    console.log("ExpressionTreeEditor.handleStageDblClick(", e, ")");
+    log("ExpressionTreeEditor.handleStageDblClick(", e, ")");
     const piecesString = prompt(
       "CREATE NEW AST NODE. Describe the node's pieces as a JSON array. Holes are null, other pieces are strings.", 
       "[\"Math.max(\", null, \",\", null, \")\"]");
-    console.log("piecesString:", piecesString);
+    log("piecesString:", piecesString);
     const pieces = JSON.parse(piecesString);
     dispatch({type: 'addNode', payload: {
       pieces,
