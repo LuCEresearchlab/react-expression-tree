@@ -1,10 +1,5 @@
-import React, {useState} from 'react';
-import { 
-  Rect,
-  Text,
-  Group,
-  Circle,
-} from "react-konva";
+import React, { useState } from "react";
+import { Rect, Text, Group, Circle } from "react-konva";
 import {
   xPad,
   yPad,
@@ -14,26 +9,34 @@ import {
   holeWidth,
   computePiecesPositions,
   computeNodeWidth,
-} from './layout.js';
-import {
-  log
-} from './debug.js';
+} from "./layout.js";
+import { log } from "./debug.js";
 
-function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart, onPieceConnectorDragStart, onNodeClick}) {
+function Node({
+  id,
+  pieces,
+  x,
+  y,
+  selected,
+  onNodeMove,
+  onNodeConnectorDragStart,
+  onPieceConnectorDragStart,
+  onNodeClick,
+}) {
   const xes = computePiecesPositions(pieces);
   const nodeWidth = computeNodeWidth(pieces);
 
   // keep track
   // to prevent onMoveNode() notifications
   // when we don't drag the node itself but drag from a connector
-  const [draggingNode,setDraggingNode] = useState(false);
+  const [draggingNode, setDraggingNode] = useState(false);
 
-  const handleDragStart = (e) => {
+  const handleDragStart = e => {
     const id = e.target.id();
     setDraggingNode(true);
     log("Node.handleDragStart", id, e);
-  }
-  const handleDragMove = (e) => {
+  };
+  const handleDragMove = e => {
     if (draggingNode) {
       const id = e.target.id();
       log("Node.handleDragMove", id, e);
@@ -42,8 +45,8 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
       onNodeMove(id, x, y);
       //onNodeMove(id, x, y, e); // hack to allow use in Toolbar
     }
-  }
-  const handleDragEnd = (e) => {
+  };
+  const handleDragEnd = e => {
     if (draggingNode) {
       const id = e.target.id();
       log("Node.handleDragEnd", id, e);
@@ -53,9 +56,9 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
       //onNodeMove(id, x, y, e); // hack to allow use in Toolbar
     }
     setDraggingNode(false);
-  }
+  };
 
-  const handleNodeConnectorDragStart = (e) => {
+  const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
     const nodeId = e.target.id();
     const pos = e.target.absolutePosition();
@@ -64,7 +67,7 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
     onNodeConnectorDragStart(nodeId, pos.x, pos.y);
-  }
+  };
 
   const handlePieceConnectorDragStart = (e, nodeId) => {
     e.cancelBubble = true; // prevent onDragStart of Group
@@ -74,18 +77,23 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
-    onPieceConnectorDragStart(nodeId, pieceId, pos.x + holeWidth/2, pos.y + textHeight);
-  }
+    onPieceConnectorDragStart(
+      nodeId,
+      pieceId,
+      pos.x + holeWidth / 2,
+      pos.y + textHeight
+    );
+  };
 
-  const handleNodeClick = (e) => {
-    e.cancelBubble=true; 
+  const handleNodeClick = e => {
+    e.cancelBubble = true;
     onNodeClick(e);
-  }
+  };
 
   return (
     <Group
       kind="Node"
-      key={"Node-"+id}
+      key={"Node-" + id}
       id={id}
       x={x}
       y={y}
@@ -97,11 +105,11 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
     >
       <Rect
         kind="NodeRect"
-        key={"NodeRect-"+id}
+        key={"NodeRect-" + id}
         x={0}
         y={0}
-        width={2*xPad + nodeWidth}
-        height={2*yPad + textHeight}
+        width={2 * xPad + nodeWidth}
+        height={2 * yPad + textHeight}
         fill="#208020"
         cornerRadius={5}
         shadowBlur={selected ? 4 : 0}
@@ -110,55 +118,61 @@ function Node({id, pieces, x, y, selected, onNodeMove, onNodeConnectorDragStart,
         x={0}
         y={0}
         fill="white"
-        fontFamily={'Arial'}
+        fontFamily={"Arial"}
         fontSize={20}
-        text={""+id}
+        text={"" + id}
       />
       <Circle
         kind="NodeConnector"
-        key={"NodeConnector-"+id}
+        key={"NodeConnector-" + id}
         id={id}
-        x={xPad + nodeWidth/2}
+        x={xPad + nodeWidth / 2}
         y={0}
         radius={6}
         fill="black"
         draggable
         onDragStart={handleNodeConnectorDragStart}
-        onDragMove={e=>{}}
-        onDragEnd={e=>{}}
+        onDragMove={e => {}}
+        onDragEnd={e => {}}
       />
-      {
-        pieces.map((p,i) => (
-          p==null
-          ?
-            <Rect
-              kind="HolePiece"
-              key={"HolePiece-"+i}
-              id={i}
-              x={xPad + xes[i]}
-              y={yPad}
-              width={holeWidth}
-              height={textHeight}
-              fill="#104010"
-              cornerRadius={4}
-              draggable
-              onDragStart={e=>handlePieceConnectorDragStart(e, id)}
-              onDragMove={e=>{}}
-              onDragEnd={e=>{}}
-            />
-          :
-            <Text
-              kind="TextPiece"
-              key={"TextPiece-"+i}
-              x={xPad + xes[i]}
-              y={yPad}
-              fill="white"
-              fontFamily={fontFamily}
-              fontSize={fontSize}
-              text={p}
-            />
-        ))
-      }
+      {pieces.map((p, i) =>
+        p == null ? (
+          <Rect
+            kind="HolePiece"
+            key={"HolePiece-" + i}
+            id={i}
+            x={xPad + xes[i]}
+            y={yPad}
+            width={holeWidth}
+            height={textHeight}
+            fill="#104010"
+            cornerRadius={4}
+            draggable
+            onDragStart={e => handlePieceConnectorDragStart(e, id)}
+            onDragMove={e => {}}
+            onDragEnd={e => {}}
+          />
+        ) : (
+          <Text
+            kind="TextPiece"
+            key={"TextPiece-" + i}
+            x={xPad + xes[i]}
+            y={yPad}
+            fill="white"
+            fontFamily={fontFamily}
+            fontSize={fontSize}
+            text={p}
+          />
+        )
+      )}
+      {/* <Text
+        x={xPad}
+        y={2 * yPad}
+        fill="black"
+        fontFamily={fontFamily}
+        fontSize={fontSize * 0.7}
+        text={"int"}
+      /> */}
     </Group>
   );
 }
