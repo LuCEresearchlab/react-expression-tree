@@ -1,4 +1,4 @@
-import Konva from 'konva';
+import Konva from "konva";
 
 export const xPad = 10;
 export const yPad = 10;
@@ -8,7 +8,7 @@ export const fontSize = 24;
 const oText = new Konva.Text({
   text: "o",
   fontFamily: fontFamily,
-  fontSize: fontSize
+  fontSize: fontSize,
 });
 export const textHeight = oText.fontSize();
 export const holeWidth = oText.getTextWidth();
@@ -16,7 +16,7 @@ export const targetRange = textHeight;
 
 function computePiecesWidths(pieces) {
   return pieces.map(p => {
-    if (p==null) {
+    if (p == null) {
       return holeWidth;
     } else {
       const text = new Konva.Text({

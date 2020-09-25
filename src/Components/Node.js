@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Rect, Text, Group, Circle } from "react-konva";
+import React, { useState, useEffect, useRef } from "react";
+import { Rect, Text, Group, Circle, Transformer } from "react-konva";
 import {
   xPad,
   yPad,
@@ -9,8 +9,8 @@ import {
   holeWidth,
   computePiecesPositions,
   computeNodeWidth,
-} from "./layout.js";
-import { log } from "./debug.js";
+} from "../layout.js";
+import { log } from "../debug.js";
 
 function Node({
   id,
@@ -25,6 +25,19 @@ function Node({
 }) {
   const xes = computePiecesPositions(pieces);
   const nodeWidth = computeNodeWidth(pieces);
+
+  const nodeRef = useRef();
+  const transformerRef = useRef();
+
+  useEffect(() => {
+    if (selected) {
+      transformerRef.current.nodes([nodeRef.current]);
+      transformerRef.current.getLayer().batchDraw();
+    }
+  }, [selected]);
+
+  const [scaleX, setScaleX] = useState(1);
+  const [scaleY, setScaleY] = useState(1);
 
   // keep track
   // to prevent onMoveNode() notifications
@@ -113,6 +126,12 @@ function Node({
         fill="#208020"
         cornerRadius={5}
         shadowBlur={selected ? 4 : 0}
+        ref={nodeRef}
+        onTransformEnd={() => {
+          const node = nodeRef.current;
+          setScaleX(node.scaleX());
+          setScaleY(node.scaleY());
+        }}
       />
       <Text
         x={0}
@@ -165,14 +184,25 @@ function Node({
           />
         )
       )}
-      {/* <Text
-        x={xPad}
-        y={2 * yPad}
-        fill="black"
-        fontFamily={fontFamily}
-        fontSize={fontSize * 0.7}
-        text={"int"}
-      /> */}
+      {selected && (
+        <Transformer
+          ref={transformerRef}
+          rotateEnabled={false}
+          centeredScaling={true}
+          anchorSize={7}
+          borderEnabled={false}
+          anchorCornerRadius={3}
+          boundBoxFunc={(oldBox, newBox) => {
+            if (
+              newBox.width < 2 * xPad + nodeWidth ||
+              newBox.height < 2 * yPad + textHeight
+            ) {
+              return oldBox;
+            }
+            return newBox;
+          }}
+        />
+      )}
     </Group>
   );
 }
