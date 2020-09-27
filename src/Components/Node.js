@@ -4,7 +4,7 @@ import {
   xPad,
   yPad,
   fontFamily,
-  fontSize,
+  defaultFontSize,
   textHeight,
   holeWidth,
   computePiecesPositions,
@@ -23,11 +23,18 @@ function Node({
   onPieceConnectorDragStart,
   onNodeClick,
 }) {
+  const nodeMinWidth = computeNodeWidth(pieces, defaultFontSize);
   const xes = computePiecesPositions(pieces);
-  const nodeWidth = computeNodeWidth(pieces);
 
   const nodeRef = useRef();
   const transformerRef = useRef();
+
+  // keep track
+  // to prevent onMoveNode() notifications
+  // when we don't drag the node itself but drag from a connector
+  const [draggingNode, setDraggingNode] = useState(false);
+
+  const [fontSize, setFontSize] = useState(defaultFontSize);
 
   useEffect(() => {
     if (selected) {
@@ -35,14 +42,6 @@ function Node({
       transformerRef.current.getLayer().batchDraw();
     }
   }, [selected]);
-
-  const [scaleX, setScaleX] = useState(1);
-  const [scaleY, setScaleY] = useState(1);
-
-  // keep track
-  // to prevent onMoveNode() notifications
-  // when we don't drag the node itself but drag from a connector
-  const [draggingNode, setDraggingNode] = useState(false);
 
   const handleDragStart = e => {
     const id = e.target.id();
@@ -103,6 +102,35 @@ function Node({
     onNodeClick(e);
   };
 
+  const checkBoxBound = (oldBox, newBox) => {
+    if (
+      newBox.width < 2 * xPad + nodeMinWidth ||
+      newBox.height < 2 * yPad + textHeight
+    ) {
+      return oldBox;
+    }
+    return newBox;
+  };
+
+  const checkDragBound = pos => {
+    var newX = pos.x;
+    var newY = pos.y;
+    if (pos.x < 0) {
+      newX = 0;
+    } else if (pos.x > window.innerWidth) {
+      newX = window.innerWidth;
+    }
+    if (pos.y < 0) {
+      newY = 0;
+    } else if (pos.y > window.innerHeight) {
+      newY = window.innerHeight;
+    }
+    return {
+      x: newX,
+      y: newY,
+    };
+  };
+
   return (
     <Group
       kind="Node"
@@ -115,22 +143,22 @@ function Node({
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onClick={handleNodeClick}
+      dragBoundFunc={pos => checkDragBound(pos)}
     >
       <Rect
         kind="NodeRect"
         key={"NodeRect-" + id}
         x={0}
         y={0}
-        width={2 * xPad + nodeWidth}
+        width={2 * xPad + nodeMinWidth}
         height={2 * yPad + textHeight}
         fill="#208020"
         cornerRadius={5}
         shadowBlur={selected ? 4 : 0}
         ref={nodeRef}
-        onTransformEnd={() => {
+        onTransform={() => {
           const node = nodeRef.current;
-          setScaleX(node.scaleX());
-          setScaleY(node.scaleY());
+          setFontSize((node.scaleX() + node.scaleY() / 2) * defaultFontSize);
         }}
       />
       <Text
@@ -138,14 +166,14 @@ function Node({
         y={0}
         fill="white"
         fontFamily={"Arial"}
-        fontSize={20}
+        fontSize={fontSize * 0.75}
         text={"" + id}
       />
       <Circle
         kind="NodeConnector"
         key={"NodeConnector-" + id}
         id={id}
-        x={xPad + nodeWidth / 2}
+        x={xPad + nodeMinWidth / 2}
         y={0}
         radius={6}
         fill="black"
@@ -192,15 +220,13 @@ function Node({
           anchorSize={7}
           borderEnabled={false}
           anchorCornerRadius={3}
-          boundBoxFunc={(oldBox, newBox) => {
-            if (
-              newBox.width < 2 * xPad + nodeWidth ||
-              newBox.height < 2 * yPad + textHeight
-            ) {
-              return oldBox;
-            }
-            return newBox;
-          }}
+          enabledAnchors={[
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+          ]}
+          boundBoxFunc={(oldBox, newBox) => checkBoxBound(oldBox, newBox)}
         />
       )}
     </Group>

@@ -4,17 +4,17 @@ export const xPad = 10;
 export const yPad = 10;
 export const gapWidth = 5;
 export const fontFamily = "Ubuntu Mono, Courier";
-export const fontSize = 24;
+export const defaultFontSize = 24;
 const oText = new Konva.Text({
   text: "o",
   fontFamily: fontFamily,
-  fontSize: fontSize,
+  fontSize: defaultFontSize,
 });
 export const textHeight = oText.fontSize();
 export const holeWidth = oText.getTextWidth();
 export const targetRange = textHeight;
 
-function computePiecesWidths(pieces) {
+function computePiecesWidths(pieces, fontSize) {
   return pieces.map(p => {
     if (p == null) {
       return holeWidth;
@@ -40,8 +40,8 @@ export function computePiecesPositions(pieces) {
   return xes;
 }
 
-export function computeNodeWidth(pieces) {
-  const widths = computePiecesWidths(pieces);
+export function computeNodeWidth(pieces, fontSize) {
+  const widths = computePiecesWidths(pieces, fontSize);
   let width = gapWidth * (pieces.length - 1);
   for (const w of widths) {
     width += w;
