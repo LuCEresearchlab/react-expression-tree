@@ -7,6 +7,7 @@ import {
   defaultFontSize,
   textHeight,
   holeWidth,
+  computePiecesWidths,
   computePiecesPositions,
   computeNodeWidth,
 } from "../layout.js";
@@ -24,7 +25,6 @@ function Node({
   onNodeClick,
 }) {
   const nodeMinWidth = computeNodeWidth(pieces, defaultFontSize);
-  const xes = computePiecesPositions(pieces);
 
   const nodeRef = useRef();
   const transformerRef = useRef();
@@ -34,7 +34,17 @@ function Node({
   // when we don't drag the node itself but drag from a connector
   const [draggingNode, setDraggingNode] = useState(false);
 
+  const nodeCharNum = pieces
+    .map(e => (e !== null ? e.length : 1))
+    .reduce((acc, e) => acc + e, 0);
   const [fontSize, setFontSize] = useState(defaultFontSize);
+  const [nodeWidth, setNodeWidth] = useState(2 * holeWidth + nodeMinWidth);
+  const [nodeHeight, setNodeHeight] = useState(2 * holeWidth + textHeight);
+  const [piecesPos, setPiecesPos] = useState(
+    computePiecesPositions(pieces, fontSize)
+  );
+
+  const nodePiecesWidths = computePiecesWidths(pieces, fontSize);
 
   useEffect(() => {
     if (selected) {
@@ -117,13 +127,13 @@ function Node({
     var newY = pos.y;
     if (pos.x < 0) {
       newX = 0;
-    } else if (pos.x > window.innerWidth) {
-      newX = window.innerWidth;
+    } else if (pos.x > window.innerWidth - nodeWidth) {
+      newX = window.innerWidth - nodeWidth;
     }
     if (pos.y < 0) {
       newY = 0;
-    } else if (pos.y > window.innerHeight) {
-      newY = window.innerHeight;
+    } else if (pos.y > window.innerHeight - nodeHeight) {
+      newY = window.innerHeight - nodeHeight;
     }
     return {
       x: newX,
@@ -150,32 +160,45 @@ function Node({
         key={"NodeRect-" + id}
         x={0}
         y={0}
-        width={2 * xPad + nodeMinWidth}
-        height={2 * yPad + textHeight}
+        width={nodeWidth}
+        height={nodeHeight}
         fill="#208020"
+        stroke="black"
+        strokeWidth={1}
+        strokeScaleEnabled={false}
         cornerRadius={5}
         shadowBlur={selected ? 4 : 0}
         ref={nodeRef}
         onTransform={() => {
           const node = nodeRef.current;
-          setFontSize((node.scaleX() + node.scaleY() / 2) * defaultFontSize);
+          setFontSize(1.5 * ((nodeWidth * node.scaleX()) / nodeCharNum));
+        }}
+        onTransformEnd={() => {
+          const node = nodeRef.current;
+          setPiecesPos(computePiecesPositions(pieces, fontSize));
+          setNodeWidth(node.width() * node.scaleX());
+          node.scaleX(1);
+          node.x(0);
+          setNodeHeight(node.height() * node.scaleY());
+          node.scaleY(1);
+          node.y(0);
         }}
       />
       <Text
-        x={0}
-        y={0}
+        x={3}
+        y={3}
         fill="white"
         fontFamily={"Arial"}
-        fontSize={fontSize * 0.75}
+        fontSize={defaultFontSize * 0.5}
         text={"" + id}
       />
       <Circle
         kind="NodeConnector"
         key={"NodeConnector-" + id}
         id={id}
-        x={xPad + nodeMinWidth / 2}
+        x={nodeWidth / 2}
         y={0}
-        radius={6}
+        radius={5}
         fill="black"
         draggable
         onDragStart={handleNodeConnectorDragStart}
@@ -188,11 +211,13 @@ function Node({
             kind="HolePiece"
             key={"HolePiece-" + i}
             id={i}
-            x={xPad + xes[i]}
-            y={yPad}
-            width={holeWidth}
-            height={textHeight}
+            x={holeWidth + piecesPos[i]} //FIX
+            y={1.25 * holeWidth} //FIX
+            width={nodePiecesWidths[i]}
+            height={nodePiecesWidths[i] * 1.5}
             fill="#104010"
+            stroke="black"
+            strokeWidth={1}
             cornerRadius={4}
             draggable
             onDragStart={e => handlePieceConnectorDragStart(e, id)}
@@ -203,8 +228,8 @@ function Node({
           <Text
             kind="TextPiece"
             key={"TextPiece-" + i}
-            x={xPad + xes[i]}
-            y={yPad}
+            x={holeWidth + piecesPos[i]}
+            y={holeWidth}
             fill="white"
             fontFamily={fontFamily}
             fontSize={fontSize}

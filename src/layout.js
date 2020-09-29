@@ -14,10 +14,15 @@ export const textHeight = oText.fontSize();
 export const holeWidth = oText.getTextWidth();
 export const targetRange = textHeight;
 
-function computePiecesWidths(pieces, fontSize) {
+export function computePiecesWidths(pieces, fontSize) {
   return pieces.map(p => {
     if (p == null) {
-      return holeWidth;
+      const holeText = new Konva.Text({
+        text: "o",
+        fontFamily: fontFamily,
+        fontSize: fontSize,
+      });
+      return holeText.getTextWidth();
     } else {
       const text = new Konva.Text({
         text: p,
@@ -29,8 +34,8 @@ function computePiecesWidths(pieces, fontSize) {
   });
 }
 
-export function computePiecesPositions(pieces) {
-  const widths = computePiecesWidths(pieces);
+export function computePiecesPositions(pieces, fontSize) {
+  const widths = computePiecesWidths(pieces, fontSize);
   let pieceX = 0;
   const xes = widths.map(w => {
     let myX = pieceX;
