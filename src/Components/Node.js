@@ -23,9 +23,9 @@ function Node({
   onNodeConnectorDragStart,
   onPieceConnectorDragStart,
   onNodeClick,
+  stageWidth,
+  stageHeight,
 }) {
-  const nodeMinWidth = computeNodeWidth(pieces, defaultFontSize);
-
   const nodeRef = useRef();
   const transformerRef = useRef();
 
@@ -38,8 +38,9 @@ function Node({
     .map(e => (e !== null ? e.length : 1))
     .reduce((acc, e) => acc + e, 0);
   const [fontSize, setFontSize] = useState(defaultFontSize);
-  const [nodeWidth, setNodeWidth] = useState(2 * holeWidth + nodeMinWidth);
-  const [nodeHeight, setNodeHeight] = useState(2 * holeWidth + textHeight);
+  const nodeMinWidth = computeNodeWidth(pieces, defaultFontSize);
+  const [nodeWidth, setNodeWidth] = useState(2 * xPad + nodeMinWidth);
+  const [nodeHeight, setNodeHeight] = useState(2 * yPad + textHeight);
   const [piecesPos, setPiecesPos] = useState(
     computePiecesPositions(pieces, fontSize)
   );
@@ -127,13 +128,13 @@ function Node({
     var newY = pos.y;
     if (pos.x < 0) {
       newX = 0;
-    } else if (pos.x > window.innerWidth - nodeWidth) {
-      newX = window.innerWidth - nodeWidth;
+    } else if (pos.x > stageWidth - nodeWidth) {
+      newX = stageWidth - nodeWidth;
     }
     if (pos.y < 0) {
       newY = 0;
-    } else if (pos.y > window.innerHeight - nodeHeight) {
-      newY = window.innerHeight - nodeHeight;
+    } else if (pos.y > stageHeight - nodeHeight) {
+      newY = stageHeight - nodeHeight;
     }
     return {
       x: newX,
@@ -211,8 +212,8 @@ function Node({
             kind="HolePiece"
             key={"HolePiece-" + i}
             id={i}
-            x={holeWidth + piecesPos[i]} //FIX
-            y={1.25 * holeWidth} //FIX
+            x={xPad + piecesPos[i]} //FIX
+            y={holeWidth} //FIX
             width={nodePiecesWidths[i]}
             height={nodePiecesWidths[i] * 1.5}
             fill="#104010"
@@ -228,8 +229,8 @@ function Node({
           <Text
             kind="TextPiece"
             key={"TextPiece-" + i}
-            x={holeWidth + piecesPos[i]}
-            y={holeWidth}
+            x={xPad + piecesPos[i]}
+            y={yPad}
             fill="white"
             fontFamily={fontFamily}
             fontSize={fontSize}

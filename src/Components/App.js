@@ -1,23 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
-import ExpressionTreeEditor from "./ExpressionTreeEditor.js";
+import React, { useState } from "react";
+import ExpressionTreeEditor from "./ExpressionTreeEditor";
 
 function App() {
-  const appRef = useRef();
+  const [stageWidth, setAppWidth] = useState(window.innerWidth);
+  const [stageHeight, setAppHeight] = useState(window.innerHeight);
 
-  const [appWidth, setAppWidth] = useState();
-  const [appHeight, setAppHeight] = useState(window.innerHeight); //FIX
-
-  useEffect(() => {
-    if (appRef.current) {
-      setAppHeight(appRef.current.offsetHeight);
-      setAppWidth(appRef.current.offsetWidth);
-    }
-  }, [appRef]);
+  window.addEventListener("resize", () => {
+    console.log(window.innerHeight, window.innerWidth);
+    setAppHeight(window.innerHeight);
+    setAppWidth(window.innerWidth);
+  });
 
   return (
-    <div style={{ display: "block", visibility: "visible" }} ref={appRef}>
-      <ExpressionTreeEditor width={appWidth} height={appHeight} />
-    </div>
+    <>
+      {/* <div style={{ height: "300px" }}></div> */}
+      <ExpressionTreeEditor width={stageWidth} height={stageHeight} />
+    </>
   );
 }
 

@@ -1,4 +1,3 @@
-// Initial state
 const initialNodes = [
   { id: 0, pieces: ["19"] },
   { id: 1, pieces: ["age"] },
@@ -27,68 +26,15 @@ const initialNodePositions = initialNodes.map((node, i) => ({
   y: 80 + i * 55,
 }));
 
-export function getInitialDemoState() {
-  return {
-    nodes: initialNodes,
-    edges: initialEdges,
-    nodePositions: initialNodePositions,
-    dragEdge: null,
-    selectedNodeId: null,
-  };
-}
+const initialState = {
+  nodes: initialNodes,
+  edges: initialEdges,
+  nodePositions: initialNodePositions,
+  dragEdge: null,
+  selectedNodeId: null,
+};
 
-// Lookup functions
-export function nodeById(state, nodeId) {
-  if (nodeId === undefined || nodeId === null) {
-    throw new Error("Illegal nodeId", nodeId);
-  }
-  const node = state.nodes.find(node => node.id === nodeId);
-  if (!node) {
-    throw new Error("Unknown nodeId", nodeId);
-  }
-  return node;
-}
-
-export function edgeById(state, edgeId) {
-  if (edgeId === undefined || edgeId === null) {
-    throw new Error("Illegal edgeId", edgeId);
-  }
-  const edge = state.edges.find(edge => edge.id === edgeId);
-  if (!edge) {
-    throw new Error("Unknown edgeId", edgeId);
-  }
-  return edge;
-}
-
-//TODO: what if we have multiple edges to a child node?
-export function edgeByChildNode(state, childNodeId) {
-  return state.edges.find(edge => edge.childNodeId === childNodeId);
-}
-
-//TODO: what if we have multiple edges from a parent piece?
-export function edgeByParentPiece(state, parentNodeId, parentPieceId) {
-  return state.edges.find(
-    edge =>
-      edge.parentNodeId === parentNodeId && edge.parentPieceId === parentPieceId
-  );
-}
-
-export function nodePositionById(state, nodeId) {
-  return state.nodePositions.find(nodePosition => nodePosition.id === nodeId);
-}
-
-export function loggingReducer(state, action) {
-  console.group(action.type);
-  console.log("%cState before:", "color: #ff0000;", state);
-  console.log("%cAction:", "color: #00ff00;", action);
-  const stateAfter = reducer(state, action);
-  console.log("%cState after:", "color: #0000ff;", stateAfter);
-  console.groupEnd();
-  return stateAfter;
-}
-// reducer
-export default function reducer(state, action) {
-  //console.log("reducer(", state, action, ")");
+const treeEditorReducer = (state = initialState, action) => {
   function maxNodeId() {
     return state.nodes
       .map(n => n.id)
@@ -220,6 +166,8 @@ export default function reducer(state, action) {
       };
 
     default:
-      throw new Error();
+      return state;
   }
-}
+};
+
+export default treeEditorReducer;

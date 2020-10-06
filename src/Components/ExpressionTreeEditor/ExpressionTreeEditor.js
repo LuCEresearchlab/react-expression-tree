@@ -1,13 +1,9 @@
-import React, { useEffect, useReducer } from "react";
-import Node from "./Node.js";
-import Edge from "./Edge.js";
-import DragEdge from "./DragEdge.js";
-import {
-  Stage,
-  Layer,
-  //Rect,
-  //Group,
-} from "react-konva";
+import React, { useEffect } from "react";
+import Node from "../Node.js";
+import Edge from "../Edge.js";
+import DragEdge from "../DragEdge.js";
+import StageDrawer from "../StageDrawer";
+import { Stage, Layer } from "react-konva";
 import {
   computeNodeWidth,
   computePiecesPositions,
@@ -16,44 +12,84 @@ import {
   textHeight,
   targetRange,
   holeWidth,
-} from "../layout.js";
-import reducer, {
-  loggingReducer,
-  getInitialDemoState,
-  nodeById,
-  edgeById,
-  edgeByChildNode,
-  edgeByParentPiece,
-  nodePositionById,
-} from "../stateManagement.js";
-import { logging, log } from "../debug.js";
+} from "../../layout.js";
+import { log } from "../../debug.js";
 
-function ExpressionTreeEditor({ width, height }) {
-  const [state, dispatch] = useReducer(
-    logging ? loggingReducer : reducer,
-    getInitialDemoState()
-  );
+function ExpressionTreeEditor({
+  width,
+  height,
+  nodes,
+  edges,
+  nodePositions,
+  dragEdge,
+  selectedNodeId,
+  removeNode,
+  moveNodeTo,
+  setDragEdge,
+  moveDragEdgeParentEndTo,
+  moveDragEdgeChildEndTo,
+  removeEdge,
+  addEdge,
+  clearDragEdge,
+  clearNodeSelection,
+  addNode,
+  selectNode,
+}) {
+  function nodeById(nodeId) {
+    if (nodeId === undefined || nodeId === null) {
+      throw new Error("Illegal nodeId", nodeId);
+    }
+    const node = nodes.find(node => node.id === nodeId);
+    if (!node) {
+      throw new Error("Unknown nodeId", nodeId);
+    }
+    return node;
+  }
+
+  function edgeById(edgeId) {
+    if (edgeId === undefined || edgeId === null) {
+      throw new Error("Illegal edgeId", edgeId);
+    }
+    const edge = edges.find(edge => edge.id === edgeId);
+    if (!edge) {
+      throw new Error("Unknown edgeId", edgeId);
+    }
+    return edge;
+  }
+
+  //TODO: what if we have multiple edges to a child node?
+  function edgeByChildNode(childNodeId) {
+    return edges.find(edge => edge.childNodeId === childNodeId);
+  }
+
+  //TODO: what if we have multiple edges from a parent piece?
+  function edgeByParentPiece(parentNodeId, parentPieceId) {
+    return edges.find(
+      edge =>
+        edge.parentNodeId === parentNodeId &&
+        edge.parentPieceId === parentPieceId
+    );
+  }
+
+  function nodePositionById(nodeId) {
+    return nodePositions.find(nodePosition => nodePosition.id === nodeId);
+  }
 
   // Layout functions
   const computeEdgeChildPos = childNodeId => {
-    const nodePos = nodePositionById(state, childNodeId);
+    const nodePos = nodePositionById(childNodeId);
     return {
-      x:
-        nodePos.x +
-        xPad +
-        computeNodeWidth(nodeById(state, childNodeId).pieces) / 2,
+      x: nodePos.x + xPad + computeNodeWidth(nodeById(childNodeId).pieces) / 2,
       y: nodePos.y,
     };
   };
   const computeEdgeParentPos = (parentNodeId, parentPieceId) => {
-    const nodePos = nodePositionById(state, parentNodeId);
+    const nodePos = nodePositionById(parentNodeId);
     return {
       x:
         nodePos.x +
         xPad +
-        computePiecesPositions(nodeById(state, parentNodeId).pieces)[
-          parentPieceId
-        ] +
+        computePiecesPositions(nodeById(parentNodeId).pieces)[parentPieceId] +
         holeWidth / 2,
       y: nodePos.y + yPad + textHeight,
     };
@@ -64,7 +100,7 @@ function ExpressionTreeEditor({ width, height }) {
   const closestChildId = (x, y) => {
     let closestNodeId = null;
     let closestDist = null;
-    state.nodes.forEach(node => {
+    nodes.forEach(node => {
       const pos = computeEdgeChildPos(node.id);
       const dist = distance(pos.x, pos.y, x, y);
       if (dist < targetRange && (!closestDist || dist < closestDist)) {
@@ -77,8 +113,8 @@ function ExpressionTreeEditor({ width, height }) {
   const closestParentPiece = (x, y) => {
     let closestPiece = null;
     let closestDist = null;
-    state.nodes.forEach(node => {
-      nodeById(state, node.id).pieces.forEach((piece, i) => {
+    nodes.forEach(node => {
+      nodeById(node.id).pieces.forEach((piece, i) => {
         if (piece === null) {
           // only look for holes (represented by null)
           const pos = computeEdgeParentPos(node.id, i);
@@ -113,11 +149,8 @@ function ExpressionTreeEditor({ width, height }) {
     const delListener = function (e) {
       log("STAGE keydown event: ", e);
       if (e.key === "Backspace" || e.key === "Delete") {
-        if (state.selectedNodeId !== null) {
-          dispatch({
-            type: "removeNode",
-            payload: { nodeId: state.selectedNodeId },
-          });
+        if (selectedNodeId !== null) {
+          removeNode({ nodeId: selectedNodeId });
         }
       }
     };
@@ -127,23 +160,11 @@ function ExpressionTreeEditor({ width, height }) {
       stage.container().removeEventListener("keydown", delListener);
       log("STAGE keydown unregistered");
     };
-  }, [state.nodes, state.selectedNodeId]);
+  }, [removeNode, selectedNodeId]);
 
-  // Event handlers
-  /*
-  const handleToolbarNodeMove = (id, x, y, e) => {
-    // TODO: allow "drag to create"
-    console.log("ExpressionTreeEditor.handleToolbarNodeMove", id, x, y, e);
-    e.cancelBubble = true; // prevent onDragStart of ToolbarNode
-    // we don't want the ToobarNode to be moved
-    e.target.stopDrag();
-    const pieces = nodeById(id).pieces;
-    dispatch({type: 'addNode', payload: {pieces: pieces, x: x, y: y}});
-  };
-  */
   const handleNodeMove = (id, x, y) => {
     log("ExpressionTreeEditor.handleNodeMove(", id, x, y, ")");
-    dispatch({ type: "moveNodeTo", payload: { nodeId: id, x: x, y: y } });
+    moveNodeTo({ nodeId: id, x: x, y: y });
   };
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
     log(
@@ -153,14 +174,14 @@ function ExpressionTreeEditor({ width, height }) {
       y,
       ")"
     );
-    const edge = edgeByChildNode(state, nodeId);
+    const edge = edgeByChildNode(nodeId);
     if (edge) {
       log("edge found:", edge);
       const parentPos = computeEdgeParentPos(
         edge.parentNodeId,
         edge.parentPieceId
       );
-      const dragEdge = {
+      const newDragEdge = {
         originalEdgeId: edge.id,
         updateParent: false,
         parentNodeId: edge.parentNodeId,
@@ -170,10 +191,10 @@ function ExpressionTreeEditor({ width, height }) {
         childX: x,
         childY: y,
       };
-      dispatch({ type: "setDragEdge", payload: { dragEdge } });
+      setDragEdge({ dragEdge: newDragEdge });
     } else {
       log("no edge found");
-      const dragEdge = {
+      const newDragEdge = {
         originalEdgeId: null,
         updateParent: true,
         childNodeId: nodeId,
@@ -182,7 +203,7 @@ function ExpressionTreeEditor({ width, height }) {
         parentX: x,
         parentY: y,
       };
-      dispatch({ type: "setDragEdge", payload: { dragEdge } });
+      setDragEdge({ dragEdge: newDragEdge });
     }
   };
   const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
@@ -194,11 +215,11 @@ function ExpressionTreeEditor({ width, height }) {
       y,
       ")"
     );
-    const edge = edgeByParentPiece(state, nodeId, pieceId);
+    const edge = edgeByParentPiece(nodeId, pieceId);
     if (edge) {
       log("edge found:", edge);
       const childPos = computeEdgeChildPos(edge.childNodeId);
-      const dragEdge = {
+      const newDragEdge = {
         originalEdgeId: edge.id,
         updateParent: true,
         childNodeId: edge.childNodeId,
@@ -207,10 +228,10 @@ function ExpressionTreeEditor({ width, height }) {
         parentX: x,
         parentY: y,
       };
-      dispatch({ type: "setDragEdge", payload: { dragEdge } });
+      setDragEdge({ dragEdge: newDragEdge });
     } else {
       log("no edge found");
-      const dragEdge = {
+      const newDragEdge = {
         originalEdgeId: null,
         updateParent: false,
         parentNodeId: nodeId,
@@ -220,49 +241,40 @@ function ExpressionTreeEditor({ width, height }) {
         childX: x,
         childY: y,
       };
-      dispatch({ type: "setDragEdge", payload: { dragEdge } });
+      setDragEdge({ dragEdge: newDragEdge });
     }
   };
   const handleStageMouseMove = e => {
     //console.log("ExpressionTreeEditor.handleStageMouseMove(", e, ")");
     //TODO: Provide drop target feedback
     //      (e.g., DragEdge color, Node's connector color)
-    if (state.dragEdge) {
-      if (state.dragEdge.updateParent) {
-        dispatch({
-          type: "moveDragEdgeParentEndTo",
-          payload: { x: e.evt.x, y: e.evt.y },
-        });
+    if (dragEdge) {
+      if (dragEdge.updateParent) {
+        moveDragEdgeParentEndTo({ x: e.evt.x, y: e.evt.y });
       } else {
-        dispatch({
-          type: "moveDragEdgeChildEndTo",
-          payload: { x: e.evt.x, y: e.evt.y },
-        });
+        moveDragEdgeChildEndTo({ x: e.evt.x, y: e.evt.y });
       }
     }
   };
   const handleStageMouseUp = e => {
     log("ExpressionTreeEditor.handleStageMouseUp(", e, ")");
-    if (state.dragEdge) {
-      log("  dragEdge: ", state.dragEdge);
-      if (state.dragEdge.updateParent) {
+    if (dragEdge) {
+      log("  dragEdge: ", dragEdge);
+      if (dragEdge.updateParent) {
         log("  updateParent");
         const parentPiece = closestParentPiece(e.evt.x, e.evt.y);
         log("    parentPiece: ", parentPiece);
-        if (state.dragEdge.originalEdgeId !== null) {
-          const originalEdge = edgeById(state.dragEdge.originalEdgeId);
+        if (dragEdge.originalEdgeId !== null) {
+          const originalEdge = edgeById(dragEdge.originalEdgeId);
           log("    originalEdge: ", originalEdge);
-          dispatch({
-            type: "removeEdge",
-            payload: { edgeId: state.dragEdge.originalEdgeId },
-          });
+          removeEdge({ edgeId: dragEdge.originalEdgeId });
           if (parentPiece) {
-            const edge = {
+            const newEdge = {
               childNodeId: originalEdge.childNodeId,
               parentNodeId: parentPiece.parentNodeId,
               parentPieceId: parentPiece.parentPieceId,
             };
-            dispatch({ type: "addEdge", payload: { edge } });
+            addEdge({ edge: newEdge });
           }
         } else {
           log("    no original edge");
@@ -271,32 +283,29 @@ function ExpressionTreeEditor({ width, height }) {
             // (Is the dragEdge.childY set wrong? Why?)
             //const childNodeId = closestChildId(dragEdge.childX, dragEdge.childY);
             //console.log("    childNodeId: ", childNodeId);
-            const edge = {
-              childNodeId: state.dragEdge.childNodeId,
+            const newEdge = {
+              childNodeId: dragEdge.childNodeId,
               parentNodeId: parentPiece.parentNodeId,
               parentPieceId: parentPiece.parentPieceId,
             };
-            dispatch({ type: "addEdge", payload: { edge } });
+            addEdge({ edge: newEdge });
           }
         }
       } else {
         log("  updateChild");
         const childNodeId = closestChildId(e.evt.x, e.evt.y);
         log("    childNodeId: ", childNodeId);
-        if (state.dragEdge.originalEdgeId !== null) {
-          const originalEdge = edgeById(state, state.dragEdge.originalEdgeId);
+        if (dragEdge.originalEdgeId !== null) {
+          const originalEdge = edgeById(dragEdge.originalEdgeId);
           log("    originalEdge: ", originalEdge);
-          dispatch({
-            type: "removeEdge",
-            payload: { edgeId: state.dragEdge.originalEdgeId },
-          });
+          removeEdge({ edgeId: dragEdge.originalEdgeId });
           if (childNodeId) {
-            const edge = {
+            const newEdge = {
               parentNodeId: originalEdge.parentNodeId,
               parentPieceId: originalEdge.parentPieceId,
               childNodeId: childNodeId,
             };
-            dispatch({ type: "addEdge", payload: { edge } });
+            addEdge({ edge: newEdge });
           }
         } else {
           log("    no original edge");
@@ -304,21 +313,21 @@ function ExpressionTreeEditor({ width, height }) {
             // Note: if we do this we somehow get the wrong parentPieceId
             // (Is the dragEdge.parentX set wrong? Why?)
             //const parentPiece = closestParentPiece(dragEdge.parentX, dragEdge.parentY);
-            const edge = {
-              parentNodeId: state.dragEdge.parentNodeId,
-              parentPieceId: state.dragEdge.parentPieceId,
+            const newEdge = {
+              parentNodeId: dragEdge.parentNodeId,
+              parentPieceId: dragEdge.parentPieceId,
               childNodeId: childNodeId,
             };
-            dispatch({ type: "addEdge", payload: { edge } });
+            addEdge({ edge: newEdge });
           }
         }
       }
-      dispatch({ type: "clearDragEdge" });
+      clearDragEdge();
     }
   };
   const handleStageClick = e => {
     log("ExpressionTreeEditor.handleStageClick(", e, ")");
-    dispatch({ type: "clearNodeSelection", debug: { e } });
+    clearNodeSelection();
   };
   const handleStageDblClick = e => {
     log("ExpressionTreeEditor.handleStageDblClick(", e, ")");
@@ -328,99 +337,72 @@ function ExpressionTreeEditor({ width, height }) {
     );
     log("piecesString:", piecesString);
     const pieces = JSON.parse(piecesString);
-    dispatch({
-      type: "addNode",
-      payload: {
-        pieces,
-        x: e.evt.x,
-        y: e.evt.y,
-      },
+    addNode({
+      pieces,
+      x: e.evt.x,
+      y: e.evt.y,
     });
   };
   const handleNodeClick = (e, nodeId) => {
-    dispatch({ type: "selectNode", payload: { nodeId } });
+    selectNode({ nodeId: nodeId });
   };
 
   return (
-    <Stage
-      ref={stageRef}
-      width={width}
-      height={height}
-      onMouseMove={handleStageMouseMove}
-      onMouseUp={handleStageMouseUp}
-      onClick={handleStageClick}
-      onDblClick={handleStageDblClick}
-    >
-      {/*
-      <Layer name="toolbar">
-        <Rect
-          x={0}
-          y={0}
-          width={width}
-          height={100}
-          fill='#f0f0f0'
-        />
-        <Group>
-          <Rect
-            x={10}
-            y={10}
-            width={100}
-            height={80}
-            fill='red'
-            draggable
-          />
-          <Node
-            id={-1}
-            x={120}
-            y={10}
-            pieces={[null, '*', null]}
-            onNodeMove={handleToolbarNodeMove}
-          />
-        </Group>
-      </Layer>
-      */}
-      <Layer>
-        {state.edges.map((edge, i) => (
-          <Edge
-            key={"Edge-" + edge.id}
-            id={edge.id}
-            beingDragged={
-              state.dragEdge && state.dragEdge.originalEdgeId === edge.id
-            }
-            parentPieces={nodeById(state, edge.parentNodeId).pieces}
-            parentPieceId={edge.parentPieceId}
-            childPieces={nodeById(state, edge.childNodeId).pieces}
-            parentX={nodePositionById(state, edge.parentNodeId).x}
-            parentY={nodePositionById(state, edge.parentNodeId).y}
-            childX={nodePositionById(state, edge.childNodeId).x}
-            childY={nodePositionById(state, edge.childNodeId).y}
-          />
-        ))}
-        {state.nodes.map((node, i) => (
-          <Node
-            key={"Node-" + node.id}
-            id={node.id}
-            x={nodePositionById(state, node.id).x}
-            y={nodePositionById(state, node.id).y}
-            pieces={node.pieces}
-            selected={state.selectedNodeId === node.id}
-            onNodeMove={handleNodeMove}
-            onNodeConnectorDragStart={handleNodeConnectorDragStart}
-            onPieceConnectorDragStart={handlePieceConnectorDragStart}
-            onNodeClick={e => handleNodeClick(e, node.id)}
-          />
-        ))}
-        {state.dragEdge && (
-          <DragEdge
-            key="DragEdge"
-            x1={state.dragEdge.parentX}
-            y1={state.dragEdge.parentY}
-            x2={state.dragEdge.childX}
-            y2={state.dragEdge.childY}
-          />
-        )}
-      </Layer>
-    </Stage>
+    <>
+      <StageDrawer />
+      <Stage
+        ref={stageRef}
+        width={width}
+        height={height}
+        onMouseMove={handleStageMouseMove}
+        onMouseUp={handleStageMouseUp}
+        onClick={handleStageClick}
+        onDblClick={handleStageDblClick}
+        // draggable
+      >
+        <Layer>
+          {edges.map((edge, i) => (
+            <Edge
+              key={"Edge-" + edge.id}
+              id={edge.id}
+              beingDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
+              parentPieces={nodeById(edge.parentNodeId).pieces}
+              parentPieceId={edge.parentPieceId}
+              childPieces={nodeById(edge.childNodeId).pieces}
+              parentX={nodePositionById(edge.parentNodeId).x}
+              parentY={nodePositionById(edge.parentNodeId).y}
+              childX={nodePositionById(edge.childNodeId).x}
+              childY={nodePositionById(edge.childNodeId).y}
+            />
+          ))}
+          {nodes.map((node, i) => (
+            <Node
+              key={"Node-" + node.id}
+              id={node.id}
+              x={nodePositionById(node.id).x}
+              y={nodePositionById(node.id).y}
+              pieces={node.pieces}
+              selected={selectedNodeId === node.id}
+              onNodeMove={handleNodeMove}
+              onNodeConnectorDragStart={handleNodeConnectorDragStart}
+              onPieceConnectorDragStart={handlePieceConnectorDragStart}
+              onNodeClick={e => handleNodeClick(e, node.id)}
+              stageWidth={width}
+              stageHeight={height}
+            />
+          ))}
+          {dragEdge && (
+            <DragEdge
+              key="DragEdge"
+              x1={dragEdge.parentX}
+              y1={dragEdge.parentY}
+              x2={dragEdge.childX}
+              y2={dragEdge.childY}
+            />
+          )}
+        </Layer>
+      </Stage>
+    </>
   );
 }
 
