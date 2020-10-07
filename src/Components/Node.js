@@ -242,7 +242,7 @@ function Node({
         <Transformer
           ref={transformerRef}
           rotateEnabled={false}
-          centeredScaling={true}
+          centeredScaling={false}
           anchorSize={7}
           borderEnabled={false}
           anchorCornerRadius={3}

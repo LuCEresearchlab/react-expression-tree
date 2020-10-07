@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Node from "../Node.js";
 import Edge from "../Edge.js";
 import DragEdge from "../DragEdge.js";
@@ -135,7 +135,7 @@ function ExpressionTreeEditor({
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
   // (Konva doesn't provide key events).
-  const stageRef = React.useRef();
+  const stageRef = useRef();
 
   // Effects
   useEffect(() => {
@@ -329,27 +329,27 @@ function ExpressionTreeEditor({
     log("ExpressionTreeEditor.handleStageClick(", e, ")");
     clearNodeSelection();
   };
-  const handleStageDblClick = e => {
-    log("ExpressionTreeEditor.handleStageDblClick(", e, ")");
-    const piecesString = prompt(
-      "CREATE NEW AST NODE. Describe the node's pieces as a JSON array. Holes are null, other pieces are strings.",
-      '["Math.max(", null, ",", null, ")"]'
-    );
-    log("piecesString:", piecesString);
-    const pieces = JSON.parse(piecesString);
-    addNode({
-      pieces,
-      x: e.evt.x,
-      y: e.evt.y,
-    });
-  };
+  // const handleStageDblClick = e => {
+  //   log("ExpressionTreeEditor.handleStageDblClick(", e, ")");
+  //   const piecesString = prompt(
+  //     "CREATE NEW AST NODE. Describe the node's pieces as a JSON array. Holes are null, other pieces are strings.",
+  //     '["Math.max(", null, ",", null, ")"]'
+  //   );
+  //   log("piecesString:", piecesString);
+  //   const pieces = JSON.parse(piecesString);
+  //   addNode({
+  //     pieces,
+  //     x: e.evt.x,
+  //     y: e.evt.y,
+  //   });
+  // };
   const handleNodeClick = (e, nodeId) => {
     selectNode({ nodeId: nodeId });
   };
 
   return (
     <>
-      <StageDrawer />
+      <StageDrawer addNode={addNode} />
       <Stage
         ref={stageRef}
         width={width}
@@ -357,8 +357,8 @@ function ExpressionTreeEditor({
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}
         onClick={handleStageClick}
-        onDblClick={handleStageDblClick}
-        // draggable
+        // onDblClick={handleStageDblClick}
+        draggable
       >
         <Layer>
           {edges.map((edge, i) => (

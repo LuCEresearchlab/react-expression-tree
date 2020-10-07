@@ -6,7 +6,6 @@ function App() {
   const [stageHeight, setAppHeight] = useState(window.innerHeight);
 
   window.addEventListener("resize", () => {
-    console.log(window.innerHeight, window.innerWidth);
     setAppHeight(window.innerHeight);
     setAppWidth(window.innerWidth);
   });
