@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Drawer from "@material-ui/core/Drawer";
-import Divider from "@material-ui/core/Divider";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
 import AddIcon from "@material-ui/icons/Add";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
+import MenuIcon from "@material-ui/icons/Menu";
+import {
+  Drawer,
+  IconButton,
+  Popover,
+  Typography,
+  TextField,
+  Divider,
+} from "@material-ui/core";
 
-const drawerWidth = 240;
+const drawerWidth = 300;
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -30,22 +34,35 @@ const useStyles = makeStyles(theme => ({
   // root: {
   //   position: "fixed",
   // },
+  createInfo: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  addField: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 function StageDrawer({ addNode }) {
   const classes = useStyles();
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [isValid, setIsValid] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [addValue, setAddValue] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleOpen = () => {
-    setIsOpen(true);
+  const isInfoOpen = !!anchorEl;
+
+  const handleDrawerOpen = () => {
+    setIsDrawerOpen(true);
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
+  const handleDrawerClose = () => {
+    setIsDrawerOpen(false);
   };
 
   const handleAddChange = value => {
@@ -68,44 +85,78 @@ function StageDrawer({ addNode }) {
     });
   };
 
+  const handleInfoOpen = e => {
+    setAnchorEl(e.target);
+  };
+
+  const handleInfoClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <div className={classes.root}>
-      <IconButton onClick={handleOpen}>
+      <IconButton onClick={handleDrawerOpen} color="primary">
         <MenuIcon />
       </IconButton>
       <Drawer
         className={classes.drawer}
         variant="persistent"
         anchor="left"
-        open={isOpen}
+        open={isDrawerOpen}
         classes={{
           paper: classes.drawerPaper,
         }}
       >
         <div className={classes.drawerHeader}>
-          <IconButton onClick={handleClose}>
+          <IconButton onClick={handleDrawerClose} color="primary">
             <ChevronLeftIcon />
           </IconButton>
         </div>
         <Divider />
-        <Typography variant="body2">
-          Create a new AST node describing the node's pieces as a JSON array.
-          Holes are null, other pieces are strings.
-        </Typography>
-        <TextField
-          id="addNodeField"
-          variant="outlined"
-          size="small"
-          placeholder='ex: [null, ".append(", null, ")"]'
-          margin="dense"
-          multiline
-          onChange={e => handleAddChange(e.target.value)}
-          error={!isValid && !isEmpty}
-        ></TextField>
-        <div>
-          <IconButton onClick={() => handleNodeCreation()} disabled={!isValid}>
-            <AddIcon />
-          </IconButton>
+        <div className={classes.createInfo}>
+          <Typography variant="h6">Create a new AST node:</Typography>
+          <div>
+            <IconButton
+              size="small"
+              onClick={e => handleInfoOpen(e)}
+              color="primary"
+            >
+              <InfoOutlinedIcon />
+            </IconButton>
+            <Popover
+              open={isInfoOpen}
+              anchorEl={anchorEl}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              onClose={handleInfoClose}
+            >
+              <Typography variant="body2">
+                Describe the node's pieces as a JSON array. Holes are null,
+                other pieces are strings.
+              </Typography>
+            </Popover>
+          </div>
+        </div>
+        <div className={classes.addField}>
+          <TextField
+            variant="outlined"
+            fullWidth
+            size="medium"
+            placeholder='ex: [null, ".append(", null, ")"]'
+            margin="dense"
+            multiline
+            onChange={e => handleAddChange(e.target.value)}
+            error={!isValid && !isEmpty}
+          ></TextField>
+          <div>
+            <IconButton
+              size="medium"
+              onClick={() => handleNodeCreation()}
+              disabled={!isValid}
+              color="primary"
+            >
+              <AddIcon />
+            </IconButton>
+          </div>
         </div>
       </Drawer>
     </div>

@@ -22,7 +22,7 @@ const initialEdges = [
 
 const initialNodePositions = initialNodes.map((node, i) => ({
   id: node.id,
-  x: 250,
+  x: 320,
   y: 10 + i * 55,
 }));
 
