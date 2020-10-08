@@ -250,9 +250,9 @@ function ExpressionTreeEditor({
     //      (e.g., DragEdge color, Node's connector color)
     if (dragEdge) {
       if (dragEdge.updateParent) {
-        moveDragEdgeParentEndTo({ x: e.evt.x, y: e.evt.y });
+        moveDragEdgeParentEndTo({ x: e.evt.offsetX, y: e.evt.offsetY });
       } else {
-        moveDragEdgeChildEndTo({ x: e.evt.x, y: e.evt.y });
+        moveDragEdgeChildEndTo({ x: e.evt.offsetX, y: e.evt.offsetY });
       }
     }
   };
@@ -262,7 +262,7 @@ function ExpressionTreeEditor({
       log("  dragEdge: ", dragEdge);
       if (dragEdge.updateParent) {
         log("  updateParent");
-        const parentPiece = closestParentPiece(e.evt.x, e.evt.y);
+        const parentPiece = closestParentPiece(e.evt.offsetX, e.evt.offsetY);
         log("    parentPiece: ", parentPiece);
         if (dragEdge.originalEdgeId !== null) {
           const originalEdge = edgeById(dragEdge.originalEdgeId);
@@ -293,7 +293,7 @@ function ExpressionTreeEditor({
         }
       } else {
         log("  updateChild");
-        const childNodeId = closestChildId(e.evt.x, e.evt.y);
+        const childNodeId = closestChildId(e.evt.offsetX, e.evt.offsetY);
         log("    childNodeId: ", childNodeId);
         if (dragEdge.originalEdgeId !== null) {
           const originalEdge = edgeById(dragEdge.originalEdgeId);
@@ -347,6 +347,14 @@ function ExpressionTreeEditor({
     selectNode({ nodeId: nodeId });
   };
 
+  // const handleStageDrag = e => {
+  //   // e.cancelBubble = true;
+  //   console.log(e.target.attrs);
+  //   console.log(stageRef.current.attrs);
+  //   stageRef.current.x(e.target.attrs.x);
+  //   stageRef.current.y(e.target.attrs.y);
+  // };
+
   return (
     <>
       <StageDrawer addNode={addNode} />
@@ -358,7 +366,8 @@ function ExpressionTreeEditor({
         onMouseUp={handleStageMouseUp}
         onClick={handleStageClick}
         // onDblClick={handleStageDblClick}
-        draggable
+        // draggable
+        // onDragMove={e => handleStageDrag(e)}
       >
         <Layer>
           {edges.map((edge, i) => (

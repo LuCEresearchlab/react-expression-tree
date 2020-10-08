@@ -66,7 +66,6 @@ function Node({
       const x = e.target.x();
       const y = e.target.y();
       onNodeMove(id, x, y);
-      //onNodeMove(id, x, y, e); // hack to allow use in Toolbar
     }
   };
   const handleDragEnd = e => {
@@ -76,7 +75,6 @@ function Node({
       const x = e.target.x();
       const y = e.target.y();
       onNodeMove(id, x, y);
-      //onNodeMove(id, x, y, e); // hack to allow use in Toolbar
     }
     setDraggingNode(false);
   };
