@@ -27,30 +27,30 @@ const useStyles = makeStyles(theme => ({
   drawerHeader: {
     display: "flex",
     alignItems: "center",
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
     justifyContent: "flex-end",
   },
-  createInfo: {
+  toolbarInfo: {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
+    margin: "10px 0 0 10px",
   },
-  addField: {
+  toolbarField: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    marginLeft: "10px",
   },
-  editInfo: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start",
+  editText: {
+    margin: "10px 10px 10px 10px",
   },
-  editField: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+  infoPopover: {
+    marginLeft: "5px",
+  },
+  infoPopoverText: {
+    border: "2px solid",
+    borderRadius: "5px",
+    borderColor: theme.palette.primary.main,
   },
 }));
 
@@ -109,7 +109,6 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
 
   const handleNodeEdit = () => {
     const pieces = JSON.parse(editValue);
-    console.log(pieces);
     editNode({
       pieces: pieces,
       selectedNodeId: selectedNode.id,
@@ -144,7 +143,7 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
           </IconButton>
         </div>
         <Divider />
-        <div className={classes.createInfo}>
+        <div className={classes.toolbarInfo}>
           <Typography variant="h6">Create a new AST node:</Typography>
           <div>
             <IconButton
@@ -155,19 +154,20 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
               <InfoOutlinedIcon />
             </IconButton>
             <Popover
+              className={classes.infoPopover}
               open={isInfoOpen}
               anchorEl={anchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
               onClose={handleInfoClose}
             >
-              <Typography variant="body2">
+              <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces as a JSON array. Holes are null,
                 other pieces are strings.
               </Typography>
             </Popover>
           </div>
         </div>
-        <div className={classes.addField}>
+        <div className={classes.toolbarField}>
           <TextField
             variant="outlined"
             fullWidth
@@ -197,7 +197,7 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
           </div>
         </div>
         <Divider />
-        <div className={classes.editInfo}>
+        <div className={classes.toolbarInfo}>
           <Typography variant="h6">Edit an existing AST node:</Typography>
           <div>
             <IconButton
@@ -208,12 +208,13 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
               <InfoOutlinedIcon />
             </IconButton>
             <Popover
+              className={classes.infoPopover}
               open={isInfoOpen}
               anchorEl={anchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
               onClose={handleInfoClose}
             >
-              <Typography variant="body2">
+              <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces as a JSON array. Holes are null,
                 other pieces are strings.
               </Typography>
@@ -221,7 +222,7 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
           </div>
         </div>
         {selectedNode ? (
-          <div className={classes.editField}>
+          <div className={classes.toolbarField}>
             <TextField
               variant="outlined"
               fullWidth
@@ -252,7 +253,9 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
             </div>
           </div>
         ) : (
-          <Typography>Start by selecting an AST node.</Typography>
+          <Typography className={classes.editText}>
+            Start by selecting an AST node.
+          </Typography>
         )}
         <Divider />
       </Drawer>
