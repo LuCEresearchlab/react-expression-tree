@@ -7,7 +7,7 @@ const mapStateToProps = state => ({
   edges: state.edges,
   nodePositions: state.nodePositions,
   dragEdge: state.dragEdge,
-  selectedNodeId: state.selectedNodeId,
+  selectedNode: state.selectedNode,
 });
 
 export default connect(mapStateToProps, actions)(ExpressionTreeEditor);

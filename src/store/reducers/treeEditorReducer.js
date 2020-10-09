@@ -31,7 +31,7 @@ const initialState = {
   edges: initialEdges,
   nodePositions: initialNodePositions,
   dragEdge: null,
-  selectedNodeId: null,
+  selectedNode: null,
 };
 
 const treeEditorReducer = (state = initialState, action) => {
@@ -92,11 +92,13 @@ const treeEditorReducer = (state = initialState, action) => {
       return {
         ...state,
         selectedNodeId: action.payload.nodeId,
+        selectedNode: action.payload.selectedNode,
       };
 
     case "clearNodeSelection":
       return {
         ...state,
+        selectedNode: null,
         selectedNodeId: null,
       };
 
@@ -163,6 +165,19 @@ const treeEditorReducer = (state = initialState, action) => {
       return {
         ...state,
         dragEdge: null,
+      };
+
+    case "editNode":
+      return {
+        ...state,
+        nodes: state.nodes.map(node =>
+          node.id === action.payload.selectedNodeId
+            ? {
+                ...node,
+                pieces: action.payload.pieces,
+              }
+            : node
+        ),
       };
 
     default:

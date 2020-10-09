@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
+import UpdateIcon from "@material-ui/icons/Update";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -31,9 +32,6 @@ const useStyles = makeStyles(theme => ({
     ...theme.mixins.toolbar,
     justifyContent: "flex-end",
   },
-  // root: {
-  //   position: "fixed",
-  // },
   createInfo: {
     display: "flex",
     alignItems: "center",
@@ -44,16 +42,29 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     justifyContent: "center",
   },
+  editInfo: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  editField: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
-function StageDrawer({ addNode }) {
+function StageDrawer({ addNode, selectedNode, editNode }) {
   const classes = useStyles();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-  const [isValid, setIsValid] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(true);
+  const [isAddValid, setIsAddValid] = useState(false);
+  const [isAddEmpty, setIsAddEmpty] = useState(true);
   const [addValue, setAddValue] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isEditValid, setIsEditValid] = useState(false);
+  const [isEditEmpty, setIsEditEmpty] = useState(true);
+  const [editValue, setEditValue] = useState(null);
 
   const isInfoOpen = !!anchorEl;
 
@@ -66,13 +77,13 @@ function StageDrawer({ addNode }) {
   };
 
   const handleAddChange = value => {
-    value !== "" ? setIsEmpty(false) : setIsEmpty(true);
+    value !== "" ? setIsAddEmpty(false) : setIsAddEmpty(true);
     try {
       JSON.parse(value);
-      setIsValid(true);
+      setIsAddValid(true);
       setAddValue(value);
     } catch (e) {
-      setIsValid(false);
+      setIsAddValid(false);
     }
   };
 
@@ -85,6 +96,26 @@ function StageDrawer({ addNode }) {
     });
   };
 
+  const handleEditChange = value => {
+    value !== "" ? setIsEditEmpty(false) : setIsEditEmpty(true);
+    try {
+      JSON.parse(value);
+      setIsEditValid(true);
+      setEditValue(value);
+    } catch (e) {
+      setIsEditValid(false);
+    }
+  };
+
+  const handleNodeEdit = () => {
+    const pieces = JSON.parse(editValue);
+    console.log(pieces);
+    editNode({
+      pieces: pieces,
+      selectedNodeId: selectedNode.id,
+    });
+  };
+
   const handleInfoOpen = e => {
     setAnchorEl(e.target);
   };
@@ -94,7 +125,7 @@ function StageDrawer({ addNode }) {
   };
 
   return (
-    <div className={classes.root}>
+    <div>
       <IconButton onClick={handleDrawerOpen} color="primary">
         <MenuIcon />
       </IconButton>
@@ -145,19 +176,85 @@ function StageDrawer({ addNode }) {
             margin="dense"
             multiline
             onChange={e => handleAddChange(e.target.value)}
-            error={!isValid && !isEmpty}
+            error={!isAddValid && !isAddEmpty}
+            helperText={
+              isAddValid
+                ? ""
+                : !isAddValid && !isAddEmpty
+                ? "Invalid JSON array."
+                : "Insert JSON array."
+            }
           ></TextField>
           <div>
             <IconButton
               size="medium"
               onClick={() => handleNodeCreation()}
-              disabled={!isValid}
+              disabled={!isAddValid}
               color="primary"
             >
               <AddIcon />
             </IconButton>
           </div>
         </div>
+        <Divider />
+        <div className={classes.editInfo}>
+          <Typography variant="h6">Edit an existing AST node:</Typography>
+          <div>
+            <IconButton
+              size="small"
+              onClick={e => handleInfoOpen(e)}
+              color="primary"
+            >
+              <InfoOutlinedIcon />
+            </IconButton>
+            <Popover
+              open={isInfoOpen}
+              anchorEl={anchorEl}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              onClose={handleInfoClose}
+            >
+              <Typography variant="body2">
+                Describe the node's pieces as a JSON array. Holes are null,
+                other pieces are strings.
+              </Typography>
+            </Popover>
+          </div>
+        </div>
+        {selectedNode ? (
+          <div className={classes.editField}>
+            <TextField
+              variant="outlined"
+              fullWidth
+              size="medium"
+              placeholder='ex: [null, ".append(", null, ")"]'
+              margin="dense"
+              multiline
+              onChange={e => handleEditChange(e.target.value)}
+              error={!isEditValid && !isEditEmpty}
+              helperText={
+                isEditValid
+                  ? ""
+                  : !isEditValid && !isEditEmpty
+                  ? "Invalid JSON array."
+                  : "Insert JSON array."
+              }
+              defaultValue={selectedNode ? "[" + selectedNode.pieces + "]" : ""}
+            ></TextField>
+            <div>
+              <IconButton
+                size="medium"
+                onClick={() => handleNodeEdit()}
+                disabled={!isEditValid}
+                color="primary"
+              >
+                <UpdateIcon />
+              </IconButton>
+            </div>
+          </div>
+        ) : (
+          <Typography>Start by selecting an AST node.</Typography>
+        )}
+        <Divider />
       </Drawer>
     </div>
   );

@@ -50,3 +50,8 @@ export const selectNode = payload => ({
   type: "selectNode",
   payload,
 });
+
+export const editNode = payload => ({
+  type: "editNode",
+  payload,
+});

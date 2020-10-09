@@ -22,7 +22,6 @@ function ExpressionTreeEditor({
   edges,
   nodePositions,
   dragEdge,
-  selectedNodeId,
   removeNode,
   moveNodeTo,
   setDragEdge,
@@ -34,6 +33,7 @@ function ExpressionTreeEditor({
   clearNodeSelection,
   addNode,
   selectNode,
+  selectedNode,
 }) {
   function nodeById(nodeId) {
     if (nodeId === undefined || nodeId === null) {
@@ -149,8 +149,8 @@ function ExpressionTreeEditor({
     const delListener = function (e) {
       log("STAGE keydown event: ", e);
       if (e.key === "Backspace" || e.key === "Delete") {
-        if (selectedNodeId !== null) {
-          removeNode({ nodeId: selectedNodeId });
+        if (selectedNode.id !== null) {
+          removeNode({ nodeId: selectedNode.id });
         }
       }
     };
@@ -160,7 +160,7 @@ function ExpressionTreeEditor({
       stage.container().removeEventListener("keydown", delListener);
       log("STAGE keydown unregistered");
     };
-  }, [removeNode, selectedNodeId]);
+  }, [removeNode, selectedNode]);
 
   const handleNodeMove = (id, x, y) => {
     log("ExpressionTreeEditor.handleNodeMove(", id, x, y, ")");
@@ -344,7 +344,8 @@ function ExpressionTreeEditor({
   //   });
   // };
   const handleNodeClick = (e, nodeId) => {
-    selectNode({ nodeId: nodeId });
+    const selectedNode = nodeById(nodeId);
+    selectNode({ nodeId: nodeId, selectedNode: selectedNode });
   };
 
   // const handleStageDrag = e => {
@@ -357,7 +358,7 @@ function ExpressionTreeEditor({
 
   return (
     <>
-      <StageDrawer addNode={addNode} />
+      <StageDrawer />
       <Stage
         ref={stageRef}
         width={width}
@@ -391,7 +392,9 @@ function ExpressionTreeEditor({
               x={nodePositionById(node.id).x}
               y={nodePositionById(node.id).y}
               pieces={node.pieces}
-              selected={selectedNodeId === node.id}
+              selected={
+                selectedNode !== null ? selectedNode.id === node.id : false
+              }
               onNodeMove={handleNodeMove}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
               onPieceConnectorDragStart={handlePieceConnectorDragStart}
