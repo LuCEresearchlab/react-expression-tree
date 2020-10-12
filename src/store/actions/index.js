@@ -55,3 +55,16 @@ export const editNode = payload => ({
   type: "editNode",
   payload,
 });
+
+export const addingNodeClick = () => ({
+  type: "addingNodeClick",
+});
+
+export const clearAdding = () => ({
+  type: "clearAdding",
+});
+
+export const addValueChange = payload => ({
+  type: "addValueChange",
+  payload,
+});

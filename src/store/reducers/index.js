@@ -1,4 +1,5 @@
 import { combineReducers } from "redux";
-import editorReducer from "./treeEditorReducer";
+import editor from "./treeEditorReducer";
+import drawer from "./drawerReducer";
 
-export default editorReducer;
+export default combineReducers({ editor, drawer });

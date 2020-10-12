@@ -34,6 +34,10 @@ function ExpressionTreeEditor({
   addNode,
   selectNode,
   selectedNode,
+  addingNode,
+  addValue,
+  addValueChange,
+  clearAdding,
 }) {
   function nodeById(nodeId) {
     if (nodeId === undefined || nodeId === null) {
@@ -332,8 +336,18 @@ function ExpressionTreeEditor({
     }
   };
   const handleStageClick = e => {
-    log("ExpressionTreeEditor.handleStageClick(", e, ")");
-    clearNodeSelection();
+    if (addingNode) {
+      const pieces = JSON.parse(addValue);
+      addNode({
+        pieces,
+        x: e.evt.offsetX,
+        y: e.evt.offsetY,
+      });
+      clearAdding();
+    } else {
+      log("ExpressionTreeEditor.handleStageClick(", e, ")");
+      clearNodeSelection();
+    }
   };
   // const handleStageDblClick = e => {
   //   log("ExpressionTreeEditor.handleStageDblClick(", e, ")");
@@ -350,8 +364,18 @@ function ExpressionTreeEditor({
   //   });
   // };
   const handleNodeClick = (e, nodeId) => {
-    const selectedNode = nodeById(nodeId);
-    selectNode({ nodeId: nodeId, selectedNode: selectedNode });
+    if (addingNode) {
+      const pieces = JSON.parse(addValue);
+      addNode({
+        pieces,
+        x: e.evt.offsetX,
+        y: e.evt.offsetY,
+      });
+      clearAdding();
+    } else {
+      const selectedNode = nodeById(nodeId);
+      selectNode({ nodeId: nodeId, selectedNode: selectedNode });
+    }
   };
 
   // const handleStageDrag = e => {
@@ -372,6 +396,7 @@ function ExpressionTreeEditor({
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}
         onClick={handleStageClick}
+        style={addingNode ? { cursor: "crosshair" } : {}}
         // onDblClick={handleStageDblClick}
         // draggable
         // onDragMove={e => handleStageDrag(e)}
@@ -412,10 +437,10 @@ function ExpressionTreeEditor({
           {dragEdge && (
             <DragEdge
               key="DragEdge"
-              x1={dragEdge.parentX}
-              y1={dragEdge.parentY}
-              x2={dragEdge.childX}
-              y2={dragEdge.childY}
+              parentX={dragEdge.parentX}
+              parentY={dragEdge.parentY}
+              childX={dragEdge.childX}
+              childY={dragEdge.childY}
             />
           )}
         </Layer>

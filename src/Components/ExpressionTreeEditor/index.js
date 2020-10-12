@@ -3,11 +3,13 @@ import ExpressionTreeEditor from "./ExpressionTreeEditor";
 import * as actions from "../../store/actions";
 
 const mapStateToProps = state => ({
-  nodes: state.nodes,
-  edges: state.edges,
-  nodePositions: state.nodePositions,
-  dragEdge: state.dragEdge,
-  selectedNode: state.selectedNode,
+  nodes: state.editor.nodes,
+  edges: state.editor.edges,
+  nodePositions: state.editor.nodePositions,
+  dragEdge: state.editor.dragEdge,
+  selectedNode: state.editor.selectedNode,
+  addingNode: state.drawer.addingNode,
+  addValue: state.drawer.addValue,
 });
 
 export default connect(mapStateToProps, actions)(ExpressionTreeEditor);

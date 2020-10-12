@@ -54,13 +54,21 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function StageDrawer({ addNode, selectedNode, editNode }) {
+function StageDrawer({
+  addNode,
+  selectedNode,
+  editNode,
+  addingNode,
+  addingNodeClick,
+  addValueChange,
+  addValue,
+  clearAdding,
+}) {
   const classes = useStyles();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [isAddValid, setIsAddValid] = useState(false);
   const [isAddEmpty, setIsAddEmpty] = useState(true);
-  const [addValue, setAddValue] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [isEditValid, setIsEditValid] = useState(false);
   const [isEditEmpty, setIsEditEmpty] = useState(true);
@@ -77,23 +85,19 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
   };
 
   const handleAddChange = value => {
+    clearAdding();
     value !== "" ? setIsAddEmpty(false) : setIsAddEmpty(true);
     try {
       JSON.parse(value);
       setIsAddValid(true);
-      setAddValue(value);
+      addValueChange({ addValue: value });
     } catch (e) {
       setIsAddValid(false);
     }
   };
 
-  const handleNodeCreation = () => {
-    const pieces = JSON.parse(addValue);
-    addNode({
-      pieces,
-      x: 500,
-      y: 500,
-    });
+  const handleNodeCreationClick = () => {
+    addingNodeClick();
   };
 
   const handleEditChange = value => {
@@ -188,9 +192,9 @@ function StageDrawer({ addNode, selectedNode, editNode }) {
           <div>
             <IconButton
               size="medium"
-              onClick={() => handleNodeCreation()}
+              onClick={() => handleNodeCreationClick()}
               disabled={!isAddValid}
-              color="primary"
+              color={addingNode ? "secondary" : "primary"}
             >
               <AddIcon />
             </IconButton>
