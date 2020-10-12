@@ -14,7 +14,7 @@ export const textHeight = oText.fontSize();
 export const holeWidth = oText.getTextWidth();
 export const targetRange = textHeight;
 
-export function computePiecesWidths(pieces, fontSize) {
+export function computePiecesWidths(pieces, fontSize = defaultFontSize) {
   return pieces.map(p => {
     if (p == null) {
       const holeText = new Konva.Text({

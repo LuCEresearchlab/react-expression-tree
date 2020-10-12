@@ -28,7 +28,7 @@ function Edge({
       key={"Edge-Line-" + id}
       points={[
         parentX + xPad + xes[parentPieceId] + holeWidth / 2,
-        parentY + yPad + textHeight,
+        parentY + yPad + textHeight / 2,
         childX + xPad + childWidth / 2,
         childY,
       ]}

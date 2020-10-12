@@ -268,7 +268,10 @@ function ExpressionTreeEditor({
           const originalEdge = edgeById(dragEdge.originalEdgeId);
           log("    originalEdge: ", originalEdge);
           removeEdge({ edgeId: dragEdge.originalEdgeId });
-          if (parentPiece) {
+          if (
+            parentPiece &&
+            originalEdge.childNodeId !== parentPiece.parentNodeId
+          ) {
             const newEdge = {
               childNodeId: originalEdge.childNodeId,
               parentNodeId: parentPiece.parentNodeId,
@@ -278,7 +281,10 @@ function ExpressionTreeEditor({
           }
         } else {
           log("    no original edge");
-          if (parentPiece) {
+          if (
+            parentPiece &&
+            dragEdge.childNodeId !== parentPiece.parentNodeId
+          ) {
             // Note: if we do this we somehow get the wrong childNodeId
             // (Is the dragEdge.childY set wrong? Why?)
             //const childNodeId = closestChildId(dragEdge.childX, dragEdge.childY);
@@ -299,7 +305,7 @@ function ExpressionTreeEditor({
           const originalEdge = edgeById(dragEdge.originalEdgeId);
           log("    originalEdge: ", originalEdge);
           removeEdge({ edgeId: dragEdge.originalEdgeId });
-          if (childNodeId) {
+          if (childNodeId && childNodeId !== originalEdge.parentNodeId) {
             const newEdge = {
               parentNodeId: originalEdge.parentNodeId,
               parentPieceId: originalEdge.parentPieceId,
@@ -309,7 +315,7 @@ function ExpressionTreeEditor({
           }
         } else {
           log("    no original edge");
-          if (childNodeId) {
+          if (childNodeId && dragEdge.parentNodeId !== childNodeId) {
             // Note: if we do this we somehow get the wrong parentPieceId
             // (Is the dragEdge.parentX set wrong? Why?)
             //const parentPiece = closestParentPiece(dragEdge.parentX, dragEdge.parentY);
