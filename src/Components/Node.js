@@ -197,7 +197,7 @@ function Node({
         id={id}
         x={nodeWidth / 2}
         y={0}
-        radius={5}
+        radius={6}
         fill="black"
         draggable
         onDragStart={handleNodeConnectorDragStart}

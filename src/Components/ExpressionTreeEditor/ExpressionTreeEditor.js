@@ -38,6 +38,9 @@ function ExpressionTreeEditor({
   addValue,
   addValueChange,
   clearAdding,
+  selectEdge,
+  clearEdgeSelection,
+  selectedEdge,
 }) {
   function nodeById(nodeId) {
     if (nodeId === undefined || nodeId === null) {
@@ -153,8 +156,10 @@ function ExpressionTreeEditor({
     const delListener = function (e) {
       log("STAGE keydown event: ", e);
       if (e.key === "Backspace" || e.key === "Delete") {
-        if (selectedNode.id !== null) {
+        if (selectedNode !== null) {
           removeNode({ nodeId: selectedNode.id });
+        } else if (selectedEdge !== null) {
+          removeEdge({ edgeId: selectedEdge.id });
         }
       }
     };
@@ -164,7 +169,7 @@ function ExpressionTreeEditor({
       stage.container().removeEventListener("keydown", delListener);
       log("STAGE keydown unregistered");
     };
-  }, [removeNode, selectedNode]);
+  }, [removeEdge, removeNode, selectedEdge, selectedNode]);
 
   const handleNodeMove = (id, x, y) => {
     log("ExpressionTreeEditor.handleNodeMove(", id, x, y, ")");
@@ -347,6 +352,7 @@ function ExpressionTreeEditor({
     } else {
       log("ExpressionTreeEditor.handleStageClick(", e, ")");
       clearNodeSelection();
+      clearEdgeSelection();
     }
   };
   // const handleStageDblClick = e => {
@@ -374,8 +380,16 @@ function ExpressionTreeEditor({
       clearAdding();
     } else {
       const selectedNode = nodeById(nodeId);
+      clearEdgeSelection();
       selectNode({ nodeId: nodeId, selectedNode: selectedNode });
     }
+  };
+
+  const handleEdgeClick = (e, edgeId) => {
+    e.cancelBubble = true;
+    clearNodeSelection();
+    const selectedEdge = edgeById(edgeId);
+    selectEdge({ edgeId: edgeId, selectedEdge: selectedEdge });
   };
 
   // const handleStageDrag = e => {
@@ -414,6 +428,10 @@ function ExpressionTreeEditor({
               parentY={nodePositionById(edge.parentNodeId).y}
               childX={nodePositionById(edge.childNodeId).x}
               childY={nodePositionById(edge.childNodeId).y}
+              onEdgeClick={e => handleEdgeClick(e, edge.id)}
+              selected={
+                selectedEdge !== null ? selectedEdge.id === edge.id : false
+              }
             />
           ))}
           {nodes.map((node, i) => (

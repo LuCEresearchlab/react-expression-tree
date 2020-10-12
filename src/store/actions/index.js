@@ -68,3 +68,12 @@ export const addValueChange = payload => ({
   type: "addValueChange",
   payload,
 });
+
+export const selectEdge = payload => ({
+  type: "selectEdge",
+  payload,
+});
+
+export const clearEdgeSelection = () => ({
+  type: "clearEdgeSelection",
+});

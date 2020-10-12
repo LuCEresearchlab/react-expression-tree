@@ -32,6 +32,7 @@ const initialState = {
   nodePositions: initialNodePositions,
   dragEdge: null,
   selectedNode: null,
+  selectedEdge: null,
 };
 
 const treeEditorReducer = (state = initialState, action) => {
@@ -67,7 +68,6 @@ const treeEditorReducer = (state = initialState, action) => {
             y: action.payload.y,
           },
         ],
-        selectedNodeId: id,
       };
 
     case "removeNode":
@@ -82,16 +82,11 @@ const treeEditorReducer = (state = initialState, action) => {
             edge.parentNodeId !== action.payload.nodeId &&
             edge.childNodeId !== action.payload.nodeId
         ),
-        selectedNodeId:
-          state.selectedNodeId === action.payload.nodeId
-            ? null
-            : state.selectedNodeId,
       };
 
     case "selectNode":
       return {
         ...state,
-        selectedNodeId: action.payload.nodeId,
         selectedNode: action.payload.selectedNode,
       };
 
@@ -99,7 +94,6 @@ const treeEditorReducer = (state = initialState, action) => {
       return {
         ...state,
         selectedNode: null,
-        selectedNodeId: null,
       };
 
     case "moveNodeTo":
@@ -114,7 +108,6 @@ const treeEditorReducer = (state = initialState, action) => {
               }
             : nodePosition
         ),
-        selectedNodeId: action.payload.nodeId,
       };
 
     case "addEdge":
@@ -178,6 +171,18 @@ const treeEditorReducer = (state = initialState, action) => {
               }
             : node
         ),
+      };
+
+    case "selectEdge":
+      return {
+        ...state,
+        selectedEdge: action.payload.selectedEdge,
+      };
+
+    case "clearEdgeSelection":
+      return {
+        ...state,
+        selectedEdge: null,
       };
 
     default:

@@ -6,7 +6,7 @@ function DragEdge({ childX, childY, parentX, parentY }) {
     <Line
       points={[parentX, parentY, childX, childY]}
       stroke="black"
-      strokeWidth={3}
+      strokeWidth={5}
     />
   );
 }

@@ -19,6 +19,8 @@ function Edge({
   childX,
   childY,
   beingDragged,
+  onEdgeClick,
+  selected,
 }) {
   const xes = computePiecesPositions(parentPieces);
   const childWidth = computeNodeWidth(childPieces);
@@ -32,8 +34,9 @@ function Edge({
         childX + xPad + childWidth / 2,
         childY,
       ]}
-      stroke={beingDragged ? "#f0f0f0" : "black"}
-      strokeWidth={3}
+      stroke={beingDragged ? "#f0f0f0" : selected ? "red" : "black"}
+      strokeWidth={5}
+      onClick={onEdgeClick}
     />,
     <Text
       key={"Edge-Text-" + id}
