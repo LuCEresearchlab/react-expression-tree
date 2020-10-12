@@ -285,6 +285,7 @@ function ExpressionTreeEditor({
               childNodeId: originalEdge.childNodeId,
               parentNodeId: parentPiece.parentNodeId,
               parentPieceId: parentPiece.parentPieceId,
+              type: "",
             };
             addEdge({ edge: newEdge });
           }
@@ -302,6 +303,7 @@ function ExpressionTreeEditor({
               childNodeId: dragEdge.childNodeId,
               parentNodeId: parentPiece.parentNodeId,
               parentPieceId: parentPiece.parentPieceId,
+              type: "",
             };
             addEdge({ edge: newEdge });
           }
@@ -319,6 +321,7 @@ function ExpressionTreeEditor({
               parentNodeId: originalEdge.parentNodeId,
               parentPieceId: originalEdge.parentPieceId,
               childNodeId: childNodeId,
+              type: "",
             };
             addEdge({ edge: newEdge });
           }
@@ -332,6 +335,7 @@ function ExpressionTreeEditor({
               parentNodeId: dragEdge.parentNodeId,
               parentPieceId: dragEdge.parentPieceId,
               childNodeId: childNodeId,
+              type: "",
             };
             addEdge({ edge: newEdge });
           }
@@ -389,7 +393,7 @@ function ExpressionTreeEditor({
     e.cancelBubble = true;
     clearNodeSelection();
     const selectedEdge = edgeById(edgeId);
-    selectEdge({ edgeId: edgeId, selectedEdge: selectedEdge });
+    selectEdge({ selectedEdge: selectedEdge });
   };
 
   // const handleStageDrag = e => {
@@ -432,6 +436,7 @@ function ExpressionTreeEditor({
               selected={
                 selectedEdge !== null ? selectedEdge.id === edge.id : false
               }
+              type={edge.type}
             />
           ))}
           {nodes.map((node, i) => (

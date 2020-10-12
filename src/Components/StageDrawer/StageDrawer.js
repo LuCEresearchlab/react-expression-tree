@@ -49,8 +49,9 @@ const useStyles = makeStyles(theme => ({
   },
   infoPopoverText: {
     border: "2px solid",
-    borderRadius: "5px",
+    borderRadius: "4px",
     borderColor: theme.palette.primary.main,
+    padding: "3px 6px 3px 6px",
   },
 }));
 
@@ -63,18 +64,24 @@ function StageDrawer({
   addValueChange,
   addValue,
   clearAdding,
+  selectedEdge,
+  edgeTypeEdit,
 }) {
   const classes = useStyles();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [isAddValid, setIsAddValid] = useState(false);
   const [isAddEmpty, setIsAddEmpty] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [nodeAnchorEl, setNodeAnchorEl] = useState(null);
+  const [edgeAnchorEl, setEdgeAnchorEl] = useState(null);
   const [isEditValid, setIsEditValid] = useState(false);
   const [isEditEmpty, setIsEditEmpty] = useState(true);
   const [editValue, setEditValue] = useState(null);
+  const [isTypeEmpty, setIsTypeEmpty] = useState(true);
+  const [typeValue, setTypeValue] = useState(null);
 
-  const isInfoOpen = !!anchorEl;
+  const isNodeInfoOpen = !!nodeAnchorEl;
+  const isEdgeInfoOpen = !!edgeAnchorEl;
 
   const handleDrawerOpen = () => {
     setIsDrawerOpen(true);
@@ -82,6 +89,21 @@ function StageDrawer({
 
   const handleDrawerClose = () => {
     setIsDrawerOpen(false);
+  };
+  const handleNodeInfoOpen = e => {
+    setNodeAnchorEl(e.target);
+  };
+
+  const handleNodeInfoClose = () => {
+    setNodeAnchorEl(null);
+  };
+
+  const handleEdgeInfoOpen = e => {
+    setEdgeAnchorEl(e.target);
+  };
+
+  const handleEdgeInfoClose = () => {
+    setEdgeAnchorEl(null);
   };
 
   const handleAddChange = value => {
@@ -119,12 +141,16 @@ function StageDrawer({
     });
   };
 
-  const handleInfoOpen = e => {
-    setAnchorEl(e.target);
+  const handleTypeChange = value => {
+    value !== "" ? setIsTypeEmpty(false) : setIsTypeEmpty(true);
+    setTypeValue(value);
   };
 
-  const handleInfoClose = () => {
-    setAnchorEl(null);
+  const handleEdgeTypeEdit = () => {
+    edgeTypeEdit({
+      type: typeValue,
+      selectedEdgeId: selectedEdge.id,
+    });
   };
 
   return (
@@ -148,21 +174,21 @@ function StageDrawer({
         </div>
         <Divider />
         <div className={classes.toolbarInfo}>
-          <Typography variant="h6">Create a new AST node:</Typography>
+          <Typography variant="h6">Create a new node:</Typography>
           <div>
             <IconButton
               size="small"
-              onClick={e => handleInfoOpen(e)}
+              onClick={e => handleNodeInfoOpen(e)}
               color="primary"
             >
               <InfoOutlinedIcon />
             </IconButton>
             <Popover
               className={classes.infoPopover}
-              open={isInfoOpen}
-              anchorEl={anchorEl}
+              open={isNodeInfoOpen}
+              anchorEl={nodeAnchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={handleInfoClose}
+              onClose={handleNodeInfoClose}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces as a JSON array. Holes are null,
@@ -202,21 +228,21 @@ function StageDrawer({
         </div>
         <Divider />
         <div className={classes.toolbarInfo}>
-          <Typography variant="h6">Edit an existing AST node:</Typography>
+          <Typography variant="h6">Edit an existing node:</Typography>
           <div>
             <IconButton
               size="small"
-              onClick={e => handleInfoOpen(e)}
+              onClick={e => handleNodeInfoOpen(e)}
               color="primary"
             >
               <InfoOutlinedIcon />
             </IconButton>
             <Popover
               className={classes.infoPopover}
-              open={isInfoOpen}
-              anchorEl={anchorEl}
+              open={isNodeInfoOpen}
+              anchorEl={nodeAnchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={handleInfoClose}
+              onClose={handleNodeInfoClose}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces as a JSON array. Holes are null,
@@ -258,7 +284,62 @@ function StageDrawer({
           </div>
         ) : (
           <Typography className={classes.editText}>
-            Start by selecting an AST node.
+            Start by selecting a node.
+          </Typography>
+        )}
+        <Divider />
+        <div className={classes.toolbarInfo}>
+          <Typography variant="h6">Add or edit an edge type:</Typography>
+          <div>
+            <IconButton
+              size="small"
+              onClick={e => handleEdgeInfoOpen(e)}
+              color="primary"
+            >
+              <InfoOutlinedIcon />
+            </IconButton>
+            <Popover
+              className={classes.infoPopover}
+              open={isEdgeInfoOpen}
+              anchorEl={edgeAnchorEl}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              onClose={handleEdgeInfoClose}
+            >
+              <Typography className={classes.infoPopoverText} variant="body2">
+                Describe the edge type as a string.
+              </Typography>
+            </Popover>
+          </div>
+        </div>
+        {selectedEdge ? (
+          <div className={classes.toolbarField}>
+            <TextField
+              variant="outlined"
+              fullWidth
+              size="medium"
+              placeholder="ex: Object"
+              margin="dense"
+              multiline
+              onChange={e => {
+                handleTypeChange(e.target.value);
+              }}
+              helperText={!isTypeEmpty ? "" : "Insert a string."}
+              defaultValue={selectedEdge ? selectedEdge.type : ""}
+            ></TextField>
+            <div>
+              <IconButton
+                size="medium"
+                onClick={() => handleEdgeTypeEdit()}
+                disabled={isTypeEmpty}
+                color="primary"
+              >
+                {selectedEdge.type === "" ? <AddIcon /> : <UpdateIcon />}
+              </IconButton>
+            </div>
+          </div>
+        ) : (
+          <Typography className={classes.editText}>
+            Start by selecting an edge.
           </Typography>
         )}
         <Divider />

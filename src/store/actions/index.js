@@ -77,3 +77,8 @@ export const selectEdge = payload => ({
 export const clearEdgeSelection = () => ({
   type: "clearEdgeSelection",
 });
+
+export const edgeTypeEdit = payload => ({
+  type: "edgeTypeEdit",
+  payload,
+});

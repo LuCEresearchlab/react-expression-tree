@@ -12,12 +12,12 @@ const initialNodes = [
   { id: 10, pieces: [null, ".", "append(", null, ")"] },
 ];
 const initialEdges = [
-  { id: 0, parentNodeId: 3, parentPieceId: 1, childNodeId: 0 },
-  { id: 1, parentNodeId: 4, parentPieceId: 0, childNodeId: 3 },
-  { id: 2, parentNodeId: 4, parentPieceId: 2, childNodeId: 1 },
-  { id: 3, parentNodeId: 7, parentPieceId: 0, childNodeId: 4 },
-  { id: 4, parentNodeId: 7, parentPieceId: 2, childNodeId: 9 },
-  { id: 5, parentNodeId: 9, parentPieceId: 0, childNodeId: 2 },
+  { id: 0, parentNodeId: 3, parentPieceId: 1, childNodeId: 0, type: "" },
+  { id: 1, parentNodeId: 4, parentPieceId: 0, childNodeId: 3, type: "" },
+  { id: 2, parentNodeId: 4, parentPieceId: 2, childNodeId: 1, type: "" },
+  { id: 3, parentNodeId: 7, parentPieceId: 0, childNodeId: 4, type: "" },
+  { id: 4, parentNodeId: 7, parentPieceId: 2, childNodeId: 9, type: "" },
+  { id: 5, parentNodeId: 9, parentPieceId: 0, childNodeId: 2, type: "" },
 ];
 
 const initialNodePositions = initialNodes.map((node, i) => ({
@@ -183,6 +183,19 @@ const treeEditorReducer = (state = initialState, action) => {
       return {
         ...state,
         selectedEdge: null,
+      };
+
+    case "edgeTypeEdit":
+      return {
+        ...state,
+        edges: state.edges.map(edge =>
+          edge.id === action.payload.selectedEdgeId
+            ? {
+                ...edge,
+                type: action.payload.type,
+              }
+            : edge
+        ),
       };
 
     default:

@@ -21,6 +21,7 @@ function Edge({
   beingDragged,
   onEdgeClick,
   selected,
+  type,
 }) {
   const xes = computePiecesPositions(parentPieces);
   const childWidth = computeNodeWidth(childPieces);
@@ -45,7 +46,7 @@ function Edge({
       fill="red"
       fontFamily={"Arial"}
       fontSize={20}
-      text={"" + id}
+      text={type}
     />,
   ];
 }
