@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Rect, Text, Group, Circle, Transformer } from "react-konva";
 import {
+  log,
   xPad,
   yPad,
   fontFamily,
@@ -10,8 +11,7 @@ import {
   computePiecesWidths,
   computePiecesPositions,
   computeNodeWidth,
-} from "../layout.js";
-import { log } from "../debug.js";
+} from "../utils.js";
 
 function Node({
   id,

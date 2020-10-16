@@ -155,7 +155,11 @@ function StageDrawer({
 
   return (
     <div>
-      <IconButton onClick={handleDrawerOpen} color="primary">
+      <IconButton
+        onClick={handleDrawerOpen}
+        color="primary"
+        style={{ position: "absolute", zIndex: "1" }}
+      >
         <MenuIcon />
       </IconButton>
       <Drawer
@@ -269,7 +273,24 @@ function StageDrawer({
                   ? "Invalid JSON array."
                   : "Insert JSON array."
               }
-              defaultValue={selectedNode ? "[" + selectedNode.pieces + "]" : ""}
+              defaultValue={
+                selectedNode ? "[" + selectedNode.pieces + "]" : ""
+                // selectedNode.pieces.reduce(
+                //   (acc, current, index, arrayRef) => {
+                //     let temp = current;
+                //     if (current === null) temp = "null";
+
+                //     if (
+                //       index === arrayRef.length - 1 &&
+                //       arrayRef.length > 1
+                //     )
+                //       return `${acc},${temp}]`;
+                //     if (index === 0) return `${acc}${temp}`;
+                //     return `${acc}${temp}`;
+                //   },
+                //   "["
+                // )
+              }
             ></TextField>
             <div>
               <IconButton

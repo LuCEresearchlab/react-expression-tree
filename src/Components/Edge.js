@@ -7,7 +7,7 @@ import {
   textHeight,
   computePiecesPositions,
   computeNodeWidth,
-} from "../layout.js";
+} from "../utils.js";
 
 function Edge({
   id,
