@@ -205,7 +205,7 @@ function Node({
         onDragEnd={e => {}}
       />
       {pieces.map((p, i) =>
-        p == null ? (
+        p === "{{}}" ? (
           <Rect
             kind="HolePiece"
             key={"HolePiece-" + i}

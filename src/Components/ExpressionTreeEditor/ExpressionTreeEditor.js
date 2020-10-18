@@ -278,9 +278,8 @@ function ExpressionTreeEditor({
   };
   const handleStageClick = e => {
     if (addingNode) {
-      const pieces = JSON.parse(addValue);
       addNode({
-        pieces,
+        pieces: addValue,
         x: e.evt.offsetX,
         y: e.evt.offsetY,
       });
@@ -307,9 +306,8 @@ function ExpressionTreeEditor({
   // };
   const handleNodeClick = (e, nodeId) => {
     if (addingNode) {
-      const pieces = JSON.parse(addValue);
       addNode({
-        pieces,
+        pieces: addValue,
         x: e.evt.offsetX,
         y: e.evt.offsetY,
       });

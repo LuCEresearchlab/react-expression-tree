@@ -1,6 +1,6 @@
 const initialState = {
   addingNode: false,
-  addValue: "",
+  addValue: [""],
 };
 
 const drawerReducer = (state = initialState, action) => {

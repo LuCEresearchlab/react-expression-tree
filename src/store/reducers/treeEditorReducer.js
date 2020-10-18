@@ -1,15 +1,15 @@
 const initialNodes = [
   { id: 0, pieces: ["19"] },
   { id: 1, pieces: ["age"] },
-  { id: 2, pieces: ['"Hello World!"'] },
-  { id: 3, pieces: ["-", null] },
-  { id: 4, pieces: [null, "<", null] },
-  { id: 5, pieces: [null, "+", null] },
-  { id: 6, pieces: ["(int)", null] },
-  { id: 7, pieces: [null, "?", null, ":", null] },
-  { id: 8, pieces: [null, ".", "length"] },
-  { id: 9, pieces: [null, ".", "length()"] },
-  { id: 10, pieces: [null, ".", "append(", null, ")"] },
+  { id: 2, pieces: ["Hello", "World!"] },
+  { id: 3, pieces: ["-", "{{}}"] },
+  { id: 4, pieces: ["{{}}", "<", "{{}}"] },
+  { id: 5, pieces: ["{{}}", "+", "{{}}"] },
+  { id: 6, pieces: ["(int)", "{{}}"] },
+  { id: 7, pieces: ["{{}}", "?", "{{}}", ":", "{{}}"] },
+  { id: 8, pieces: ["{{}}", ".length"] },
+  { id: 9, pieces: ["{{}}", ".length()"] },
+  { id: 10, pieces: ["{{}}", ".append(", "{{}}", ")"] },
 ];
 const initialEdges = [
   { id: 0, parentNodeId: 3, parentPieceId: 1, childNodeId: 0, type: "" },
@@ -196,6 +196,18 @@ const treeEditorReducer = (state = initialState, action) => {
               }
             : edge
         ),
+      };
+    case "stageReset":
+      return initialState;
+    case "uploadState":
+      return {
+        ...state,
+        nodes: action.payload.nodes,
+        edges: action.payload.edges,
+        nodePositions: action.payload.nodePositions,
+        dragEdge: null,
+        selectedNode: null,
+        selectedEdge: null,
       };
 
     default:

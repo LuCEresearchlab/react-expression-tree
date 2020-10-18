@@ -82,3 +82,12 @@ export const edgeTypeEdit = payload => ({
   type: "edgeTypeEdit",
   payload,
 });
+
+export const stageReset = () => ({
+  type: "stageReset",
+});
+
+export const uploadState = payload => ({
+  type: "uploadState",
+  payload,
+});

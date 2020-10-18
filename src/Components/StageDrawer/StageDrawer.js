@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import AddIcon from "@material-ui/icons/Add";
-import UpdateIcon from "@material-ui/icons/Update";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import AddRoundedIcon from "@material-ui/icons/Add";
+import UpdateRoundedIcon from "@material-ui/icons/UpdateRounded";
+import ChevronLeftRoundedIcon from "@material-ui/icons/ChevronLeftRounded";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
-import MenuIcon from "@material-ui/icons/Menu";
+import MenuRoundedIcon from "@material-ui/icons/Menu";
+import GetAppRoundedIcon from "@material-ui/icons/GetApp";
+import PublishRoundedIcon from "@material-ui/icons/Publish";
+import UndoRoundedIcon from "@material-ui/icons/UndoRounded";
+import NoteAddRoundedIcon from "@material-ui/icons/NoteAddRounded";
 import {
   Drawer,
   IconButton,
@@ -27,7 +31,7 @@ const useStyles = makeStyles(theme => ({
   drawerHeader: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
   },
   toolbarInfo: {
     display: "flex",
@@ -40,6 +44,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: "10px",
+    marginBottom: "10px",
   },
   editText: {
     margin: "10px 10px 10px 10px",
@@ -52,6 +57,7 @@ const useStyles = makeStyles(theme => ({
     borderRadius: "4px",
     borderColor: theme.palette.primary.main,
     padding: "3px 6px 3px 6px",
+    maxWidth: "500px",
   },
 }));
 
@@ -66,20 +72,22 @@ function StageDrawer({
   clearAdding,
   selectedEdge,
   edgeTypeEdit,
+  stageReset,
+  nodes,
+  edges,
+  nodePositions,
+  uploadState,
 }) {
   const classes = useStyles();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-  const [isAddValid, setIsAddValid] = useState(false);
-  const [isAddEmpty, setIsAddEmpty] = useState(true);
   const [nodeAnchorEl, setNodeAnchorEl] = useState(null);
   const [edgeAnchorEl, setEdgeAnchorEl] = useState(null);
-  const [isEditValid, setIsEditValid] = useState(false);
+  const [isAddEmpty, setIsAddEmpty] = useState(true);
   const [isEditEmpty, setIsEditEmpty] = useState(true);
-  const [editValue, setEditValue] = useState(null);
   const [isTypeEmpty, setIsTypeEmpty] = useState(true);
+  const [editValue, setEditValue] = useState(null);
   const [typeValue, setTypeValue] = useState(null);
-
   const isNodeInfoOpen = !!nodeAnchorEl;
   const isEdgeInfoOpen = !!edgeAnchorEl;
 
@@ -90,6 +98,7 @@ function StageDrawer({
   const handleDrawerClose = () => {
     setIsDrawerOpen(false);
   };
+
   const handleNodeInfoOpen = e => {
     setNodeAnchorEl(e.target);
   };
@@ -109,13 +118,8 @@ function StageDrawer({
   const handleAddChange = value => {
     clearAdding();
     value !== "" ? setIsAddEmpty(false) : setIsAddEmpty(true);
-    try {
-      JSON.parse(value);
-      setIsAddValid(true);
-      addValueChange({ addValue: value });
-    } catch (e) {
-      setIsAddValid(false);
-    }
+    const addValue = value.split(" ");
+    addValueChange({ addValue: addValue });
   };
 
   const handleNodeCreationClick = () => {
@@ -124,19 +128,13 @@ function StageDrawer({
 
   const handleEditChange = value => {
     value !== "" ? setIsEditEmpty(false) : setIsEditEmpty(true);
-    try {
-      JSON.parse(value);
-      setIsEditValid(true);
-      setEditValue(value);
-    } catch (e) {
-      setIsEditValid(false);
-    }
+    const editValue = value.split(" ");
+    setEditValue(editValue);
   };
 
   const handleNodeEdit = () => {
-    const pieces = JSON.parse(editValue);
     editNode({
-      pieces: pieces,
+      pieces: editValue,
       selectedNodeId: selectedNode.id,
     });
   };
@@ -153,6 +151,49 @@ function StageDrawer({
     });
   };
 
+  const handleStageReset = () => {
+    stageReset();
+  };
+
+  const handleStateDownload = () => {
+    const currentState = {
+      nodes,
+      edges,
+      nodePositions,
+    };
+    const stateData =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(currentState, null, 4));
+    var downloadElement = document.createElement("a");
+    downloadElement.setAttribute("href", stateData);
+    downloadElement.setAttribute("download", "expression_editor_state.json");
+    document.body.appendChild(downloadElement);
+    downloadElement.click();
+    downloadElement.remove();
+  };
+
+  const handleStateUpload = () => {
+    var uploadElement = document.getElementById("stateUploadButton");
+    uploadElement.click();
+  };
+
+  const handleFileChange = file => {
+    const fr = new FileReader();
+    fr.onload = e => {
+      try {
+        const state = JSON.parse(e.target.result);
+        uploadState({
+          nodes: state.nodes,
+          edges: state.edges,
+          nodePositions: state.nodePositions,
+        });
+      } catch (e) {
+        alert("Invalid JSON file.");
+      }
+    };
+    fr.readAsText(file);
+  };
+
   return (
     <div>
       <IconButton
@@ -160,7 +201,7 @@ function StageDrawer({
         color="primary"
         style={{ position: "absolute", zIndex: "1" }}
       >
-        <MenuIcon />
+        <MenuRoundedIcon />
       </IconButton>
       <Drawer
         className={classes.drawer}
@@ -172,9 +213,32 @@ function StageDrawer({
         }}
       >
         <div className={classes.drawerHeader}>
-          <IconButton onClick={handleDrawerClose} color="primary">
-            <ChevronLeftIcon />
-          </IconButton>
+          <div>
+            <IconButton onClick={() => {}} color="primary">
+              <UndoRoundedIcon />
+            </IconButton>
+            <IconButton onClick={handleStageReset} color="primary">
+              <NoteAddRoundedIcon />
+            </IconButton>
+            <IconButton onClick={handleStateDownload} color="primary">
+              <GetAppRoundedIcon />
+            </IconButton>
+            <IconButton onClick={handleStateUpload} color="primary">
+              <PublishRoundedIcon />
+            </IconButton>
+            <input
+              id={"stateUploadButton"}
+              style={{ display: "none" }}
+              type="file"
+              accept=".json"
+              onChange={e => handleFileChange(e.target.files[0])}
+            />
+          </div>
+          <div>
+            <IconButton onClick={handleDrawerClose} color="primary">
+              <ChevronLeftRoundedIcon />
+            </IconButton>
+          </div>
         </div>
         <Divider />
         <div className={classes.toolbarInfo}>
@@ -195,8 +259,9 @@ function StageDrawer({
               onClose={handleNodeInfoClose}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
-                Describe the node's pieces as a JSON array. Holes are null,
-                other pieces are strings.
+                Describe the node's pieces in the textfield below. Holes are
+                represented by the special {"{{}}"} character combination,
+                separated by a space before and after the combination.
               </Typography>
             </Popover>
           </div>
@@ -206,27 +271,19 @@ function StageDrawer({
             variant="outlined"
             fullWidth
             size="medium"
-            placeholder='ex: [null, ".append(", null, ")"]'
+            placeholder="ex: {{}} .append( {{}} )"
             margin="dense"
             multiline
             onChange={e => handleAddChange(e.target.value)}
-            error={!isAddValid && !isAddEmpty}
-            helperText={
-              isAddValid
-                ? ""
-                : !isAddValid && !isAddEmpty
-                ? "Invalid JSON array."
-                : "Insert JSON array."
-            }
           ></TextField>
           <div>
             <IconButton
               size="medium"
               onClick={() => handleNodeCreationClick()}
-              disabled={!isAddValid}
+              disabled={isAddEmpty}
               color={addingNode ? "secondary" : "primary"}
             >
-              <AddIcon />
+              <AddRoundedIcon />
             </IconButton>
           </div>
         </div>
@@ -249,8 +306,9 @@ function StageDrawer({
               onClose={handleNodeInfoClose}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
-                Describe the node's pieces as a JSON array. Holes are null,
-                other pieces are strings.
+                Describe the node's pieces in the textfield below. Holes are
+                represented by the special {"{{}}"} character combination,
+                separated by a space before and after the combination.
               </Typography>
             </Popover>
           </div>
@@ -265,41 +323,16 @@ function StageDrawer({
               margin="dense"
               multiline
               onChange={e => handleEditChange(e.target.value)}
-              error={!isEditValid && !isEditEmpty}
-              helperText={
-                isEditValid
-                  ? ""
-                  : !isEditValid && !isEditEmpty
-                  ? "Invalid JSON array."
-                  : "Insert JSON array."
-              }
-              defaultValue={
-                selectedNode ? "[" + selectedNode.pieces + "]" : ""
-                // selectedNode.pieces.reduce(
-                //   (acc, current, index, arrayRef) => {
-                //     let temp = current;
-                //     if (current === null) temp = "null";
-
-                //     if (
-                //       index === arrayRef.length - 1 &&
-                //       arrayRef.length > 1
-                //     )
-                //       return `${acc},${temp}]`;
-                //     if (index === 0) return `${acc}${temp}`;
-                //     return `${acc}${temp}`;
-                //   },
-                //   "["
-                // )
-              }
+              defaultValue={selectedNode ? selectedNode.pieces.join(" ") : ""}
             ></TextField>
             <div>
               <IconButton
                 size="medium"
                 onClick={() => handleNodeEdit()}
-                disabled={!isEditValid}
+                disabled={isEditEmpty}
                 color="primary"
               >
-                <UpdateIcon />
+                <UpdateRoundedIcon />
               </IconButton>
             </div>
           </div>
@@ -327,7 +360,7 @@ function StageDrawer({
               onClose={handleEdgeInfoClose}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
-                Describe the edge type as a string.
+                Describe the edge type in the textfield below.
               </Typography>
             </Popover>
           </div>
@@ -344,7 +377,6 @@ function StageDrawer({
               onChange={e => {
                 handleTypeChange(e.target.value);
               }}
-              helperText={!isTypeEmpty ? "" : "Insert a string."}
               defaultValue={selectedEdge ? selectedEdge.type : ""}
             ></TextField>
             <div>
@@ -354,7 +386,11 @@ function StageDrawer({
                 disabled={isTypeEmpty}
                 color="primary"
               >
-                {selectedEdge.type === "" ? <AddIcon /> : <UpdateIcon />}
+                {selectedEdge.type === "" ? (
+                  <AddRoundedIcon />
+                ) : (
+                  <UpdateRoundedIcon />
+                )}
               </IconButton>
             </div>
           </div>
