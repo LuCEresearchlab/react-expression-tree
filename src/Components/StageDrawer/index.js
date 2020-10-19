@@ -3,12 +3,14 @@ import StageDrawer from "./StageDrawer";
 import * as actions from "../../store/actions";
 
 const mapStateToProps = state => ({
-  selectedNode: state.editor.selectedNode,
+  selectedNode: state.editor.present.selectedNode,
   addingNode: state.drawer.addingNode,
-  selectedEdge: state.editor.selectedEdge,
-  nodes: state.editor.nodes,
-  edges: state.editor.edges,
-  nodePositions: state.editor.nodePositions,
+  selectedEdge: state.editor.present.selectedEdge,
+  nodes: state.editor.present.nodes,
+  edges: state.editor.present.edges,
+  nodePositions: state.editor.present.nodePositions,
+  canUndo: state.editor.past.length > 0,
+  canRedo: state.editor.future.length > 0,
 });
 
 export default connect(mapStateToProps, actions)(StageDrawer);

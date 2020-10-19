@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { ActionCreators } from "redux-undo";
 import { makeStyles } from "@material-ui/core/styles";
 import AddRoundedIcon from "@material-ui/icons/Add";
 import UpdateRoundedIcon from "@material-ui/icons/UpdateRounded";
@@ -8,6 +10,7 @@ import MenuRoundedIcon from "@material-ui/icons/Menu";
 import GetAppRoundedIcon from "@material-ui/icons/GetApp";
 import PublishRoundedIcon from "@material-ui/icons/Publish";
 import UndoRoundedIcon from "@material-ui/icons/UndoRounded";
+import RedoRoundedIcon from "@material-ui/icons/RedoRounded";
 import NoteAddRoundedIcon from "@material-ui/icons/NoteAddRounded";
 import {
   Drawer,
@@ -31,7 +34,7 @@ const useStyles = makeStyles(theme => ({
   drawerHeader: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
   toolbarInfo: {
     display: "flex",
@@ -77,6 +80,8 @@ function StageDrawer({
   edges,
   nodePositions,
   uploadState,
+  canUndo,
+  canRedo,
 }) {
   const classes = useStyles();
 
@@ -91,39 +96,13 @@ function StageDrawer({
   const isNodeInfoOpen = !!nodeAnchorEl;
   const isEdgeInfoOpen = !!edgeAnchorEl;
 
-  const handleDrawerOpen = () => {
-    setIsDrawerOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setIsDrawerOpen(false);
-  };
-
-  const handleNodeInfoOpen = e => {
-    setNodeAnchorEl(e.target);
-  };
-
-  const handleNodeInfoClose = () => {
-    setNodeAnchorEl(null);
-  };
-
-  const handleEdgeInfoOpen = e => {
-    setEdgeAnchorEl(e.target);
-  };
-
-  const handleEdgeInfoClose = () => {
-    setEdgeAnchorEl(null);
-  };
+  const dispatch = useDispatch();
 
   const handleAddChange = value => {
     clearAdding();
     value !== "" ? setIsAddEmpty(false) : setIsAddEmpty(true);
     const addValue = value.split(" ");
     addValueChange({ addValue: addValue });
-  };
-
-  const handleNodeCreationClick = () => {
-    addingNodeClick();
   };
 
   const handleEditChange = value => {
@@ -149,10 +128,6 @@ function StageDrawer({
       type: typeValue,
       selectedEdgeId: selectedEdge.id,
     });
-  };
-
-  const handleStageReset = () => {
-    stageReset();
   };
 
   const handleStateDownload = () => {
@@ -197,7 +172,7 @@ function StageDrawer({
   return (
     <div>
       <IconButton
-        onClick={handleDrawerOpen}
+        onClick={() => setIsDrawerOpen(true)}
         color="primary"
         style={{ position: "absolute", zIndex: "1" }}
       >
@@ -213,32 +188,39 @@ function StageDrawer({
         }}
       >
         <div className={classes.drawerHeader}>
-          <div>
-            <IconButton onClick={() => {}} color="primary">
-              <UndoRoundedIcon />
-            </IconButton>
-            <IconButton onClick={handleStageReset} color="primary">
-              <NoteAddRoundedIcon />
-            </IconButton>
-            <IconButton onClick={handleStateDownload} color="primary">
-              <GetAppRoundedIcon />
-            </IconButton>
-            <IconButton onClick={handleStateUpload} color="primary">
-              <PublishRoundedIcon />
-            </IconButton>
-            <input
-              id={"stateUploadButton"}
-              style={{ display: "none" }}
-              type="file"
-              accept=".json"
-              onChange={e => handleFileChange(e.target.files[0])}
-            />
-          </div>
-          <div>
-            <IconButton onClick={handleDrawerClose} color="primary">
-              <ChevronLeftRoundedIcon />
-            </IconButton>
-          </div>
+          <IconButton
+            onClick={() => dispatch(ActionCreators.undo())}
+            color="primary"
+            disabled={!canUndo}
+          >
+            <UndoRoundedIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => dispatch(ActionCreators.redo())}
+            color="primary"
+            disabled={!canRedo}
+          >
+            <RedoRoundedIcon />
+          </IconButton>
+          <IconButton onClick={() => stageReset()} color="primary">
+            <NoteAddRoundedIcon />
+          </IconButton>
+          <IconButton onClick={handleStateDownload} color="primary">
+            <GetAppRoundedIcon />
+          </IconButton>
+          <IconButton onClick={handleStateUpload} color="primary">
+            <PublishRoundedIcon />
+          </IconButton>
+          <input
+            id={"stateUploadButton"}
+            style={{ display: "none" }}
+            type="file"
+            accept=".json"
+            onChange={e => handleFileChange(e.target.files[0])}
+          />
+          <IconButton onClick={() => setIsDrawerOpen(false)} color="primary">
+            <ChevronLeftRoundedIcon />
+          </IconButton>
         </div>
         <Divider />
         <div className={classes.toolbarInfo}>
@@ -246,7 +228,7 @@ function StageDrawer({
           <div>
             <IconButton
               size="small"
-              onClick={e => handleNodeInfoOpen(e)}
+              onClick={e => setNodeAnchorEl(e.target)}
               color="primary"
             >
               <InfoOutlinedIcon />
@@ -256,7 +238,7 @@ function StageDrawer({
               open={isNodeInfoOpen}
               anchorEl={nodeAnchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={handleNodeInfoClose}
+              onClose={() => setNodeAnchorEl(null)}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
@@ -279,7 +261,7 @@ function StageDrawer({
           <div>
             <IconButton
               size="medium"
-              onClick={() => handleNodeCreationClick()}
+              onClick={() => addingNodeClick()}
               disabled={isAddEmpty}
               color={addingNode ? "secondary" : "primary"}
             >
@@ -293,7 +275,7 @@ function StageDrawer({
           <div>
             <IconButton
               size="small"
-              onClick={e => handleNodeInfoOpen(e)}
+              onClick={e => setNodeAnchorEl(e.target)}
               color="primary"
             >
               <InfoOutlinedIcon />
@@ -303,7 +285,7 @@ function StageDrawer({
               open={isNodeInfoOpen}
               anchorEl={nodeAnchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={handleNodeInfoClose}
+              onClose={() => setNodeAnchorEl(null)}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
@@ -347,7 +329,7 @@ function StageDrawer({
           <div>
             <IconButton
               size="small"
-              onClick={e => handleEdgeInfoOpen(e)}
+              onClick={e => setEdgeAnchorEl(e.target)}
               color="primary"
             >
               <InfoOutlinedIcon />
@@ -357,7 +339,7 @@ function StageDrawer({
               open={isEdgeInfoOpen}
               anchorEl={edgeAnchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={handleEdgeInfoClose}
+              onClose={() => setEdgeAnchorEl(null)}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the edge type in the textfield below.

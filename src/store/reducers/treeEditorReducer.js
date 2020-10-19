@@ -1,7 +1,9 @@
+import undoable, { excludeAction, groupByActionTypes } from "redux-undo";
+
 const initialNodes = [
   { id: 0, pieces: ["19"] },
   { id: 1, pieces: ["age"] },
-  { id: 2, pieces: ["Hello", "World!"] },
+  { id: 2, pieces: ['"Hello', 'World!"'] },
   { id: 3, pieces: ["-", "{{}}"] },
   { id: 4, pieces: ["{{}}", "<", "{{}}"] },
   { id: 5, pieces: ["{{}}", "+", "{{}}"] },
@@ -215,4 +217,9 @@ const treeEditorReducer = (state = initialState, action) => {
   }
 };
 
-export default treeEditorReducer;
+const undoableTreeEditorReducer = undoable(treeEditorReducer, {
+  filter: excludeAction([]),
+  groupBy: groupByActionTypes([]),
+});
+
+export default undoableTreeEditorReducer;
