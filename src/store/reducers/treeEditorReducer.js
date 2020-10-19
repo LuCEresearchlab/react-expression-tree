@@ -1,4 +1,4 @@
-import undoable, { excludeAction, groupByActionTypes } from "redux-undo";
+import undoable, { groupByActionTypes } from "redux-undo";
 
 const initialNodes = [
   { id: 0, pieces: ["19"] },
@@ -218,8 +218,19 @@ const treeEditorReducer = (state = initialState, action) => {
 };
 
 const undoableTreeEditorReducer = undoable(treeEditorReducer, {
-  filter: excludeAction([]),
-  groupBy: groupByActionTypes([]),
+  filter: function filterActions(action) {
+    return (
+      action.type !== "clearNodeSelection" &&
+      action.type !== "clearEdgeSelection" &&
+      action.type !== "selectNode" &&
+      action.type !== "selectEdge" &&
+      action.type !== "setDragEdge" &&
+      action.type !== "clearDragEdge" &&
+      action.type !== "moveDragEdgeChildEndTo" &&
+      action.type !== "moveDragEdgeParentEndTo"
+    );
+  },
+  groupBy: groupByActionTypes(["moveNodeTo"]),
 });
 
 export default undoableTreeEditorReducer;
