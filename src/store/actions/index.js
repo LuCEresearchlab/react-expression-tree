@@ -91,3 +91,12 @@ export const uploadState = payload => ({
   type: "uploadState",
   payload,
 });
+
+export const selectRootNode = payload => ({
+  type: "selectRootNode",
+  payload,
+});
+
+export const clearRootSelection = () => ({
+  type: "clearRootSelection",
+});

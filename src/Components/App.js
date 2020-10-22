@@ -11,10 +11,11 @@ function App() {
   });
 
   return (
-    <>
-      {/* <div style={{ height: "300px" }}></div> */}
-      <ExpressionTreeEditor width={stageWidth} height={stageHeight} />
-    </>
+    <ExpressionTreeEditor
+      width={stageWidth}
+      height={stageHeight}
+      connectorPlaceholder="{{}}"
+    />
   );
 }
 

@@ -11,6 +11,7 @@ const mapStateToProps = state => ({
   nodePositions: state.editor.present.nodePositions,
   canUndo: state.editor.past.length > 0,
   canRedo: state.editor.future.length > 0,
+  selectedRootNode: state.editor.present.selectedRootNode,
 });
 
 export default connect(mapStateToProps, actions)(StageDrawer);

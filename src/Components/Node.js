@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Rect, Text, Group, Circle, Transformer } from "react-konva";
+import { Rect, Text, Group, Circle, Star, Transformer } from "react-konva";
 import {
   log,
   xPad,
@@ -14,17 +14,20 @@ import {
 } from "../utils.js";
 
 function Node({
+  connectorPlaceholder,
   id,
   pieces,
   x,
   y,
-  selected,
+  isSelected,
   onNodeMove,
   onNodeConnectorDragStart,
   onPieceConnectorDragStart,
   onNodeClick,
+  onNodeDblClick,
   stageWidth,
   stageHeight,
+  isSelectedRoot,
 }) {
   const nodeRef = useRef();
   const transformerRef = useRef();
@@ -38,36 +41,46 @@ function Node({
     .map(e => (e !== null ? e.length : 1))
     .reduce((acc, e) => acc + e, 0);
   const [fontSize, setFontSize] = useState(defaultFontSize);
-  const nodeMinWidth = computeNodeWidth(pieces, defaultFontSize);
+  const nodeMinWidth = computeNodeWidth(
+    pieces,
+    defaultFontSize,
+    connectorPlaceholder
+  );
   const [nodeWidth, setNodeWidth] = useState(2 * xPad + nodeMinWidth);
   const [nodeHeight, setNodeHeight] = useState(2 * yPad + textHeight);
   const [piecesPos, setPiecesPos] = useState(
-    computePiecesPositions(pieces, fontSize)
+    computePiecesPositions(pieces, fontSize, connectorPlaceholder)
   );
 
-  const nodePiecesWidths = computePiecesWidths(pieces, fontSize);
+  const nodePiecesWidths = computePiecesWidths(
+    pieces,
+    fontSize,
+    connectorPlaceholder
+  );
 
   useEffect(() => {
-    if (selected) {
+    if (isSelected) {
       transformerRef.current.nodes([nodeRef.current]);
       transformerRef.current.getLayer().batchDraw();
     }
-  }, [selected]);
+  }, [isSelected]);
 
   const handleDragStart = e => {
     const id = e.target.id();
     setDraggingNode(true);
     log("Node.handleDragStart", id, e);
   };
-  const handleDragMove = e => {
-    if (draggingNode) {
-      const id = e.target.id();
-      log("Node.handleDragMove", id, e);
-      const x = e.target.x();
-      const y = e.target.y();
-      onNodeMove(id, x, y);
-    }
-  };
+
+  // const handleDragMove = e => {
+  //   if (draggingNode) {
+  //     const id = e.target.id();
+  //     log("Node.handleDragMove", id, e);
+  //     const x = e.target.x();
+  //     const y = e.target.y();
+  //     onNodeMove(id, x, y);
+  //   }
+  // };
+
   const handleDragEnd = e => {
     if (draggingNode) {
       const id = e.target.id();
@@ -149,9 +162,10 @@ function Node({
       y={y}
       draggable
       onDragStart={handleDragStart}
-      onDragMove={handleDragMove}
+      // onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onClick={handleNodeClick}
+      onDblClick={onNodeDblClick}
       dragBoundFunc={pos => checkDragBound(pos)}
     >
       <Rect
@@ -166,7 +180,7 @@ function Node({
         strokeWidth={1}
         strokeScaleEnabled={false}
         cornerRadius={5}
-        shadowBlur={selected ? 4 : 0}
+        shadowBlur={isSelected ? 4 : 0}
         ref={nodeRef}
         onTransform={() => {
           const node = nodeRef.current;
@@ -174,7 +188,9 @@ function Node({
         }}
         onTransformEnd={() => {
           const node = nodeRef.current;
-          setPiecesPos(computePiecesPositions(pieces, fontSize));
+          setPiecesPos(
+            computePiecesPositions(pieces, fontSize, connectorPlaceholder)
+          );
           setNodeWidth(node.width() * node.scaleX());
           node.scaleX(1);
           node.x(0);
@@ -191,21 +207,36 @@ function Node({
         fontSize={defaultFontSize * 0.5}
         text={"" + id}
       />
-      <Circle
-        kind="NodeConnector"
-        key={"NodeConnector-" + id}
-        id={id}
-        x={nodeWidth / 2}
-        y={0}
-        radius={6}
-        fill="black"
-        draggable
-        onDragStart={handleNodeConnectorDragStart}
-        onDragMove={e => {}}
-        onDragEnd={e => {}}
-      />
+      {isSelectedRoot ? (
+        <Star
+          x={nodeWidth / 2}
+          y={0}
+          numPoints={5}
+          innerRadius={5}
+          outerRadius={10}
+          fill="red"
+          draggable
+          onDragStart={handleNodeConnectorDragStart}
+          onDragMove={e => {}}
+          onDragEnd={e => {}}
+        />
+      ) : (
+        <Circle
+          kind="NodeConnector"
+          key={"NodeConnector-" + id}
+          id={id}
+          x={nodeWidth / 2}
+          y={0}
+          radius={6}
+          fill="black"
+          draggable
+          onDragStart={handleNodeConnectorDragStart}
+          onDragMove={e => {}}
+          onDragEnd={e => {}}
+        />
+      )}
       {pieces.map((p, i) =>
-        p === "{{}}" ? (
+        p === connectorPlaceholder ? (
           <Rect
             kind="HolePiece"
             key={"HolePiece-" + i}
@@ -220,8 +251,6 @@ function Node({
             cornerRadius={4}
             draggable
             onDragStart={e => handlePieceConnectorDragStart(e, id)}
-            onDragMove={e => {}}
-            onDragEnd={e => {}}
           />
         ) : (
           <Text
@@ -236,7 +265,7 @@ function Node({
           />
         )
       )}
-      {selected && (
+      {isSelected && (
         <Transformer
           ref={transformerRef}
           rotateEnabled={false}

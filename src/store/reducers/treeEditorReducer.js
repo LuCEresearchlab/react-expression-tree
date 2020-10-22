@@ -1,4 +1,4 @@
-import undoable, { groupByActionTypes } from "redux-undo";
+import undoable from "redux-undo";
 
 const initialNodes = [
   { id: 0, pieces: ["19"] },
@@ -35,6 +35,7 @@ const initialState = {
   dragEdge: null,
   selectedNode: null,
   selectedEdge: null,
+  selectedRootNode: null,
 };
 
 const treeEditorReducer = (state = initialState, action) => {
@@ -211,6 +212,16 @@ const treeEditorReducer = (state = initialState, action) => {
         selectedNode: null,
         selectedEdge: null,
       };
+    case "selectRootNode":
+      return {
+        ...state,
+        selectedRootNode: action.payload.selectedRootNode,
+      };
+    case "clearRootSelection":
+      return {
+        ...state,
+        selectedRootNode: null,
+      };
 
     default:
       return state;
@@ -230,7 +241,6 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "moveDragEdgeParentEndTo"
     );
   },
-  groupBy: groupByActionTypes(["moveNodeTo"]),
 });
 
 export default undoableTreeEditorReducer;

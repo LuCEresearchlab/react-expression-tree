@@ -12,6 +12,7 @@ import PublishRoundedIcon from "@material-ui/icons/Publish";
 import UndoRoundedIcon from "@material-ui/icons/UndoRounded";
 import RedoRoundedIcon from "@material-ui/icons/RedoRounded";
 import NoteAddRoundedIcon from "@material-ui/icons/NoteAddRounded";
+import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
 import {
   Drawer,
   IconButton,
@@ -19,6 +20,7 @@ import {
   Typography,
   TextField,
   Divider,
+  Button,
 } from "@material-ui/core";
 
 const drawerWidth = 300;
@@ -65,6 +67,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function StageDrawer({
+  connectorPlaceholder,
   addNode,
   selectedNode,
   editNode,
@@ -82,12 +85,14 @@ function StageDrawer({
   uploadState,
   canUndo,
   canRedo,
+  selectedRootNode,
 }) {
   const classes = useStyles();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [nodeAnchorEl, setNodeAnchorEl] = useState(null);
   const [edgeAnchorEl, setEdgeAnchorEl] = useState(null);
+  const [validationAnchorEl, setValidationAnchorEl] = useState(null);
   const [isAddEmpty, setIsAddEmpty] = useState(true);
   const [isEditEmpty, setIsEditEmpty] = useState(true);
   const [isTypeEmpty, setIsTypeEmpty] = useState(true);
@@ -95,6 +100,7 @@ function StageDrawer({
   const [typeValue, setTypeValue] = useState(null);
   const isNodeInfoOpen = !!nodeAnchorEl;
   const isEdgeInfoOpen = !!edgeAnchorEl;
+  const isValidationInfoOpen = !!validationAnchorEl;
 
   const dispatch = useDispatch();
 
@@ -152,7 +158,9 @@ function StageDrawer({
     uploadElement.click();
   };
 
-  const handleFileChange = file => {
+  const handleFileChange = e => {
+    const file = e.target.files[0];
+    e.target.value = "";
     const fr = new FileReader();
     fr.onload = e => {
       try {
@@ -167,6 +175,11 @@ function StageDrawer({
       }
     };
     fr.readAsText(file);
+  };
+
+  const handleReset = () => {
+    stageReset();
+    dispatch(ActionCreators.clearHistory());
   };
 
   return (
@@ -202,7 +215,7 @@ function StageDrawer({
           >
             <RedoRoundedIcon />
           </IconButton>
-          <IconButton onClick={() => stageReset()} color="primary">
+          <IconButton onClick={handleReset} color="primary">
             <NoteAddRoundedIcon />
           </IconButton>
           <IconButton onClick={handleStateDownload} color="primary">
@@ -216,7 +229,7 @@ function StageDrawer({
             style={{ display: "none" }}
             type="file"
             accept=".json"
-            onChange={e => handleFileChange(e.target.files[0])}
+            onChange={e => handleFileChange(e)}
           />
           <IconButton onClick={() => setIsDrawerOpen(false)} color="primary">
             <ChevronLeftRoundedIcon />
@@ -242,8 +255,9 @@ function StageDrawer({
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
-                represented by the special {"{{}}"} character combination,
-                separated by a space before and after the combination.
+                represented by the special {connectorPlaceholder} character
+                combination, separated by a space before and after the
+                combination.
               </Typography>
             </Popover>
           </div>
@@ -253,7 +267,13 @@ function StageDrawer({
             variant="outlined"
             fullWidth
             size="medium"
-            placeholder="ex: {{}} .append( {{}} )"
+            placeholder={
+              "ex: " +
+              connectorPlaceholder +
+              ".append(" +
+              connectorPlaceholder +
+              ")"
+            }
             margin="dense"
             multiline
             onChange={e => handleAddChange(e.target.value)}
@@ -289,8 +309,9 @@ function StageDrawer({
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
-                represented by the special {"{{}}"} character combination,
-                separated by a space before and after the combination.
+                represented by the special {connectorPlaceholder} character
+                combination, separated by a space before and after the
+                combination.
               </Typography>
             </Popover>
           </div>
@@ -298,10 +319,17 @@ function StageDrawer({
         {selectedNode ? (
           <div className={classes.toolbarField}>
             <TextField
+              key={selectedNode.id}
               variant="outlined"
               fullWidth
               size="medium"
-              placeholder='ex: [null, ".append(", null, ")"]'
+              placeholder={
+                "ex: " +
+                connectorPlaceholder +
+                ".append(" +
+                connectorPlaceholder +
+                ")"
+              }
               margin="dense"
               multiline
               onChange={e => handleEditChange(e.target.value)}
@@ -379,6 +407,46 @@ function StageDrawer({
         ) : (
           <Typography className={classes.editText}>
             Start by selecting an edge.
+          </Typography>
+        )}
+        <Divider />
+        <div className={classes.toolbarInfo}>
+          <Typography variant="h6">Validate a tree:</Typography>
+          <div>
+            <IconButton
+              size="small"
+              onClick={e => setValidationAnchorEl(e.target)}
+              color="primary"
+            >
+              <InfoOutlinedIcon />
+            </IconButton>
+            <Popover
+              className={classes.infoPopover}
+              open={isValidationInfoOpen}
+              anchorEl={validationAnchorEl}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              onClose={() => setValidationAnchorEl(null)}
+            >
+              <Typography className={classes.infoPopoverText} variant="body2">
+                Validate a tree starting from a root node.
+              </Typography>
+            </Popover>
+          </div>
+        </div>
+        {selectedRootNode ? (
+          <div className={classes.toolbarField}>
+            <Button
+              variant="contained"
+              color="primary"
+              endIcon={<CheckRoundedIcon />}
+              onClick={() => {}}
+            >
+              Validate tree
+            </Button>
+          </div>
+        ) : (
+          <Typography className={classes.editText}>
+            Start by selecting a node as root.
           </Typography>
         )}
         <Divider />

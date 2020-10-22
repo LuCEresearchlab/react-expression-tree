@@ -11,6 +11,7 @@ import {
 
 function Edge({
   id,
+  connectorPlaceholder,
   parentPieces,
   parentPieceId,
   childPieces,
@@ -23,8 +24,8 @@ function Edge({
   selected,
   type,
 }) {
-  const xes = computePiecesPositions(parentPieces);
-  const childWidth = computeNodeWidth(childPieces);
+  const xes = computePiecesPositions(parentPieces, connectorPlaceholder);
+  const childWidth = computeNodeWidth(childPieces, connectorPlaceholder);
 
   return [
     <Line

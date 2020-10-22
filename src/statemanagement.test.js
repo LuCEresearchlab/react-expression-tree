@@ -301,8 +301,4 @@ describe("reducer", () => {
     ]);
     expect(state.editor.edges).toEqual([]);
   });
-
-  // it("should throw for unknown actions", () => {
-  //   expect(() => reducer({}, { type: "UNKNOWN" })).toThrow(Error);
-  // });
 });

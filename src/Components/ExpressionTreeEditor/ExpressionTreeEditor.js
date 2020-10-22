@@ -20,6 +20,7 @@ import {
 function ExpressionTreeEditor({
   width,
   height,
+  connectorPlaceholder,
   nodes,
   edges,
   nodePositions,
@@ -43,6 +44,9 @@ function ExpressionTreeEditor({
   selectEdge,
   clearEdgeSelection,
   selectedEdge,
+  selectRootNode,
+  selectedRootNode,
+  clearRootSelection,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -174,7 +178,6 @@ function ExpressionTreeEditor({
     }
   };
   const handleStageMouseMove = e => {
-    //console.log("ExpressionTreeEditor.handleStageMouseMove(", e, ")");
     //TODO: Provide drop target feedback
     //      (e.g., DragEdge color, Node's connector color)
     if (dragEdge) {
@@ -221,10 +224,6 @@ function ExpressionTreeEditor({
             parentPiece &&
             dragEdge.childNodeId !== parentPiece.parentNodeId
           ) {
-            // Note: if we do this we somehow get the wrong childNodeId
-            // (Is the dragEdge.childY set wrong? Why?)
-            //const childNodeId = closestChildId(dragEdge.childX, dragEdge.childY, nodes, nodePositions);
-            //console.log("    childNodeId: ", childNodeId);
             const newEdge = {
               childNodeId: dragEdge.childNodeId,
               parentNodeId: parentPiece.parentNodeId,
@@ -260,9 +259,6 @@ function ExpressionTreeEditor({
         } else {
           log("    no original edge");
           if (childNodeId && dragEdge.parentNodeId !== childNodeId) {
-            // Note: if we do this we somehow get the wrong parentPieceId
-            // (Is the dragEdge.parentX set wrong? Why?)
-            //const parentPiece = closestParentPiece(dragEdge.parentX, dragEdge.parentY, nodes, nodePositions);
             const newEdge = {
               parentNodeId: dragEdge.parentNodeId,
               parentPieceId: dragEdge.parentPieceId,
@@ -290,20 +286,7 @@ function ExpressionTreeEditor({
       clearEdgeSelection();
     }
   };
-  // const handleStageDblClick = e => {
-  //   log("ExpressionTreeEditor.handleStageDblClick(", e, ")");
-  //   const piecesString = prompt(
-  //     "CREATE NEW AST NODE. Describe the node's pieces as a JSON array. Holes are null, other pieces are strings.",
-  //     '["Math.max(", null, ",", null, ")"]'
-  //   );
-  //   log("piecesString:", piecesString);
-  //   const pieces = JSON.parse(piecesString);
-  //   addNode({
-  //     pieces,
-  //     x: e.evt.x,
-  //     y: e.evt.y,
-  //   });
-  // };
+
   const handleNodeClick = (e, nodeId) => {
     if (addingNode) {
       addNode({
@@ -315,7 +298,16 @@ function ExpressionTreeEditor({
     } else {
       const selectedNode = nodeById(nodeId, nodes);
       clearEdgeSelection();
-      selectNode({ nodeId: nodeId, selectedNode: selectedNode });
+      selectNode({ selectedNode: selectedNode });
+    }
+  };
+
+  const handleNodeDblClick = nodeId => {
+    if (selectedRootNode !== null && selectedRootNode.id === nodeId) {
+      clearRootSelection();
+    } else {
+      const selectedRootNode = nodeById(nodeId, nodes);
+      selectRootNode({ selectedRootNode: selectedRootNode });
     }
   };
 
@@ -326,17 +318,9 @@ function ExpressionTreeEditor({
     selectEdge({ selectedEdge: selectedEdge });
   };
 
-  // const handleStageDrag = e => {
-  //   // e.cancelBubble = true;
-  //   console.log(e.target.attrs);
-  //   console.log(stageRef.current.attrs);
-  //   stageRef.current.x(e.target.attrs.x);
-  //   stageRef.current.y(e.target.attrs.y);
-  // };
-
   return (
     <>
-      <StageDrawer />
+      <StageDrawer connectorPlaceholder={connectorPlaceholder} />
       <Stage
         ref={stageRef}
         width={width}
@@ -345,15 +329,14 @@ function ExpressionTreeEditor({
         onMouseUp={handleStageMouseUp}
         onClick={handleStageClick}
         style={addingNode ? { cursor: "crosshair" } : {}}
-        // onDblClick={handleStageDblClick}
         // draggable
-        // onDragMove={e => handleStageDrag(e)}
       >
         <Layer>
           {edges.map((edge, i) => (
             <Edge
               key={"Edge-" + edge.id}
               id={edge.id}
+              connectorPlaceholder={connectorPlaceholder}
               beingDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
               parentPieces={nodeById(edge.parentNodeId, nodes).pieces}
               parentPieceId={edge.parentPieceId}
@@ -371,18 +354,25 @@ function ExpressionTreeEditor({
           ))}
           {nodes.map((node, i) => (
             <Node
+              connectorPlaceholder={connectorPlaceholder}
               key={"Node-" + node.id}
               id={node.id}
               x={nodePositionById(node.id, nodePositions).x}
               y={nodePositionById(node.id, nodePositions).y}
               pieces={node.pieces}
-              selected={
+              isSelected={
                 selectedNode !== null ? selectedNode.id === node.id : false
+              }
+              isSelectedRoot={
+                selectedRootNode !== null
+                  ? selectedRootNode.id === node.id
+                  : false
               }
               onNodeMove={handleNodeMove}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
               onPieceConnectorDragStart={handlePieceConnectorDragStart}
               onNodeClick={e => handleNodeClick(e, node.id)}
+              onNodeDblClick={() => handleNodeDblClick(node.id)}
               stageWidth={width}
               stageHeight={height}
             />
