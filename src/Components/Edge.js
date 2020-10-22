@@ -24,7 +24,7 @@ function Edge({
         childX + xPad + childWidth / 2,
         childY,
       ]}
-      stroke={beingDragged ? "#f0f0f0" : selected ? "red" : "black"}
+      stroke={beingDragged ? "#f0f0f0" : selected ? "blue" : "black"}
       strokeWidth={5}
       onClick={onEdgeClick}
     />,
@@ -32,7 +32,7 @@ function Edge({
       key={"Edge-Text-" + id}
       x={childX + xPad + childWidth / 2}
       y={childY - 30}
-      fill="red"
+      fill="blue"
       fontFamily={"Arial"}
       fontSize={20}
       text={type}

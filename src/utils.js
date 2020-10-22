@@ -81,19 +81,13 @@ export const computeEdgeChildPos = (childNodeId, nodes) => {
 export const computeEdgeParentPos = (
   parentNodeId,
   parentPieceId,
+  parentPieceX,
   nodes,
   connectorPlaceholder
 ) => {
   const node = nodeById(parentNodeId, nodes);
   return {
-    x:
-      node.x +
-      xPad +
-      computePiecesPositions(
-        nodeById(parentNodeId, nodes).pieces,
-        connectorPlaceholder
-      )[parentPieceId] +
-      holeWidth / 2,
+    x: node.x + xPad + parentPieceX + holeWidth / 2,
     y: node.y + yPad + textHeight,
   };
 };
@@ -120,11 +114,14 @@ export const closestParentPiece = (x, y, nodes, connectorPlaceholder) => {
   let closestPiece = null;
   let closestDist = null;
   nodes.forEach(node => {
-    nodeById(node.id, nodes).pieces.forEach((piece, i) => {
+    const pieces = nodeById(node.id, nodes).pieces;
+    pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
+        const pieceX = computePiecesPositions(pieces, connectorPlaceholder)[i];
         const pos = computeEdgeParentPos(
           node.id,
           i,
+          pieceX,
           nodes,
           connectorPlaceholder
         );

@@ -105,9 +105,14 @@ function ExpressionTreeEditor({
     const edge = edgeByChildNode(nodeId, edges);
     if (edge) {
       log("edge found:", edge);
+      const parentPieceX = computePiecesPositions(
+        nodeById(edge.parentNodeId, nodes).pieces,
+        connectorPlaceholder
+      )[edge.parentPieceId];
       const parentPos = computeEdgeParentPos(
         edge.parentNodeId,
         edge.parentPieceId,
+        parentPieceX,
         nodes,
         connectorPlaceholder
       );

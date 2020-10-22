@@ -36,7 +36,8 @@ function Node({
   // when we don't drag the node itself but drag from a connector
   const [draggingNode, setDraggingNode] = useState(false);
 
-  const nodeHeight = 2 * yPad + textHeight;
+  const nodePadHeight = 2 * yPad + textHeight;
+  const nodePadWidth = 2 * xPad + nodeWidth;
   const piecesPos = computePiecesPositions(pieces, connectorPlaceholder);
   const nodePiecesWidths = computePiecesWidths(pieces, connectorPlaceholder);
 
@@ -90,7 +91,7 @@ function Node({
       nodeId,
       pieceId,
       pos.x + holeWidth / 2,
-      pos.y + textHeight
+      pos.y + holeWidth * 0.75
     );
   };
 
@@ -104,13 +105,13 @@ function Node({
     var newY = pos.y;
     if (pos.x < 0) {
       newX = 0;
-    } else if (pos.x > stageWidth - nodeWidth) {
-      newX = stageWidth - nodeWidth;
+    } else if (pos.x > stageWidth - nodePadWidth) {
+      newX = stageWidth - nodePadWidth;
     }
     if (pos.y < 0) {
       newY = 0;
-    } else if (pos.y > stageHeight - nodeHeight) {
-      newY = stageHeight - nodeHeight;
+    } else if (pos.y > stageHeight - nodePadHeight) {
+      newY = stageHeight - nodePadHeight;
     }
     return {
       x: newX,
@@ -138,8 +139,8 @@ function Node({
         key={"NodeRect-" + id}
         x={0}
         y={0}
-        width={2 * xPad + nodeWidth}
-        height={nodeHeight}
+        width={nodePadWidth}
+        height={nodePadHeight}
         fill="#208020"
         stroke="black"
         strokeWidth={1}
@@ -154,16 +155,16 @@ function Node({
         fill="white"
         fontFamily={"Arial"}
         fontSize={defaultFontSize * 0.5}
-        text={"" + id}
+        text={id}
       />
       {isSelectedRoot ? (
         <Star
-          x={xPad + nodeWidth / 2}
+          x={nodePadWidth / 2}
           y={0}
           numPoints={5}
           innerRadius={5}
           outerRadius={10}
-          fill="red"
+          fill="blue"
           draggable
           onDragStart={handleNodeConnectorDragStart}
           onDragMove={e => {}}
@@ -174,7 +175,7 @@ function Node({
           kind="NodeConnector"
           key={"NodeConnector-" + id}
           id={id}
-          x={xPad + nodeWidth / 2}
+          x={nodePadWidth / 2}
           y={0}
           radius={6}
           fill="black"
@@ -191,15 +192,17 @@ function Node({
             key={"HolePiece-" + i}
             id={i}
             x={xPad + piecesPos[i]}
-            y={holeWidth}
+            y={nodePadHeight / 2 - yPad}
             width={nodePiecesWidths[i]}
             height={nodePiecesWidths[i] * 1.5}
             fill="#104010"
             stroke="black"
             strokeWidth={1}
-            cornerRadius={4}
+            cornerRadius={3}
             draggable
             onDragStart={e => handlePieceConnectorDragStart(e, id)}
+            onDragMove={e => {}}
+            onDragEnd={e => {}}
           />
         ) : (
           <Text
