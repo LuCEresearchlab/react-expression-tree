@@ -1,21 +1,11 @@
 import React from "react";
 import { Line, Text } from "react-konva";
-import {
-  xPad,
-  yPad,
-  holeWidth,
-  textHeight,
-  computePiecesPositions,
-  computeNodeWidth,
-  defaultFontSize,
-} from "../utils.js";
+import { xPad, yPad, holeWidth, textHeight } from "../utils.js";
 
 function Edge({
   id,
-  connectorPlaceholder,
-  parentPieces,
-  parentPieceId,
-  childPieces,
+  childWidth,
+  parentPieceX,
   parentX,
   parentY,
   childX,
@@ -25,22 +15,11 @@ function Edge({
   selected,
   type,
 }) {
-  const xes = computePiecesPositions(
-    parentPieces,
-    defaultFontSize,
-    connectorPlaceholder
-  );
-  const childWidth = computeNodeWidth(
-    childPieces,
-    defaultFontSize,
-    connectorPlaceholder
-  );
-
   return [
     <Line
       key={"Edge-Line-" + id}
       points={[
-        parentX + xPad + xes[parentPieceId] + holeWidth / 2,
+        parentX + xPad + parentPieceX + holeWidth / 2,
         parentY + yPad + textHeight / 2,
         childX + xPad + childWidth / 2,
         childY,

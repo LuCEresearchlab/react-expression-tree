@@ -70,23 +70,11 @@ export function edgeByParentPiece(parentNodeId, parentPieceId, edges) {
   );
 }
 
-export const computeEdgeChildPos = (
-  childNodeId,
-  nodes,
-  connectorPlaceholder
-) => {
-  const nodePos = nodePositionById(childNodeId, nodes);
+export const computeEdgeChildPos = (childNodeId, nodes) => {
+  const node = nodeById(childNodeId, nodes);
   return {
-    x:
-      nodePos.x +
-      xPad +
-      computeNodeWidth(
-        nodeById(childNodeId, nodes).pieces,
-        defaultFontSize,
-        connectorPlaceholder
-      ) /
-        2,
-    y: nodePos.y,
+    x: node.x + xPad + node.width / 2,
+    y: node.y,
   };
 };
 
@@ -96,18 +84,17 @@ export const computeEdgeParentPos = (
   nodes,
   connectorPlaceholder
 ) => {
-  const nodePos = nodePositionById(parentNodeId, nodes);
+  const node = nodeById(parentNodeId, nodes);
   return {
     x:
-      nodePos.x +
+      node.x +
       xPad +
       computePiecesPositions(
         nodeById(parentNodeId, nodes).pieces,
-        defaultFontSize,
         connectorPlaceholder
       )[parentPieceId] +
       holeWidth / 2,
-    y: nodePos.y + yPad + textHeight,
+    y: node.y + yPad + textHeight,
   };
 };
 
@@ -115,11 +102,11 @@ export const distance = (x1, y1, x2, y2) => {
   return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 };
 
-export const closestChildId = (x, y, nodes, connectorPlaceholder) => {
+export const closestChildId = (x, y, nodes) => {
   let closestNodeId = null;
   let closestDist = null;
   nodes.forEach(node => {
-    const pos = computeEdgeChildPos(node.id, nodes, connectorPlaceholder);
+    const pos = computeEdgeChildPos(node.id, nodes);
     const dist = distance(pos.x, pos.y, x, y);
     if (dist < targetRange && (!closestDist || dist < closestDist)) {
       closestDist = dist;
@@ -155,36 +142,28 @@ export const closestParentPiece = (x, y, nodes, connectorPlaceholder) => {
   return closestPiece;
 };
 
-export function computePiecesWidths(
-  pieces,
-  fontSize = defaultFontSize,
-  connectorPlaceholder
-) {
+export function computePiecesWidths(pieces, connectorPlaceholder) {
   return pieces.map(p => {
     if (p === connectorPlaceholder) {
       const holeText = new Konva.Text({
         text: "o",
         fontFamily: fontFamily,
-        fontSize: fontSize,
+        fontSize: defaultFontSize,
       });
       return holeText.getTextWidth();
     } else {
       const text = new Konva.Text({
         text: p,
         fontFamily: fontFamily,
-        fontSize: fontSize,
+        fontSize: defaultFontSize,
       });
       return text.getTextWidth();
     }
   });
 }
 
-export function computePiecesPositions(
-  pieces,
-  fontSize = defaultFontSize,
-  connectorPlaceholder
-) {
-  const widths = computePiecesWidths(pieces, fontSize, connectorPlaceholder);
+export function computePiecesPositions(pieces, connectorPlaceholder) {
+  const widths = computePiecesWidths(pieces, connectorPlaceholder);
   let pieceX = 0;
   const xes = widths.map(w => {
     let myX = pieceX;
@@ -194,12 +173,8 @@ export function computePiecesPositions(
   return xes;
 }
 
-export function computeNodeWidth(
-  pieces,
-  fontSize = defaultFontSize,
-  connectorPlaceholder
-) {
-  const widths = computePiecesWidths(pieces, fontSize, connectorPlaceholder);
+export function computeNodeWidth(pieces, connectorPlaceholder) {
+  const widths = computePiecesWidths(pieces, connectorPlaceholder);
   let width = gapWidth * (pieces.length - 1);
   for (const w of widths) {
     width += w;

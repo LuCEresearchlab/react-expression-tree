@@ -22,6 +22,7 @@ import {
   Divider,
   Button,
 } from "@material-ui/core";
+import { computeNodeWidth } from "../../utils.js";
 
 const drawerWidth = 300;
 
@@ -116,8 +117,10 @@ function StageDrawer({
   };
 
   const handleNodeEdit = () => {
+    const nodeWidth = computeNodeWidth(editValue, connectorPlaceholder);
     editNode({
       pieces: editValue,
+      width: nodeWidth,
       selectedNodeId: selectedNode.id,
     });
   };
@@ -266,12 +269,11 @@ function StageDrawer({
             placeholder={
               "ex: " +
               connectorPlaceholder +
-              ".append(" +
+              " .append( " +
               connectorPlaceholder +
-              ")"
+              " )"
             }
             margin="dense"
-            multiline
             onChange={e => handleAddChange(e.target.value)}
           ></TextField>
           <div>
@@ -322,12 +324,11 @@ function StageDrawer({
               placeholder={
                 "ex: " +
                 connectorPlaceholder +
-                ".append(" +
+                " .append( " +
                 connectorPlaceholder +
-                ")"
+                " )"
               }
               margin="dense"
-              multiline
               onChange={e => handleEditChange(e.target.value)}
               defaultValue={selectedNode ? selectedNode.pieces.join(" ") : ""}
             ></TextField>
@@ -379,7 +380,6 @@ function StageDrawer({
               size="medium"
               placeholder="ex: Object"
               margin="dense"
-              multiline
               onChange={e => {
                 handleTypeChange(e.target.value);
               }}
