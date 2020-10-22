@@ -68,7 +68,6 @@ const useStyles = makeStyles(theme => ({
 
 function StageDrawer({
   connectorPlaceholder,
-  addNode,
   selectedNode,
   editNode,
   addingNode,
@@ -81,7 +80,6 @@ function StageDrawer({
   stageReset,
   nodes,
   edges,
-  nodePositions,
   uploadState,
   canUndo,
   canRedo,
@@ -140,7 +138,6 @@ function StageDrawer({
     const currentState = {
       nodes,
       edges,
-      nodePositions,
     };
     const stateData =
       "data:text/json;charset=utf-8," +
@@ -168,7 +165,6 @@ function StageDrawer({
         uploadState({
           nodes: state.nodes,
           edges: state.edges,
-          nodePositions: state.nodePositions,
         });
       } catch (e) {
         alert("Invalid JSON file.");

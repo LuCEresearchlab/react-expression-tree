@@ -23,7 +23,6 @@ function ExpressionTreeEditor({
   connectorPlaceholder,
   nodes,
   edges,
-  nodePositions,
   dragEdge,
   removeNode,
   moveNodeTo,
@@ -108,7 +107,7 @@ function ExpressionTreeEditor({
         edge.parentNodeId,
         edge.parentPieceId,
         nodes,
-        nodePositions
+        connectorPlaceholder
       );
       const newDragEdge = {
         originalEdgeId: edge.id,
@@ -150,7 +149,7 @@ function ExpressionTreeEditor({
       const childPos = computeEdgeChildPos(
         edge.childNodeId,
         nodes,
-        nodePositions
+        connectorPlaceholder
       );
       const newDragEdge = {
         originalEdgeId: edge.id,
@@ -198,7 +197,7 @@ function ExpressionTreeEditor({
           e.evt.offsetX,
           e.evt.offsetY,
           nodes,
-          nodePositions
+          connectorPlaceholder
         );
         log("    parentPiece: ", parentPiece);
         if (dragEdge.originalEdgeId !== null) {
@@ -239,7 +238,7 @@ function ExpressionTreeEditor({
           e.evt.offsetX,
           e.evt.offsetY,
           nodes,
-          nodePositions
+          connectorPlaceholder
         );
         log("    childNodeId: ", childNodeId);
         if (dragEdge.originalEdgeId !== null) {
@@ -341,10 +340,10 @@ function ExpressionTreeEditor({
               parentPieces={nodeById(edge.parentNodeId, nodes).pieces}
               parentPieceId={edge.parentPieceId}
               childPieces={nodeById(edge.childNodeId, nodes).pieces}
-              parentX={nodePositionById(edge.parentNodeId, nodePositions).x}
-              parentY={nodePositionById(edge.parentNodeId, nodePositions).y}
-              childX={nodePositionById(edge.childNodeId, nodePositions).x}
-              childY={nodePositionById(edge.childNodeId, nodePositions).y}
+              parentX={nodePositionById(edge.parentNodeId, nodes).x}
+              parentY={nodePositionById(edge.parentNodeId, nodes).y}
+              childX={nodePositionById(edge.childNodeId, nodes).x}
+              childY={nodePositionById(edge.childNodeId, nodes).y}
               onEdgeClick={e => handleEdgeClick(e, edge.id)}
               selected={
                 selectedEdge !== null ? selectedEdge.id === edge.id : false
@@ -357,8 +356,8 @@ function ExpressionTreeEditor({
               connectorPlaceholder={connectorPlaceholder}
               key={"Node-" + node.id}
               id={node.id}
-              x={nodePositionById(node.id, nodePositions).x}
-              y={nodePositionById(node.id, nodePositions).y}
+              x={nodePositionById(node.id, nodes).x}
+              y={nodePositionById(node.id, nodes).y}
               pieces={node.pieces}
               isSelected={
                 selectedNode !== null ? selectedNode.id === node.id : false

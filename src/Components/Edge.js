@@ -7,6 +7,7 @@ import {
   textHeight,
   computePiecesPositions,
   computeNodeWidth,
+  defaultFontSize,
 } from "../utils.js";
 
 function Edge({
@@ -24,8 +25,16 @@ function Edge({
   selected,
   type,
 }) {
-  const xes = computePiecesPositions(parentPieces, connectorPlaceholder);
-  const childWidth = computeNodeWidth(childPieces, connectorPlaceholder);
+  const xes = computePiecesPositions(
+    parentPieces,
+    defaultFontSize,
+    connectorPlaceholder
+  );
+  const childWidth = computeNodeWidth(
+    childPieces,
+    defaultFontSize,
+    connectorPlaceholder
+  );
 
   return [
     <Line

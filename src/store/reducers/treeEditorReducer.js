@@ -1,17 +1,17 @@
 import undoable from "redux-undo";
 
 const initialNodes = [
-  { id: 0, pieces: ["19"] },
-  { id: 1, pieces: ["age"] },
-  { id: 2, pieces: ['"Hello', 'World!"'] },
-  { id: 3, pieces: ["-", "{{}}"] },
-  { id: 4, pieces: ["{{}}", "<", "{{}}"] },
-  { id: 5, pieces: ["{{}}", "+", "{{}}"] },
-  { id: 6, pieces: ["(int)", "{{}}"] },
-  { id: 7, pieces: ["{{}}", "?", "{{}}", ":", "{{}}"] },
-  { id: 8, pieces: ["{{}}", ".length"] },
-  { id: 9, pieces: ["{{}}", ".length()"] },
-  { id: 10, pieces: ["{{}}", ".append(", "{{}}", ")"] },
+  { id: 0, pieces: ["19"], x: 320, y: 10 },
+  { id: 1, pieces: ["age"], x: 320, y: 65 },
+  { id: 2, pieces: ['"Hello', 'World!"'], x: 320, y: 120 },
+  { id: 3, pieces: ["-", "{{}}"], x: 320, y: 175 },
+  { id: 4, pieces: ["{{}}", "<", "{{}}"], x: 320, y: 230 },
+  { id: 5, pieces: ["{{}}", "+", "{{}}"], x: 320, y: 285 },
+  { id: 6, pieces: ["(int)", "{{}}"], x: 320, y: 340 },
+  { id: 7, pieces: ["{{}}", "?", "{{}}", ":", "{{}}"], x: 320, y: 395 },
+  { id: 8, pieces: ["{{}}", ".length"], x: 320, y: 450 },
+  { id: 9, pieces: ["{{}}", ".length()"], x: 320, y: 505 },
+  { id: 10, pieces: ["{{}}", ".append(", "{{}}", ")"], x: 320, y: 560 },
 ];
 const initialEdges = [
   { id: 0, parentNodeId: 3, parentPieceId: 1, childNodeId: 0, type: "" },
@@ -22,16 +22,15 @@ const initialEdges = [
   { id: 5, parentNodeId: 9, parentPieceId: 0, childNodeId: 2, type: "" },
 ];
 
-const initialNodePositions = initialNodes.map((node, i) => ({
-  id: node.id,
-  x: 320,
-  y: 10 + i * 55,
-}));
+// const initialNodePositions = initialNodes.map((node, i) => ({
+//   id: node.id,
+//   x: 320,
+//   y: 10 + i * 55,
+// }));
 
 const initialState = {
   nodes: initialNodes,
   edges: initialEdges,
-  nodePositions: initialNodePositions,
   dragEdge: null,
   selectedNode: null,
   selectedEdge: null,
@@ -61,12 +60,6 @@ const treeEditorReducer = (state = initialState, action) => {
           {
             id,
             pieces: action.payload.pieces,
-          },
-        ],
-        nodePositions: [
-          ...state.nodePositions,
-          {
-            id,
             x: action.payload.x,
             y: action.payload.y,
           },
@@ -77,9 +70,6 @@ const treeEditorReducer = (state = initialState, action) => {
       return {
         ...state,
         nodes: state.nodes.filter(node => node.id !== action.payload.nodeId),
-        nodePositions: state.nodePositions.filter(
-          p => p.id !== action.payload.nodeId
-        ),
         edges: state.edges.filter(
           edge =>
             edge.parentNodeId !== action.payload.nodeId &&
@@ -102,14 +92,14 @@ const treeEditorReducer = (state = initialState, action) => {
     case "moveNodeTo":
       return {
         ...state,
-        nodePositions: state.nodePositions.map(nodePosition =>
-          nodePosition.id === action.payload.nodeId
+        nodes: state.nodes.map(node =>
+          node.id === action.payload.nodeId
             ? {
-                ...nodePosition,
+                ...node,
                 x: action.payload.x,
                 y: action.payload.y,
               }
-            : nodePosition
+            : node
         ),
       };
 
@@ -204,13 +194,9 @@ const treeEditorReducer = (state = initialState, action) => {
       return initialState;
     case "uploadState":
       return {
-        ...state,
+        ...initialState,
         nodes: action.payload.nodes,
         edges: action.payload.edges,
-        nodePositions: action.payload.nodePositions,
-        dragEdge: null,
-        selectedNode: null,
-        selectedEdge: null,
       };
     case "selectRootNode":
       return {

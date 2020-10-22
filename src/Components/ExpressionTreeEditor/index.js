@@ -5,7 +5,6 @@ import * as actions from "../../store/actions";
 const mapStateToProps = state => ({
   nodes: state.editor.present.nodes,
   edges: state.editor.present.edges,
-  nodePositions: state.editor.present.nodePositions,
   dragEdge: state.editor.present.dragEdge,
   selectedNode: state.editor.present.selectedNode,
   addingNode: state.drawer.addingNode,

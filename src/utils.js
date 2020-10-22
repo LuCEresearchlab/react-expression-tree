@@ -35,6 +35,17 @@ export function nodeById(nodeId, nodes) {
   return node;
 }
 
+export function nodePositionById(nodeId, nodes) {
+  if (nodeId === undefined || nodeId === null) {
+    throw new Error("Illegal nodeId", nodeId);
+  }
+  const node = nodes.find(node => node.id === nodeId);
+  if (!node) {
+    throw new Error("Unknown nodeId", nodeId);
+  }
+  return { x: node.x, y: node.y };
+}
+
 export function edgeById(edgeId, edges) {
   if (edgeId === undefined || edgeId === null) {
     throw new Error("Illegal edgeId", edgeId);
@@ -59,17 +70,22 @@ export function edgeByParentPiece(parentNodeId, parentPieceId, edges) {
   );
 }
 
-export function nodePositionById(nodeId, nodePositions) {
-  return nodePositions.find(nodePosition => nodePosition.id === nodeId);
-}
-
-export const computeEdgeChildPos = (childNodeId, nodes, nodePositions) => {
-  const nodePos = nodePositionById(childNodeId, nodePositions);
+export const computeEdgeChildPos = (
+  childNodeId,
+  nodes,
+  connectorPlaceholder
+) => {
+  const nodePos = nodePositionById(childNodeId, nodes);
   return {
     x:
       nodePos.x +
       xPad +
-      computeNodeWidth(nodeById(childNodeId, nodes).pieces) / 2,
+      computeNodeWidth(
+        nodeById(childNodeId, nodes).pieces,
+        defaultFontSize,
+        connectorPlaceholder
+      ) /
+        2,
     y: nodePos.y,
   };
 };
@@ -78,16 +94,18 @@ export const computeEdgeParentPos = (
   parentNodeId,
   parentPieceId,
   nodes,
-  nodePositions
+  connectorPlaceholder
 ) => {
-  const nodePos = nodePositionById(parentNodeId, nodePositions);
+  const nodePos = nodePositionById(parentNodeId, nodes);
   return {
     x:
       nodePos.x +
       xPad +
-      computePiecesPositions(nodeById(parentNodeId, nodes).pieces)[
-        parentPieceId
-      ] +
+      computePiecesPositions(
+        nodeById(parentNodeId, nodes).pieces,
+        defaultFontSize,
+        connectorPlaceholder
+      )[parentPieceId] +
       holeWidth / 2,
     y: nodePos.y + yPad + textHeight,
   };
@@ -97,11 +115,11 @@ export const distance = (x1, y1, x2, y2) => {
   return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 };
 
-export const closestChildId = (x, y, nodes, nodePositions) => {
+export const closestChildId = (x, y, nodes, connectorPlaceholder) => {
   let closestNodeId = null;
   let closestDist = null;
   nodes.forEach(node => {
-    const pos = computeEdgeChildPos(node.id, nodes, nodePositions);
+    const pos = computeEdgeChildPos(node.id, nodes, connectorPlaceholder);
     const dist = distance(pos.x, pos.y, x, y);
     if (dist < targetRange && (!closestDist || dist < closestDist)) {
       closestDist = dist;
@@ -111,14 +129,18 @@ export const closestChildId = (x, y, nodes, nodePositions) => {
   return closestNodeId;
 };
 
-export const closestParentPiece = (x, y, nodes, nodePositions) => {
+export const closestParentPiece = (x, y, nodes, connectorPlaceholder) => {
   let closestPiece = null;
   let closestDist = null;
   nodes.forEach(node => {
     nodeById(node.id, nodes).pieces.forEach((piece, i) => {
-      if (piece === null) {
-        // only look for holes (represented by null)
-        const pos = computeEdgeParentPos(node.id, i, nodes, nodePositions);
+      if (piece === connectorPlaceholder) {
+        const pos = computeEdgeParentPos(
+          node.id,
+          i,
+          nodes,
+          connectorPlaceholder
+        );
         const dist = distance(pos.x, pos.y, x, y);
         if (dist < targetRange && (!closestDist || dist < closestDist)) {
           closestDist = dist;
@@ -133,9 +155,13 @@ export const closestParentPiece = (x, y, nodes, nodePositions) => {
   return closestPiece;
 };
 
-export function computePiecesWidths(pieces, fontSize = defaultFontSize) {
+export function computePiecesWidths(
+  pieces,
+  fontSize = defaultFontSize,
+  connectorPlaceholder
+) {
   return pieces.map(p => {
-    if (p === "{{}}") {
+    if (p === connectorPlaceholder) {
       const holeText = new Konva.Text({
         text: "o",
         fontFamily: fontFamily,
@@ -153,8 +179,12 @@ export function computePiecesWidths(pieces, fontSize = defaultFontSize) {
   });
 }
 
-export function computePiecesPositions(pieces, fontSize) {
-  const widths = computePiecesWidths(pieces, fontSize);
+export function computePiecesPositions(
+  pieces,
+  fontSize = defaultFontSize,
+  connectorPlaceholder
+) {
+  const widths = computePiecesWidths(pieces, fontSize, connectorPlaceholder);
   let pieceX = 0;
   const xes = widths.map(w => {
     let myX = pieceX;
@@ -164,8 +194,12 @@ export function computePiecesPositions(pieces, fontSize) {
   return xes;
 }
 
-export function computeNodeWidth(pieces, fontSize) {
-  const widths = computePiecesWidths(pieces, fontSize);
+export function computeNodeWidth(
+  pieces,
+  fontSize = defaultFontSize,
+  connectorPlaceholder
+) {
+  const widths = computePiecesWidths(pieces, fontSize, connectorPlaceholder);
   let width = gapWidth * (pieces.length - 1);
   for (const w of widths) {
     width += w;

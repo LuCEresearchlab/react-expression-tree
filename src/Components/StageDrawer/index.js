@@ -8,7 +8,6 @@ const mapStateToProps = state => ({
   selectedEdge: state.editor.present.selectedEdge,
   nodes: state.editor.present.nodes,
   edges: state.editor.present.edges,
-  nodePositions: state.editor.present.nodePositions,
   canUndo: state.editor.past.length > 0,
   canRedo: state.editor.future.length > 0,
   selectedRootNode: state.editor.present.selectedRootNode,

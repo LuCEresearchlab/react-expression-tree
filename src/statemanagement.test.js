@@ -11,7 +11,6 @@ var state = {
   editor: {
     nodes: [],
     edges: [],
-    nodePositions: [],
     dragEdge: null,
     selectedNode: null,
     selectedEdge: null,
@@ -75,9 +74,13 @@ describe("lookup functions", () => {
   });
 
   it("nodePositionById should find node", () => {
-    const nodePosition = { id: 3 };
-    const nodePositions = [{ id: 1 }, nodePosition, { id: 2 }];
-    expect(nodePositionById(3, nodePositions)).toBe(nodePosition);
+    const nodePosition = { x: 10, y: 20 };
+    const nodes = [
+      { id: 1, x: 20, y: 10 },
+      { id: 3, x: 10, y: 20 },
+      { id: 2, x: 30, y: 40 },
+    ];
+    expect(nodePositionById(3, nodes)).toBe(nodePosition);
   });
 });
 
@@ -88,49 +91,33 @@ describe("reducer", () => {
       type: "addNode",
       payload: { pieces, x: 10, y: 20 },
     });
-    expect(state.editor.nodes).toEqual([{ id: 1, pieces }]);
-    expect(state.editor.nodePositions).toEqual([{ id: 1, x: 10, y: 20 }]);
+    expect(state.editor.nodes).toEqual([{ id: 1, pieces, x: 10, y: 20 }]);
     state = reducer(state, {
       type: "addNode",
       payload: { pieces, x: 100, y: 200 },
     });
     expect(state.editor.nodes).toEqual([
-      { id: 1, pieces },
-      { id: 2, pieces },
-    ]);
-    expect(state.editor.nodePositions).toEqual([
-      { id: 1, x: 10, y: 20 },
-      { id: 2, x: 100, y: 200 },
+      { id: 1, pieces, x: 10, y: 20 },
+      { id: 2, pieces, x: 100, y: 200 },
     ]);
     state = reducer(state, {
       type: "addNode",
       payload: { pieces, x: 20, y: 10 },
     });
     expect(state.editor.nodes).toEqual([
-      { id: 1, pieces },
-      { id: 2, pieces },
-      { id: 3, pieces },
-    ]);
-    expect(state.editor.nodePositions).toEqual([
-      { id: 1, x: 10, y: 20 },
-      { id: 2, x: 100, y: 200 },
-      { id: 3, x: 20, y: 10 },
+      { id: 1, pieces, x: 10, y: 20 },
+      { id: 2, pieces, x: 100, y: 200 },
+      { id: 3, pieces, x: 20, y: 10 },
     ]);
     state = reducer(state, {
       type: "addNode",
       payload: { pieces, x: 200, y: 100 },
     });
     expect(state.editor.nodes).toEqual([
-      { id: 1, pieces },
-      { id: 2, pieces },
-      { id: 3, pieces },
-      { id: 4, pieces },
-    ]);
-    expect(state.editor.nodePositions).toEqual([
-      { id: 1, x: 10, y: 20 },
-      { id: 2, x: 100, y: 200 },
-      { id: 3, x: 20, y: 10 },
-      { id: 4, x: 200, y: 100 },
+      { id: 1, pieces, x: 10, y: 20 },
+      { id: 2, pieces, x: 100, y: 200 },
+      { id: 3, pieces, x: 20, y: 10 },
+      { id: 4, pieces, x: 200, y: 100 },
     ]);
   });
 
@@ -197,21 +184,21 @@ describe("reducer", () => {
       type: "moveNodeTo",
       payload: { nodeId: 3, x: 30, y: 40 },
     });
-    expect(state.editor.nodePositions).toEqual([
-      { id: 1, x: 10, y: 20 },
-      { id: 2, x: 100, y: 200 },
-      { id: 3, x: 30, y: 40 },
-      { id: 4, x: 200, y: 100 },
+    expect(state.editor.nodes).toEqual([
+      { id: 1, pieces: ["a", null, "b"], x: 10, y: 20 },
+      { id: 2, pieces: ["a", null, "b"], x: 100, y: 200 },
+      { id: 3, pieces: ["a", null, "b"], x: 30, y: 40 },
+      { id: 4, pieces: ["a", null, "b"], x: 200, y: 100 },
     ]);
     state = reducer(state, {
       type: "moveNodeTo",
       payload: { nodeId: 1, x: 40, y: 30 },
     });
-    expect(state.editor.nodePositions).toEqual([
-      { id: 1, x: 40, y: 30 },
-      { id: 2, x: 100, y: 200 },
-      { id: 3, x: 30, y: 40 },
-      { id: 4, x: 200, y: 100 },
+    expect(state.editor.nodes).toEqual([
+      { id: 1, pieces: ["a", null, "b"], x: 40, y: 30 },
+      { id: 2, pieces: ["a", null, "b"], x: 100, y: 200 },
+      { id: 3, pieces: ["a", null, "b"], x: 30, y: 40 },
+      { id: 4, pieces: ["a", null, "b"], x: 200, y: 100 },
     ]);
   });
 
@@ -290,14 +277,9 @@ describe("reducer", () => {
   it("should handle removeNode", () => {
     state = reducer(state, { type: "removeNode", payload: { nodeId: 2 } });
     expect(state.editor.nodes).toEqual([
-      { id: 1, pieces: ["a", null, "b"] },
-      { id: 3, pieces: ["a", null, "b"] },
-      { id: 4, pieces: ["a", null, "b"] },
-    ]);
-    expect(state.editor.nodePositions).toEqual([
-      { id: 1, x: 40, y: 30 },
-      { id: 3, x: 30, y: 40 },
-      { id: 4, x: 200, y: 100 },
+      { id: 1, pieces: ["a", null, "b"], x: 40, y: 30 },
+      { id: 3, pieces: ["a", null, "b"], x: 30, y: 40 },
+      { id: 4, pieces: ["a", null, "b"], x: 200, y: 100 },
     ]);
     expect(state.editor.edges).toEqual([]);
   });
