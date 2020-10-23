@@ -390,6 +390,7 @@ function StageDrawer({
         {selectedEdge ? (
           <div className={classes.toolbarField}>
             <TextField
+              key={selectedEdge.id}
               variant="outlined"
               fullWidth
               size="medium"
