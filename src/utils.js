@@ -1,13 +1,5 @@
 import Konva from "konva";
 
-// Debug
-export const logging = false;
-export const log = function (...args) {
-  if (logging === true) {
-    console.log(...args);
-  }
-};
-
 // Layout Defaults
 export const xPad = 10;
 export const yPad = 10;

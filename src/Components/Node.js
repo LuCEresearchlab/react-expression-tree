@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Rect, Text, Group, Circle, Star } from "react-konva";
 import {
-  log,
   xPad,
   yPad,
   fontFamily,
@@ -28,6 +27,7 @@ function Node({
   stageHeight,
   isSelectedRoot,
   nodeWidth,
+  stagePos,
 }) {
   const nodeRef = useRef();
 
@@ -41,26 +41,19 @@ function Node({
   const piecesPos = computePiecesPositions(pieces, connectorPlaceholder);
   const nodePiecesWidths = computePiecesWidths(pieces, connectorPlaceholder);
 
-  const handleDragStart = e => {
-    const id = e.target.id();
-    setDraggingNode(true);
-    log("Node.handleDragStart", id, e);
+  const handleDragMove = e => {
+    e.cancelBubble = true;
+    if (draggingNode) {
+      const id = e.target.id();
+      const x = e.target.x();
+      const y = e.target.y();
+      onNodeMove(id, x, y);
+    }
   };
-
-  // const handleDragMove = e => {
-  //   if (draggingNode) {
-  //     const id = e.target.id();
-  //     log("Node.handleDragMove", id, e);
-  //     const x = e.target.x();
-  //     const y = e.target.y();
-  //     onNodeMove(id, x, y);
-  //   }
-  // };
 
   const handleDragEnd = e => {
     if (draggingNode) {
       const id = e.target.id();
-      log("Node.handleDragEnd", id, e);
       const x = e.target.x();
       const y = e.target.y();
       onNodeMove(id, x, y);
@@ -68,36 +61,38 @@ function Node({
     setDraggingNode(false);
   };
 
+  const handleNodeClick = e => {
+    e.cancelBubble = true;
+    onNodeClick(e);
+  };
+
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
     const nodeId = e.target.id();
-    const pos = e.target.absolutePosition();
-    log("Node.handleNodeConnectorDragStart", nodeId, pos.x, pos.y, e);
+    // const pos = e.target.absolutePosition();
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
-    onNodeConnectorDragStart(nodeId, pos.x, pos.y);
+    onNodeConnectorDragStart(
+      nodeId,
+      e.target.parent.x() + e.target.x(),
+      e.target.parent.y() + e.target.y()
+    );
   };
 
   const handlePieceConnectorDragStart = (e, nodeId) => {
     e.cancelBubble = true; // prevent onDragStart of Group
     const pieceId = e.target.id();
-    const pos = e.target.absolutePosition();
-    log("Node.handlePieceConnectorDragStart", nodeId, pieceId, pos.x, pos.y, e);
+    // const pos = e.target.absolutePosition();
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
     onPieceConnectorDragStart(
       nodeId,
       pieceId,
-      pos.x + holeWidth / 2,
-      pos.y + holeWidth * 0.75
+      e.target.parent.x() + e.target.x() + holeWidth / 2,
+      e.target.parent.y() + e.target.y() + holeWidth * 0.75
     );
-  };
-
-  const handleNodeClick = e => {
-    e.cancelBubble = true;
-    onNodeClick(e);
   };
 
   const checkDragBound = pos => {
@@ -127,8 +122,8 @@ function Node({
       x={x}
       y={y}
       draggable
-      onDragStart={handleDragStart}
-      // onDragMove={handleDragMove}
+      onDragStart={() => setDraggingNode(true)}
+      onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onClick={handleNodeClick}
       onDblClick={onNodeDblClick}
@@ -167,8 +162,8 @@ function Node({
           fill="blue"
           draggable
           onDragStart={handleNodeConnectorDragStart}
-          onDragMove={e => {}}
-          onDragEnd={e => {}}
+          onDragMove={() => {}}
+          onDragEnd={() => {}}
         />
       ) : (
         <Circle
