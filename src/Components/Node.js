@@ -19,6 +19,7 @@ function Node({
   y,
   isSelected,
   onNodeMove,
+  onNodeMoveEnd,
   onNodeConnectorDragStart,
   onPieceConnectorDragStart,
   onNodeClick,
@@ -56,7 +57,7 @@ function Node({
       const id = e.target.id();
       const x = e.target.x();
       const y = e.target.y();
-      onNodeMove(id, x, y);
+      onNodeMoveEnd(id, x, y);
     }
     setDraggingNode(false);
   };

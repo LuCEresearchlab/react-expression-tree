@@ -8,6 +8,11 @@ export const moveNodeTo = payload => ({
   payload,
 });
 
+export const moveNodeToEnd = payload => ({
+  type: "moveNodeToEnd",
+  payload,
+});
+
 export const setDragEdge = payload => ({
   type: "setDragEdge",
   payload,
@@ -99,4 +104,12 @@ export const selectRootNode = payload => ({
 
 export const clearRootSelection = () => ({
   type: "clearRootSelection",
+});
+
+export const incrementFont = () => ({
+  type: "incrementFont",
+});
+
+export const decrementFont = () => ({
+  type: "decrementFont",
 });

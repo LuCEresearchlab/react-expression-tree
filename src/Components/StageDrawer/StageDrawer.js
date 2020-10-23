@@ -13,6 +13,7 @@ import UndoRoundedIcon from "@material-ui/icons/UndoRounded";
 import RedoRoundedIcon from "@material-ui/icons/RedoRounded";
 import NoteAddRoundedIcon from "@material-ui/icons/NoteAddRounded";
 import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
+import RemoveRoundedIcon from "@material-ui/icons/RemoveRounded";
 import {
   Drawer,
   IconButton,
@@ -65,6 +66,9 @@ const useStyles = makeStyles(theme => ({
     padding: "3px 6px 3px 6px",
     maxWidth: "500px",
   },
+  toolbarTitle: {
+    margin: "10px 0 0 10px",
+  },
 }));
 
 function StageDrawer({
@@ -85,6 +89,9 @@ function StageDrawer({
   canUndo,
   canRedo,
   selectedRootNode,
+  fontSize,
+  incrementFont,
+  decrementFont,
 }) {
   const classes = useStyles();
 
@@ -179,6 +186,14 @@ function StageDrawer({
   const handleReset = () => {
     stageReset();
     dispatch(ActionCreators.clearHistory());
+  };
+
+  const handleDecrementFont = () => {
+    decrementFont();
+  };
+
+  const handleIncrementFont = () => {
+    incrementFont();
   };
 
   return (
@@ -424,7 +439,8 @@ function StageDrawer({
               onClose={() => setValidationAnchorEl(null)}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
-                Validate a tree starting from a root node.
+                Validate a tree starting from a root node. Double click a node
+                to select it as root node.
               </Typography>
             </Popover>
           </div>
@@ -445,6 +461,33 @@ function StageDrawer({
             Start by selecting a node as root.
           </Typography>
         )}
+        <Divider />
+        <Typography className={classes.toolbarTitle} variant="h6">
+          Edit stage font size:
+        </Typography>
+        <div className={classes.toolbarField}>
+          <div>
+            <IconButton
+              size="medium"
+              onClick={() => handleDecrementFont()}
+              disabled={false}
+              color="primary"
+            >
+              <RemoveRoundedIcon />
+            </IconButton>
+          </div>
+          <Typography variant="h4">{fontSize}</Typography>
+          <div>
+            <IconButton
+              size="medium"
+              onClick={() => handleIncrementFont()}
+              disabled={false}
+              color="primary"
+            >
+              <AddRoundedIcon />
+            </IconButton>
+          </div>
+        </div>
         <Divider />
       </Drawer>
     </div>

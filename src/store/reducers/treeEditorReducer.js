@@ -110,6 +110,20 @@ const treeEditorReducer = (state = initialState, action) => {
         ),
       };
 
+    case "moveNodeToEnd":
+      return {
+        ...state,
+        nodes: state.nodes.map(node =>
+          node.id === action.payload.nodeId
+            ? {
+                ...node,
+                x: action.payload.x,
+                y: action.payload.y,
+              }
+            : node
+        ),
+      };
+
     case "addEdge":
       return {
         ...state,
@@ -232,7 +246,8 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "setDragEdge" &&
       action.type !== "clearDragEdge" &&
       action.type !== "moveDragEdgeChildEndTo" &&
-      action.type !== "moveDragEdgeParentEndTo"
+      action.type !== "moveDragEdgeParentEndTo" &&
+      action.type !== "moveNodeTo"
     );
   },
 });

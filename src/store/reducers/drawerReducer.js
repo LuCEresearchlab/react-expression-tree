@@ -1,6 +1,7 @@
 const initialState = {
   addingNode: false,
   addValue: [""],
+  fontSize: 24,
 };
 
 const drawerReducer = (state = initialState, action) => {
@@ -20,6 +21,17 @@ const drawerReducer = (state = initialState, action) => {
         ...state,
         addingNode: false,
       };
+    case "incrementFont":
+      return {
+        ...state,
+        fontSize: state.fontSize + 1,
+      };
+    case "decrementFont":
+      return {
+        ...state,
+        fontSize: state.fontSize - 1,
+      };
+
     default:
       return state;
   }

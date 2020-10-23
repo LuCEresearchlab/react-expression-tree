@@ -27,6 +27,7 @@ function ExpressionTreeEditor({
   dragEdge,
   removeNode,
   moveNodeTo,
+  moveNodeToEnd,
   setDragEdge,
   moveDragEdgeParentEndTo,
   moveDragEdgeChildEndTo,
@@ -88,6 +89,10 @@ function ExpressionTreeEditor({
 
   const handleNodeMove = (id, x, y) => {
     moveNodeTo({ nodeId: id, x: x, y: y });
+  };
+
+  const handleNodeMoveEnd = (id, x, y) => {
+    moveNodeToEnd({ nodeId: id, x: x, y: y });
   };
 
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
@@ -365,6 +370,7 @@ function ExpressionTreeEditor({
               stageHeight={height}
               stagePos={stagePos}
               onNodeMove={handleNodeMove}
+              onNodeMoveEnd={handleNodeMoveEnd}
               onNodeClick={e => handleNodeClick(e, node.id)}
               onNodeDblClick={() => handleNodeDblClick(node.id)}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
