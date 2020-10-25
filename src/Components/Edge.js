@@ -15,6 +15,14 @@ function Edge({
   selected,
   type,
 }) {
+  const handleEdgeWheel = e => {
+    var curTarget = e.target;
+    while (curTarget.parent !== null) {
+      curTarget = curTarget.parent;
+    }
+    e.target = curTarget;
+  };
+
   return [
     <Line
       key={"Edge-Line-" + id}
@@ -27,6 +35,7 @@ function Edge({
       stroke={beingDragged ? "#f0f0f0" : selected ? "blue" : "black"}
       strokeWidth={5}
       onClick={onEdgeClick}
+      onWheel={handleEdgeWheel}
     />,
     <Text
       key={"Edge-Text-" + id}
@@ -36,6 +45,8 @@ function Edge({
       fontFamily={"Arial"}
       fontSize={20}
       text={type}
+      onClick={onEdgeClick}
+      onWheel={handleEdgeWheel}
     />,
   ];
 }

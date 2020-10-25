@@ -28,7 +28,6 @@ function Node({
   stageHeight,
   isSelectedRoot,
   nodeWidth,
-  stagePos,
 }) {
   const nodeRef = useRef();
 
@@ -115,6 +114,14 @@ function Node({
     };
   };
 
+  const handleNodeWheel = e => {
+    var curTarget = e.target;
+    while (curTarget.parent !== null) {
+      curTarget = curTarget.parent;
+    }
+    e.target = curTarget;
+  };
+
   return (
     <Group
       kind="Node"
@@ -129,6 +136,7 @@ function Node({
       onClick={handleNodeClick}
       onDblClick={onNodeDblClick}
       dragBoundFunc={pos => checkDragBound(pos)}
+      onWheel={handleNodeWheel}
     >
       <Rect
         kind="NodeRect"

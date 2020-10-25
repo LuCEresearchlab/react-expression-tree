@@ -311,6 +311,35 @@ function ExpressionTreeEditor({
     });
   };
 
+  const handleStageWheel = e => {
+    e.evt.preventDefault();
+
+    const scaleBy = 1.01;
+    const oldScale = e.target.scaleX();
+    const newScale = e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    const pointer = e.target.getPointerPosition();
+
+    var mousePointTo = {
+      x: (pointer.x - e.target.x()) / oldScale,
+      y: (pointer.y - e.target.y()) / oldScale,
+    };
+
+    e.target.scale({ x: newScale, y: newScale });
+
+    var newPos = {
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    };
+
+    e.target.position(newPos);
+    e.target.batchDraw();
+    // setStagePos({
+    //   x: e.target.position().x,
+    //   y: e.target.position().y,
+    // });
+  };
+
   return (
     <>
       <StageDrawer connectorPlaceholder={connectorPlaceholder} />
@@ -324,6 +353,7 @@ function ExpressionTreeEditor({
         style={addingNode ? { cursor: "crosshair" } : {}}
         draggable
         onDragMove={e => handleStageDragMove(e)}
+        onWheel={handleStageWheel}
       >
         <Layer>
           {edges.map((edge, i) => (
@@ -368,7 +398,6 @@ function ExpressionTreeEditor({
               }
               stageWidth={width}
               stageHeight={height}
-              stagePos={stagePos}
               onNodeMove={handleNodeMove}
               onNodeMoveEnd={handleNodeMoveEnd}
               onNodeClick={e => handleNodeClick(e, node.id)}
