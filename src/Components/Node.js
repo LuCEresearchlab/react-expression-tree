@@ -69,7 +69,6 @@ function Node({
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
     const nodeId = e.target.id();
-    // const pos = e.target.absolutePosition();
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
@@ -158,7 +157,7 @@ function Node({
         y={3}
         fill="white"
         fontFamily={"Arial"}
-        fontSize={defaultFontSize * 0.5}
+        fontSize={defaultFontSize * 0.4}
         text={id}
       />
       {isSelectedRoot ? (

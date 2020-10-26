@@ -74,9 +74,20 @@ function ExpressionTreeEditor({
         }
       }
     };
+    const escListener = function (e) {
+      if (e.key === "Escape") {
+        if (selectedNode !== null) {
+          clearNodeSelection();
+        } else if (selectedEdge !== null) {
+          clearEdgeSelection();
+        }
+      }
+    };
     stage.container().addEventListener("keydown", delListener);
+    stage.container().addEventListener("keydown", escListener);
     return () => {
       stage.container().removeEventListener("keydown", delListener);
+      stage.container().removeEventListener("keydown", escListener);
     };
   }, [
     clearEdgeSelection,
@@ -96,6 +107,7 @@ function ExpressionTreeEditor({
   };
 
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
+    clearAdding();
     const edge = edgeByChildNode(nodeId, edges);
     if (edge) {
       const parentPieceX = computePiecesPositions(
@@ -134,6 +146,7 @@ function ExpressionTreeEditor({
     }
   };
   const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
+    clearAdding();
     const edge = edgeByParentPiece(nodeId, pieceId, edges);
     if (edge) {
       const childPos = computeEdgeChildPos(edge.childNodeId, nodes);
@@ -297,10 +310,21 @@ function ExpressionTreeEditor({
   };
 
   const handleEdgeClick = (e, edgeId) => {
-    e.cancelBubble = true;
-    clearNodeSelection();
-    const selectedEdge = edgeById(edgeId, edges);
-    selectEdge({ selectedEdge: selectedEdge });
+    if (addingNode) {
+      const nodeWidth = computeNodeWidth(addValue, connectorPlaceholder);
+      addNode({
+        pieces: addValue,
+        x: e.evt.offsetX - stagePos.x,
+        y: e.evt.offsetY - stagePos.y,
+        width: nodeWidth,
+      });
+      clearAdding();
+    } else {
+      e.cancelBubble = true;
+      clearNodeSelection();
+      const selectedEdge = edgeById(edgeId, edges);
+      selectEdge({ selectedEdge: selectedEdge });
+    }
   };
 
   const handleStageDragMove = e => {

@@ -88,7 +88,6 @@ function StageDrawer({
   canUndo,
   canRedo,
   selectedRootNode,
-  fontSize,
   incrementFont,
   decrementFont,
 }) {
@@ -129,6 +128,8 @@ function StageDrawer({
       width: nodeWidth,
       selectedNodeId: selectedNode.id,
     });
+    setEditValue("");
+    setIsEditEmpty(true);
   };
 
   const handleTypeChange = value => {
@@ -175,6 +176,7 @@ function StageDrawer({
           nodes: state.nodes,
           edges: state.edges,
         });
+        dispatch(ActionCreators.clearHistory());
       } catch (e) {
         alert("Invalid JSON file.");
       }
@@ -269,6 +271,7 @@ function StageDrawer({
         </div>
         <div className={classes.toolbarField}>
           <TextField
+            type="search"
             variant="outlined"
             fullWidth
             size="medium"
@@ -325,6 +328,7 @@ function StageDrawer({
             <TextField
               key={selectedNode.id}
               variant="outlined"
+              type="search"
               fullWidth
               size="medium"
               placeholder={

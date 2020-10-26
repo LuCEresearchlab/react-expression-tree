@@ -213,12 +213,24 @@ const treeEditorReducer = (state = initialState, action) => {
         ),
       };
     case "stageReset":
-      return initialState;
+      return {
+        ...state,
+        nodes: initialNodes,
+        edges: initialEdges,
+        dragEdge: null,
+        selectedNode: null,
+        selectedEdge: null,
+        selectedRootNode: null,
+      };
     case "uploadState":
       return {
-        ...initialState,
+        ...state,
         nodes: action.payload.nodes,
         edges: action.payload.edges,
+        dragEdge: null,
+        selectedNode: null,
+        selectedEdge: null,
+        selectedRootNode: null,
       };
     case "selectRootNode":
       return {
