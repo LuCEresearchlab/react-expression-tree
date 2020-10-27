@@ -8,7 +8,7 @@ const drawerReducer = (state = initialState, action) => {
     case "addingNodeClick":
       return {
         ...state,
-        addingNode: true,
+        addingNode: !state.addingNode,
       };
     case "addValueChange":
       return {

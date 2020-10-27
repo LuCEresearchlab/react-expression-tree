@@ -216,6 +216,8 @@ function ExpressionTreeEditor({
               parentPieceId: parentPiece.parentPieceId,
               type: "",
             };
+            clearDragEdge();
+
             addEdge({ edge: newEdge });
           }
         } else {
@@ -229,6 +231,8 @@ function ExpressionTreeEditor({
               parentPieceId: parentPiece.parentPieceId,
               type: "",
             };
+            clearDragEdge();
+
             addEdge({ edge: newEdge });
           }
         }
@@ -249,6 +253,8 @@ function ExpressionTreeEditor({
               childNodeId: childNodeId,
               type: "",
             };
+            clearDragEdge();
+
             addEdge({ edge: newEdge });
           }
         } else {
@@ -259,11 +265,12 @@ function ExpressionTreeEditor({
               childNodeId: childNodeId,
               type: "",
             };
+            clearDragEdge();
+
             addEdge({ edge: newEdge });
           }
         }
       }
-      clearDragEdge();
     }
   };
 
@@ -338,30 +345,33 @@ function ExpressionTreeEditor({
   const handleStageWheel = e => {
     e.evt.preventDefault();
 
+    const stage = stageRef.current;
+
     const scaleBy = 1.01;
-    const oldScale = e.target.scaleX();
+    const oldScale = stage.scaleX();
     const newScale = e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
-    const pointer = e.target.getPointerPosition();
+    const pointer = stage.getPointerPosition();
 
     var mousePointTo = {
-      x: (pointer.x - e.target.x()) / oldScale,
-      y: (pointer.y - e.target.y()) / oldScale,
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
     };
 
-    e.target.scale({ x: newScale, y: newScale });
+    stage.scale({ x: newScale, y: newScale });
 
     var newPos = {
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
     };
+    console.log(newPos);
 
-    e.target.position(newPos);
-    e.target.batchDraw();
-    // setStagePos({
-    //   x: e.target.position().x,
-    //   y: e.target.position().y,
-    // });
+    stage.position(newPos);
+    stage.batchDraw();
+    setStagePos({
+      x: stage.position().x,
+      y: stage.position().y,
+    });
   };
 
   return (

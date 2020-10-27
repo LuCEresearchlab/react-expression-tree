@@ -111,13 +111,37 @@ function StageDrawer({
   const handleAddChange = value => {
     clearAdding();
     value !== "" ? setIsAddEmpty(false) : setIsAddEmpty(true);
-    const addValue = value.split(" ");
+    const values = value.split(connectorPlaceholder);
+    var addValue = [];
+    values.length < 2
+      ? (addValue = values)
+      : values.forEach((e, i) => {
+          if (i === values.length - 1) {
+            addValue.push(values[i]);
+          } else {
+            addValue.push(values[i]);
+            addValue.push(connectorPlaceholder);
+          }
+        });
+    addValue = addValue.filter(e => e !== "");
     addValueChange({ addValue: addValue });
   };
 
   const handleEditChange = value => {
     value !== "" ? setIsEditEmpty(false) : setIsEditEmpty(true);
-    const editValue = value.split(" ");
+    const values = value.split(connectorPlaceholder);
+    var editValue = [];
+    values.length < 2
+      ? (editValue = values)
+      : values.forEach((e, i) => {
+          if (i === values.length - 1) {
+            editValue.push(values[i]);
+          } else {
+            editValue.push(values[i]);
+            editValue.push(connectorPlaceholder);
+          }
+        });
+    editValue = editValue.filter(e => e !== "");
     setEditValue(editValue);
   };
 
@@ -263,7 +287,6 @@ function StageDrawer({
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
                 represented by the special {connectorPlaceholder} character
-                combination, separated by a space before and after the
                 combination.
               </Typography>
             </Popover>
@@ -278,9 +301,9 @@ function StageDrawer({
             placeholder={
               "ex: " +
               connectorPlaceholder +
-              " .append( " +
+              ".append(" +
               connectorPlaceholder +
-              " )"
+              ")"
             }
             margin="dense"
             onChange={e => handleAddChange(e.target.value)}
@@ -317,7 +340,6 @@ function StageDrawer({
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
                 represented by the special {connectorPlaceholder} character
-                combination, separated by a space before and after the
                 combination.
               </Typography>
             </Popover>
@@ -334,9 +356,9 @@ function StageDrawer({
               placeholder={
                 "ex: " +
                 connectorPlaceholder +
-                " .append( " +
+                ".append(" +
                 connectorPlaceholder +
-                " )"
+                ")"
               }
               margin="dense"
               onChange={e => handleEditChange(e.target.value)}
