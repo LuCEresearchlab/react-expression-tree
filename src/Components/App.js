@@ -11,11 +11,21 @@ function App() {
   });
 
   return (
-    <ExpressionTreeEditor
-      width={stageWidth}
-      height={stageHeight}
-      connectorPlaceholder="{{}}"
-    />
+    <div style={{ display: "flex" }}>
+      {/* <div style={{ minWidth: "400px" }}>aaaaa</div> */}
+      <ExpressionTreeEditor
+        width={stageWidth}
+        height={stageHeight}
+        connectorPlaceholder="{{}}"
+        templateNodes={[
+          "{{}}?{{}}:{{}}",
+          "{{}}.length",
+          "{{}}.append({{}})",
+          "-{{}}",
+          "{{}}+{{}}",
+        ]}
+      />
+    </div>
   );
 }
 

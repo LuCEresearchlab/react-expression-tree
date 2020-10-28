@@ -22,6 +22,7 @@ function ExpressionTreeEditor({
   width,
   height,
   connectorPlaceholder,
+  templateNodes,
   nodes,
   edges,
   dragEdge,
@@ -376,7 +377,10 @@ function ExpressionTreeEditor({
 
   return (
     <>
-      <StageDrawer connectorPlaceholder={connectorPlaceholder} />
+      <StageDrawer
+        connectorPlaceholder={connectorPlaceholder}
+        templateNodes={templateNodes}
+      />
       <Stage
         ref={stageRef}
         width={width}

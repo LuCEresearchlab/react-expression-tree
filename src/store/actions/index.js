@@ -105,11 +105,3 @@ export const selectRootNode = payload => ({
 export const clearRootSelection = () => ({
   type: "clearRootSelection",
 });
-
-export const incrementFont = () => ({
-  type: "incrementFont",
-});
-
-export const decrementFont = () => ({
-  type: "decrementFont",
-});

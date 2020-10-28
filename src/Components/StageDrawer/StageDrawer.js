@@ -13,6 +13,7 @@ import UndoRoundedIcon from "@material-ui/icons/UndoRounded";
 import RedoRoundedIcon from "@material-ui/icons/RedoRounded";
 import NoteAddRoundedIcon from "@material-ui/icons/NoteAddRounded";
 import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {
   Drawer,
   IconButton,
@@ -21,6 +22,10 @@ import {
   TextField,
   Divider,
   Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  AccordionActions,
 } from "@material-ui/core";
 import { computeNodeWidth } from "../../utils.js";
 
@@ -30,6 +35,7 @@ const useStyles = makeStyles(theme => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
+    position: "absolute",
   },
   drawerPaper: {
     width: drawerWidth,
@@ -68,6 +74,23 @@ const useStyles = makeStyles(theme => ({
   toolbarTitle: {
     margin: "10px 0 0 10px",
   },
+  templateElement: {
+    color: "white",
+    backgroundColor: "#208020",
+    border: "solid 1px black",
+    borderRadius: "5px",
+    padding: "3px 10px 7px 10px",
+    fontFamily: "Ubuntu Mono, Courier",
+    fontSize: "22px",
+    "&:hover": {
+      cursor: "pointer",
+    },
+    margin: "-5px 0 -5px 0",
+  },
+  templateContainer: {
+    maxHeight: "200px",
+    overflowY: "scroll",
+  },
 }));
 
 function StageDrawer({
@@ -88,10 +111,10 @@ function StageDrawer({
   canUndo,
   canRedo,
   selectedRootNode,
-  incrementFont,
-  decrementFont,
+  templateNodes,
 }) {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [nodeAnchorEl, setNodeAnchorEl] = useState(null);
@@ -102,11 +125,10 @@ function StageDrawer({
   const [isTypeEmpty, setIsTypeEmpty] = useState(true);
   const [editValue, setEditValue] = useState(null);
   const [typeValue, setTypeValue] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const isNodeInfoOpen = !!nodeAnchorEl;
   const isEdgeInfoOpen = !!edgeAnchorEl;
   const isValidationInfoOpen = !!validationAnchorEl;
-
-  const dispatch = useDispatch();
 
   const handleAddChange = value => {
     clearAdding();
@@ -213,12 +235,37 @@ function StageDrawer({
     dispatch(ActionCreators.clearHistory());
   };
 
+  const handleTemplateClick = (value, id) => {
+    clearAdding();
+    setSelectedTemplate(id);
+    document.getElementById("addField").value = value;
+    const values = value.split(connectorPlaceholder);
+    var addValue = [];
+    values.length < 2
+      ? (addValue = values)
+      : values.forEach((e, i) => {
+          if (i === values.length - 1) {
+            addValue.push(values[i]);
+          } else {
+            addValue.push(values[i]);
+            addValue.push(connectorPlaceholder);
+          }
+        });
+    addValue = addValue.filter(e => e !== "");
+    addValueChange({ addValue: addValue });
+    setIsAddEmpty(false);
+  };
+
   return (
     <div>
       <IconButton
         onClick={() => setIsDrawerOpen(true)}
         color="primary"
-        style={{ position: "absolute", zIndex: "1" }}
+        style={{
+          position: "absolute",
+          zIndex: "1",
+          visibility: isDrawerOpen ? "hidden" : "visible",
+        }}
       >
         <MenuRoundedIcon />
       </IconButton>
@@ -294,6 +341,7 @@ function StageDrawer({
         </div>
         <div className={classes.toolbarField}>
           <TextField
+            id="addField"
             type="search"
             variant="outlined"
             fullWidth
@@ -319,6 +367,35 @@ function StageDrawer({
             </IconButton>
           </div>
         </div>
+        <AccordionActions disableSpacing>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="body1">
+                Or select a template node:
+              </Typography>
+            </AccordionSummary>
+            <Divider />
+            <div className={classes.templateContainer}>
+              {templateNodes.map((e, i) => (
+                <AccordionDetails style={{ textAlign: "center" }}>
+                  <Typography
+                    variant="h6"
+                    key={"template-" + i}
+                    id={i}
+                    className={classes.templateElement}
+                    onClick={() => handleTemplateClick(e, i)}
+                    style={{
+                      boxShadow:
+                        selectedTemplate === i ? "2px 2px 2px grey" : "",
+                    }}
+                  >
+                    {e}
+                  </Typography>
+                </AccordionDetails>
+              ))}
+            </div>
+          </Accordion>
+        </AccordionActions>
         <Divider />
         <div className={classes.toolbarInfo}>
           <Typography variant="h6">Edit an existing node:</Typography>
@@ -362,7 +439,7 @@ function StageDrawer({
               }
               margin="dense"
               onChange={e => handleEditChange(e.target.value)}
-              defaultValue={selectedNode ? selectedNode.pieces.join(" ") : ""}
+              defaultValue={selectedNode ? selectedNode.pieces.join("") : ""}
             ></TextField>
             <div>
               <IconButton
