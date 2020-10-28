@@ -3,7 +3,7 @@ import undoable from "redux-undo";
 const initialNodes = [
   { id: 1, pieces: ["19"], x: 320, y: 10, width: 28.8046875 },
   { id: 2, pieces: ["age"], x: 320, y: 65, width: 43.20703125 },
-  { id: 3, pieces: ['"Hello', 'World!"'], x: 320, y: 120, width: 192.23046875 },
+  { id: 3, pieces: ['"Hello World!"'], x: 320, y: 120, width: 201.6328125 },
   { id: 4, pieces: ["-", "{{}}"], x: 320, y: 175, width: 33.8046875 },
   { id: 5, pieces: ["{{}}", "<", "{{}}"], x: 320, y: 230, width: 53.20703125 },
   { id: 6, pieces: ["{{}}", "+", "{{}}"], x: 320, y: 285, width: 53.20703125 },

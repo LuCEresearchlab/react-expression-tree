@@ -123,8 +123,8 @@ function StageDrawer({
   const [isAddEmpty, setIsAddEmpty] = useState(true);
   const [isEditEmpty, setIsEditEmpty] = useState(true);
   const [isTypeEmpty, setIsTypeEmpty] = useState(true);
-  const [editValue, setEditValue] = useState(null);
-  const [typeValue, setTypeValue] = useState(null);
+  const [editValue, setEditValue] = useState([""]);
+  const [typeValue, setTypeValue] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const isNodeInfoOpen = !!nodeAnchorEl;
   const isEdgeInfoOpen = !!edgeAnchorEl;
@@ -232,6 +232,15 @@ function StageDrawer({
 
   const handleReset = () => {
     stageReset();
+    clearAdding();
+    document.getElementById("addField").value = "";
+    addValueChange({ addValue: [""] });
+    setIsAddEmpty(true);
+    setIsEditEmpty(true);
+    setIsTypeEmpty(true);
+    setEditValue([""]);
+    setTypeValue("");
+    setSelectedTemplate(null);
     dispatch(ActionCreators.clearHistory());
   };
 
@@ -385,7 +394,7 @@ function StageDrawer({
                     onClick={() => handleTemplateClick(e, i)}
                     style={{
                       boxShadow:
-                        selectedTemplate === i ? "2px 2px 2px grey" : "",
+                        selectedTemplate === i ? "3px 3px 3px black" : "",
                     }}
                   >
                     {e}

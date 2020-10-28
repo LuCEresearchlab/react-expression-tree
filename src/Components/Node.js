@@ -140,7 +140,10 @@ function Node({
         strokeWidth={1}
         strokeScaleEnabled={false}
         cornerRadius={5}
-        shadowBlur={isSelected ? 4 : 0}
+        shadowEnabled={isSelected}
+        shadowColor="black"
+        shadowOffset={{ x: 3, y: 3 }}
+        shadowBlur={3}
         ref={nodeRef}
       />
       <Text
