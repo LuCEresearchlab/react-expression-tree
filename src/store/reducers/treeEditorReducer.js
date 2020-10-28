@@ -186,6 +186,9 @@ const treeEditorReducer = (state = initialState, action) => {
               }
             : node
         ),
+        edges: state.edges.filter(
+          edge => edge.parentNodeId !== action.payload.selectedNodeId
+        ),
       };
 
     case "selectEdge":
