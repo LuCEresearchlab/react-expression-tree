@@ -217,8 +217,6 @@ function ExpressionTreeEditor({
               parentPieceId: parentPiece.parentPieceId,
               type: "",
             };
-            clearDragEdge();
-
             addEdge({ edge: newEdge });
           }
         } else {
@@ -232,8 +230,6 @@ function ExpressionTreeEditor({
               parentPieceId: parentPiece.parentPieceId,
               type: "",
             };
-            clearDragEdge();
-
             addEdge({ edge: newEdge });
           }
         }
@@ -254,8 +250,6 @@ function ExpressionTreeEditor({
               childNodeId: childNodeId,
               type: "",
             };
-            clearDragEdge();
-
             addEdge({ edge: newEdge });
           }
         } else {
@@ -266,12 +260,11 @@ function ExpressionTreeEditor({
               childNodeId: childNodeId,
               type: "",
             };
-            clearDragEdge();
-
             addEdge({ edge: newEdge });
           }
         }
       }
+      clearDragEdge();
     }
   };
 

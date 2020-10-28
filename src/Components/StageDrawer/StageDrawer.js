@@ -367,7 +367,7 @@ function StageDrawer({
             </IconButton>
           </div>
         </div>
-        <AccordionActions disableSpacing>
+        <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="body1">
@@ -377,10 +377,9 @@ function StageDrawer({
             <Divider />
             <div className={classes.templateContainer}>
               {templateNodes.map((e, i) => (
-                <AccordionDetails style={{ textAlign: "center" }}>
+                <AccordionDetails key={"template-" + i}>
                   <Typography
                     variant="h6"
-                    key={"template-" + i}
                     id={i}
                     className={classes.templateElement}
                     onClick={() => handleTemplateClick(e, i)}
