@@ -259,7 +259,10 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "clearDragEdge" &&
       action.type !== "moveDragEdgeChildEndTo" &&
       action.type !== "moveDragEdgeParentEndTo" &&
-      action.type !== "moveNodeTo"
+      action.type !== "moveNodeTo" &&
+      action.type !== "addValueChange" &&
+      action.type !== "editValueChange" &&
+      action.type !== "typeValueChange"
     );
   },
 });

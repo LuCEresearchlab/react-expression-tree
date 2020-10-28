@@ -41,7 +41,8 @@ function ExpressionTreeEditor({
   selectedNode,
   addingNode,
   addValue,
-  addValueChange,
+  editValueChange,
+  typeValueChange,
   clearAdding,
   selectEdge,
   clearEdgeSelection,
@@ -146,6 +147,7 @@ function ExpressionTreeEditor({
       setDragEdge({ dragEdge: newDragEdge });
     }
   };
+
   const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
     clearAdding();
     const edge = edgeByParentPiece(nodeId, pieceId, edges);
@@ -175,6 +177,7 @@ function ExpressionTreeEditor({
       setDragEdge({ dragEdge: newDragEdge });
     }
   };
+
   const handleStageMouseMove = e => {
     e.cancelBubble = true;
     //TODO: Provide drop target feedback
@@ -314,6 +317,8 @@ function ExpressionTreeEditor({
       const selectedNode = nodeById(nodeId, nodes);
       clearEdgeSelection();
       selectNode({ selectedNode: selectedNode });
+      document.getElementById("editField").value = selectedNode.pieces.join("");
+      editValueChange({ editValue: [] });
     }
   };
 
@@ -341,6 +346,8 @@ function ExpressionTreeEditor({
       clearNodeSelection();
       const selectedEdge = edgeById(edgeId, edges);
       selectEdge({ selectedEdge: selectedEdge });
+      document.getElementById("typeField").value = selectedEdge.type;
+      typeValueChange({ typeValue: "" });
     }
   };
 
@@ -388,6 +395,7 @@ function ExpressionTreeEditor({
       <StageDrawer
         connectorPlaceholder={connectorPlaceholder}
         templateNodes={templateNodes}
+        stageRef={stageRef}
       />
       <Stage
         ref={stageRef}

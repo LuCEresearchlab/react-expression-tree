@@ -74,6 +74,16 @@ export const addValueChange = payload => ({
   payload,
 });
 
+export const editValueChange = payload => ({
+  type: "editValueChange",
+  payload,
+});
+
+export const typeValueChange = payload => ({
+  type: "typeValueChange",
+  payload,
+});
+
 export const selectEdge = payload => ({
   type: "selectEdge",
   payload,

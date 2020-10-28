@@ -1,6 +1,8 @@
 const initialState = {
   addingNode: false,
-  addValue: [""],
+  addValue: [],
+  editValue: [],
+  typeValue: "",
 };
 
 const drawerReducer = (state = initialState, action) => {
@@ -14,6 +16,16 @@ const drawerReducer = (state = initialState, action) => {
       return {
         ...state,
         addValue: action.payload.addValue,
+      };
+    case "editValueChange":
+      return {
+        ...state,
+        editValue: action.payload.editValue,
+      };
+    case "typeValueChange":
+      return {
+        ...state,
+        typeValue: action.payload.typeValue,
       };
     case "clearAdding":
       return {

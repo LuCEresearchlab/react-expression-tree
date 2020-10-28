@@ -100,8 +100,14 @@ function StageDrawer({
   addingNode,
   addingNodeClick,
   addValueChange,
-  addValue,
+  editValueChange,
+  typeValueChange,
   clearAdding,
+  isAddEmpty,
+  isEditEmpty,
+  isTypeEmpty,
+  editValue,
+  typeValue,
   selectedEdge,
   edgeTypeEdit,
   stageReset,
@@ -112,27 +118,23 @@ function StageDrawer({
   canRedo,
   selectedRootNode,
   templateNodes,
+  stageRef,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-  const [nodeAnchorEl, setNodeAnchorEl] = useState(null);
-  const [edgeAnchorEl, setEdgeAnchorEl] = useState(null);
-  const [validationAnchorEl, setValidationAnchorEl] = useState(null);
-  const [isAddEmpty, setIsAddEmpty] = useState(true);
-  const [isEditEmpty, setIsEditEmpty] = useState(true);
-  const [isTypeEmpty, setIsTypeEmpty] = useState(true);
-  const [editValue, setEditValue] = useState([""]);
-  const [typeValue, setTypeValue] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [nodeAnchorEl, setNodeAnchorEl] = useState(null);
   const isNodeInfoOpen = !!nodeAnchorEl;
+  const [edgeAnchorEl, setEdgeAnchorEl] = useState(null);
   const isEdgeInfoOpen = !!edgeAnchorEl;
+  const [validationAnchorEl, setValidationAnchorEl] = useState(null);
   const isValidationInfoOpen = !!validationAnchorEl;
 
   const handleAddChange = value => {
     clearAdding();
-    value !== "" ? setIsAddEmpty(false) : setIsAddEmpty(true);
+    setSelectedTemplate(null);
     const values = value.split(connectorPlaceholder);
     var addValue = [];
     values.length < 2
@@ -150,7 +152,6 @@ function StageDrawer({
   };
 
   const handleEditChange = value => {
-    value !== "" ? setIsEditEmpty(false) : setIsEditEmpty(true);
     const values = value.split(connectorPlaceholder);
     var editValue = [];
     values.length < 2
@@ -164,7 +165,7 @@ function StageDrawer({
           }
         });
     editValue = editValue.filter(e => e !== "");
-    setEditValue(editValue);
+    editValueChange({ editValue: editValue });
   };
 
   const handleNodeEdit = () => {
@@ -174,13 +175,11 @@ function StageDrawer({
       width: nodeWidth,
       selectedNodeId: selectedNode.id,
     });
-    setEditValue("");
-    setIsEditEmpty(true);
+    editValueChange({ editValue: [] });
   };
 
   const handleTypeChange = value => {
-    value !== "" ? setIsTypeEmpty(false) : setIsTypeEmpty(true);
-    setTypeValue(value);
+    typeValueChange({ typeValue: value });
   };
 
   const handleEdgeTypeEdit = () => {
@@ -188,6 +187,7 @@ function StageDrawer({
       type: typeValue,
       selectedEdgeId: selectedEdge.id,
     });
+    typeValueChange({ typeValue: "" });
   };
 
   const handleStateDownload = () => {
@@ -232,14 +232,14 @@ function StageDrawer({
 
   const handleReset = () => {
     stageReset();
+    const stage = stageRef.current;
+    stage.position({ x: 0, y: 0 });
+    stage.scale({ x: 1, y: 1 });
     clearAdding();
     document.getElementById("addField").value = "";
-    addValueChange({ addValue: [""] });
-    setIsAddEmpty(true);
-    setIsEditEmpty(true);
-    setIsTypeEmpty(true);
-    setEditValue([""]);
-    setTypeValue("");
+    addValueChange({ addValue: [] });
+    editValueChange({ editValue: [] });
+    typeValueChange({ typeValue: "" });
     setSelectedTemplate(null);
     dispatch(ActionCreators.clearHistory());
   };
@@ -262,7 +262,6 @@ function StageDrawer({
         });
     addValue = addValue.filter(e => e !== "");
     addValueChange({ addValue: addValue });
-    setIsAddEmpty(false);
   };
 
   return (
@@ -434,6 +433,7 @@ function StageDrawer({
           <div className={classes.toolbarField}>
             <TextField
               key={selectedNode.id}
+              id="editField"
               variant="outlined"
               type="search"
               fullWidth
@@ -447,7 +447,6 @@ function StageDrawer({
               }
               margin="dense"
               onChange={e => handleEditChange(e.target.value)}
-              defaultValue={selectedNode ? selectedNode.pieces.join("") : ""}
             ></TextField>
             <div>
               <IconButton
@@ -493,6 +492,8 @@ function StageDrawer({
           <div className={classes.toolbarField}>
             <TextField
               key={selectedEdge.id}
+              id="typeField"
+              type="search"
               variant="outlined"
               fullWidth
               size="medium"
@@ -501,7 +502,6 @@ function StageDrawer({
               onChange={e => {
                 handleTypeChange(e.target.value);
               }}
-              defaultValue={selectedEdge ? selectedEdge.type : ""}
             ></TextField>
             <div>
               <IconButton
@@ -510,11 +510,7 @@ function StageDrawer({
                 disabled={isTypeEmpty}
                 color="primary"
               >
-                {selectedEdge.type === "" ? (
-                  <AddRoundedIcon />
-                ) : (
-                  <UpdateRoundedIcon />
-                )}
+                <UpdateRoundedIcon />
               </IconButton>
             </div>
           </div>
