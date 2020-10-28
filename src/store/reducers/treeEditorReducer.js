@@ -265,7 +265,9 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "moveNodeTo" &&
       action.type !== "addValueChange" &&
       action.type !== "editValueChange" &&
-      action.type !== "typeValueChange"
+      action.type !== "typeValueChange" &&
+      action.type !== "clearAdding" &&
+      action.type !== "addingNodeClick"
     );
   },
 });
