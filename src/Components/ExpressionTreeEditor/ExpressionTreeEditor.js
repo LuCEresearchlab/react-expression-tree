@@ -434,9 +434,10 @@ function ExpressionTreeEditor({
           ))}
           {nodes.map((node, i) => (
             <Node
-              connectorPlaceholder={connectorPlaceholder}
-              key={"Node-" + node.id}
               id={node.id}
+              key={"Node-" + node.id}
+              stageRef={stageRef}
+              connectorPlaceholder={connectorPlaceholder}
               x={nodePositionById(node.id, nodes).x}
               y={nodePositionById(node.id, nodes).y}
               nodeWidth={node.width}

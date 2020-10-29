@@ -28,6 +28,7 @@ function Node({
   stageHeight,
   isSelectedRoot,
   nodeWidth,
+  stageRef,
 }) {
   const nodeRef = useRef();
 
@@ -95,17 +96,18 @@ function Node({
   };
 
   const checkDragBound = pos => {
+    const stageScale = stageRef.current.scale();
     var newX = pos.x;
     var newY = pos.y;
     if (pos.x < 0) {
       newX = 0;
-    } else if (pos.x > stageWidth - nodePadWidth) {
-      newX = stageWidth - nodePadWidth;
+    } else if (pos.x > stageWidth - nodePadWidth * stageScale.x) {
+      newX = stageWidth - nodePadWidth * stageScale.x;
     }
     if (pos.y < 0) {
       newY = 0;
-    } else if (pos.y > stageHeight - nodePadHeight) {
-      newY = stageHeight - nodePadHeight;
+    } else if (pos.y > stageHeight - nodePadHeight * stageScale.y) {
+      newY = stageHeight - nodePadHeight * stageScale.y;
     }
     return {
       x: newX,
@@ -136,8 +138,8 @@ function Node({
         width={nodePadWidth}
         height={nodePadHeight}
         fill="#208020"
-        stroke="black"
-        strokeWidth={1}
+        stroke={isSelected ? "#2d838c" : "black"}
+        strokeWidth={isSelected ? 2 : 1}
         strokeScaleEnabled={false}
         cornerRadius={5}
         shadowEnabled={isSelected}
