@@ -196,6 +196,9 @@ function StageDrawer({
     const currentState = {
       nodes,
       edges,
+      selectedNode,
+      selectedEdge,
+      selectedRootNode,
       stagePos,
       stageScale,
     };
@@ -225,7 +228,18 @@ function StageDrawer({
         uploadState({
           nodes: state.nodes,
           edges: state.edges,
+          selectedNode: state.selectedNode,
+          selectedEdge: state.selectedEdge,
+          selectedRootNode: state.selectedRootNode,
         });
+        if (state.selectedNode !== null) {
+          document.getElementById(
+            "editField"
+          ).value = state.selectedNode.pieces.join("");
+        }
+        if (state.selectedEdge !== null) {
+          document.getElementById("typeField").value = state.selectedEdge.type;
+        }
         stageRef.current.position({ x: state.stagePos.x, y: state.stagePos.y });
         stageRef.current.scale({
           x: state.stageScale.x,
