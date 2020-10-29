@@ -191,9 +191,13 @@ function StageDrawer({
   };
 
   const handleStateDownload = () => {
+    const stagePos = stageRef.current.absolutePosition();
+    const stageScale = stageRef.current.scale();
     const currentState = {
       nodes,
       edges,
+      stagePos,
+      stageScale,
     };
     const stateData =
       "data:text/json;charset=utf-8," +
@@ -221,6 +225,11 @@ function StageDrawer({
         uploadState({
           nodes: state.nodes,
           edges: state.edges,
+        });
+        stageRef.current.position({ x: state.stagePos.x, y: state.stagePos.y });
+        stageRef.current.scale({
+          x: state.stageScale.x,
+          y: state.stageScale.y,
         });
         dispatch(ActionCreators.clearHistory());
       } catch (e) {
