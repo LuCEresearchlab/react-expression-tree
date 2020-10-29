@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Node from "../Node.js";
 import Edge from "../Edge.js";
 import DragEdge from "../DragEdge.js";
@@ -56,8 +56,6 @@ function ExpressionTreeEditor({
   // (Konva doesn't provide key events).
   const stageRef = useRef();
 
-  const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
-
   // Effects
   useEffect(() => {
     // Request focus, so we can respond to key events
@@ -99,14 +97,6 @@ function ExpressionTreeEditor({
     selectedEdge,
     selectedNode,
   ]);
-
-  const handleNodeMove = (id, x, y) => {
-    moveNodeTo({ nodeId: id, x: x, y: y });
-  };
-
-  const handleNodeMoveEnd = (id, x, y) => {
-    moveNodeToEnd({ nodeId: id, x: x, y: y });
-  };
 
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
     clearAdding();
@@ -183,15 +173,18 @@ function ExpressionTreeEditor({
     //TODO: Provide drop target feedback
     //      (e.g., DragEdge color, Node's connector color)
     if (dragEdge) {
+      const stagePos = stageRef.current.absolutePosition();
+      const pointerPos = stageRef.current.getPointerPosition();
+      const stageScale = stageRef.current.scale();
       if (dragEdge.updateParent) {
         moveDragEdgeParentEndTo({
-          x: e.evt.offsetX - stagePos.x,
-          y: e.evt.offsetY - stagePos.y,
+          x: (pointerPos.x - stagePos.x) / stageScale.x,
+          y: (pointerPos.y - stagePos.y) / stageScale.y,
         });
       } else {
         moveDragEdgeChildEndTo({
-          x: e.evt.offsetX - stagePos.x,
-          y: e.evt.offsetY - stagePos.y,
+          x: (pointerPos.x - stagePos.x) / stageScale.x,
+          y: (pointerPos.y - stagePos.y) / stageScale.y,
         });
       }
     }
@@ -199,10 +192,13 @@ function ExpressionTreeEditor({
 
   const handleStageMouseUp = e => {
     if (dragEdge) {
+      const stagePos = stageRef.current.absolutePosition();
+      const pointerPos = stageRef.current.getPointerPosition();
+      const stageScale = stageRef.current.scale();
       if (dragEdge.updateParent) {
         const parentPiece = closestParentPiece(
-          e.evt.offsetX - stagePos.x,
-          e.evt.offsetY - stagePos.y,
+          (pointerPos.x - stagePos.x) / stageScale.x,
+          (pointerPos.y - stagePos.y) / stageScale.y,
           nodes,
           connectorPlaceholder
         );
@@ -245,8 +241,8 @@ function ExpressionTreeEditor({
         }
       } else {
         const childNodeId = closestChildId(
-          e.evt.offsetX - stagePos.x,
-          e.evt.offsetY - stagePos.y,
+          (pointerPos.x - stagePos.x) / stageScale.x,
+          (pointerPos.y - stagePos.y) / stageScale.y,
           nodes
         );
         if (dragEdge.originalEdgeId !== null) {
@@ -289,11 +285,14 @@ function ExpressionTreeEditor({
 
   const handleStageClick = e => {
     if (addingNode) {
+      const stagePos = stageRef.current.absolutePosition();
+      const pointerPos = stageRef.current.getPointerPosition();
+      const stageScale = stageRef.current.scale();
       const nodeWidth = computeNodeWidth(addValue, connectorPlaceholder);
       addNode({
         pieces: addValue,
-        x: e.evt.offsetX - stagePos.x,
-        y: e.evt.offsetY - stagePos.y,
+        x: (pointerPos.x - stagePos.x) / stageScale.x,
+        y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
       });
       clearAdding();
@@ -305,11 +304,14 @@ function ExpressionTreeEditor({
 
   const handleNodeClick = (e, nodeId) => {
     if (addingNode) {
+      const stagePos = stageRef.current.absolutePosition();
+      const pointerPos = stageRef.current.getPointerPosition();
+      const stageScale = stageRef.current.scale();
       const nodeWidth = computeNodeWidth(addValue, connectorPlaceholder);
       addNode({
         pieces: addValue,
-        x: e.evt.offsetX - stagePos.x,
-        y: e.evt.offsetY - stagePos.y,
+        x: (pointerPos.x - stagePos.x) / stageScale.x,
+        y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
       });
       clearAdding();
@@ -333,11 +335,14 @@ function ExpressionTreeEditor({
 
   const handleEdgeClick = (e, edgeId) => {
     if (addingNode) {
+      const stagePos = stageRef.current.absolutePosition();
+      const pointerPos = stageRef.current.getPointerPosition();
+      const stageScale = stageRef.current.scale();
       const nodeWidth = computeNodeWidth(addValue, connectorPlaceholder);
       addNode({
         pieces: addValue,
-        x: e.evt.offsetX - stagePos.x,
-        y: e.evt.offsetY - stagePos.y,
+        x: (pointerPos.x - stagePos.x) / stageScale.x,
+        y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
       });
       clearAdding();
@@ -353,10 +358,8 @@ function ExpressionTreeEditor({
 
   const handleStageDragMove = e => {
     e.cancelBubble = true;
-    setStagePos({
-      x: e.target.absolutePosition().x,
-      y: e.target.absolutePosition().y,
-    });
+    const newPos = e.target.absolutePosition();
+    stageRef.current.position({ x: newPos.x, y: newPos.y });
   };
 
   const handleStageWheel = e => {
@@ -368,26 +371,22 @@ function ExpressionTreeEditor({
     const oldScale = stage.scaleX();
     const newScale = e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
-    const pointer = stage.getPointerPosition();
+    const pointerPos = stage.getPointerPosition();
 
     var mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
+      x: (pointerPos.x - stage.x()) / oldScale,
+      y: (pointerPos.y - stage.y()) / oldScale,
     };
 
     stage.scale({ x: newScale, y: newScale });
 
     var newPos = {
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
+      x: pointerPos.x - mousePointTo.x * newScale,
+      y: pointerPos.y - mousePointTo.y * newScale,
     };
 
     stage.position(newPos);
     stage.batchDraw();
-    setStagePos({
-      x: stage.position().x,
-      y: stage.position().y,
-    });
   };
 
   return (
@@ -452,8 +451,8 @@ function ExpressionTreeEditor({
               }
               stageWidth={width}
               stageHeight={height}
-              onNodeMove={handleNodeMove}
-              onNodeMoveEnd={handleNodeMoveEnd}
+              moveNodeTo={moveNodeTo}
+              moveNodeToEnd={moveNodeToEnd}
               onNodeClick={e => handleNodeClick(e, node.id)}
               onNodeDblClick={() => handleNodeDblClick(node.id)}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
