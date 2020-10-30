@@ -175,6 +175,7 @@ function ExpressionTreeEditor({
     //TODO: Provide drop target feedback
     //      (e.g., DragEdge color, Node's connector color)
     if (dragEdge) {
+      document.body.style.cursor = "grabbing";
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
       const stageScale = stageRef.current.scale();
@@ -193,6 +194,7 @@ function ExpressionTreeEditor({
   };
 
   const handleStageMouseUp = e => {
+    e.cancelBubble = true;
     if (dragEdge) {
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
@@ -221,9 +223,11 @@ function ExpressionTreeEditor({
               type: "",
             };
             updateEdge({ edgeId: originalEdge.id, newEdge: newEdge });
+            document.body.style.cursor = "grab";
           } else if (!parentPiece) {
             clearDragEdge();
             removeEdge({ edgeId: originalEdge.id });
+            document.body.style.cursor = "move";
           }
         } else {
           if (
@@ -238,6 +242,7 @@ function ExpressionTreeEditor({
             };
             clearDragEdge();
             addEdge({ edge: newEdge });
+            document.body.style.cursor = "grab";
           }
         }
       } else {
@@ -262,9 +267,11 @@ function ExpressionTreeEditor({
               type: "",
             };
             updateEdge({ edgeId: dragEdge.originalEdgeId, newEdge: newEdge });
+            document.body.style.cursor = "grab";
           } else if (!childNodeId) {
             clearDragEdge();
             removeEdge({ edgeId: originalEdge.id });
+            document.body.style.cursor = "move";
           }
         } else {
           if (childNodeId && dragEdge.parentNodeId !== childNodeId) {
@@ -276,10 +283,12 @@ function ExpressionTreeEditor({
             };
             clearDragEdge();
             addEdge({ edge: newEdge });
+            document.body.style.cursor = "grab";
           }
         }
       }
       clearDragEdge();
+      document.body.style.cursor = "move";
     }
   };
 
@@ -363,7 +372,12 @@ function ExpressionTreeEditor({
   };
 
   const handleStageWheel = e => {
+    clearWheelTimeout();
     e.evt.preventDefault();
+
+    e.evt.deltaY > 0
+      ? (document.body.style.cursor = "zoom-in")
+      : (document.body.style.cursor = "zoom-out");
 
     const stage = stageRef.current;
 
@@ -387,6 +401,17 @@ function ExpressionTreeEditor({
 
     stage.position(newPos);
     stage.batchDraw();
+    setWheelTimeout();
+  };
+
+  var wheelTimeout;
+  const setWheelTimeout = () => {
+    wheelTimeout = setTimeout(() => {
+      document.body.style.cursor = "move";
+    }, 300);
+  };
+  const clearWheelTimeout = () => {
+    clearTimeout(wheelTimeout);
   };
 
   return (
@@ -405,10 +430,27 @@ function ExpressionTreeEditor({
         onClick={handleStageClick}
         style={addingNode ? { cursor: "crosshair" } : {}}
         draggable
+        onDragStart={e => {
+          document.body.style.cursor = "grabbing";
+        }}
         onDragMove={e => handleStageDragMove(e)}
+        onDragEnd={e => {
+          document.body.style.cursor = "move";
+        }}
         onWheel={handleStageWheel}
+        onMouseOver={e => {
+          document.body.style.cursor = "move";
+        }}
+        onMouseLeave={e => {
+          document.body.style.cursor = "default";
+        }}
       >
-        <Layer>
+        <Layer
+          onMouseOver={e => {
+            e.cancelBubble = true;
+            document.body.style.cursor = "pointer";
+          }}
+        >
           {edges.map((edge, i) => (
             <Edge
               key={"Edge-" + edge.id}

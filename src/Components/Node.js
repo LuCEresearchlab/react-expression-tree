@@ -54,12 +54,14 @@ function Node({
   };
 
   const handleDragEnd = e => {
+    e.cancelBubble = true;
     if (draggingNode) {
       const id = e.target.id();
       const x = e.target.x();
       const y = e.target.y();
       moveNodeToEnd({ nodeId: id, x: x, y: y });
     }
+    document.body.style.cursor = "pointer";
     setDraggingNode(false);
   };
 
@@ -70,6 +72,7 @@ function Node({
 
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
+    document.body.style.cursor = "grabbing";
     const nodeId = e.target.id();
     // we don't want the connector to be moved
     e.target.stopDrag();
@@ -83,6 +86,7 @@ function Node({
 
   const handlePieceConnectorDragStart = (e, nodeId) => {
     e.cancelBubble = true; // prevent onDragStart of Group
+    document.body.style.cursor = "grabbing";
     const pieceId = e.target.id();
     // const pos = e.target.absolutePosition();
     // we don't want the connector to be moved
@@ -124,11 +128,11 @@ function Node({
       x={x}
       y={y}
       draggable
+      onClick={handleNodeClick}
+      onDblClick={onNodeDblClick}
       onDragStart={() => setDraggingNode(true)}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
-      onClick={handleNodeClick}
-      onDblClick={onNodeDblClick}
       dragBoundFunc={pos => checkDragBound(pos)}
     >
       <Rect
@@ -172,6 +176,10 @@ function Node({
           onDragStart={handleNodeConnectorDragStart}
           onDragMove={() => {}}
           onDragEnd={() => {}}
+          onMouseOver={e => {
+            e.cancelBubble = true;
+            document.body.style.cursor = "grab";
+          }}
         />
       ) : (
         <Circle
@@ -186,6 +194,10 @@ function Node({
           onDragStart={handleNodeConnectorDragStart}
           onDragMove={e => {}}
           onDragEnd={e => {}}
+          onMouseOver={e => {
+            e.cancelBubble = true;
+            document.body.style.cursor = "grab";
+          }}
         />
       )}
       {pieces.map((p, i) =>
@@ -206,6 +218,10 @@ function Node({
             onDragStart={e => handlePieceConnectorDragStart(e, id)}
             onDragMove={e => {}}
             onDragEnd={e => {}}
+            onMouseOver={e => {
+              e.cancelBubble = true;
+              document.body.style.cursor = "grab";
+            }}
           />
         ) : (
           <Text
