@@ -83,6 +83,7 @@ const treeEditorReducer = (state = initialState, action) => {
             edge.childNodeId !== action.payload.nodeId
         ),
         selectedRootNode:
+          state.selectedRootNode !== null &&
           state.selectedRootNode.id === action.payload.nodeId
             ? null
             : state.selectedRootNode,
