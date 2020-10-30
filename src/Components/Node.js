@@ -20,6 +20,7 @@ function Node({
   isSelected,
   moveNodeTo,
   moveNodeToEnd,
+  removeNode,
   onNodeConnectorDragStart,
   onPieceConnectorDragStart,
   onNodeClick,
@@ -137,8 +138,8 @@ function Node({
         y={0}
         width={nodePadWidth}
         height={nodePadHeight}
-        fill="#208020"
-        stroke={isSelected ? "#2d838c" : "black"}
+        fill={isSelected ? "#3f50b5" : "#208020"}
+        stroke="black"
         strokeWidth={isSelected ? 2 : 1}
         strokeScaleEnabled={false}
         cornerRadius={5}
@@ -152,7 +153,7 @@ function Node({
         x={3}
         y={3}
         fill="white"
-        fontFamily={"Arial"}
+        fontFamily={fontFamily}
         fontSize={defaultFontSize * 0.4}
         text={id}
       />
@@ -163,7 +164,10 @@ function Node({
           numPoints={5}
           innerRadius={5}
           outerRadius={10}
-          fill="blue"
+          fill="#3f50b5"
+          stroke="black"
+          strokeWidth={2}
+          strokeScaleEnabled={false}
           draggable
           onDragStart={handleNodeConnectorDragStart}
           onDragMove={() => {}}
@@ -216,6 +220,15 @@ function Node({
           />
         )
       )}
+      <Text
+        x={nodePadWidth - 10}
+        y={3}
+        fill="white"
+        fontFamily={fontFamily}
+        fontSize={defaultFontSize * 0.4}
+        text="X"
+        onClick={e => removeNode({ nodeId: e.target.parent.attrs.id })}
+      />
     </Group>
   );
 }

@@ -1,13 +1,18 @@
 import React from "react";
-import { Line } from "react-konva";
+import { Arrow, Circle } from "react-konva";
 
 function DragEdge({ childX, childY, parentX, parentY }) {
   return (
-    <Line
-      points={[parentX, parentY, childX, childY]}
-      stroke="black"
-      strokeWidth={5}
-    />
+    <>
+      <Circle x={parentX} y={parentY} radius={5} fill="black" />
+      <Arrow
+        points={[parentX, parentY, childX, childY]}
+        stroke="black"
+        strokeWidth={5}
+        lineCap="round"
+        lineJoin="round"
+      />
+    </>
   );
 }
 

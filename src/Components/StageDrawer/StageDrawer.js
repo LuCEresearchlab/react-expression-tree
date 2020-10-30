@@ -87,6 +87,20 @@ const useStyles = makeStyles(theme => ({
     },
     marginBottom: "-10px",
   },
+  selectedTemplateElement: {
+    color: "white",
+    backgroundColor: "#3f50b5",
+    border: "solid 2px black",
+    borderRadius: "5px",
+    padding: "3px 10px 7px 10px",
+    fontFamily: "Ubuntu Mono, Courier",
+    fontSize: "22px",
+    "&:hover": {
+      cursor: "pointer",
+    },
+    marginBottom: "-10px",
+    boxShadow: "3px 3px 3px black",
+  },
   templateContainer: {
     maxHeight: "200px",
     overflowY: "scroll",
@@ -412,12 +426,12 @@ function StageDrawer({
                   <Typography
                     variant="h6"
                     id={i}
-                    className={classes.templateElement}
+                    className={
+                      selectedTemplate === i
+                        ? classes.selectedTemplateElement
+                        : classes.templateElement
+                    }
                     onClick={() => handleTemplateClick(e, i)}
-                    style={{
-                      boxShadow:
-                        selectedTemplate === i ? "3px 3px 3px black" : "",
-                    }}
                   >
                     {e}
                   </Typography>

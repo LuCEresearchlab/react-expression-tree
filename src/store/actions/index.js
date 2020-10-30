@@ -38,6 +38,11 @@ export const addEdge = payload => ({
   payload,
 });
 
+export const updateEdge = payload => ({
+  type: "updateEdge",
+  payload,
+});
+
 export const clearDragEdge = () => ({
   type: "clearDragEdge",
 });

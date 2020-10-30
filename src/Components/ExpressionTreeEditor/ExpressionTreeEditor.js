@@ -16,6 +16,7 @@ import {
   nodeById,
   nodePositionById,
   computeNodeWidth,
+  textHeight,
 } from "../../utils.js";
 
 function ExpressionTreeEditor({
@@ -34,6 +35,7 @@ function ExpressionTreeEditor({
   moveDragEdgeChildEndTo,
   removeEdge,
   addEdge,
+  updateEdge,
   clearDragEdge,
   clearNodeSelection,
   addNode,
@@ -119,7 +121,7 @@ function ExpressionTreeEditor({
         parentNodeId: edge.parentNodeId,
         parentPieceId: edge.parentPieceId,
         parentX: parentPos.x,
-        parentY: parentPos.y,
+        parentY: parentPos.y - textHeight / 2,
         childX: x,
         childY: y,
       };
@@ -211,7 +213,6 @@ function ExpressionTreeEditor({
               originalEdge.parentPieceId !== parentPiece.parentPieceId)
           ) {
             clearDragEdge();
-            removeEdge({ edgeId: originalEdge.id });
             clearEdgeSelection();
             const newEdge = {
               childNodeId: originalEdge.childNodeId,
@@ -219,7 +220,7 @@ function ExpressionTreeEditor({
               parentPieceId: parentPiece.parentPieceId,
               type: "",
             };
-            addEdge({ edge: newEdge });
+            updateEdge({ edgeId: originalEdge.id, newEdge: newEdge });
           } else if (!parentPiece) {
             clearDragEdge();
             removeEdge({ edgeId: originalEdge.id });
@@ -253,7 +254,6 @@ function ExpressionTreeEditor({
             originalEdge.childNodeId !== childNodeId
           ) {
             clearDragEdge();
-            removeEdge({ edgeId: dragEdge.originalEdgeId });
             clearEdgeSelection();
             const newEdge = {
               parentNodeId: originalEdge.parentNodeId,
@@ -261,7 +261,7 @@ function ExpressionTreeEditor({
               childNodeId: childNodeId,
               type: "",
             };
-            addEdge({ edge: newEdge });
+            updateEdge({ edgeId: dragEdge.originalEdgeId, newEdge: newEdge });
           } else if (!childNodeId) {
             clearDragEdge();
             removeEdge({ edgeId: originalEdge.id });
@@ -454,6 +454,7 @@ function ExpressionTreeEditor({
               stageHeight={height}
               moveNodeTo={moveNodeTo}
               moveNodeToEnd={moveNodeToEnd}
+              removeNode={removeNode}
               onNodeClick={e => handleNodeClick(e, node.id)}
               onNodeDblClick={() => handleNodeDblClick(node.id)}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}

@@ -1,8 +1,8 @@
 import Konva from "konva";
 
 // Layout Defaults
-export const xPad = 10;
-export const yPad = 10;
+export const xPad = 11;
+export const yPad = 11;
 export const gapWidth = 5;
 export const fontFamily = "Ubuntu Mono, Courier";
 export const defaultFontSize = 24;

@@ -82,6 +82,10 @@ const treeEditorReducer = (state = initialState, action) => {
             edge.parentNodeId !== action.payload.nodeId &&
             edge.childNodeId !== action.payload.nodeId
         ),
+        selectedRootNode:
+          state.selectedRootNode.id === action.payload.nodeId
+            ? null
+            : state.selectedRootNode,
       };
 
     case "selectNode":
@@ -140,6 +144,18 @@ const treeEditorReducer = (state = initialState, action) => {
       return {
         ...state,
         edges: state.edges.filter(edge => edge.id !== action.payload.edgeId),
+      };
+
+    case "updateEdge":
+      return {
+        ...state,
+        edges: [
+          ...state.edges.filter(edge => edge.id !== action.payload.edgeId),
+          {
+            ...action.payload.newEdge,
+            id: maxEdgeId() + 1,
+          },
+        ],
       };
 
     case "setDragEdge":
