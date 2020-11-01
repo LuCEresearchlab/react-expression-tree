@@ -45,6 +45,11 @@ function Node({
   const piecesPos = computePiecesPositions(pieces, connectorPlaceholder);
   const nodePiecesWidths = computePiecesWidths(pieces, connectorPlaceholder);
 
+  const handleDragStart = e => {
+    e.currentTarget.moveToTop();
+    setDraggingNode(true);
+  };
+
   const handleDragMove = e => {
     e.cancelBubble = true;
     if (draggingNode) {
@@ -138,7 +143,7 @@ function Node({
       draggable
       onClick={handleNodeClick}
       onDblClick={onNodeDblClick}
-      onDragStart={() => setDraggingNode(true)}
+      onDragStart={e => handleDragStart(e)}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       dragBoundFunc={pos => checkDragBound(pos)}
@@ -153,7 +158,6 @@ function Node({
         fill={isSelected ? "#3f50b5" : "#208020"}
         stroke="black"
         strokeWidth={isSelected ? 2 : 1}
-        strokeScaleEnabled={false}
         cornerRadius={5}
         shadowEnabled={isSelected}
         shadowColor="black"
@@ -179,7 +183,6 @@ function Node({
           fill="#3f50b5"
           stroke="black"
           strokeWidth={2}
-          strokeScaleEnabled={false}
           draggable
           onDragStart={handleNodeConnectorDragStart}
           onDragMove={() => {}}

@@ -325,7 +325,7 @@ function ExpressionTreeEditor({
       });
       clearAdding();
     } else {
-      // e.currentTarget.moveToTop();
+      e.currentTarget.moveToTop();
       const selectedNode = nodeById(nodeId, nodes);
       clearEdgeSelection();
       selectNode({ selectedNode: selectedNode });
