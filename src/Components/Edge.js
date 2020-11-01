@@ -1,5 +1,5 @@
 import React from "react";
-import { Circle, Text, Arrow } from "react-konva";
+import { Text, Line } from "react-konva";
 import { xPad, yPad, holeWidth, textHeight } from "../utils.js";
 
 function Edge({
@@ -17,22 +17,13 @@ function Edge({
 }) {
   return (
     <>
-      <Circle
-        kind="NodeConnector"
-        key={"NodeConnector-" + id}
-        id={id}
-        x={parentX + xPad + parentPieceX + holeWidth / 2}
-        y={parentY + yPad + textHeight / 2}
-        radius={5}
-        fill={beingDragged ? "#f0f0f0" : "black"}
-      />
-      <Arrow
+      <Line
         key={"Edge-Line-" + id}
         points={[
-          parentX + xPad + parentPieceX + holeWidth / 2,
-          parentY + yPad + textHeight / 2,
           childX + xPad + childWidth / 2,
           childY,
+          parentX + xPad + parentPieceX + holeWidth / 2,
+          parentY + yPad + textHeight / 2,
         ]}
         stroke={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
         strokeWidth={5}

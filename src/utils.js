@@ -134,12 +134,7 @@ export const closestParentPiece = (x, y, nodes, connectorPlaceholder) => {
 export function computePiecesWidths(pieces, connectorPlaceholder) {
   return pieces.map(p => {
     if (p === connectorPlaceholder) {
-      const holeText = new Konva.Text({
-        text: "o",
-        fontFamily: fontFamily,
-        fontSize: defaultFontSize,
-      });
-      return holeText.getTextWidth();
+      return holeWidth;
     } else {
       const text = new Konva.Text({
         text: p,

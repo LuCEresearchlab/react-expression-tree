@@ -325,6 +325,7 @@ function ExpressionTreeEditor({
       });
       clearAdding();
     } else {
+      // e.currentTarget.moveToTop();
       const selectedNode = nodeById(nodeId, nodes);
       clearEdgeSelection();
       selectNode({ selectedNode: selectedNode });
@@ -479,6 +480,7 @@ function ExpressionTreeEditor({
               id={node.id}
               key={"Node-" + node.id}
               stageRef={stageRef}
+              edges={edges}
               connectorPlaceholder={connectorPlaceholder}
               x={nodePositionById(node.id, nodes).x}
               y={nodePositionById(node.id, nodes).y}

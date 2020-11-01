@@ -9,6 +9,7 @@ import {
   holeWidth,
   computePiecesWidths,
   computePiecesPositions,
+  edgeByParentPiece,
 } from "../utils.js";
 
 function Node({
@@ -30,6 +31,7 @@ function Node({
   isSelectedRoot,
   nodeWidth,
   stageRef,
+  edges,
 }) {
   const nodeRef = useRef();
 
@@ -95,8 +97,14 @@ function Node({
     onPieceConnectorDragStart(
       nodeId,
       pieceId,
-      e.target.parent.x() + e.target.x() + holeWidth / 2,
-      e.target.parent.y() + e.target.y() + holeWidth * 0.75
+      e.target.parent.parent.x() +
+        e.target.parent.x() +
+        e.target.x() +
+        holeWidth / 2,
+      e.target.parent.parent.y() +
+        e.target.parent.y() +
+        e.target.y() +
+        holeWidth * 0.75
     );
   };
 
@@ -202,27 +210,43 @@ function Node({
       )}
       {pieces.map((p, i) =>
         p === connectorPlaceholder ? (
-          <Rect
-            kind="HolePiece"
-            key={"HolePiece-" + i}
-            id={i}
-            x={xPad + piecesPos[i]}
-            y={nodePadHeight / 2 - yPad}
-            width={nodePiecesWidths[i]}
-            height={nodePiecesWidths[i] * 1.5}
-            fill="#104010"
-            stroke="black"
-            strokeWidth={1}
-            cornerRadius={3}
-            draggable
-            onDragStart={e => handlePieceConnectorDragStart(e, id)}
-            onDragMove={e => {}}
-            onDragEnd={e => {}}
-            onMouseOver={e => {
-              e.cancelBubble = true;
-              document.body.style.cursor = "grab";
-            }}
-          />
+          <Group key={"HolePiece-" + i}>
+            <Rect
+              id={i}
+              x={xPad + piecesPos[i]}
+              y={nodePadHeight / 2 - yPad}
+              width={nodePiecesWidths[i]}
+              height={nodePiecesWidths[i] * 1.5}
+              fill="#104010"
+              stroke="black"
+              strokeWidth={1}
+              cornerRadius={3}
+              draggable
+              onDragStart={e => handlePieceConnectorDragStart(e, id)}
+              onDragMove={e => {}}
+              onDragEnd={e => {}}
+              onMouseOver={e => {
+                e.cancelBubble = true;
+                document.body.style.cursor = "grab";
+              }}
+            />
+            <Circle
+              id={i}
+              x={xPad + piecesPos[i] + holeWidth / 2}
+              y={yPad + textHeight / 2}
+              draggable
+              onDragStart={e => handlePieceConnectorDragStart(e, id)}
+              onDragMove={e => {}}
+              onDragEnd={e => {}}
+              radius={5}
+              fill="black"
+              onMouseOver={e => {
+                e.cancelBubble = true;
+                document.body.style.cursor = "grab";
+              }}
+              visible={edgeByParentPiece(id, i, edges) !== undefined}
+            />
+          </Group>
         ) : (
           <Text
             kind="TextPiece"
