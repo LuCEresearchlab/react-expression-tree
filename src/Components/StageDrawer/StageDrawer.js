@@ -36,9 +36,9 @@ const useStyles = makeStyles(theme => ({
     width: drawerWidth,
     flexShrink: 0,
     position: "absolute",
-  },
-  drawerPaper: {
-    width: drawerWidth,
+    maxHeight: "100%",
+    overflowY: "scroll",
+    margin: "1px 0 0 1px",
   },
   drawerHeader: {
     display: "flex",
@@ -302,7 +302,7 @@ function StageDrawer({
   };
 
   return (
-    <div>
+    <>
       <IconButton
         onClick={() => setIsDrawerOpen(true)}
         color="primary"
@@ -319,8 +319,13 @@ function StageDrawer({
         variant="persistent"
         anchor="left"
         open={isDrawerOpen}
-        classes={{
-          paper: classes.drawerPaper,
+        PaperProps={{ style: { position: "relative" } }}
+        BackdropProps={{ style: { position: "relative" } }}
+        ModalProps={{
+          container: document.getElementById("editorContainer"),
+          style: {
+            position: "absolute",
+          },
         }}
       >
         <div className={classes.drawerHeader}>
@@ -599,7 +604,7 @@ function StageDrawer({
         )}
         <Divider />
       </Drawer>
-    </div>
+    </>
   );
 }
 

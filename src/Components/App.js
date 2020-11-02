@@ -11,24 +11,18 @@ function App() {
   });
 
   return (
-    <>
-      {/* <div style={{ height: "200px" }}>bbb</div> */}
-      <div style={{ display: "flex" }}>
-        {/* <div style={{ minWidth: "400px" }}>aaaaa</div> */}
-        <ExpressionTreeEditor
-          width={stageWidth}
-          height={stageHeight}
-          connectorPlaceholder="{{}}"
-          templateNodes={[
-            "{{}}?{{}}:{{}}",
-            "{{}}.length",
-            "{{}}.append({{}})",
-            "-{{}}",
-            "{{}}+{{}}",
-          ]}
-        />
-      </div>
-    </>
+    <ExpressionTreeEditor
+      width={stageWidth}
+      height={stageHeight}
+      connectorPlaceholder="{{}}"
+      templateNodes={[
+        "{{}}?{{}}:{{}}",
+        "{{}}.length",
+        "{{}}.append({{}})",
+        "-{{}}",
+        "{{}}+{{}}",
+      ]}
+    />
   );
 }
 

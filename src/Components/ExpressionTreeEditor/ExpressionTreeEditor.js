@@ -358,6 +358,7 @@ function ExpressionTreeEditor({
       clearAdding();
     } else {
       e.cancelBubble = true;
+      e.currentTarget.moveToTop();
       clearNodeSelection();
       const selectedEdge = edgeById(edgeId, edges);
       selectEdge({ selectedEdge: selectedEdge });
@@ -376,7 +377,7 @@ function ExpressionTreeEditor({
     clearWheelTimeout();
     e.evt.preventDefault();
 
-    e.evt.deltaY > 0
+    e.evt.deltaY < 0
       ? (document.body.style.cursor = "zoom-in")
       : (document.body.style.cursor = "zoom-out");
 
@@ -384,7 +385,7 @@ function ExpressionTreeEditor({
 
     const scaleBy = 1.01;
     const oldScale = stage.scaleX();
-    const newScale = e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
     const pointerPos = stage.getPointerPosition();
 
@@ -416,7 +417,10 @@ function ExpressionTreeEditor({
   };
 
   return (
-    <>
+    <div
+      id="editorContainer"
+      style={{ position: "relative", border: "2px solid #3f50b5" }}
+    >
       <StageDrawer
         connectorPlaceholder={connectorPlaceholder}
         templateNodes={templateNodes}
@@ -516,7 +520,7 @@ function ExpressionTreeEditor({
           )}
         </Layer>
       </Stage>
-    </>
+    </div>
   );
 }
 
