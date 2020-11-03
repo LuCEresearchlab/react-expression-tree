@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import Node from "../Node.js";
 import Edge from "../Edge.js";
 import DragEdge from "../DragEdge.js";
@@ -52,15 +53,27 @@ function ExpressionTreeEditor({
   selectRootNode,
   selectedRootNode,
   clearRootSelection,
+  initialState,
+  setInitialState,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
   // (Konva doesn't provide key events).
   const stageRef = useRef();
+  const dispatch = useDispatch();
 
   const [selectedEdgeRef, setSelectedEdgeRef] = useState(null);
 
   // Effects
+  useEffect(() => {
+    dispatch(
+      setInitialState({
+        initialNodes: initialState.initialNodes,
+        initialEdges: initialState.initialEdges,
+      })
+    );
+  }, [dispatch, initialState, setInitialState]);
+
   useEffect(() => {
     // Request focus, so we can respond to key events
     const stage = stageRef.current;
@@ -104,6 +117,7 @@ function ExpressionTreeEditor({
     selectedEdge,
     selectedEdgeRef,
     selectedNode,
+    setInitialState,
   ]);
 
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
@@ -451,6 +465,7 @@ function ExpressionTreeEditor({
         connectorPlaceholder={connectorPlaceholder}
         templateNodes={templateNodes}
         stageRef={stageRef}
+        initialState={initialState}
       />
       <Stage
         ref={stageRef}

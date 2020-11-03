@@ -143,6 +143,7 @@ function StageDrawer({
   selectedRootNode,
   templateNodes,
   stageRef,
+  initialState,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -278,7 +279,10 @@ function StageDrawer({
   };
 
   const handleReset = () => {
-    stageReset();
+    stageReset({
+      initialNodes: initialState.initialNodes,
+      initialEdges: initialState.initialEdges,
+    });
     const stage = stageRef.current;
     stage.position({ x: 0, y: 0 });
     stage.scale({ x: 1, y: 1 });

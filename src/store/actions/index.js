@@ -103,8 +103,9 @@ export const edgeTypeEdit = payload => ({
   payload,
 });
 
-export const stageReset = () => ({
+export const stageReset = payload => ({
   type: "stageReset",
+  payload,
 });
 
 export const uploadState = payload => ({
@@ -119,4 +120,9 @@ export const selectRootNode = payload => ({
 
 export const clearRootSelection = () => ({
   type: "clearRootSelection",
+});
+
+export const setInitialState = payload => ({
+  type: "setInitialState",
+  payload,
 });
