@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Node from "../Node.js";
 import Edge from "../Edge.js";
 import DragEdge from "../DragEdge.js";
@@ -58,6 +58,8 @@ function ExpressionTreeEditor({
   // (Konva doesn't provide key events).
   const stageRef = useRef();
 
+  const [selectedEdgeRef, setSelectedEdgeRef] = useState(null);
+
   // Effects
   useEffect(() => {
     // Request focus, so we can respond to key events
@@ -71,6 +73,7 @@ function ExpressionTreeEditor({
           removeNode({ nodeId: selectedNode.id });
           clearNodeSelection();
         } else if (selectedEdge !== null) {
+          setSelectedEdgeRef(null);
           removeEdge({ edgeId: selectedEdge.id });
           clearEdgeSelection();
         }
@@ -81,6 +84,8 @@ function ExpressionTreeEditor({
         if (selectedNode !== null) {
           clearNodeSelection();
         } else if (selectedEdge !== null) {
+          selectedEdgeRef.moveToBottom();
+          setSelectedEdgeRef(null);
           clearEdgeSelection();
         }
       }
@@ -97,6 +102,7 @@ function ExpressionTreeEditor({
     removeEdge,
     removeNode,
     selectedEdge,
+    selectedEdgeRef,
     selectedNode,
   ]);
 
@@ -215,6 +221,7 @@ function ExpressionTreeEditor({
               originalEdge.parentPieceId !== parentPiece.parentPieceId)
           ) {
             clearDragEdge();
+            setSelectedEdgeRef(null);
             clearEdgeSelection();
             const newEdge = {
               childNodeId: originalEdge.childNodeId,
@@ -226,6 +233,7 @@ function ExpressionTreeEditor({
             document.body.style.cursor = "grab";
           } else if (!parentPiece) {
             clearDragEdge();
+            setSelectedEdgeRef(null);
             removeEdge({ edgeId: originalEdge.id });
             document.body.style.cursor = "move";
           }
@@ -259,6 +267,7 @@ function ExpressionTreeEditor({
             originalEdge.childNodeId !== childNodeId
           ) {
             clearDragEdge();
+            setSelectedEdgeRef(null);
             clearEdgeSelection();
             const newEdge = {
               parentNodeId: originalEdge.parentNodeId,
@@ -270,6 +279,7 @@ function ExpressionTreeEditor({
             document.body.style.cursor = "grab";
           } else if (!childNodeId) {
             clearDragEdge();
+            setSelectedEdgeRef(null);
             removeEdge({ edgeId: originalEdge.id });
             document.body.style.cursor = "move";
           }
@@ -306,8 +316,14 @@ function ExpressionTreeEditor({
       });
       clearAdding();
     } else {
-      clearNodeSelection();
-      clearEdgeSelection();
+      if (selectedNode !== null) {
+        clearNodeSelection();
+      }
+      if (selectedEdge !== null) {
+        selectedEdgeRef.moveToBottom();
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
+      }
     }
   };
 
@@ -327,7 +343,11 @@ function ExpressionTreeEditor({
     } else {
       e.currentTarget.moveToTop();
       const selectedNode = nodeById(nodeId, nodes);
-      clearEdgeSelection();
+      if (selectedEdge !== null) {
+        selectedEdgeRef.moveToBottom();
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
+      }
       selectNode({ selectedNode: selectedNode });
       document.getElementById("editField").value = selectedNode.pieces.join("");
       editValueChange({ editValue: [] });
@@ -359,8 +379,14 @@ function ExpressionTreeEditor({
     } else {
       e.cancelBubble = true;
       e.currentTarget.moveToTop();
-      clearNodeSelection();
+      if (selectedNode !== null) {
+        clearNodeSelection();
+      }
+      if (selectedEdgeRef !== null) {
+        selectedEdgeRef.moveToBottom();
+      }
       const selectedEdge = edgeById(edgeId, edges);
+      setSelectedEdgeRef(e.currentTarget);
       selectEdge({ selectedEdge: selectedEdge });
       document.getElementById("typeField").value = selectedEdge.type;
       typeValueChange({ typeValue: "" });
@@ -473,10 +499,15 @@ function ExpressionTreeEditor({
               childX={nodePositionById(edge.childNodeId, nodes).x}
               childY={nodePositionById(edge.childNodeId, nodes).y}
               onEdgeClick={e => handleEdgeClick(e, edge.id)}
+              onNodeConnectorDragStart={handleNodeConnectorDragStart}
+              onPieceConnectorDragStart={handlePieceConnectorDragStart}
               selected={
                 selectedEdge !== null ? selectedEdge.id === edge.id : false
               }
               type={edge.type}
+              parentNodeId={edge.parentNodeId}
+              parentPieceId={edge.parentPieceId}
+              childNodeId={edge.childNodeId}
             />
           ))}
           {nodes.map((node, i) => (
@@ -485,6 +516,7 @@ function ExpressionTreeEditor({
               key={"Node-" + node.id}
               stageRef={stageRef}
               edges={edges}
+              nodes={nodes}
               connectorPlaceholder={connectorPlaceholder}
               x={nodePositionById(node.id, nodes).x}
               y={nodePositionById(node.id, nodes).y}
@@ -502,11 +534,15 @@ function ExpressionTreeEditor({
               stageHeight={height}
               moveNodeTo={moveNodeTo}
               moveNodeToEnd={moveNodeToEnd}
+              selectNode={selectNode}
+              clearEdgeSelection={clearEdgeSelection}
               removeNode={removeNode}
               onNodeClick={e => handleNodeClick(e, node.id)}
               onNodeDblClick={() => handleNodeDblClick(node.id)}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
               onPieceConnectorDragStart={handlePieceConnectorDragStart}
+              selectedEdgeRef={selectedEdgeRef}
+              setSelectedEdgeRef={setSelectedEdgeRef}
             />
           ))}
           {dragEdge && (

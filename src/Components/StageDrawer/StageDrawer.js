@@ -105,6 +105,16 @@ const useStyles = makeStyles(theme => ({
     maxHeight: "200px",
     overflowY: "scroll",
   },
+  openDrawerButton: {
+    position: "absolute",
+    top: "5px",
+    left: "5px",
+    zIndex: "1",
+    backgroundColor: "#f9f9f9",
+    "&:hover": {
+      backgroundColor: "#f0f0f0",
+    },
+  },
 }));
 
 function StageDrawer({
@@ -307,10 +317,9 @@ function StageDrawer({
         onClick={() => setIsDrawerOpen(true)}
         color="primary"
         style={{
-          position: "absolute",
-          zIndex: "1",
           visibility: isDrawerOpen ? "hidden" : "visible",
         }}
+        classes={{ root: classes.openDrawerButton }}
       >
         <MenuRoundedIcon />
       </IconButton>

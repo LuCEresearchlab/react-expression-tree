@@ -10,6 +10,7 @@ import {
   computePiecesWidths,
   computePiecesPositions,
   edgeByParentPiece,
+  nodeById,
 } from "../utils.js";
 
 function Node({
@@ -21,7 +22,9 @@ function Node({
   isSelected,
   moveNodeTo,
   moveNodeToEnd,
+  selectNode,
   removeNode,
+  clearEdgeSelection,
   onNodeConnectorDragStart,
   onPieceConnectorDragStart,
   onNodeClick,
@@ -32,6 +35,9 @@ function Node({
   nodeWidth,
   stageRef,
   edges,
+  nodes,
+  selectedEdgeRef,
+  setSelectedEdgeRef,
 }) {
   const nodeRef = useRef();
 
@@ -48,6 +54,13 @@ function Node({
   const handleDragStart = e => {
     e.currentTarget.moveToTop();
     setDraggingNode(true);
+    const selectedNode = nodeById(id, nodes);
+    selectNode({ selectedNode: selectedNode });
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
   };
 
   const handleDragMove = e => {
@@ -79,6 +92,11 @@ function Node({
 
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
     document.body.style.cursor = "grabbing";
     const nodeId = e.target.id();
     // we don't want the connector to be moved
@@ -93,6 +111,11 @@ function Node({
 
   const handlePieceConnectorDragStart = (e, nodeId) => {
     e.cancelBubble = true; // prevent onDragStart of Group
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
     document.body.style.cursor = "grabbing";
     const pieceId = e.target.id();
     // const pos = e.target.absolutePosition();
@@ -131,6 +154,15 @@ function Node({
       x: newX,
       y: newY,
     };
+  };
+
+  const handleRemoveClick = e => {
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
+    removeNode({ nodeId: e.target.parent.attrs.id });
   };
 
   return (
@@ -270,7 +302,7 @@ function Node({
         fontFamily={fontFamily}
         fontSize={defaultFontSize * 0.4}
         text="X"
-        onClick={e => removeNode({ nodeId: e.target.parent.attrs.id })}
+        onClick={e => handleRemoveClick(e)}
       />
     </Group>
   );
