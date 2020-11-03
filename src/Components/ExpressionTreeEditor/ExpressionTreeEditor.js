@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import { ActionCreators } from "redux-undo";
 import Node from "../Node.js";
 import Edge from "../Edge.js";
 import DragEdge from "../DragEdge.js";
@@ -72,6 +73,7 @@ function ExpressionTreeEditor({
         initialEdges: initialState.initialEdges,
       })
     );
+    dispatch(ActionCreators.clearHistory());
   }, [dispatch, initialState, setInitialState]);
 
   useEffect(() => {

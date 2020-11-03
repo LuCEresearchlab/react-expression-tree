@@ -303,6 +303,16 @@ function Node({
         fontSize={defaultFontSize * 0.4}
         text="X"
         onClick={e => handleRemoveClick(e)}
+        onMouseOver={e => {
+          e.cancelBubble = true;
+          e.target.fill("red");
+          e.target.draw();
+        }}
+        onMouseLeave={e => {
+          e.cancelBubble = true;
+          e.target.attrs.fill = "white";
+          e.target.draw();
+        }}
       />
     </Group>
   );
