@@ -19,9 +19,17 @@ function Edge({
   parentNodeId,
   parentPieceId,
   childNodeId,
+  selectedEdgeRef,
+  setSelectedEdgeRef,
+  clearEdgeSelection,
 }) {
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
     document.body.style.cursor = "grabbing";
     // we don't want the connector to be moved
     e.target.stopDrag();
@@ -31,6 +39,11 @@ function Edge({
 
   const handlePieceConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
     document.body.style.cursor = "grabbing";
     // const pos = e.target.absolutePosition();
     // we don't want the connector to be moved

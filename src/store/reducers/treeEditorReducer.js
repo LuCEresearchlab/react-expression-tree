@@ -1,4 +1,5 @@
-import undoable from "redux-undo";
+import undoable, { groupByActionTypes } from "redux-undo";
+import { edgeByParentPiece, nodeById } from "../../utils.js";
 
 const initialState = {
   nodes: [],
@@ -20,6 +21,28 @@ const treeEditorReducer = (state = initialState, action) => {
     return state.edges
       .map(e => e.id)
       .reduce((id1, id2) => Math.max(id1, id2), 1);
+  }
+
+  function orderWalk(node, connectorPlaceholder, newNodes, currentX, currentY) {
+    newNodes.push({ id: node.id, x: currentX, y: currentY });
+    currentY = currentY + 70;
+    node.pieces.forEach((piece, i) => {
+      if (piece === connectorPlaceholder) {
+        const edges = edgeByParentPiece(node.id, i, state.edges);
+        edges.forEach(edge => {
+          const childNode = nodeById(edge.childNodeId, state.nodes);
+          orderWalk(
+            childNode,
+            connectorPlaceholder,
+            newNodes,
+            currentX,
+            currentY
+          );
+        });
+      }
+      currentX = currentX + node.width + 20;
+    });
+    return newNodes;
   }
 
   switch (action.type) {
@@ -243,6 +266,40 @@ const treeEditorReducer = (state = initialState, action) => {
         nodes: action.payload.initialNodes,
         edges: action.payload.initialEdges,
       };
+    case "reorderNodes":
+      var newNodes = [];
+      var unconnectedToRoot = -1;
+      var currentX = 600;
+      var currentY = 40;
+      if (state.selectedRootNode !== null) {
+        newNodes = orderWalk(
+          state.selectedRootNode,
+          action.payload.connectorPlaceholder,
+          newNodes,
+          currentX,
+          currentY
+        );
+      }
+      return {
+        ...state,
+        nodes: state.nodes.map((node, i) => {
+          const newNode = newNodes.find(newNode => node.id === newNode.id);
+          if (newNode !== undefined) {
+            return {
+              ...node,
+              x: newNode.x,
+              y: newNode.y,
+            };
+          } else {
+            unconnectedToRoot++;
+            return {
+              ...node,
+              x: 320,
+              y: 40 + unconnectedToRoot * 55,
+            };
+          }
+        }),
+      };
 
     default:
       return state;
@@ -269,6 +326,7 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "setInitialState"
     );
   },
+  groupBy: groupByActionTypes("reorderNodes"),
 });
 
 export default undoableTreeEditorReducer;

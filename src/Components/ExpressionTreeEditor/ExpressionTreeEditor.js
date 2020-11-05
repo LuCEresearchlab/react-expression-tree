@@ -124,7 +124,7 @@ function ExpressionTreeEditor({
 
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
     clearAdding();
-    const edge = edgeByChildNode(nodeId, edges);
+    const edge = edgeByChildNode(nodeId, edges)[0];
     if (edge) {
       const parentPieceX = computePiecesPositions(
         nodeById(edge.parentNodeId, nodes).pieces,
@@ -164,7 +164,7 @@ function ExpressionTreeEditor({
 
   const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
     clearAdding();
-    const edge = edgeByParentPiece(nodeId, pieceId, edges);
+    const edge = edgeByParentPiece(nodeId, pieceId, edges)[0];
     if (edge) {
       const childPos = computeEdgeChildPos(edge.childNodeId, nodes);
       const newDragEdge = {
@@ -525,6 +525,9 @@ function ExpressionTreeEditor({
               parentNodeId={edge.parentNodeId}
               parentPieceId={edge.parentPieceId}
               childNodeId={edge.childNodeId}
+              selectedEdgeRef={selectedEdgeRef}
+              setSelectedEdgeRef={setSelectedEdgeRef}
+              clearEdgeSelection={clearEdgeSelection}
             />
           ))}
           {nodes.map((node, i) => (

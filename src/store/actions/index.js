@@ -126,3 +126,8 @@ export const setInitialState = payload => ({
   type: "setInitialState",
   payload,
 });
+
+export const reorderNodes = payload => ({
+  type: "reorderNodes",
+  payload,
+});

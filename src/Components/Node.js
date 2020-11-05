@@ -279,7 +279,7 @@ function Node({
                 e.cancelBubble = true;
                 document.body.style.cursor = "grab";
               }}
-              visible={edgeByParentPiece(id, i, edges) !== undefined}
+              visible={edgeByParentPiece(id, i, edges).length > 0}
             />
           </Group>
         ) : (

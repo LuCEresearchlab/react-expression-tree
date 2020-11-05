@@ -14,6 +14,7 @@ import RedoRoundedIcon from "@material-ui/icons/RedoRounded";
 import NoteAddRoundedIcon from "@material-ui/icons/NoteAddRounded";
 import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ViewModuleRoundedIcon from "@material-ui/icons/ViewModuleRounded";
 import {
   Drawer,
   IconButton,
@@ -144,6 +145,7 @@ function StageDrawer({
   templateNodes,
   stageRef,
   initialState,
+  reorderNodes,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -156,6 +158,8 @@ function StageDrawer({
   const isEdgeInfoOpen = !!edgeAnchorEl;
   const [validationAnchorEl, setValidationAnchorEl] = useState(null);
   const isValidationInfoOpen = !!validationAnchorEl;
+  const [orderAnchorEl, setOrderAnchorEl] = useState(null);
+  const isOrderInfoOpen = !!orderAnchorEl;
 
   const handleAddChange = value => {
     clearAdding();
@@ -313,6 +317,12 @@ function StageDrawer({
         });
     addValue = addValue.filter(e => e !== "");
     addValueChange({ addValue: addValue });
+  };
+
+  const handleReorderClick = () => {
+    stageRef.current.position({ x: 0, y: 0 });
+    stageRef.current.scale({ x: 1, y: 1 });
+    reorderNodes({ connectorPlaceholder: connectorPlaceholder });
   };
 
   return (
@@ -576,6 +586,42 @@ function StageDrawer({
         )}
         <Divider />
         <div className={classes.toolbarInfo}>
+          <Typography variant="h6">Reorder nodes:</Typography>
+          <div>
+            <IconButton
+              size="small"
+              onClick={e => setOrderAnchorEl(e.target)}
+              color="primary"
+            >
+              <InfoOutlinedIcon />
+            </IconButton>
+            <Popover
+              className={classes.infoPopover}
+              open={isOrderInfoOpen}
+              anchorEl={orderAnchorEl}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              onClose={() => setOrderAnchorEl(null)}
+            >
+              <Typography className={classes.infoPopoverText} variant="body2">
+                Reorder the nodes on stage. If a root node is selected, the
+                nodes connected to it will be ordered as a tree.
+              </Typography>
+            </Popover>
+          </div>
+        </div>
+        <div className={classes.toolbarField}>
+          <Button
+            variant="contained"
+            size="medium"
+            color="primary"
+            endIcon={<ViewModuleRoundedIcon />}
+            onClick={handleReorderClick}
+          >
+            Reorder nodes
+          </Button>
+        </div>
+        <Divider />
+        <div className={classes.toolbarInfo}>
           <Typography variant="h6">Validate a tree:</Typography>
           <div>
             <IconButton
@@ -603,6 +649,7 @@ function StageDrawer({
           <div className={classes.toolbarField}>
             <Button
               variant="contained"
+              size="medium"
               color="primary"
               endIcon={<CheckRoundedIcon />}
               onClick={() => {}}
