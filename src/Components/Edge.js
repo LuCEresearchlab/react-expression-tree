@@ -88,6 +88,8 @@ function Edge({
         y={childY}
         radius={6}
         fill={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
+        stroke="black"
+        strokeWidth={1}
         draggable
         onDragStart={handleNodeConnectorDragStart}
         onDragMove={() => {}}
@@ -102,6 +104,8 @@ function Edge({
         y={parentY + yPad + textHeight / 2}
         radius={5}
         fill={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
+        stroke="black"
+        strokeWidth={1}
         draggable
         onDragStart={handlePieceConnectorDragStart}
         onDragMove={e => {}}

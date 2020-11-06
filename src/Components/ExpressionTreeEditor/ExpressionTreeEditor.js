@@ -358,15 +358,27 @@ function ExpressionTreeEditor({
       clearAdding();
     } else {
       e.currentTarget.moveToTop();
-      const selectedNode = nodeById(nodeId, nodes);
+      const selectingNode = nodeById(nodeId, nodes);
       if (selectedEdge !== null) {
         selectedEdgeRef.moveToBottom();
         setSelectedEdgeRef(null);
         clearEdgeSelection();
       }
-      selectNode({ selectedNode: selectedNode });
-      document.getElementById("editField").value = selectedNode.pieces.join("");
-      editValueChange({ editValue: [] });
+      if (selectedNode === null) {
+        selectNode({ selectedNode: selectingNode });
+        document.getElementById("editField").value = selectingNode.pieces.join(
+          ""
+        );
+        editValueChange({ editValue: [] });
+      } else {
+        if (selectedNode.id !== selectingNode.id) {
+          selectNode({ selectedNode: selectingNode });
+          document.getElementById(
+            "editField"
+          ).value = selectingNode.pieces.join("");
+          editValueChange({ editValue: [] });
+        }
+      }
     }
   };
 
@@ -394,18 +406,27 @@ function ExpressionTreeEditor({
       clearAdding();
     } else {
       e.cancelBubble = true;
-      e.currentTarget.moveToTop();
       if (selectedNode !== null) {
         clearNodeSelection();
       }
-      if (selectedEdgeRef !== null) {
-        selectedEdgeRef.moveToBottom();
+      if (selectedEdge === null) {
+        e.currentTarget.moveToTop();
+        const selectingEdge = edgeById(edgeId, edges);
+        setSelectedEdgeRef(e.currentTarget);
+        selectEdge({ selectedEdge: selectingEdge });
+        document.getElementById("typeField").value = selectingEdge.type;
+        typeValueChange({ typeValue: "" });
+      } else {
+        if (selectedEdgeRef !== e.currentTarget) {
+          selectedEdgeRef.moveToBottom();
+          e.currentTarget.moveToTop();
+          const selectingEdge = edgeById(edgeId, edges);
+          setSelectedEdgeRef(e.currentTarget);
+          selectEdge({ selectedEdge: selectingEdge });
+          document.getElementById("typeField").value = selectingEdge.type;
+          typeValueChange({ typeValue: "" });
+        }
       }
-      const selectedEdge = edgeById(edgeId, edges);
-      setSelectedEdgeRef(e.currentTarget);
-      selectEdge({ selectedEdge: selectedEdge });
-      document.getElementById("typeField").value = selectedEdge.type;
-      typeValueChange({ typeValue: "" });
     }
   };
 
