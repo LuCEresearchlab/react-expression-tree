@@ -207,6 +207,7 @@ function Node({
       />
       {isSelectedRoot ? (
         <Star
+          id={id}
           x={nodePadWidth / 2}
           y={0}
           numPoints={5}
