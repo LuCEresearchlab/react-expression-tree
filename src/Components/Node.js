@@ -38,6 +38,7 @@ function Node({
   nodes,
   selectedEdgeRef,
   setSelectedEdgeRef,
+  editValueChange,
 }) {
   const nodeRef = useRef();
 
@@ -54,8 +55,10 @@ function Node({
   const handleDragStart = e => {
     e.currentTarget.moveToTop();
     setDraggingNode(true);
-    const selectedNode = nodeById(id, nodes);
-    selectNode({ selectedNode: selectedNode });
+    const selectingNode = nodeById(id, nodes);
+    selectNode({ selectedNode: selectingNode });
+    document.getElementById("editField").value = selectingNode.pieces.join("");
+    editValueChange({ editValue: [] });
     if (selectedEdgeRef !== null) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);

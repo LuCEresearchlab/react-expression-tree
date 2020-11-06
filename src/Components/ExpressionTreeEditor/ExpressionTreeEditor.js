@@ -584,6 +584,7 @@ function ExpressionTreeEditor({
               onPieceConnectorDragStart={handlePieceConnectorDragStart}
               selectedEdgeRef={selectedEdgeRef}
               setSelectedEdgeRef={setSelectedEdgeRef}
+              editValueChange={editValueChange}
             />
           ))}
           {dragEdge && (
