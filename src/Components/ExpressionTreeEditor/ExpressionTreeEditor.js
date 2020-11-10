@@ -56,6 +56,7 @@ function ExpressionTreeEditor({
   clearRootSelection,
   initialState,
   setInitialState,
+  edgeTypes,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -195,8 +196,6 @@ function ExpressionTreeEditor({
 
   const handleStageMouseMove = e => {
     e.cancelBubble = true;
-    //TODO: Provide drop target feedback
-    //      (e.g., DragEdge color, Node's connector color)
     if (dragEdge) {
       document.body.style.cursor = "grabbing";
       const stagePos = stageRef.current.absolutePosition();
@@ -415,8 +414,7 @@ function ExpressionTreeEditor({
         const selectingEdge = edgeById(edgeId, edges);
         setSelectedEdgeRef(e.currentTarget);
         selectEdge({ selectedEdge: selectingEdge });
-        document.getElementById("typeField").value = selectingEdge.type;
-        typeValueChange({ typeValue: "" });
+        typeValueChange({ typeValue: selectingEdge.type });
       } else {
         if (selectedEdgeRef !== e.currentTarget) {
           selectedEdgeRef.moveToBottom();
@@ -424,8 +422,7 @@ function ExpressionTreeEditor({
           const selectingEdge = edgeById(edgeId, edges);
           setSelectedEdgeRef(e.currentTarget);
           selectEdge({ selectedEdge: selectingEdge });
-          document.getElementById("typeField").value = selectingEdge.type;
-          typeValueChange({ typeValue: "" });
+          typeValueChange({ typeValue: selectingEdge.type });
         }
       }
     }
@@ -490,6 +487,7 @@ function ExpressionTreeEditor({
         templateNodes={templateNodes}
         stageRef={stageRef}
         initialState={initialState}
+        edgeTypes={edgeTypes}
       />
       <Stage
         ref={stageRef}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Line, Circle, Group } from "react-konva";
+import { Text, Line, Circle, Group, Label, Tag } from "react-konva";
 import { xPad, yPad, holeWidth, textHeight } from "../utils.js";
 
 function Edge({
@@ -73,16 +73,23 @@ function Edge({
         lineJoin="round"
         hitStrokeWidth={10}
       />
-      <Text
-        key={"Edge-Text-" + id}
-        x={childX + xPad + childWidth / 2}
-        y={childY - 30}
-        fill="#3f50b5"
-        fontFamily={"Arial"}
-        fontSize={20}
-        text={type}
-        onClick={onEdgeClick}
-      />
+      <Label x={childX + xPad + childWidth / 2} y={childY - 5}>
+        <Tag
+          fill="#3f50b5"
+          pointerDirection="down"
+          pointerWidth={type !== "" ? 5 : 0}
+          pointerHeight={type !== "" ? 5 : 0}
+          cornerRadius={3}
+        />
+        <Text
+          key={"Edge-Text-" + id}
+          fill="white"
+          fontFamily={"Arial"}
+          fontSize={12}
+          text={type}
+          padding={type !== "" ? 5 : 0}
+        />
+      </Label>
       <Circle
         x={childX + xPad + childWidth / 2}
         y={childY}

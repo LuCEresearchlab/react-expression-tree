@@ -27,6 +27,10 @@ import {
   AccordionSummary,
   AccordionDetails,
   AccordionActions,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  FormLabel,
 } from "@material-ui/core";
 import { computeNodeWidth } from "../../utils.js";
 
@@ -116,6 +120,20 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: "#f0f0f0",
     },
   },
+  typeField: {
+    margin: "10px 10px 10px 10px",
+  },
+  typeButtonContainer: {
+    maxHeight: "150px",
+    overflowY: "scroll",
+    borderRadius: "3px",
+    marginTop: "10px",
+    padding: "5px 20px 5px 20px",
+    boxShadow: "0 0 1px 1px #ddd",
+  },
+  typeButton: {
+    marginRight: "30px",
+  },
 }));
 
 function StageDrawer({
@@ -130,7 +148,6 @@ function StageDrawer({
   clearAdding,
   isAddEmpty,
   isEditEmpty,
-  isTypeEmpty,
   editValue,
   typeValue,
   selectedEdge,
@@ -146,6 +163,7 @@ function StageDrawer({
   stageRef,
   initialState,
   reorderNodes,
+  edgeTypes,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -209,14 +227,10 @@ function StageDrawer({
 
   const handleTypeChange = value => {
     typeValueChange({ typeValue: value });
-  };
-
-  const handleEdgeTypeEdit = () => {
     edgeTypeEdit({
-      type: typeValue,
+      type: value,
       selectedEdgeId: selectedEdge.id,
     });
-    typeValueChange({ typeValue: "" });
   };
 
   const handleStateDownload = () => {
@@ -265,9 +279,6 @@ function StageDrawer({
           document.getElementById(
             "editField"
           ).value = state.selectedNode.pieces.join("");
-        }
-        if (state.selectedEdge !== null) {
-          document.getElementById("typeField").value = state.selectedEdge.type;
         }
         stageRef.current.position({ x: state.stagePos.x, y: state.stagePos.y });
         stageRef.current.scale({
@@ -548,36 +559,32 @@ function StageDrawer({
               onClose={() => setEdgeAnchorEl(null)}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
-                Describe the edge type in the textfield below.
+                Select the edge type from the list below.
               </Typography>
             </Popover>
           </div>
         </div>
         {selectedEdge ? (
-          <div className={classes.toolbarField}>
-            <TextField
-              key={selectedEdge.id}
-              id="typeField"
-              type="search"
-              variant="outlined"
-              fullWidth
-              size="medium"
-              placeholder="ex: Object"
-              margin="dense"
-              onChange={e => {
-                handleTypeChange(e.target.value);
-              }}
-            ></TextField>
-            <div>
-              <IconButton
-                size="medium"
-                onClick={() => handleEdgeTypeEdit()}
-                disabled={isTypeEmpty}
-                color="primary"
-              >
-                <UpdateRoundedIcon />
-              </IconButton>
-            </div>
+          <div className={classes.typeField}>
+            <FormLabel component="legend">
+              Select a type from the list:
+            </FormLabel>
+            <RadioGroup
+              value={typeValue}
+              onChange={e => handleTypeChange(e.target.value)}
+              row
+              className={classes.typeButtonContainer}
+            >
+              {edgeTypes.map(type => (
+                <FormControlLabel
+                  key={type}
+                  value={type}
+                  control={<Radio color="primary" />}
+                  label={type}
+                  className={classes.typeButton}
+                />
+              ))}
+            </RadioGroup>
           </div>
         ) : (
           <Typography className={classes.editText}>

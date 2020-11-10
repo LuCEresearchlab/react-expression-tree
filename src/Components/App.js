@@ -129,6 +129,7 @@ function App() {
           },
         ],
       }}
+      edgeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
     />
   );
 }

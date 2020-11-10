@@ -9,7 +9,6 @@ const mapStateToProps = state => ({
   editValue: state.drawer.editValue,
   isEditEmpty: state.drawer.editValue.length < 1,
   typeValue: state.drawer.typeValue,
-  isTypeEmpty: state.drawer.typeValue.length < 1,
   selectedEdge: state.editor.present.selectedEdge,
   nodes: state.editor.present.nodes,
   edges: state.editor.present.edges,

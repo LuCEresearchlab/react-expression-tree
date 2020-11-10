@@ -38,9 +38,9 @@ const treeEditorReducer = (state = initialState, action) => {
             currentX,
             currentY
           );
+          currentX += node.width + 20;
         });
       }
-      currentX = currentX + node.width + 20;
     });
     return newNodes;
   }
@@ -269,14 +269,13 @@ const treeEditorReducer = (state = initialState, action) => {
     case "reorderNodes":
       var newNodes = [];
       var unconnectedToRoot = -1;
-      var currentX = 600;
       var currentY = 40;
       if (state.selectedRootNode !== null) {
         newNodes = orderWalk(
           state.selectedRootNode,
           action.payload.connectorPlaceholder,
           newNodes,
-          currentX,
+          600,
           currentY
         );
       }
