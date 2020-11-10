@@ -76,6 +76,8 @@ function Edge({
       <Label x={childX + xPad + childWidth / 2} y={childY - 6}>
         <Tag
           fill="#3f50b5"
+          stroke="black"
+          strokeWidth={type !== "" ? 1 : 0}
           pointerDirection="down"
           pointerWidth={type !== "" ? 8 : 0}
           pointerHeight={type !== "" ? 5 : 0}
