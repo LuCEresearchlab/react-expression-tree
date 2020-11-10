@@ -74,7 +74,8 @@ function ExpressionTreeEditor({
       })
     );
     dispatch(ActionCreators.clearHistory());
-  }, [dispatch, initialState, setInitialState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     // Request focus, so we can respond to key events
