@@ -98,14 +98,14 @@ function ExpressionTreeEditor({
     };
     const escListener = function (e) {
       if (e.key === "Escape") {
-        if (selectedNode !== null) {
+        if (addingNode) {
+          clearAdding();
+        } else if (selectedNode !== null) {
           clearNodeSelection();
         } else if (selectedEdge !== null) {
           selectedEdgeRef.moveToBottom();
           setSelectedEdgeRef(null);
           clearEdgeSelection();
-        } else if (addingNode) {
-          clearAdding();
         }
       }
     };
