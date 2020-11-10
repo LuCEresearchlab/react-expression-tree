@@ -104,6 +104,8 @@ function ExpressionTreeEditor({
           selectedEdgeRef.moveToBottom();
           setSelectedEdgeRef(null);
           clearEdgeSelection();
+        } else if (addingNode) {
+          clearAdding();
         }
       }
     };
@@ -114,6 +116,8 @@ function ExpressionTreeEditor({
       stage.container().removeEventListener("keydown", escListener);
     };
   }, [
+    addingNode,
+    clearAdding,
     clearEdgeSelection,
     clearNodeSelection,
     removeEdge,
