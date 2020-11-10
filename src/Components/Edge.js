@@ -73,11 +73,11 @@ function Edge({
         lineJoin="round"
         hitStrokeWidth={10}
       />
-      <Label x={childX + xPad + childWidth / 2} y={childY - 5}>
+      <Label x={childX + xPad + childWidth / 2} y={childY - 6}>
         <Tag
           fill="#3f50b5"
           pointerDirection="down"
-          pointerWidth={type !== "" ? 5 : 0}
+          pointerWidth={type !== "" ? 8 : 0}
           pointerHeight={type !== "" ? 5 : 0}
           cornerRadius={3}
         />

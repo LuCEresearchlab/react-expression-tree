@@ -25,7 +25,7 @@ const treeEditorReducer = (state = initialState, action) => {
 
   function orderWalk(node, connectorPlaceholder, newNodes, currentX, currentY) {
     newNodes.push({ id: node.id, x: currentX, y: currentY });
-    currentY = currentY + 70;
+    currentY = currentY + 85;
     node.pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
         const edges = edgeByParentPiece(node.id, i, state.edges);
