@@ -303,6 +303,26 @@ function StageDrawer({
     fr.readAsText(file);
   };
 
+  const handleUndo = () => {
+    dispatch(ActionCreators.undo());
+    clearNodeSelection();
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
+  };
+
+  const handleRedo = () => {
+    dispatch(ActionCreators.redo());
+    clearNodeSelection();
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
+  };
+
   const handleReset = () => {
     setIsResetWarnOpen(false);
     stageReset({
@@ -411,7 +431,7 @@ function StageDrawer({
           <Tooltip title={"Undo action"} placement="bottom">
             <span>
               <IconButton
-                onClick={() => dispatch(ActionCreators.undo())}
+                onClick={handleUndo}
                 color="primary"
                 disabled={!canUndo}
               >
@@ -422,7 +442,7 @@ function StageDrawer({
           <Tooltip title={"Redo action"} placement="bottom">
             <span>
               <IconButton
-                onClick={() => dispatch(ActionCreators.redo())}
+                onClick={handleRedo}
                 color="primary"
                 disabled={!canRedo}
               >
