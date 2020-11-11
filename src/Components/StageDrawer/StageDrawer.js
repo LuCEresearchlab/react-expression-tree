@@ -31,6 +31,7 @@ import {
   Radio,
   FormControlLabel,
   FormLabel,
+  Tooltip,
 } from "@material-ui/core";
 import { computeNodeWidth } from "../../utils.js";
 
@@ -338,16 +339,18 @@ function StageDrawer({
 
   return (
     <>
-      <IconButton
-        onClick={() => setIsDrawerOpen(true)}
-        color="primary"
-        style={{
-          visibility: isDrawerOpen ? "hidden" : "visible",
-        }}
-        classes={{ root: classes.openDrawerButton }}
-      >
-        <MenuRoundedIcon />
-      </IconButton>
+      <Tooltip title={"Open toolbar"} placement="right">
+        <IconButton
+          onClick={() => setIsDrawerOpen(true)}
+          color="primary"
+          style={{
+            visibility: isDrawerOpen ? "hidden" : "visible",
+          }}
+          classes={{ root: classes.openDrawerButton }}
+        >
+          <MenuRoundedIcon />
+        </IconButton>
+      </Tooltip>
       <Drawer
         className={classes.drawer}
         variant="persistent"
@@ -363,29 +366,43 @@ function StageDrawer({
         }}
       >
         <div className={classes.drawerHeader}>
-          <IconButton
-            onClick={() => dispatch(ActionCreators.undo())}
-            color="primary"
-            disabled={!canUndo}
-          >
-            <UndoRoundedIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => dispatch(ActionCreators.redo())}
-            color="primary"
-            disabled={!canRedo}
-          >
-            <RedoRoundedIcon />
-          </IconButton>
-          <IconButton onClick={handleReset} color="primary">
-            <NoteAddRoundedIcon />
-          </IconButton>
-          <IconButton onClick={handleStateDownload} color="primary">
-            <GetAppRoundedIcon />
-          </IconButton>
-          <IconButton onClick={handleStateUpload} color="primary">
-            <PublishRoundedIcon />
-          </IconButton>
+          <Tooltip title={"Undo action"} placement="bottom">
+            <span>
+              <IconButton
+                onClick={() => dispatch(ActionCreators.undo())}
+                color="primary"
+                disabled={!canUndo}
+              >
+                <UndoRoundedIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title={"Redo action"} placement="bottom">
+            <span>
+              <IconButton
+                onClick={() => dispatch(ActionCreators.redo())}
+                color="primary"
+                disabled={!canRedo}
+              >
+                <RedoRoundedIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title={"Reset state"} placement="bottom">
+            <IconButton onClick={handleReset} color="primary">
+              <NoteAddRoundedIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={"Download state"} placement="bottom">
+            <IconButton onClick={handleStateDownload} color="primary">
+              <GetAppRoundedIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={"Upload state"} placement="bottom">
+            <IconButton onClick={handleStateUpload} color="primary">
+              <PublishRoundedIcon />
+            </IconButton>
+          </Tooltip>
           <input
             id={"stateUploadButton"}
             style={{ display: "none" }}
@@ -393,9 +410,11 @@ function StageDrawer({
             accept=".json"
             onChange={e => handleFileChange(e)}
           />
-          <IconButton onClick={() => setIsDrawerOpen(false)} color="primary">
-            <ChevronLeftRoundedIcon />
-          </IconButton>
+          <Tooltip title={"Close toolbar"} placement="right">
+            <IconButton onClick={() => setIsDrawerOpen(false)} color="primary">
+              <ChevronLeftRoundedIcon />
+            </IconButton>
+          </Tooltip>
         </div>
         <Divider />
         <div className={classes.toolbarInfo}>
@@ -441,14 +460,21 @@ function StageDrawer({
             onChange={e => handleAddChange(e.target.value)}
           ></TextField>
           <div>
-            <IconButton
-              size="medium"
-              onClick={() => addingNodeClick()}
-              disabled={isAddEmpty}
-              color={addingNode ? "secondary" : "primary"}
+            <Tooltip
+              title={addingNode ? "Clear adding" : "Add node"}
+              placement="top"
             >
-              <AddRoundedIcon />
-            </IconButton>
+              <span>
+                <IconButton
+                  size="medium"
+                  onClick={() => addingNodeClick()}
+                  disabled={isAddEmpty}
+                  color={addingNode ? "secondary" : "primary"}
+                >
+                  <AddRoundedIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
           </div>
         </div>
         <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
@@ -525,14 +551,18 @@ function StageDrawer({
               onChange={e => handleEditChange(e.target.value)}
             ></TextField>
             <div>
-              <IconButton
-                size="medium"
-                onClick={() => handleNodeEdit()}
-                disabled={isEditEmpty}
-                color="primary"
-              >
-                <UpdateRoundedIcon />
-              </IconButton>
+              <Tooltip title={"Update node"} placement="top">
+                <span>
+                  <IconButton
+                    size="medium"
+                    onClick={() => handleNodeEdit()}
+                    disabled={isEditEmpty}
+                    color="primary"
+                  >
+                    <UpdateRoundedIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
             </div>
           </div>
         ) : (
