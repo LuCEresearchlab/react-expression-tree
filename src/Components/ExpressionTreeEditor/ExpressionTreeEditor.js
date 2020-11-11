@@ -492,6 +492,8 @@ function ExpressionTreeEditor({
         stageRef={stageRef}
         initialState={initialState}
         edgeTypes={edgeTypes}
+        selectedEdgeRef={selectedEdgeRef}
+        setSelectedEdgeRef={setSelectedEdgeRef}
       />
       <Stage
         ref={stageRef}

@@ -153,6 +153,8 @@ function StageDrawer({
   editValueChange,
   typeValueChange,
   clearAdding,
+  clearEdgeSelection,
+  clearNodeSelection,
   isAddEmpty,
   isEditEmpty,
   editValue,
@@ -171,6 +173,8 @@ function StageDrawer({
   initialState,
   reorderNodes,
   edgeTypes,
+  selectedEdgeRef,
+  setSelectedEdgeRef,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -242,13 +246,18 @@ function StageDrawer({
   };
 
   const handleStateDownload = () => {
+    if (selectedNode !== null) {
+      clearNodeSelection();
+    } else if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+      clearEdgeSelection();
+    }
     const stagePos = stageRef.current.absolutePosition();
     const stageScale = stageRef.current.scale();
     const currentState = {
       nodes,
       edges,
-      selectedNode,
-      selectedEdge,
       selectedRootNode,
       stagePos,
       stageScale,
@@ -279,15 +288,8 @@ function StageDrawer({
         uploadState({
           nodes: state.nodes,
           edges: state.edges,
-          selectedNode: state.selectedNode,
-          selectedEdge: state.selectedEdge,
           selectedRootNode: state.selectedRootNode,
         });
-        if (state.selectedNode !== null) {
-          document.getElementById(
-            "editField"
-          ).value = state.selectedNode.pieces.join("");
-        }
         stageRef.current.position({ x: state.stagePos.x, y: state.stagePos.y });
         stageRef.current.scale({
           x: state.stageScale.x,
@@ -307,6 +309,10 @@ function StageDrawer({
       initialNodes: initialState.initialNodes,
       initialEdges: initialState.initialEdges,
     });
+    if (selectedEdgeRef !== null) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+    }
     const stage = stageRef.current;
     stage.position({ x: 0, y: 0 });
     stage.scale({ x: 1, y: 1 });

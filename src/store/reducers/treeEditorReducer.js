@@ -245,10 +245,10 @@ const treeEditorReducer = (state = initialState, action) => {
         ...state,
         nodes: action.payload.nodes,
         edges: action.payload.edges,
-        selectedNode: action.payload.selectedNode,
-        selectedEdge: action.payload.selectedEdge,
-        selectedRootNode: action.payload.selectedRootNode,
+        selectedNode: null,
+        selectedEdge: null,
         dragEdge: null,
+        selectedRootNode: action.payload.selectedRootNode,
       };
     case "selectRootNode":
       return {
