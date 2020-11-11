@@ -13,6 +13,7 @@ import UndoRoundedIcon from "@material-ui/icons/UndoRounded";
 import RedoRoundedIcon from "@material-ui/icons/RedoRounded";
 import NoteAddRoundedIcon from "@material-ui/icons/NoteAddRounded";
 import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
+import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ViewModuleRoundedIcon from "@material-ui/icons/ViewModuleRounded";
 import {
@@ -32,6 +33,11 @@ import {
   FormControlLabel,
   FormLabel,
   Tooltip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@material-ui/core";
 import { computeNodeWidth } from "../../utils.js";
 
@@ -179,6 +185,7 @@ function StageDrawer({
   const isValidationInfoOpen = !!validationAnchorEl;
   const [orderAnchorEl, setOrderAnchorEl] = useState(null);
   const isOrderInfoOpen = !!orderAnchorEl;
+  const [isResetWarnOpen, setIsResetWarnOpen] = useState(false);
 
   const handleAddChange = value => {
     clearAdding();
@@ -295,6 +302,7 @@ function StageDrawer({
   };
 
   const handleReset = () => {
+    setIsResetWarnOpen(false);
     stageReset({
       initialNodes: initialState.initialNodes,
       initialEdges: initialState.initialEdges,
@@ -351,6 +359,34 @@ function StageDrawer({
           <MenuRoundedIcon />
         </IconButton>
       </Tooltip>
+      <Dialog open={isResetWarnOpen} onClose={() => setIsResetWarnOpen(false)}>
+        <DialogTitle>
+          {"Are you sure you want to reset the editor state?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This action is irreversible. If you want to save the current editor
+            state for future editing, be sure to download it using the apposite
+            button in the toolbar before proceeding.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setIsResetWarnOpen(false)}
+            color="primary"
+            endIcon={<CloseRoundedIcon />}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleReset}
+            color="primary"
+            endIcon={<CheckRoundedIcon />}
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Drawer
         className={classes.drawer}
         variant="persistent"
@@ -389,7 +425,10 @@ function StageDrawer({
             </span>
           </Tooltip>
           <Tooltip title={"Reset state"} placement="bottom">
-            <IconButton onClick={handleReset} color="primary">
+            <IconButton
+              onClick={() => setIsResetWarnOpen(true)}
+              color="primary"
+            >
               <NoteAddRoundedIcon />
             </IconButton>
           </Tooltip>
@@ -458,6 +497,11 @@ function StageDrawer({
             }
             margin="dense"
             onChange={e => handleAddChange(e.target.value)}
+            onKeyPress={e => {
+              if (e.key === "Enter" && e.target.value !== "") {
+                addingNodeClick();
+              }
+            }}
           ></TextField>
           <div>
             <Tooltip
@@ -549,6 +593,13 @@ function StageDrawer({
               }
               margin="dense"
               onChange={e => handleEditChange(e.target.value)}
+              onKeyPress={e => {
+                if (e.key === "Enter" && editValue.length !== 0) {
+                  console.log(editValue);
+                  console.log("enter");
+                  handleNodeEdit();
+                }
+              }}
             ></TextField>
             <div>
               <Tooltip title={"Update node"} placement="top">

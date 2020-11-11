@@ -579,6 +579,7 @@ function ExpressionTreeEditor({
               moveNodeTo={moveNodeTo}
               moveNodeToEnd={moveNodeToEnd}
               selectNode={selectNode}
+              clearNodeSelection={clearNodeSelection}
               clearEdgeSelection={clearEdgeSelection}
               removeNode={removeNode}
               onNodeClick={e => handleNodeClick(e, node.id)}

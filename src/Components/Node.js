@@ -39,6 +39,7 @@ function Node({
   selectedEdgeRef,
   setSelectedEdgeRef,
   editValueChange,
+  clearNodeSelection,
 }) {
   const nodeRef = useRef();
 
@@ -165,6 +166,7 @@ function Node({
       setSelectedEdgeRef(null);
       clearEdgeSelection();
     }
+    clearNodeSelection();
     removeNode({ nodeId: e.target.parent.attrs.id });
   };
 

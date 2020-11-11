@@ -14,13 +14,13 @@ const treeEditorReducer = (state = initialState, action) => {
   function maxNodeId() {
     return state.nodes
       .map(n => n.id)
-      .reduce((id1, id2) => Math.max(id1, id2), 1);
+      .reduce((id1, id2) => Math.max(id1, id2), 0);
   }
 
   function maxEdgeId() {
     return state.edges
       .map(e => e.id)
-      .reduce((id1, id2) => Math.max(id1, id2), 1);
+      .reduce((id1, id2) => Math.max(id1, id2), 0);
   }
 
   function orderWalk(node, connectorPlaceholder, newNodes, currentX, currentY) {
