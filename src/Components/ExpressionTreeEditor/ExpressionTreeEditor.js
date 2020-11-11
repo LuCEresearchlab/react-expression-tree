@@ -87,12 +87,12 @@ function ExpressionTreeEditor({
     const delListener = function (e) {
       if (e.key === "Backspace" || e.key === "Delete") {
         if (selectedNode !== null) {
-          removeNode({ nodeId: selectedNode.id });
           clearNodeSelection();
+          removeNode({ nodeId: selectedNode.id });
         } else if (selectedEdge !== null) {
           setSelectedEdgeRef(null);
-          removeEdge({ edgeId: selectedEdge.id });
           clearEdgeSelection();
+          removeEdge({ edgeId: selectedEdge.id });
         }
       }
     };
