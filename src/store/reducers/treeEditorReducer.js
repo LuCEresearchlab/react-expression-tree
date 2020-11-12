@@ -8,6 +8,7 @@ const initialState = {
   selectedNode: null,
   selectedEdge: null,
   selectedRootNode: null,
+  rootTypeValue: "",
 };
 
 const treeEditorReducer = (state = initialState, action) => {
@@ -89,6 +90,7 @@ const treeEditorReducer = (state = initialState, action) => {
           state.selectedRootNode.id === action.payload.nodeId
             ? null
             : state.selectedRootNode,
+        rootTypeValue: "",
       };
 
     case "selectNode":
@@ -252,6 +254,7 @@ const treeEditorReducer = (state = initialState, action) => {
         selectedNode: null,
         selectedEdge: null,
         selectedRootNode: null,
+        rootTypeValue: "",
       };
     case "uploadState":
       return {
@@ -262,6 +265,7 @@ const treeEditorReducer = (state = initialState, action) => {
         selectedEdge: null,
         dragEdge: null,
         selectedRootNode: action.payload.selectedRootNode,
+        rootTypeValue: action.payload.rootTypeValue,
       };
     case "selectRootNode":
       return {
@@ -272,6 +276,16 @@ const treeEditorReducer = (state = initialState, action) => {
       return {
         ...state,
         selectedRootNode: null,
+      };
+    case "rootTypeValueChange":
+      return {
+        ...state,
+        rootTypeValue: action.payload.rootTypeValue,
+      };
+    case "clearRootTypeValue":
+      return {
+        ...state,
+        rootTypeValue: "",
       };
     case "setInitialState":
       return {
@@ -337,7 +351,8 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "typeValueChange" &&
       action.type !== "clearAdding" &&
       action.type !== "addingNodeClick" &&
-      action.type !== "setInitialState"
+      action.type !== "setInitialState" &&
+      action.type !== "clearRootTypeValue"
     );
   },
   groupBy: groupByActionTypes("reorderNodes"),

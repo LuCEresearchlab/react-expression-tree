@@ -57,6 +57,9 @@ function ExpressionTreeEditor({
   initialState,
   setInitialState,
   edgeTypes,
+  rootTypeValue,
+  rootTypeValueChange,
+  clearRootTypeValue,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -388,8 +391,10 @@ function ExpressionTreeEditor({
 
   const handleNodeDblClick = nodeId => {
     if (selectedRootNode !== null && selectedRootNode.id === nodeId) {
+      clearRootTypeValue();
       clearRootSelection();
     } else {
+      clearRootTypeValue();
       const selectedRootNode = nodeById(nodeId, nodes);
       selectRootNode({ selectedRootNode: selectedRootNode });
     }
@@ -591,6 +596,7 @@ function ExpressionTreeEditor({
               selectedEdgeRef={selectedEdgeRef}
               setSelectedEdgeRef={setSelectedEdgeRef}
               editValueChange={editValueChange}
+              rootTypeValue={rootTypeValue}
             />
           ))}
           {dragEdge && (

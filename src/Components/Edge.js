@@ -1,6 +1,13 @@
 import React from "react";
 import { Text, Line, Circle, Group, Label, Tag } from "react-konva";
-import { xPad, yPad, holeWidth, textHeight } from "../utils.js";
+import {
+  xPad,
+  yPad,
+  holeWidth,
+  textHeight,
+  fontFamily,
+  defaultFontSize,
+} from "../utils.js";
 
 function Edge({
   id,
@@ -86,8 +93,8 @@ function Edge({
         <Text
           key={"Edge-Text-" + id}
           fill="white"
-          fontFamily={"Arial"}
-          fontSize={12}
+          fontFamily={fontFamily}
+          fontSize={defaultFontSize / 2}
           text={type}
           padding={type !== "" ? 5 : 0}
         />

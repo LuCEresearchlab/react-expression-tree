@@ -154,6 +154,8 @@ function StageDrawer({
   addValueChange,
   editValueChange,
   typeValueChange,
+  rootTypeValueChange,
+  rootTypeValue,
   clearAdding,
   clearEdgeSelection,
   clearNodeSelection,
@@ -261,6 +263,7 @@ function StageDrawer({
       nodes,
       edges,
       selectedRootNode,
+      rootTypeValue,
       stagePos,
       stageScale,
     };
@@ -291,6 +294,7 @@ function StageDrawer({
           nodes: state.nodes,
           edges: state.edges,
           selectedRootNode: state.selectedRootNode,
+          rootTypeValue: state.rootTypeValue,
         });
         stageRef.current.position({ x: state.stagePos.x, y: state.stagePos.y });
         stageRef.current.scale({
@@ -307,22 +311,22 @@ function StageDrawer({
 
   const handleUndo = () => {
     dispatch(ActionCreators.undo());
-    clearNodeSelection();
     if (selectedEdgeRef !== null) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
-      clearEdgeSelection();
     }
+    clearNodeSelection();
+    clearEdgeSelection();
   };
 
   const handleRedo = () => {
     dispatch(ActionCreators.redo());
-    clearNodeSelection();
     if (selectedEdgeRef !== null) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
-      clearEdgeSelection();
     }
+    clearNodeSelection();
+    clearEdgeSelection();
   };
 
   const handleReset = () => {
@@ -696,9 +700,7 @@ function StageDrawer({
         </div>
         {selectedEdge ? (
           <div className={classes.typeField}>
-            <FormLabel component="legend">
-              Select a type from the list:
-            </FormLabel>
+            <FormLabel>Select the edge type from the list:</FormLabel>
             <RadioGroup
               value={typeValue}
               onChange={e => handleTypeChange(e.target.value)}
@@ -777,23 +779,51 @@ function StageDrawer({
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Validate a tree starting from a root node. Double click a node
-                to select it as root node.
+                to select it as root node. After the root node has been
+                selected, choose its out-coming type and click on the validation
+                button to vaildate the tree.
               </Typography>
             </Popover>
           </div>
         </div>
         {selectedRootNode ? (
-          <div className={classes.toolbarField}>
-            <Button
-              variant="contained"
-              size="medium"
-              color="primary"
-              endIcon={<CheckRoundedIcon />}
-              onClick={() => {}}
-            >
-              Validate tree
-            </Button>
-          </div>
+          <>
+            <div className={classes.typeField}>
+              <FormLabel>
+                Select the root node out-coming type from the list:
+              </FormLabel>
+              <RadioGroup
+                value={rootTypeValue}
+                onChange={e =>
+                  rootTypeValueChange({ rootTypeValue: e.target.value })
+                }
+                row
+                className={classes.typeButtonContainer}
+              >
+                {edgeTypes.map(type => (
+                  <FormControlLabel
+                    key={type}
+                    value={type}
+                    control={<Radio color="primary" />}
+                    label={type}
+                    className={classes.typeButton}
+                  />
+                ))}
+              </RadioGroup>
+            </div>
+            <div className={classes.toolbarField}>
+              <Button
+                variant="contained"
+                size="medium"
+                color="primary"
+                endIcon={<CheckRoundedIcon />}
+                onClick={() => {}}
+                disabled={rootTypeValue === ""}
+              >
+                Validate tree
+              </Button>
+            </div>
+          </>
         ) : (
           <Typography className={classes.editText}>
             Start by selecting a node as root.

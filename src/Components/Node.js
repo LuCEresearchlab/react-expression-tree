@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Rect, Text, Group, Circle, Star } from "react-konva";
+import { Rect, Text, Group, Circle, Star, Label, Tag } from "react-konva";
 import {
   xPad,
   yPad,
@@ -40,6 +40,7 @@ function Node({
   setSelectedEdgeRef,
   editValueChange,
   clearNodeSelection,
+  rootTypeValue,
 }) {
   const nodeRef = useRef();
 
@@ -320,6 +321,28 @@ function Node({
           e.target.draw();
         }}
       />
+      {isSelectedRoot ? (
+        <Label x={nodePadWidth / 2} y={0}>
+          <Tag
+            fill="#3f50b5"
+            stroke="black"
+            strokeWidth={rootTypeValue !== "" ? 1 : 0}
+            pointerDirection="down"
+            pointerWidth={rootTypeValue !== "" ? 8 : 0}
+            pointerHeight={rootTypeValue !== "" ? 5 : 0}
+            cornerRadius={3}
+          />
+          <Text
+            fill="white"
+            fontFamily={fontFamily}
+            fontSize={defaultFontSize / 2}
+            text={rootTypeValue}
+            padding={rootTypeValue !== "" ? 5 : 0}
+          />
+        </Label>
+      ) : (
+        <></>
+      )}
     </Group>
   );
 }
