@@ -23,22 +23,35 @@ const treeEditorReducer = (state = initialState, action) => {
       .reduce((id1, id2) => Math.max(id1, id2), 0);
   }
 
-  function orderWalk(node, connectorPlaceholder, newNodes, currentX, currentY) {
+  function orderWalk(
+    node,
+    connectorPlaceholder,
+    newNodes,
+    visitedNodes,
+    currentX,
+    currentY
+  ) {
     newNodes.push({ id: node.id, x: currentX, y: currentY });
+    visitedNodes.push(node.id);
     currentY = currentY + 85;
     node.pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
         const edges = edgeByParentPiece(node.id, i, state.edges);
         edges.forEach(edge => {
           const childNode = nodeById(edge.childNodeId, state.nodes);
-          orderWalk(
-            childNode,
-            connectorPlaceholder,
-            newNodes,
-            currentX,
-            currentY
-          );
-          currentX += node.width + 20;
+          if (visitedNodes.find(e => e === childNode.id) === undefined) {
+            orderWalk(
+              childNode,
+              connectorPlaceholder,
+              newNodes,
+              visitedNodes,
+              currentX,
+              currentY
+            );
+            currentX += childNode.width + 40;
+          } else {
+            return;
+          }
         });
       }
     });
@@ -268,6 +281,7 @@ const treeEditorReducer = (state = initialState, action) => {
       };
     case "reorderNodes":
       var newNodes = [];
+      var visitedNodes = [];
       var unconnectedToRoot = -1;
       var currentY = 40;
       if (state.selectedRootNode !== null) {
@@ -275,6 +289,7 @@ const treeEditorReducer = (state = initialState, action) => {
           state.selectedRootNode,
           action.payload.connectorPlaceholder,
           newNodes,
+          visitedNodes,
           600,
           currentY
         );
