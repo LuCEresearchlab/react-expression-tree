@@ -38,7 +38,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Snackbar,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import { computeNodeWidth } from "../../utils.js";
 
 const drawerWidth = 300;
@@ -385,7 +387,15 @@ function StageDrawer({
           <MenuRoundedIcon />
         </IconButton>
       </Tooltip>
-      <Dialog open={isResetWarnOpen} onClose={() => setIsResetWarnOpen(false)}>
+      <Dialog
+        open={isResetWarnOpen}
+        onClose={() => setIsResetWarnOpen(false)}
+        onKeyPress={e => {
+          if (e.key === "Enter") {
+            handleReset();
+          }
+        }}
+      >
         <DialogTitle>
           {"Are you sure you want to reset the editor state?"}
         </DialogTitle>
@@ -547,6 +557,19 @@ function StageDrawer({
             </Tooltip>
           </div>
         </div>
+        <Snackbar
+          open={addingNode}
+          onClose={(e, reason) => {
+            if (reason !== "clickaway") {
+              addingNodeClick();
+            }
+          }}
+          anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
+        >
+          <Alert severity="info" variant="standard">
+            Freely position the node on the stage
+          </Alert>
+        </Snackbar>
         <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
