@@ -41,7 +41,7 @@ import {
   Snackbar,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import { computeNodeWidth } from "../../utils.js";
+import { computeNodeWidth, edgeByParentPiece, nodeById } from "../../utils.js";
 
 const drawerWidth = 300;
 
@@ -374,6 +374,36 @@ function StageDrawer({
     stageRef.current.position({ x: 0, y: 0 });
     stageRef.current.scale({ x: 1, y: 1 });
     reorderNodes({ connectorPlaceholder: connectorPlaceholder });
+  };
+
+  function orderWalk(node, visitedNodes) {
+    visitedNodes.push(node.id);
+    console.log(visitedNodes);
+    node.pieces.forEach((piece, i) => {
+      if (piece === connectorPlaceholder) {
+        const childEdges = edgeByParentPiece(node.id, i, edges);
+        console.log(childEdges);
+        if (childEdges.length === 1) {
+          const childNode = nodeById(childEdges[0].childNodeId, nodes);
+          if (visitedNodes.find(e => e === childNode.id) === undefined) {
+            orderWalk(childNode, visitedNodes);
+          } else {
+            alert("loop detected");
+            return;
+          }
+        } else if (childEdges.length > 1) {
+          alert("multiple edge on single connector detected");
+        } else if (childEdges.length === 0) {
+          alert("empty connector detected");
+        }
+      }
+    });
+    return "";
+  }
+
+  const handleTreeValidation = () => {
+    var visitedNodes = [];
+    orderWalk(selectedRootNode, visitedNodes);
   };
 
   return (
@@ -821,7 +851,7 @@ function StageDrawer({
                 size="medium"
                 color="primary"
                 endIcon={<CheckRoundedIcon />}
-                onClick={() => {}}
+                onClick={handleTreeValidation}
                 disabled={rootTypeValue === ""}
               >
                 Validate tree
