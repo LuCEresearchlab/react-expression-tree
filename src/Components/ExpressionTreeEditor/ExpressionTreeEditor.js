@@ -489,7 +489,11 @@ function ExpressionTreeEditor({
   return (
     <div
       id="editorContainer"
-      style={{ position: "relative", border: "2px solid #3f50b5" }}
+      style={{
+        position: "relative",
+        border: "2px solid #3f50b5",
+        borderRadius: "5px",
+      }}
     >
       <StageDrawer
         connectorPlaceholder={connectorPlaceholder}

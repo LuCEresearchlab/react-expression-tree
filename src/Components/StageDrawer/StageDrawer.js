@@ -48,9 +48,8 @@ const drawerWidth = 300;
 const useStyles = makeStyles(theme => ({
   drawer: {
     width: drawerWidth,
-    flexShrink: 0,
     position: "absolute",
-    maxHeight: "100%",
+    maxHeight: "99.5%",
     overflowY: "scroll",
     margin: "1px 0 0 1px",
   },
@@ -392,6 +391,7 @@ function StageDrawer({
         </IconButton>
       </Tooltip>
       <Dialog
+        style={{ position: "absolute" }}
         open={isResetWarnOpen}
         onClose={() => setIsResetWarnOpen(false)}
         onKeyPress={e => {
@@ -399,6 +399,8 @@ function StageDrawer({
             handleReset();
           }
         }}
+        BackdropProps={{ style: { position: "absolute" } }}
+        container={document.getElementById("editorContainer")}
       >
         <DialogTitle>
           {"Are you sure you want to reset the editor state?"}
@@ -427,6 +429,20 @@ function StageDrawer({
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        style={{ position: "absolute" }}
+        open={addingNode}
+        onClose={(e, reason) => {
+          if (reason !== "clickaway") {
+            addingNodeClick();
+          }
+        }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <Alert severity="info" variant="standard">
+          Freely position the node on the stage
+        </Alert>
+      </Snackbar>
       <Drawer
         className={classes.drawer}
         variant="persistent"
@@ -441,6 +457,7 @@ function StageDrawer({
           },
         }}
       >
+        <Divider />
         <div className={classes.drawerHeader}>
           <Tooltip title={"Undo action"} placement="bottom">
             <span>
@@ -561,19 +578,6 @@ function StageDrawer({
             </Tooltip>
           </div>
         </div>
-        <Snackbar
-          open={addingNode}
-          onClose={(e, reason) => {
-            if (reason !== "clickaway") {
-              addingNodeClick();
-            }
-          }}
-          anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
-        >
-          <Alert severity="info" variant="standard">
-            Freely position the node on the stage
-          </Alert>
-        </Snackbar>
         <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>

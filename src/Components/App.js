@@ -11,6 +11,10 @@ function App() {
   });
 
   return (
+    // <div style={{ display: "flex" }}>
+    //   <div style={{ width: "100px" }}>fdsgdsfgsdf</div>
+    //   <div style={{ display: "block" }}>
+    //     <div style={{ height: "700px" }}>dsafadsfadsf</div>
     <ExpressionTreeEditor
       width={stageWidth}
       height={stageHeight}
@@ -33,7 +37,13 @@ function App() {
             y: 150,
             width: 201.6328125,
           },
-          { id: 4, pieces: ["-", "{{}}"], x: 320, y: 205, width: 33.8046875 },
+          {
+            id: 4,
+            pieces: ["-", "{{}}"],
+            x: 320,
+            y: 205,
+            width: 33.8046875,
+          },
           {
             id: 5,
             pieces: ["{{}}", "<", "{{}}"],
@@ -131,6 +141,10 @@ function App() {
       }}
       edgeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
     />
+    //     <div style={{ height: "100px" }}>sdfadsfdas</div>
+    //   </div>
+    //   <div style={{ width: "100px" }}>fdsgdsfgsdf</div>
+    // </div>
   );
 }
 
