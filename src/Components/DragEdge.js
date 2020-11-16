@@ -1,5 +1,6 @@
 import React from "react";
 import { Line, Circle } from "react-konva";
+import { fontSize } from "../utils.js";
 
 function DragEdge({ childX, childY, parentX, parentY }) {
   return (
@@ -7,12 +8,12 @@ function DragEdge({ childX, childY, parentX, parentY }) {
       <Line
         points={[childX, childY, parentX, parentY]}
         stroke="black"
-        strokeWidth={5}
+        strokeWidth={fontSize / 4}
         lineCap="round"
         lineJoin="round"
       />
-      <Circle x={childX} y={childY} radius={6} fill="black" />
-      <Circle x={parentX} y={parentY} radius={5} fill="black" />
+      <Circle x={childX} y={childY} radius={fontSize / 4} fill="black" />
+      <Circle x={parentX} y={parentY} radius={fontSize / 4} fill="black" />
     </>
   );
 }

@@ -1,5 +1,10 @@
 import undoable, { groupByActionTypes } from "redux-undo";
-import { edgeByParentPiece, nodeById } from "../../utils.js";
+import {
+  computeNodeWidth,
+  edgeByParentPiece,
+  nodeById,
+  textHeight,
+} from "../../utils.js";
 
 const initialState = {
   nodes: [],
@@ -29,34 +34,43 @@ const treeEditorReducer = (state = initialState, action) => {
     connectorPlaceholder,
     newNodes,
     visitedNodes,
-    currentX,
-    currentY
+    currentLevelX,
+    currentY,
+    levelIndex
   ) {
-    newNodes.push({ id: node.id, x: currentX, y: currentY });
+    if (currentLevelX[levelIndex] === undefined) {
+      currentLevelX[levelIndex] = currentLevelX[levelIndex - 1] - 50;
+    }
+    newNodes.push({
+      id: node.id,
+      x: currentLevelX[levelIndex],
+      y: currentY,
+    });
     visitedNodes.push(node.id);
-    currentY = currentY + 85;
+    currentY = currentY + textHeight * 4;
     node.pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
         const edges = edgeByParentPiece(node.id, i, state.edges);
         edges.forEach(edge => {
           const childNode = nodeById(edge.childNodeId, state.nodes);
           if (visitedNodes.find(e => e === childNode.id) === undefined) {
-            orderWalk(
+            [newNodes, currentLevelX] = orderWalk(
               childNode,
               connectorPlaceholder,
               newNodes,
               visitedNodes,
-              currentX,
-              currentY
+              currentLevelX,
+              currentY,
+              levelIndex + 1
             );
-            currentX += childNode.width + 40;
           } else {
             return;
           }
         });
       }
     });
-    return newNodes;
+    currentLevelX[levelIndex] += node.width + 40;
+    return [newNodes, currentLevelX];
   }
 
   switch (action.type) {
@@ -288,29 +302,42 @@ const treeEditorReducer = (state = initialState, action) => {
         rootTypeValue: "",
       };
     case "setInitialState":
+      action.payload.initialNodes.map(
+        node =>
+          (node.width = computeNodeWidth(
+            node.pieces,
+            action.payload.connectorPlaceholder
+          ))
+      );
       return {
         ...state,
         nodes: action.payload.initialNodes,
         edges: action.payload.initialEdges,
       };
     case "reorderNodes":
+      var unconnectedCurrentX = 320;
       var newNodes = [];
       var visitedNodes = [];
-      var unconnectedToRoot = -1;
-      var currentY = 40;
+      var currentLevelX =
+        state.selectedRootNode !== null
+          ? [action.payload.reorderStartingX - state.selectedRootNode.width / 2]
+          : [];
+      var levelIndex = 0;
+      var currentY = textHeight * 2;
       if (state.selectedRootNode !== null) {
-        newNodes = orderWalk(
+        [newNodes, currentLevelX] = orderWalk(
           state.selectedRootNode,
           action.payload.connectorPlaceholder,
           newNodes,
           visitedNodes,
-          600,
-          currentY
+          currentLevelX,
+          currentY,
+          levelIndex
         );
       }
       return {
         ...state,
-        nodes: state.nodes.map((node, i) => {
+        nodes: state.nodes.map(node => {
           const newNode = newNodes.find(newNode => node.id === newNode.id);
           if (newNode !== undefined) {
             return {
@@ -319,11 +346,12 @@ const treeEditorReducer = (state = initialState, action) => {
               y: newNode.y,
             };
           } else {
-            unconnectedToRoot++;
+            var tmpX = unconnectedCurrentX;
+            unconnectedCurrentX += node.width + 40;
             return {
               ...node,
-              x: 320,
-              y: 40 + unconnectedToRoot * 55,
+              x: tmpX,
+              y: textHeight * 2 + currentLevelX.length * (textHeight * 4),
             };
           }
         }),

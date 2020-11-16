@@ -373,16 +373,18 @@ function StageDrawer({
   const handleReorderClick = () => {
     stageRef.current.position({ x: 0, y: 0 });
     stageRef.current.scale({ x: 1, y: 1 });
-    reorderNodes({ connectorPlaceholder: connectorPlaceholder });
+    reorderNodes({
+      connectorPlaceholder: connectorPlaceholder,
+      reorderStartingX:
+        drawerWidth + (stageRef.current.attrs.width - drawerWidth) / 2,
+    });
   };
 
   function orderWalk(node, visitedNodes) {
     visitedNodes.push(node.id);
-    console.log(visitedNodes);
     node.pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
         const childEdges = edgeByParentPiece(node.id, i, edges);
-        console.log(childEdges);
         if (childEdges.length === 1) {
           const childNode = nodeById(childEdges[0].childNodeId, nodes);
           if (visitedNodes.find(e => e === childNode.id) === undefined) {
@@ -682,8 +684,6 @@ function StageDrawer({
               onChange={e => handleEditChange(e.target.value)}
               onKeyPress={e => {
                 if (e.key === "Enter" && editValue.length !== 0) {
-                  console.log(editValue);
-                  console.log("enter");
                   handleNodeEdit();
                 }
               }}

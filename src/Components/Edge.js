@@ -6,7 +6,7 @@ import {
   holeWidth,
   textHeight,
   fontFamily,
-  defaultFontSize,
+  fontSize,
 } from "../utils.js";
 
 function Edge({
@@ -32,12 +32,12 @@ function Edge({
 }) {
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
+    document.body.style.cursor = "grabbing";
     if (selectedEdgeRef !== null) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
       clearEdgeSelection();
     }
-    document.body.style.cursor = "grabbing";
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
@@ -46,12 +46,12 @@ function Edge({
 
   const handlePieceConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
+    document.body.style.cursor = "grabbing";
     if (selectedEdgeRef !== null) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
       clearEdgeSelection();
     }
-    document.body.style.cursor = "grabbing";
     // const pos = e.target.absolutePosition();
     // we don't want the connector to be moved
     e.target.stopDrag();
@@ -69,40 +69,44 @@ function Edge({
       <Line
         key={"Edge-Line-" + id}
         points={[
-          childX + xPad + childWidth / 2,
+          childX + childWidth / 2,
           childY,
           parentX + xPad + parentPieceX + holeWidth / 2,
           parentY + yPad + textHeight / 2,
         ]}
         stroke={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
-        strokeWidth={5}
+        strokeWidth={fontSize / 4}
         lineCap="round"
         lineJoin="round"
         hitStrokeWidth={10}
+        onMouseOver={e => {
+          e.cancelBubble = true;
+          document.body.style.cursor = "pointer";
+        }}
       />
-      <Label x={childX + xPad + childWidth / 2} y={childY - 6}>
+      <Label x={childX + childWidth / 2} y={childY - fontSize / 4}>
         <Tag
           fill="#3f50b5"
           stroke="black"
           strokeWidth={type !== "" ? 1 : 0}
           pointerDirection="down"
-          pointerWidth={type !== "" ? 8 : 0}
-          pointerHeight={type !== "" ? 5 : 0}
+          pointerWidth={type !== "" ? fontSize / 3 : 0}
+          pointerHeight={type !== "" ? fontSize / 4 : 0}
           cornerRadius={3}
         />
         <Text
           key={"Edge-Text-" + id}
           fill="white"
           fontFamily={fontFamily}
-          fontSize={defaultFontSize / 2}
+          fontSize={fontSize / 2}
           text={type}
           padding={type !== "" ? 5 : 0}
         />
       </Label>
       <Circle
-        x={childX + xPad + childWidth / 2}
+        x={childX + childWidth / 2}
         y={childY}
-        radius={6}
+        radius={fontSize / 4}
         fill={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
         stroke="black"
         strokeWidth={1}
@@ -118,7 +122,7 @@ function Edge({
       <Circle
         x={parentX + xPad + parentPieceX + holeWidth / 2}
         y={parentY + yPad + textHeight / 2}
-        radius={5}
+        radius={fontSize / 4}
         fill={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
         stroke="black"
         strokeWidth={1}

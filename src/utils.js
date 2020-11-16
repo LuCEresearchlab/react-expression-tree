@@ -1,15 +1,15 @@
 import Konva from "konva";
 
 // Layout Defaults
-export const xPad = 11;
-export const yPad = 11;
-export const gapWidth = 5;
+export const fontSize = 24;
+export const xPad = fontSize / 2;
+export const yPad = fontSize / 2;
+export const gapWidth = fontSize / 5;
 export const fontFamily = "Ubuntu Mono, Courier";
-export const defaultFontSize = 24;
 export const oText = new Konva.Text({
   text: "o",
   fontFamily: fontFamily,
-  fontSize: defaultFontSize,
+  fontSize: fontSize,
 });
 export const textHeight = oText.fontSize();
 export const holeWidth = oText.getTextWidth();
@@ -65,7 +65,7 @@ export function edgeByParentPiece(parentNodeId, parentPieceId, edges) {
 export const computeEdgeChildPos = (childNodeId, nodes) => {
   const node = nodeById(childNodeId, nodes);
   return {
-    x: node.x + xPad + node.width / 2,
+    x: node.x + node.width / 2,
     y: node.y,
   };
 };
@@ -139,7 +139,7 @@ export function computePiecesWidths(pieces, connectorPlaceholder) {
       const text = new Konva.Text({
         text: p,
         fontFamily: fontFamily,
-        fontSize: defaultFontSize,
+        fontSize: fontSize,
       });
       return text.getTextWidth();
     }
@@ -163,5 +163,5 @@ export function computeNodeWidth(pieces, connectorPlaceholder) {
   for (const w of widths) {
     width += w;
   }
-  return width;
+  return width + 2 * xPad;
 }

@@ -4,10 +4,9 @@ import {
   xPad,
   yPad,
   fontFamily,
-  defaultFontSize,
+  fontSize,
   textHeight,
   holeWidth,
-  computePiecesWidths,
   computePiecesPositions,
   edgeByParentPiece,
   nodeById,
@@ -49,10 +48,8 @@ function Node({
   // when we don't drag the node itself but drag from a connector
   const [draggingNode, setDraggingNode] = useState(false);
 
-  const nodePadHeight = 2 * yPad + textHeight;
-  const nodePadWidth = 2 * xPad + nodeWidth;
+  const nodeHeight = 2 * yPad + textHeight;
   const piecesPos = computePiecesPositions(pieces, connectorPlaceholder);
-  const nodePiecesWidths = computePiecesWidths(pieces, connectorPlaceholder);
 
   const handleDragStart = e => {
     e.currentTarget.moveToTop();
@@ -80,13 +77,13 @@ function Node({
 
   const handleDragEnd = e => {
     e.cancelBubble = true;
+    document.body.style.cursor = "pointer";
     if (draggingNode) {
       const id = e.target.id();
       const x = e.target.x();
       const y = e.target.y();
       moveNodeToEnd({ nodeId: id, x: x, y: y });
     }
-    document.body.style.cursor = "pointer";
     setDraggingNode(false);
   };
 
@@ -147,13 +144,13 @@ function Node({
     var newY = pos.y;
     if (pos.x < 0) {
       newX = 0;
-    } else if (pos.x > stageWidth - nodePadWidth * stageScale.x) {
-      newX = stageWidth - nodePadWidth * stageScale.x;
+    } else if (pos.x > stageWidth - nodeWidth * stageScale.x) {
+      newX = stageWidth - nodeWidth * stageScale.x;
     }
     if (pos.y < 0) {
       newY = 0;
-    } else if (pos.y > stageHeight - nodePadHeight * stageScale.y) {
-      newY = stageHeight - nodePadHeight * stageScale.y;
+    } else if (pos.y > stageHeight - nodeHeight * stageScale.y) {
+      newY = stageHeight - nodeHeight * stageScale.y;
     }
     return {
       x: newX,
@@ -162,6 +159,7 @@ function Node({
   };
 
   const handleRemoveClick = e => {
+    document.body.style.cursor = "move";
     if (selectedEdgeRef !== null) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
@@ -185,14 +183,18 @@ function Node({
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       dragBoundFunc={pos => checkDragBound(pos)}
+      onMouseOver={e => {
+        e.cancelBubble = true;
+        document.body.style.cursor = "pointer";
+      }}
     >
       <Rect
         kind="NodeRect"
         key={"NodeRect-" + id}
         x={0}
         y={0}
-        width={nodePadWidth}
-        height={nodePadHeight}
+        width={nodeWidth}
+        height={nodeHeight}
         fill={isSelected ? "#3f50b5" : "#208020"}
         stroke="black"
         strokeWidth={isSelected ? 2 : 1}
@@ -208,17 +210,17 @@ function Node({
         y={3}
         fill="white"
         fontFamily={fontFamily}
-        fontSize={defaultFontSize * 0.4}
+        fontSize={fontSize * 0.4}
         text={id}
       />
       {isSelectedRoot ? (
         <Star
           id={id}
-          x={nodePadWidth / 2}
+          x={nodeWidth / 2}
           y={0}
           numPoints={5}
-          innerRadius={5}
-          outerRadius={10}
+          innerRadius={fontSize / 5}
+          outerRadius={fontSize / 2.5}
           fill="#3f50b5"
           stroke="black"
           strokeWidth={2}
@@ -236,9 +238,9 @@ function Node({
           kind="NodeConnector"
           key={"NodeConnector-" + id}
           id={id}
-          x={nodePadWidth / 2}
+          x={nodeWidth / 2}
           y={0}
-          radius={6}
+          radius={fontSize / 4}
           fill="black"
           draggable
           onDragStart={handleNodeConnectorDragStart}
@@ -256,9 +258,9 @@ function Node({
             <Rect
               id={i}
               x={xPad + piecesPos[i]}
-              y={nodePadHeight / 2 - yPad}
-              width={nodePiecesWidths[i]}
-              height={nodePiecesWidths[i] * 1.5}
+              y={nodeHeight / 2 - yPad}
+              width={holeWidth}
+              height={textHeight}
               fill="#104010"
               stroke="black"
               strokeWidth={1}
@@ -280,7 +282,7 @@ function Node({
               onDragStart={e => handlePieceConnectorDragStart(e, id)}
               onDragMove={e => {}}
               onDragEnd={e => {}}
-              radius={5}
+              radius={fontSize / 4}
               fill="black"
               onMouseOver={e => {
                 e.cancelBubble = true;
@@ -297,17 +299,17 @@ function Node({
             y={yPad}
             fill="white"
             fontFamily={fontFamily}
-            fontSize={defaultFontSize}
+            fontSize={fontSize}
             text={p}
           />
         )
       )}
       <Text
-        x={nodePadWidth - 10}
+        x={nodeWidth - xPad}
         y={3}
         fill="white"
         fontFamily={fontFamily}
-        fontSize={defaultFontSize * 0.4}
+        fontSize={fontSize / 2}
         text="X"
         onClick={e => handleRemoveClick(e)}
         onMouseOver={e => {
@@ -322,20 +324,20 @@ function Node({
         }}
       />
       {isSelectedRoot ? (
-        <Label x={nodePadWidth / 2} y={0}>
+        <Label x={nodeWidth / 2} y={0}>
           <Tag
             fill="#3f50b5"
             stroke="black"
             strokeWidth={rootTypeValue !== "" ? 1 : 0}
             pointerDirection="down"
-            pointerWidth={rootTypeValue !== "" ? 8 : 0}
-            pointerHeight={rootTypeValue !== "" ? 5 : 0}
+            pointerWidth={rootTypeValue !== "" ? fontSize / 3 : 0}
+            pointerHeight={rootTypeValue !== "" ? fontSize / 4 : 0}
             cornerRadius={3}
           />
           <Text
             fill="white"
             fontFamily={fontFamily}
-            fontSize={defaultFontSize / 2}
+            fontSize={fontSize / 2}
             text={rootTypeValue}
             padding={rootTypeValue !== "" ? 5 : 0}
           />

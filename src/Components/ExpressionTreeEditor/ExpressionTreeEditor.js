@@ -75,6 +75,7 @@ function ExpressionTreeEditor({
       setInitialState({
         initialNodes: initialState.initialNodes,
         initialEdges: initialState.initialEdges,
+        connectorPlaceholder: connectorPlaceholder,
       })
     );
     dispatch(ActionCreators.clearHistory());
@@ -243,6 +244,7 @@ function ExpressionTreeEditor({
             (originalEdge.parentNodeId !== parentPiece.parentNodeId ||
               originalEdge.parentPieceId !== parentPiece.parentPieceId)
           ) {
+            document.body.style.cursor = "grab";
             clearDragEdge();
             setSelectedEdgeRef(null);
             clearEdgeSelection();
@@ -253,14 +255,14 @@ function ExpressionTreeEditor({
               type: "",
             };
             updateEdge({ edgeId: originalEdge.id, newEdge: newEdge });
-            document.body.style.cursor = "grab";
           } else if (!parentPiece) {
+            document.body.style.cursor = "move";
             clearDragEdge();
             setSelectedEdgeRef(null);
             removeEdge({ edgeId: originalEdge.id });
-            document.body.style.cursor = "move";
           }
         } else {
+          document.body.style.cursor = "grab";
           if (
             parentPiece &&
             dragEdge.childNodeId !== parentPiece.parentNodeId
@@ -273,7 +275,6 @@ function ExpressionTreeEditor({
             };
             clearDragEdge();
             addEdge({ edge: newEdge });
-            document.body.style.cursor = "grab";
           }
         }
       } else {
@@ -289,6 +290,7 @@ function ExpressionTreeEditor({
             childNodeId !== originalEdge.parentNodeId &&
             originalEdge.childNodeId !== childNodeId
           ) {
+            document.body.style.cursor = "grab";
             clearDragEdge();
             setSelectedEdgeRef(null);
             clearEdgeSelection();
@@ -299,15 +301,15 @@ function ExpressionTreeEditor({
               type: "",
             };
             updateEdge({ edgeId: dragEdge.originalEdgeId, newEdge: newEdge });
-            document.body.style.cursor = "grab";
           } else if (!childNodeId) {
+            document.body.style.cursor = "move";
             clearDragEdge();
             setSelectedEdgeRef(null);
             removeEdge({ edgeId: originalEdge.id });
-            document.body.style.cursor = "move";
           }
         } else {
           if (childNodeId && dragEdge.parentNodeId !== childNodeId) {
+            document.body.style.cursor = "grab";
             const newEdge = {
               parentNodeId: dragEdge.parentNodeId,
               parentPieceId: dragEdge.parentPieceId,
@@ -316,7 +318,6 @@ function ExpressionTreeEditor({
             };
             clearDragEdge();
             addEdge({ edge: newEdge });
-            document.body.style.cursor = "grab";
           }
         }
       }
@@ -528,12 +529,7 @@ function ExpressionTreeEditor({
           document.body.style.cursor = "default";
         }}
       >
-        <Layer
-          onMouseOver={e => {
-            e.cancelBubble = true;
-            document.body.style.cursor = "pointer";
-          }}
-        >
+        <Layer>
           {edges.map((edge, i) => (
             <Edge
               key={"Edge-" + edge.id}
