@@ -333,6 +333,7 @@ function StageDrawer({
     stageReset({
       initialNodes: initialState.initialNodes,
       initialEdges: initialState.initialEdges,
+      connectorPlaceholder: connectorPlaceholder,
     });
     if (selectedEdgeRef !== null) {
       selectedEdgeRef.moveToBottom();
@@ -610,34 +611,36 @@ function StageDrawer({
             </Tooltip>
           </div>
         </div>
-        <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="body1">
-                Or select a template node:
-              </Typography>
-            </AccordionSummary>
-            <Divider />
-            <div className={classes.templateContainer}>
-              {templateNodes.map((e, i) => (
-                <AccordionDetails key={"template-" + i}>
-                  <Typography
-                    variant="h6"
-                    id={i}
-                    className={
-                      selectedTemplate === i
-                        ? classes.selectedTemplateElement
-                        : classes.templateElement
-                    }
-                    onClick={() => handleTemplateClick(e, i)}
-                  >
-                    {e}
-                  </Typography>
-                </AccordionDetails>
-              ))}
-            </div>
-          </Accordion>
-        </AccordionActions>
+        <div>
+          <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="body1">
+                  Or select a template node:
+                </Typography>
+              </AccordionSummary>
+              <Divider />
+              <div className={classes.templateContainer}>
+                {templateNodes.map((e, i) => (
+                  <AccordionDetails key={"template-" + i}>
+                    <Typography
+                      variant="h6"
+                      id={i}
+                      className={
+                        selectedTemplate === i
+                          ? classes.selectedTemplateElement
+                          : classes.templateElement
+                      }
+                      onClick={() => handleTemplateClick(e, i)}
+                    >
+                      {e}
+                    </Typography>
+                  </AccordionDetails>
+                ))}
+              </div>
+            </Accordion>
+          </AccordionActions>
+        </div>
         <Divider />
         <div className={classes.toolbarInfo}>
           <Typography variant="h6">Edit an existing node:</Typography>

@@ -260,6 +260,13 @@ const treeEditorReducer = (state = initialState, action) => {
         },
       };
     case "stageReset":
+      action.payload.initialNodes.map(
+        node =>
+          (node.width = computeNodeWidth(
+            node.pieces,
+            action.payload.connectorPlaceholder
+          ))
+      );
       return {
         ...state,
         nodes: action.payload.initialNodes,
@@ -316,6 +323,7 @@ const treeEditorReducer = (state = initialState, action) => {
       };
     case "reorderNodes":
       var unconnectedCurrentX = 320;
+      var unconnectedCount = -1;
       var newNodes = [];
       var visitedNodes = [];
       var currentLevelX =
@@ -346,12 +354,19 @@ const treeEditorReducer = (state = initialState, action) => {
               y: newNode.y,
             };
           } else {
+            unconnectedCount++;
+            if (unconnectedCount % 10 === 0) {
+              unconnectedCurrentX = 320;
+            }
             var tmpX = unconnectedCurrentX;
-            unconnectedCurrentX += node.width + 40;
+            unconnectedCurrentX += node.width + 10;
             return {
               ...node,
               x: tmpX,
-              y: textHeight * 2 + currentLevelX.length * (textHeight * 4),
+              y:
+                textHeight * 2 +
+                (currentLevelX.length + Math.floor(unconnectedCount / 10)) *
+                  (textHeight * 4),
             };
           }
         }),
