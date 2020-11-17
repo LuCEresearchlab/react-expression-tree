@@ -11,7 +11,6 @@ const mapStateToProps = state => ({
   addValue: state.drawer.addValue,
   selectedEdge: state.editor.present.selectedEdge,
   selectedRootNode: state.editor.present.selectedRootNode,
-  rootTypeValue: state.editor.present.rootTypeValue,
 });
 
 export default connect(mapStateToProps, actions)(ExpressionTreeEditor);

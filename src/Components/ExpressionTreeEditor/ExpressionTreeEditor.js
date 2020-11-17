@@ -56,10 +56,7 @@ function ExpressionTreeEditor({
   clearRootSelection,
   initialState,
   setInitialState,
-  edgeTypes,
-  rootTypeValue,
-  rootTypeValueChange,
-  clearRootTypeValue,
+  nodeTypes,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -337,6 +334,7 @@ function ExpressionTreeEditor({
         x: (pointerPos.x - stagePos.x) / stageScale.x,
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
+        type: "",
       });
       clearAdding();
     } else {
@@ -362,6 +360,7 @@ function ExpressionTreeEditor({
         x: (pointerPos.x - stagePos.x) / stageScale.x,
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
+        type: "",
       });
       clearAdding();
     } else {
@@ -378,6 +377,7 @@ function ExpressionTreeEditor({
           ""
         );
         editValueChange({ editValue: [] });
+        typeValueChange({ typeValue: selectingNode.type });
       } else {
         if (selectedNode.id !== selectingNode.id) {
           selectNode({ selectedNode: selectingNode });
@@ -385,6 +385,7 @@ function ExpressionTreeEditor({
             "editField"
           ).value = selectingNode.pieces.join("");
           editValueChange({ editValue: [] });
+          typeValueChange({ typeValue: selectingNode.type });
         }
       }
     }
@@ -392,10 +393,8 @@ function ExpressionTreeEditor({
 
   const handleNodeDblClick = nodeId => {
     if (selectedRootNode !== null && selectedRootNode.id === nodeId) {
-      clearRootTypeValue();
       clearRootSelection();
     } else {
-      clearRootTypeValue();
       const selectedRootNode = nodeById(nodeId, nodes);
       selectRootNode({ selectedRootNode: selectedRootNode });
     }
@@ -412,6 +411,7 @@ function ExpressionTreeEditor({
         x: (pointerPos.x - stagePos.x) / stageScale.x,
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
+        type: "",
       });
       clearAdding();
     } else {
@@ -424,7 +424,6 @@ function ExpressionTreeEditor({
         const selectingEdge = edgeById(edgeId, edges);
         setSelectedEdgeRef(e.currentTarget);
         selectEdge({ selectedEdge: selectingEdge });
-        typeValueChange({ typeValue: selectingEdge.type });
       } else {
         if (selectedEdgeRef !== e.currentTarget) {
           selectedEdgeRef.moveToBottom();
@@ -432,7 +431,6 @@ function ExpressionTreeEditor({
           const selectingEdge = edgeById(edgeId, edges);
           setSelectedEdgeRef(e.currentTarget);
           selectEdge({ selectedEdge: selectingEdge });
-          typeValueChange({ typeValue: selectingEdge.type });
         }
       }
     }
@@ -501,7 +499,7 @@ function ExpressionTreeEditor({
         templateNodes={templateNodes}
         stageRef={stageRef}
         initialState={initialState}
-        edgeTypes={edgeTypes}
+        nodeTypes={nodeTypes}
         selectedEdgeRef={selectedEdgeRef}
         setSelectedEdgeRef={setSelectedEdgeRef}
       />
@@ -552,7 +550,6 @@ function ExpressionTreeEditor({
               selected={
                 selectedEdge !== null ? selectedEdge.id === edge.id : false
               }
-              type={edge.type}
               parentNodeId={edge.parentNodeId}
               parentPieceId={edge.parentPieceId}
               childNodeId={edge.childNodeId}
@@ -581,6 +578,7 @@ function ExpressionTreeEditor({
                   ? selectedRootNode.id === node.id
                   : false
               }
+              type={node.type}
               stageWidth={width}
               stageHeight={height}
               moveNodeTo={moveNodeTo}
@@ -596,7 +594,7 @@ function ExpressionTreeEditor({
               selectedEdgeRef={selectedEdgeRef}
               setSelectedEdgeRef={setSelectedEdgeRef}
               editValueChange={editValueChange}
-              rootTypeValue={rootTypeValue}
+              typeValueChange={typeValueChange}
             />
           ))}
           {dragEdge && (

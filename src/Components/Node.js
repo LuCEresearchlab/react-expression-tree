@@ -35,11 +35,12 @@ function Node({
   stageRef,
   edges,
   nodes,
+  type,
   selectedEdgeRef,
   setSelectedEdgeRef,
   editValueChange,
+  typeValueChange,
   clearNodeSelection,
-  rootTypeValue,
 }) {
   const nodeRef = useRef();
 
@@ -58,6 +59,7 @@ function Node({
     selectNode({ selectedNode: selectingNode });
     document.getElementById("editField").value = selectingNode.pieces.join("");
     editValueChange({ editValue: [] });
+    typeValueChange({ typeValue: selectingNode.type });
     if (selectedEdgeRef !== null) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
@@ -323,28 +325,24 @@ function Node({
           e.target.draw();
         }}
       />
-      {isSelectedRoot ? (
-        <Label x={nodeWidth / 2} y={0}>
-          <Tag
-            fill="#3f50b5"
-            stroke="black"
-            strokeWidth={rootTypeValue !== "" ? 1 : 0}
-            pointerDirection="down"
-            pointerWidth={rootTypeValue !== "" ? fontSize / 3 : 0}
-            pointerHeight={rootTypeValue !== "" ? fontSize / 4 : 0}
-            cornerRadius={3}
-          />
-          <Text
-            fill="white"
-            fontFamily={fontFamily}
-            fontSize={fontSize / 2}
-            text={rootTypeValue}
-            padding={rootTypeValue !== "" ? 5 : 0}
-          />
-        </Label>
-      ) : (
-        <></>
-      )}
+      <Label x={nodeWidth / 2} y={-fontSize / 4}>
+        <Tag
+          fill="#3f50b5"
+          stroke="black"
+          strokeWidth={type !== "" ? 1 : 0}
+          pointerDirection="down"
+          pointerWidth={type !== "" ? fontSize / 3 : 0}
+          pointerHeight={type !== "" ? fontSize / 4 : 0}
+          cornerRadius={3}
+        />
+        <Text
+          fill="white"
+          fontFamily={fontFamily}
+          fontSize={fontSize / 2}
+          text={type}
+          padding={type !== "" ? 5 : 0}
+        />
+      </Label>
     </Group>
   );
 }

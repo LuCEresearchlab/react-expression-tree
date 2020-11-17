@@ -153,8 +153,6 @@ function StageDrawer({
   addValueChange,
   editValueChange,
   typeValueChange,
-  rootTypeValueChange,
-  rootTypeValue,
   clearAdding,
   clearEdgeSelection,
   clearNodeSelection,
@@ -162,8 +160,7 @@ function StageDrawer({
   isEditEmpty,
   editValue,
   typeValue,
-  selectedEdge,
-  edgeTypeEdit,
+  nodeTypeEdit,
   stageReset,
   nodes,
   edges,
@@ -175,7 +172,7 @@ function StageDrawer({
   stageRef,
   initialState,
   reorderNodes,
-  edgeTypes,
+  nodeTypes,
   selectedEdgeRef,
   setSelectedEdgeRef,
 }) {
@@ -186,8 +183,6 @@ function StageDrawer({
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [nodeAnchorEl, setNodeAnchorEl] = useState(null);
   const isNodeInfoOpen = !!nodeAnchorEl;
-  const [edgeAnchorEl, setEdgeAnchorEl] = useState(null);
-  const isEdgeInfoOpen = !!edgeAnchorEl;
   const [validationAnchorEl, setValidationAnchorEl] = useState(null);
   const isValidationInfoOpen = !!validationAnchorEl;
   const [orderAnchorEl, setOrderAnchorEl] = useState(null);
@@ -242,9 +237,9 @@ function StageDrawer({
 
   const handleTypeChange = value => {
     typeValueChange({ typeValue: value });
-    edgeTypeEdit({
+    nodeTypeEdit({
       type: value,
-      selectedEdgeId: selectedEdge.id,
+      selectedNodeId: selectedNode.id,
     });
   };
 
@@ -262,7 +257,6 @@ function StageDrawer({
       nodes,
       edges,
       selectedRootNode,
-      rootTypeValue,
       stagePos,
       stageScale,
     };
@@ -293,7 +287,6 @@ function StageDrawer({
           nodes: state.nodes,
           edges: state.edges,
           selectedRootNode: state.selectedRootNode,
-          rootTypeValue: state.rootTypeValue,
         });
         stageRef.current.position({ x: state.stagePos.x, y: state.stagePos.y });
         stageRef.current.scale({
@@ -668,96 +661,68 @@ function StageDrawer({
           </div>
         </div>
         {selectedNode ? (
-          <div className={classes.toolbarField}>
-            <TextField
-              key={selectedNode.id}
-              id="editField"
-              variant="outlined"
-              type="search"
-              fullWidth
-              size="medium"
-              placeholder={
-                "ex: " +
-                connectorPlaceholder +
-                ".append(" +
-                connectorPlaceholder +
-                ")"
-              }
-              margin="dense"
-              onChange={e => handleEditChange(e.target.value)}
-              onKeyPress={e => {
-                if (e.key === "Enter" && editValue.length !== 0) {
-                  handleNodeEdit();
+          <>
+            <div className={classes.toolbarField}>
+              <TextField
+                key={selectedNode.id}
+                id="editField"
+                variant="outlined"
+                type="search"
+                fullWidth
+                size="medium"
+                placeholder={
+                  "ex: " +
+                  connectorPlaceholder +
+                  ".append(" +
+                  connectorPlaceholder +
+                  ")"
                 }
-              }}
-            ></TextField>
-            <div>
-              <Tooltip title={"Update node"} placement="top">
-                <span>
-                  <IconButton
-                    size="medium"
-                    onClick={() => handleNodeEdit()}
-                    disabled={isEditEmpty}
-                    color="primary"
-                  >
-                    <UpdateRoundedIcon />
-                  </IconButton>
-                </span>
-              </Tooltip>
+                margin="dense"
+                onChange={e => handleEditChange(e.target.value)}
+                onKeyPress={e => {
+                  if (e.key === "Enter" && editValue.length !== 0) {
+                    handleNodeEdit();
+                  }
+                }}
+              ></TextField>
+              <div>
+                <Tooltip title={"Update node"} placement="top">
+                  <span>
+                    <IconButton
+                      size="medium"
+                      onClick={() => handleNodeEdit()}
+                      disabled={isEditEmpty}
+                      color="primary"
+                    >
+                      <UpdateRoundedIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </div>
             </div>
-          </div>
+            <div className={classes.typeField}>
+              <FormLabel>Select the node type from the list:</FormLabel>
+              <RadioGroup
+                value={typeValue}
+                onChange={e => handleTypeChange(e.target.value)}
+                row
+                className={classes.typeButtonContainer}
+              >
+                {nodeTypes.map(type => (
+                  <FormControlLabel
+                    key={type}
+                    value={type}
+                    control={<Radio color="primary" />}
+                    label={type}
+                    className={classes.typeButton}
+                  />
+                ))}
+              </RadioGroup>
+            </div>
+          </>
         ) : (
           <Typography className={classes.editText}>
             Start by selecting a node.
-          </Typography>
-        )}
-        <Divider />
-        <div className={classes.toolbarInfo}>
-          <Typography variant="h6">Add or edit an edge type:</Typography>
-          <div>
-            <IconButton
-              size="small"
-              onClick={e => setEdgeAnchorEl(e.target)}
-              color="primary"
-            >
-              <InfoOutlinedIcon />
-            </IconButton>
-            <Popover
-              className={classes.infoPopover}
-              open={isEdgeInfoOpen}
-              anchorEl={edgeAnchorEl}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={() => setEdgeAnchorEl(null)}
-            >
-              <Typography className={classes.infoPopoverText} variant="body2">
-                Select the edge type from the list below.
-              </Typography>
-            </Popover>
-          </div>
-        </div>
-        {selectedEdge ? (
-          <div className={classes.typeField}>
-            <FormLabel>Select the edge type from the list:</FormLabel>
-            <RadioGroup
-              value={typeValue}
-              onChange={e => handleTypeChange(e.target.value)}
-              row
-              className={classes.typeButtonContainer}
-            >
-              {edgeTypes.map(type => (
-                <FormControlLabel
-                  key={type}
-                  value={type}
-                  control={<Radio color="primary" />}
-                  label={type}
-                  className={classes.typeButton}
-                />
-              ))}
-            </RadioGroup>
-          </div>
-        ) : (
-          <Typography className={classes.editText}>
-            Start by selecting an edge.
           </Typography>
         )}
         <Divider />
@@ -824,43 +789,20 @@ function StageDrawer({
           </div>
         </div>
         {selectedRootNode ? (
-          <>
-            <div className={classes.typeField}>
-              <FormLabel>
-                Select the root node out-coming type from the list:
-              </FormLabel>
-              <RadioGroup
-                value={rootTypeValue}
-                onChange={e =>
-                  rootTypeValueChange({ rootTypeValue: e.target.value })
-                }
-                row
-                className={classes.typeButtonContainer}
-              >
-                {edgeTypes.map(type => (
-                  <FormControlLabel
-                    key={type}
-                    value={type}
-                    control={<Radio color="primary" />}
-                    label={type}
-                    className={classes.typeButton}
-                  />
-                ))}
-              </RadioGroup>
-            </div>
-            <div className={classes.toolbarField}>
-              <Button
-                variant="contained"
-                size="medium"
-                color="primary"
-                endIcon={<CheckRoundedIcon />}
-                onClick={handleTreeValidation}
-                disabled={rootTypeValue === ""}
-              >
-                Validate tree
-              </Button>
-            </div>
-          </>
+          <div className={classes.toolbarField}>
+            <Button
+              variant="contained"
+              size="medium"
+              color="primary"
+              endIcon={<CheckRoundedIcon />}
+              onClick={handleTreeValidation}
+              disabled={
+                selectedRootNode !== null && selectedRootNode.type === ""
+              }
+            >
+              Validate tree
+            </Button>
+          </div>
         ) : (
           <Typography className={classes.editText}>
             Start by selecting a node as root.

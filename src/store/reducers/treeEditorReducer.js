@@ -13,7 +13,6 @@ const initialState = {
   selectedNode: null,
   selectedEdge: null,
   selectedRootNode: null,
-  rootTypeValue: "",
 };
 
 const treeEditorReducer = (state = initialState, action) => {
@@ -86,6 +85,7 @@ const treeEditorReducer = (state = initialState, action) => {
             x: action.payload.x,
             y: action.payload.y,
             width: action.payload.width,
+            type: action.payload.type,
           },
         ],
       };
@@ -104,7 +104,6 @@ const treeEditorReducer = (state = initialState, action) => {
           state.selectedRootNode.id === action.payload.nodeId
             ? null
             : state.selectedRootNode,
-        rootTypeValue: "",
       };
 
     case "selectNode":
@@ -243,30 +242,37 @@ const treeEditorReducer = (state = initialState, action) => {
         selectedEdge: null,
       };
 
-    case "edgeTypeEdit":
+    case "nodeTypeEdit":
       return {
         ...state,
-        edges: state.edges.map(edge =>
-          edge.id === action.payload.selectedEdgeId
+        nodes: state.nodes.map(node =>
+          node.id === action.payload.selectedNodeId
             ? {
-                ...edge,
+                ...node,
                 type: action.payload.type,
               }
-            : edge
+            : node
         ),
-        selectedEdge: {
-          ...state.selectedEdge,
+        selectedNode: {
+          ...state.selectedNode,
           type: action.payload.type,
         },
+        selectedRootNode:
+          state.selectedRootNode !== null &&
+          action.payload.selectedNodeId === state.selectedRootNode.id
+            ? { ...state.selectedRootNode, type: action.payload.type }
+            : state.selectedRootNode,
       };
     case "stageReset":
-      action.payload.initialNodes.map(
-        node =>
-          (node.width = computeNodeWidth(
-            node.pieces,
-            action.payload.connectorPlaceholder
-          ))
-      );
+      action.payload.initialNodes.map((node, i) => {
+        node.width = computeNodeWidth(
+          node.pieces,
+          action.payload.connectorPlaceholder
+        );
+        node.id = i + 1;
+        return node;
+      });
+      action.payload.initialEdges.map((edge, i) => (edge.id = i + 1));
       return {
         ...state,
         nodes: action.payload.initialNodes,
@@ -275,7 +281,6 @@ const treeEditorReducer = (state = initialState, action) => {
         selectedNode: null,
         selectedEdge: null,
         selectedRootNode: null,
-        rootTypeValue: "",
       };
     case "uploadState":
       return {
@@ -286,7 +291,6 @@ const treeEditorReducer = (state = initialState, action) => {
         selectedEdge: null,
         dragEdge: null,
         selectedRootNode: action.payload.selectedRootNode,
-        rootTypeValue: action.payload.rootTypeValue,
       };
     case "selectRootNode":
       return {
@@ -298,24 +302,16 @@ const treeEditorReducer = (state = initialState, action) => {
         ...state,
         selectedRootNode: null,
       };
-    case "rootTypeValueChange":
-      return {
-        ...state,
-        rootTypeValue: action.payload.rootTypeValue,
-      };
-    case "clearRootTypeValue":
-      return {
-        ...state,
-        rootTypeValue: "",
-      };
     case "setInitialState":
-      action.payload.initialNodes.map(
-        node =>
-          (node.width = computeNodeWidth(
-            node.pieces,
-            action.payload.connectorPlaceholder
-          ))
-      );
+      action.payload.initialNodes.map((node, i) => {
+        node.width = computeNodeWidth(
+          node.pieces,
+          action.payload.connectorPlaceholder
+        );
+        node.id = i + 1;
+        return node;
+      });
+      action.payload.initialEdges.map((edge, i) => (edge.id = i + 1));
       return {
         ...state,
         nodes: action.payload.initialNodes,
@@ -394,8 +390,7 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "typeValueChange" &&
       action.type !== "clearAdding" &&
       action.type !== "addingNodeClick" &&
-      action.type !== "setInitialState" &&
-      action.type !== "clearRootTypeValue"
+      action.type !== "setInitialState"
     );
   },
   groupBy: groupByActionTypes("reorderNodes"),

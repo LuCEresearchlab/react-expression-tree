@@ -89,15 +89,6 @@ export const typeValueChange = payload => ({
   payload,
 });
 
-export const clearRootTypeValue = () => ({
-  type: "clearRootTypeValue",
-});
-
-export const rootTypeValueChange = payload => ({
-  type: "rootTypeValueChange",
-  payload,
-});
-
 export const selectEdge = payload => ({
   type: "selectEdge",
   payload,
@@ -107,8 +98,8 @@ export const clearEdgeSelection = () => ({
   type: "clearEdgeSelection",
 });
 
-export const edgeTypeEdit = payload => ({
-  type: "edgeTypeEdit",
+export const nodeTypeEdit = payload => ({
+  type: "nodeTypeEdit",
   payload,
 });
 

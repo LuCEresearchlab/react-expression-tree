@@ -1,13 +1,6 @@
 import React from "react";
-import { Text, Line, Circle, Group, Label, Tag } from "react-konva";
-import {
-  xPad,
-  yPad,
-  holeWidth,
-  textHeight,
-  fontFamily,
-  fontSize,
-} from "../utils.js";
+import { Line, Circle, Group } from "react-konva";
+import { xPad, yPad, holeWidth, textHeight, fontSize } from "../utils.js";
 
 function Edge({
   id,
@@ -22,7 +15,6 @@ function Edge({
   onNodeConnectorDragStart,
   onPieceConnectorDragStart,
   selected,
-  type,
   parentNodeId,
   parentPieceId,
   childNodeId,
@@ -84,25 +76,6 @@ function Edge({
           document.body.style.cursor = "pointer";
         }}
       />
-      <Label x={childX + childWidth / 2} y={childY - fontSize / 4}>
-        <Tag
-          fill="#3f50b5"
-          stroke="black"
-          strokeWidth={type !== "" ? 1 : 0}
-          pointerDirection="down"
-          pointerWidth={type !== "" ? fontSize / 3 : 0}
-          pointerHeight={type !== "" ? fontSize / 4 : 0}
-          cornerRadius={3}
-        />
-        <Text
-          key={"Edge-Text-" + id}
-          fill="white"
-          fontFamily={fontFamily}
-          fontSize={fontSize / 2}
-          text={type}
-          padding={type !== "" ? 5 : 0}
-        />
-      </Label>
       <Circle
         x={childX + childWidth / 2}
         y={childY}
