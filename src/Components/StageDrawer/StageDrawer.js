@@ -374,32 +374,77 @@ function StageDrawer({
     });
   };
 
-  function orderWalk(node, visitedNodes) {
+  function orderWalk(node, visitedNodes, visitedBranch, errors) {
     visitedNodes.push(node.id);
+    visitedBranch.push(node.id);
+    if (node.type === "") {
+      errors.push({
+        type: "completeness error",
+        problem: "missing node type",
+        location: node.id,
+      });
+    }
+    var connectorNum = 0;
     node.pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
+        connectorNum++;
         const childEdges = edgeByParentPiece(node.id, i, edges);
         if (childEdges.length === 1) {
           const childNode = nodeById(childEdges[0].childNodeId, nodes);
-          if (visitedNodes.find(e => e === childNode.id) === undefined) {
-            orderWalk(childNode, visitedNodes);
+          if (visitedBranch.find(e => e === childNode.id) !== undefined) {
+            errors.push({
+              type: "form error",
+              problem: "loop",
+              location: { from: node.id, to: childNode.id },
+            });
+            visitedBranch.pop();
+            return [errors, visitedBranch];
+          } else if (visitedNodes.find(e => e === childNode.id) !== undefined) {
+            errors.push({
+              type: "form error",
+              problem: "multiple edge on single node connector",
+              location: { from: node.id, to: childNode.id },
+            });
+            visitedBranch.pop();
+            return [errors, visitedBranch];
           } else {
-            alert("loop detected");
-            return;
+            [errors, visitedBranch] = orderWalk(
+              childNode,
+              visitedNodes,
+              visitedBranch,
+              errors
+            );
           }
         } else if (childEdges.length > 1) {
-          alert("multiple edge on single connector detected");
+          errors.push({
+            type: "form error",
+            problem: "multiple edge on single piece connector",
+            location: { node: node.id, piece: i },
+          });
         } else if (childEdges.length === 0) {
-          alert("empty connector detected");
+          errors.push({
+            type: "completeness error",
+            problem: "empty connector",
+            location: { node: node.id, connector: connectorNum },
+          });
         }
       }
     });
-    return "";
+    visitedBranch.pop();
+    return [errors, visitedBranch];
   }
 
   const handleTreeValidation = () => {
     var visitedNodes = [];
-    orderWalk(selectedRootNode, visitedNodes);
+    var visitedBranch = [];
+    var errors = [];
+    [errors, visitedBranch] = orderWalk(
+      selectedRootNode,
+      visitedNodes,
+      visitedBranch,
+      errors
+    );
+    console.log(errors);
   };
 
   return (
@@ -800,9 +845,6 @@ function StageDrawer({
               color="primary"
               endIcon={<CheckRoundedIcon />}
               onClick={handleTreeValidation}
-              disabled={
-                selectedRootNode !== null && selectedRootNode.type === ""
-              }
             >
               Validate tree
             </Button>
