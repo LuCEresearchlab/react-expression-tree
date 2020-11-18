@@ -86,6 +86,7 @@ const treeEditorReducer = (state = initialState, action) => {
             y: action.payload.y,
             width: action.payload.width,
             type: action.payload.type,
+            isFinal: action.payload.isFinal,
           },
         ],
       };

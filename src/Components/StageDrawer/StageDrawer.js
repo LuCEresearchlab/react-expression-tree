@@ -655,12 +655,12 @@ function StageDrawer({
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
                 represented by the special {connectorPlaceholder} character
-                combination.
+                combination. Final nodes can't be modified or removed.
               </Typography>
             </Popover>
           </div>
         </div>
-        {selectedNode ? (
+        {selectedNode && !selectedNode.isFinal ? (
           <>
             <div className={classes.toolbarField}>
               <TextField

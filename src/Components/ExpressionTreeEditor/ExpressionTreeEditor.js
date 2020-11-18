@@ -87,7 +87,7 @@ function ExpressionTreeEditor({
     // Register (and later unregister) keydown listener
     const delListener = function (e) {
       if (e.key === "Backspace" || e.key === "Delete") {
-        if (selectedNode !== null) {
+        if (selectedNode !== null && !selectedNode.isFinal) {
           clearNodeSelection();
           removeNode({ nodeId: selectedNode.id });
         } else if (selectedEdge !== null) {
@@ -335,6 +335,7 @@ function ExpressionTreeEditor({
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
         type: "",
+        isFinal: false,
       });
       clearAdding();
     } else {
@@ -361,6 +362,7 @@ function ExpressionTreeEditor({
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
         type: "",
+        isFinal: false,
       });
       clearAdding();
     } else {
@@ -373,19 +375,23 @@ function ExpressionTreeEditor({
       }
       if (selectedNode === null) {
         selectNode({ selectedNode: selectingNode });
-        document.getElementById("editField").value = selectingNode.pieces.join(
-          ""
-        );
-        editValueChange({ editValue: [] });
-        typeValueChange({ typeValue: selectingNode.type });
-      } else {
-        if (selectedNode.id !== selectingNode.id) {
-          selectNode({ selectedNode: selectingNode });
+        if (!selectingNode.isFinal) {
           document.getElementById(
             "editField"
           ).value = selectingNode.pieces.join("");
           editValueChange({ editValue: [] });
           typeValueChange({ typeValue: selectingNode.type });
+        }
+      } else {
+        if (selectedNode.id !== selectingNode.id) {
+          selectNode({ selectedNode: selectingNode });
+          if (!selectingNode.isFinal) {
+            document.getElementById(
+              "editField"
+            ).value = selectingNode.pieces.join("");
+            editValueChange({ editValue: [] });
+            typeValueChange({ typeValue: selectingNode.type });
+          }
         }
       }
     }
@@ -412,6 +418,7 @@ function ExpressionTreeEditor({
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
         type: "",
+        isFinal: false,
       });
       clearAdding();
     } else {
@@ -595,6 +602,7 @@ function ExpressionTreeEditor({
               setSelectedEdgeRef={setSelectedEdgeRef}
               editValueChange={editValueChange}
               typeValueChange={typeValueChange}
+              isFinal={node.isFinal}
             />
           ))}
           {dragEdge && (

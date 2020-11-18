@@ -41,6 +41,7 @@ function Node({
   editValueChange,
   typeValueChange,
   clearNodeSelection,
+  isFinal,
 }) {
   const nodeRef = useRef();
 
@@ -56,14 +57,20 @@ function Node({
     e.currentTarget.moveToTop();
     setDraggingNode(true);
     const selectingNode = nodeById(id, nodes);
-    selectNode({ selectedNode: selectingNode });
-    document.getElementById("editField").value = selectingNode.pieces.join("");
-    editValueChange({ editValue: [] });
-    typeValueChange({ typeValue: selectingNode.type });
-    if (selectedEdgeRef !== null) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-      clearEdgeSelection();
+    if (!isSelected) {
+      selectNode({ selectedNode: selectingNode });
+      if (!selectingNode.isFinal) {
+        document.getElementById("editField").value = selectingNode.pieces.join(
+          ""
+        );
+        editValueChange({ editValue: [] });
+        typeValueChange({ typeValue: selectingNode.type });
+      }
+      if (selectedEdgeRef !== null) {
+        selectedEdgeRef.moveToBottom();
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
+      }
     }
   };
 
@@ -197,7 +204,7 @@ function Node({
         y={0}
         width={nodeWidth}
         height={nodeHeight}
-        fill={isSelected ? "#3f50b5" : "#208020"}
+        fill={isFinal ? "#208080" : isSelected ? "#3f50b5" : "#208020"}
         stroke="black"
         strokeWidth={isSelected ? 2 : 1}
         cornerRadius={5}
@@ -306,25 +313,29 @@ function Node({
           />
         )
       )}
-      <Text
-        x={nodeWidth - xPad}
-        y={3}
-        fill="white"
-        fontFamily={fontFamily}
-        fontSize={fontSize / 2}
-        text="X"
-        onClick={e => handleRemoveClick(e)}
-        onMouseOver={e => {
-          e.cancelBubble = true;
-          e.target.fill("red");
-          e.target.draw();
-        }}
-        onMouseLeave={e => {
-          e.cancelBubble = true;
-          e.target.attrs.fill = "white";
-          e.target.draw();
-        }}
-      />
+      {!isFinal ? (
+        <Text
+          x={nodeWidth - xPad}
+          y={3}
+          fill="white"
+          fontFamily={fontFamily}
+          fontSize={fontSize / 2}
+          text="X"
+          onClick={e => handleRemoveClick(e)}
+          onMouseOver={e => {
+            e.cancelBubble = true;
+            e.target.fill("red");
+            e.target.draw();
+          }}
+          onMouseLeave={e => {
+            e.cancelBubble = true;
+            e.target.attrs.fill = "white";
+            e.target.draw();
+          }}
+        />
+      ) : (
+        <></>
+      )}
       <Label x={nodeWidth / 2} y={-fontSize / 4}>
         <Tag
           fill="#3f50b5"

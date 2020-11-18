@@ -28,61 +28,70 @@ function App() {
       ]}
       initialState={{
         initialNodes: [
-          { pieces: ["19"], x: 320, y: 40, type: "" },
-          { pieces: ["age"], x: 320, y: 95, type: "" },
+          { pieces: ["19"], x: 320, y: 40, type: "", isFinal: true },
+          { pieces: ["age"], x: 320, y: 95, type: "", isFinal: false },
           {
             pieces: ['"Hello World!"'],
             x: 320,
             y: 150,
             type: "",
+            isFinal: false,
           },
           {
             pieces: ["-", "{{}}"],
             x: 320,
             y: 205,
             type: "",
+            isFinal: false,
           },
           {
             pieces: ["{{}}", "<", "{{}}"],
             x: 320,
             y: 260,
             type: "",
+            isFinal: true,
           },
           {
             pieces: ["{{}}", "+", "{{}}"],
             x: 320,
             y: 315,
             type: "",
+            isFinal: false,
           },
           {
             pieces: ["(int)", "{{}}"],
             x: 320,
             y: 370,
             type: "",
+            isFinal: false,
           },
           {
             pieces: ["{{}}", "?", "{{}}", ":", "{{}}"],
             x: 320,
             y: 425,
             type: "",
+            isFinal: true,
           },
           {
             pieces: ["{{}}", ".length"],
             x: 320,
             y: 480,
             type: "",
+            isFinal: false,
           },
           {
             pieces: ["{{}}", ".length()"],
             x: 320,
             y: 535,
             type: "",
+            isFinal: false,
           },
           {
             pieces: ["{{}}", ".append(", "{{}}", ")"],
             x: 320,
             y: 590,
             type: "",
+            isFinal: false,
           },
         ],
         initialEdges: [
