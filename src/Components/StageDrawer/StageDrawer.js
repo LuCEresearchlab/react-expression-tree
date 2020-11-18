@@ -660,46 +660,50 @@ function StageDrawer({
             </Popover>
           </div>
         </div>
-        {selectedNode && !selectedNode.isFinal ? (
+        {selectedNode ? (
           <>
-            <div className={classes.toolbarField}>
-              <TextField
-                key={selectedNode.id}
-                id="editField"
-                variant="outlined"
-                type="search"
-                fullWidth
-                size="medium"
-                placeholder={
-                  "ex: " +
-                  connectorPlaceholder +
-                  ".append(" +
-                  connectorPlaceholder +
-                  ")"
-                }
-                margin="dense"
-                onChange={e => handleEditChange(e.target.value)}
-                onKeyPress={e => {
-                  if (e.key === "Enter" && editValue.length !== 0) {
-                    handleNodeEdit();
+            {!selectedNode.isFinal ? (
+              <div className={classes.toolbarField}>
+                <TextField
+                  key={selectedNode.id}
+                  id="editField"
+                  variant="outlined"
+                  type="search"
+                  fullWidth
+                  size="medium"
+                  placeholder={
+                    "ex: " +
+                    connectorPlaceholder +
+                    ".append(" +
+                    connectorPlaceholder +
+                    ")"
                   }
-                }}
-              ></TextField>
-              <div>
-                <Tooltip title={"Update node"} placement="top">
-                  <span>
-                    <IconButton
-                      size="medium"
-                      onClick={() => handleNodeEdit()}
-                      disabled={isEditEmpty}
-                      color="primary"
-                    >
-                      <UpdateRoundedIcon />
-                    </IconButton>
-                  </span>
-                </Tooltip>
+                  margin="dense"
+                  onChange={e => handleEditChange(e.target.value)}
+                  onKeyPress={e => {
+                    if (e.key === "Enter" && editValue.length !== 0) {
+                      handleNodeEdit();
+                    }
+                  }}
+                ></TextField>
+                <div>
+                  <Tooltip title={"Update node"} placement="top">
+                    <span>
+                      <IconButton
+                        size="medium"
+                        onClick={() => handleNodeEdit()}
+                        disabled={isEditEmpty}
+                        color="primary"
+                      >
+                        <UpdateRoundedIcon />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </div>
               </div>
-            </div>
+            ) : (
+              <></>
+            )}
             <div className={classes.typeField}>
               <FormLabel>Select the node type from the list:</FormLabel>
               <RadioGroup

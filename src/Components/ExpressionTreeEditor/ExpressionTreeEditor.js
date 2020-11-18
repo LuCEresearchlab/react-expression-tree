@@ -380,8 +380,8 @@ function ExpressionTreeEditor({
             "editField"
           ).value = selectingNode.pieces.join("");
           editValueChange({ editValue: [] });
-          typeValueChange({ typeValue: selectingNode.type });
         }
+        typeValueChange({ typeValue: selectingNode.type });
       } else {
         if (selectedNode.id !== selectingNode.id) {
           selectNode({ selectedNode: selectingNode });
@@ -390,8 +390,8 @@ function ExpressionTreeEditor({
               "editField"
             ).value = selectingNode.pieces.join("");
             editValueChange({ editValue: [] });
-            typeValueChange({ typeValue: selectingNode.type });
           }
+          typeValueChange({ typeValue: selectingNode.type });
         }
       }
     }

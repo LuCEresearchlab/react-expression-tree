@@ -64,8 +64,8 @@ function Node({
           ""
         );
         editValueChange({ editValue: [] });
-        typeValueChange({ typeValue: selectingNode.type });
       }
+      typeValueChange({ typeValue: selectingNode.type });
       if (selectedEdgeRef !== null) {
         selectedEdgeRef.moveToBottom();
         setSelectedEdgeRef(null);
