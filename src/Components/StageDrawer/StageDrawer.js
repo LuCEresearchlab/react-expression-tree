@@ -16,6 +16,9 @@ import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
 import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ViewModuleRoundedIcon from "@material-ui/icons/ViewModuleRounded";
+import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded";
+import ArrowForwardRoundedIcon from "@material-ui/icons/ArrowForwardRounded";
+import ClearRoundedIcon from "@material-ui/icons/ClearRounded";
 import {
   Drawer,
   IconButton,
@@ -40,7 +43,7 @@ import {
   DialogTitle,
   Snackbar,
 } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
+import { Alert, AlertTitle } from "@material-ui/lab";
 import { computeNodeWidth, edgeByParentPiece, nodeById } from "../../utils.js";
 
 const drawerWidth = 300;
@@ -188,6 +191,10 @@ function StageDrawer({
   const [orderAnchorEl, setOrderAnchorEl] = useState(null);
   const isOrderInfoOpen = !!orderAnchorEl;
   const [isResetWarnOpen, setIsResetWarnOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState(null);
+  const [currentError, setCurrentError] = useState(0);
+  const [isValidOpen, setIsValidOpen] = useState(false);
+  const [isInvalidOpen, setIsInvalidOpen] = useState(false);
 
   const handleAddChange = value => {
     clearAdding();
@@ -393,7 +400,7 @@ function StageDrawer({
           const childNode = nodeById(childEdges[0].childNodeId, nodes);
           if (visitedBranch.find(e => e === childNode.id) !== undefined) {
             errors.push({
-              type: "form error",
+              type: "structure error",
               problem: "loop",
               location: { from: node.id, to: childNode.id },
             });
@@ -401,7 +408,7 @@ function StageDrawer({
             return [errors, visitedBranch];
           } else if (visitedNodes.find(e => e === childNode.id) !== undefined) {
             errors.push({
-              type: "form error",
+              type: "structure error",
               problem: "multiple edge on single node connector",
               location: { from: node.id, to: childNode.id },
             });
@@ -417,7 +424,7 @@ function StageDrawer({
           }
         } else if (childEdges.length > 1) {
           errors.push({
-            type: "form error",
+            type: "structure error",
             problem: "multiple edge on single piece connector",
             location: { node: node.id, piece: i },
           });
@@ -445,6 +452,13 @@ function StageDrawer({
       errors
     );
     console.log(errors);
+    setValidationErrors(errors);
+    setCurrentError(0);
+    if (errors.length > 0) {
+      setIsInvalidOpen(true);
+    } else {
+      setIsValidOpen(true);
+    }
   };
 
   return (
@@ -472,6 +486,9 @@ function StageDrawer({
         }}
         BackdropProps={{ style: { position: "absolute" } }}
         container={document.getElementById("editorContainer")}
+        PaperProps={{
+          style: { border: "2px solid #3f50b5", borderRadius: "5px" },
+        }}
       >
         <DialogTitle>
           {"Are you sure you want to reset the editor state?"}
@@ -512,6 +529,95 @@ function StageDrawer({
       >
         <Alert severity="info" variant="standard">
           Freely position the node on the stage
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        style={{ position: "absolute" }}
+        open={isInvalidOpen}
+        onClose={(e, reason) => {
+          if (reason === "clickaway") {
+            setIsInvalidOpen(false);
+          }
+        }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <Alert
+          severity="error"
+          variant="standard"
+          action={
+            <>
+              <Tooltip title={"Previous Error"} placement="top">
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={() => setCurrentError(currentError - 1)}
+                    disabled={validationErrors !== null && currentError === 0}
+                  >
+                    <ArrowBackRoundedIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title={"Next Error"} placement="top">
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={() => setCurrentError(currentError + 1)}
+                    disabled={
+                      validationErrors !== null &&
+                      currentError === validationErrors.length - 1
+                    }
+                  >
+                    <ArrowForwardRoundedIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title={"Close alert"} placement="top">
+                <IconButton
+                  onClick={() => setIsInvalidOpen(false)}
+                  size="small"
+                >
+                  <ClearRoundedIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          }
+        >
+          <AlertTitle>
+            Invalid Tree (
+            {validationErrors !== null ? validationErrors.length : ""} error
+            {validationErrors !== null
+              ? validationErrors.length > 1
+                ? "s"
+                : ""
+              : ""}
+            )
+          </AlertTitle>
+          Error #{currentError + 1}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        style={{ position: "absolute" }}
+        open={isValidOpen}
+        onClose={(e, reason) => {
+          if (reason === "clickaway") {
+            setIsValidOpen(false);
+          }
+        }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <Alert
+          severity="success"
+          variant="standard"
+          action={
+            <Tooltip title={"Close alert"} placement="top">
+              <IconButton onClick={() => setIsValidOpen(false)} size="small">
+                <ClearRoundedIcon />
+              </IconButton>
+            </Tooltip>
+          }
+        >
+          <AlertTitle>Valid Tree (0 errors)</AlertTitle>
+          The selected tree is valid.
         </Alert>
       </Snackbar>
       <Drawer
