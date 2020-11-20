@@ -18,6 +18,7 @@ function App() {
     <ExpressionTreeEditor
       width={stageWidth}
       height={stageHeight}
+      allowStructuralErrors={true}
       connectorPlaceholder="{{}}"
       templateNodes={[
         "{{}}?{{}}:{{}}",
@@ -26,6 +27,7 @@ function App() {
         "-{{}}",
         "{{}}+{{}}",
       ]}
+      nodeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
       initialState={{
         initialNodes: [
           { pieces: ["19"], x: 320, y: 40, type: "", isFinal: true },
@@ -127,7 +129,6 @@ function App() {
           },
         ],
       }}
-      nodeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
     />
     //     <div style={{ height: "100px" }}>sdfadsfdas</div>
     //   </div>

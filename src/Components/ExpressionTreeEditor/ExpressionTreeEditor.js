@@ -57,6 +57,7 @@ function ExpressionTreeEditor({
   initialState,
   setInitialState,
   nodeTypes,
+  allowStructuralErrors,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -241,17 +242,27 @@ function ExpressionTreeEditor({
             (originalEdge.parentNodeId !== parentPiece.parentNodeId ||
               originalEdge.parentPieceId !== parentPiece.parentPieceId)
           ) {
-            document.body.style.cursor = "grab";
-            clearDragEdge();
-            setSelectedEdgeRef(null);
-            clearEdgeSelection();
-            const newEdge = {
-              childNodeId: originalEdge.childNodeId,
-              parentNodeId: parentPiece.parentNodeId,
-              parentPieceId: parentPiece.parentPieceId,
-              type: "",
-            };
-            updateEdge({ edgeId: originalEdge.id, newEdge: newEdge });
+            const foundEdges = edgeByParentPiece(
+              parentPiece.parentNodeId,
+              parentPiece.parentPieceId,
+              edges
+            );
+            if (
+              (foundEdges.length > 0 && allowStructuralErrors) ||
+              foundEdges.length === 0
+            ) {
+              document.body.style.cursor = "grab";
+              clearDragEdge();
+              setSelectedEdgeRef(null);
+              clearEdgeSelection();
+              const newEdge = {
+                childNodeId: originalEdge.childNodeId,
+                parentNodeId: parentPiece.parentNodeId,
+                parentPieceId: parentPiece.parentPieceId,
+                type: "",
+              };
+              updateEdge({ edgeId: originalEdge.id, newEdge: newEdge });
+            }
           } else if (!parentPiece) {
             document.body.style.cursor = "move";
             clearDragEdge();
@@ -264,14 +275,24 @@ function ExpressionTreeEditor({
             parentPiece &&
             dragEdge.childNodeId !== parentPiece.parentNodeId
           ) {
-            const newEdge = {
-              childNodeId: dragEdge.childNodeId,
-              parentNodeId: parentPiece.parentNodeId,
-              parentPieceId: parentPiece.parentPieceId,
-              type: "",
-            };
-            clearDragEdge();
-            addEdge({ edge: newEdge });
+            const foundEdges = edgeByParentPiece(
+              parentPiece.parentNodeId,
+              parentPiece.parentPieceId,
+              edges
+            );
+            if (
+              (foundEdges.length > 0 && allowStructuralErrors) ||
+              foundEdges.length === 0
+            ) {
+              const newEdge = {
+                childNodeId: dragEdge.childNodeId,
+                parentNodeId: parentPiece.parentNodeId,
+                parentPieceId: parentPiece.parentPieceId,
+                type: "",
+              };
+              clearDragEdge();
+              addEdge({ edge: newEdge });
+            }
           }
         }
       } else {
@@ -287,17 +308,23 @@ function ExpressionTreeEditor({
             childNodeId !== originalEdge.parentNodeId &&
             originalEdge.childNodeId !== childNodeId
           ) {
-            document.body.style.cursor = "grab";
-            clearDragEdge();
-            setSelectedEdgeRef(null);
-            clearEdgeSelection();
-            const newEdge = {
-              parentNodeId: originalEdge.parentNodeId,
-              parentPieceId: originalEdge.parentPieceId,
-              childNodeId: childNodeId,
-              type: "",
-            };
-            updateEdge({ edgeId: dragEdge.originalEdgeId, newEdge: newEdge });
+            const foundEdges = edgeByChildNode(childNodeId, edges);
+            if (
+              (foundEdges.length > 0 && allowStructuralErrors) ||
+              foundEdges.length === 0
+            ) {
+              document.body.style.cursor = "grab";
+              clearDragEdge();
+              setSelectedEdgeRef(null);
+              clearEdgeSelection();
+              const newEdge = {
+                parentNodeId: originalEdge.parentNodeId,
+                parentPieceId: originalEdge.parentPieceId,
+                childNodeId: childNodeId,
+                type: "",
+              };
+              updateEdge({ edgeId: dragEdge.originalEdgeId, newEdge: newEdge });
+            }
           } else if (!childNodeId) {
             document.body.style.cursor = "move";
             clearDragEdge();
@@ -306,15 +333,21 @@ function ExpressionTreeEditor({
           }
         } else {
           if (childNodeId && dragEdge.parentNodeId !== childNodeId) {
-            document.body.style.cursor = "grab";
-            const newEdge = {
-              parentNodeId: dragEdge.parentNodeId,
-              parentPieceId: dragEdge.parentPieceId,
-              childNodeId: childNodeId,
-              type: "",
-            };
-            clearDragEdge();
-            addEdge({ edge: newEdge });
+            const foundEdges = edgeByChildNode(childNodeId, edges);
+            if (
+              (foundEdges.length > 0 && allowStructuralErrors) ||
+              foundEdges.length === 0
+            ) {
+              document.body.style.cursor = "grab";
+              const newEdge = {
+                parentNodeId: dragEdge.parentNodeId,
+                parentPieceId: dragEdge.parentPieceId,
+                childNodeId: childNodeId,
+                type: "",
+              };
+              clearDragEdge();
+              addEdge({ edge: newEdge });
+            }
           }
         }
       }
