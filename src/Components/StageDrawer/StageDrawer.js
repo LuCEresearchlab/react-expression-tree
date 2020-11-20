@@ -613,33 +613,30 @@ function StageDrawer({
             error
             {validationErrors ? (validationErrors.length > 1 ? "s" : "") : ""})
           </AlertTitle>
-          <Typography variant="body2">
+          <Typography variant="body2" paragraph>
             <b>Error #{currentError + 1}</b>
           </Typography>
-          <p>
-            <Typography variant="body2">
-              <b>Error type: </b>
-            </Typography>
-            <Typography variant="body2">
-              {validationErrors && validationErrors[currentError].type}
-            </Typography>
-          </p>
-          <p>
-            <Typography variant="body2">
-              <b>Error description: </b>
-            </Typography>
-            <Typography variant="body2">
-              {validationErrors && validationErrors[currentError].problem}
-            </Typography>
-          </p>
-          <p>
-            <Typography variant="body2">
-              <b>Error location: </b>
-            </Typography>
-            <Typography variant="body2">
-              {validationErrors && validationErrors[currentError].location}
-            </Typography>
-          </p>
+
+          <Typography variant="body2">
+            <b>Error type: </b>
+          </Typography>
+          <Typography variant="body2" paragraph>
+            {validationErrors && validationErrors[currentError].type}
+          </Typography>
+
+          <Typography variant="body2">
+            <b>Error description: </b>
+          </Typography>
+          <Typography variant="body2" paragraph>
+            {validationErrors && validationErrors[currentError].problem}
+          </Typography>
+
+          <Typography variant="body2">
+            <b>Error location: </b>
+          </Typography>
+          <Typography variant="body2">
+            {validationErrors && validationErrors[currentError].location}
+          </Typography>
         </Alert>
       </Snackbar>
       <Snackbar
