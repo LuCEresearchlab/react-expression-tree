@@ -469,7 +469,6 @@ function StageDrawer({
       visitedBranch,
       errors
     );
-    console.log(errors);
     if (errors.length > 0) {
       setValidationErrors(errors);
       setCurrentError(0);
@@ -570,7 +569,7 @@ function StageDrawer({
                     <span>
                       <IconButton
                         size="medium"
-                        color="secondary"
+                        color="inherit"
                         onClick={() => setCurrentError(currentError - 1)}
                         disabled={validationErrors && currentError === 0}
                       >
@@ -582,7 +581,7 @@ function StageDrawer({
                     <span>
                       <IconButton
                         size="medium"
-                        color="secondary"
+                        color="inherit"
                         onClick={() => setCurrentError(currentError + 1)}
                         disabled={
                           validationErrors &&
@@ -601,7 +600,7 @@ function StageDrawer({
                 <IconButton
                   onClick={() => setIsInvalidOpen(false)}
                   size="medium"
-                  color="secondary"
+                  color="inherit"
                 >
                   <ClearRoundedIcon />
                 </IconButton>
@@ -658,7 +657,11 @@ function StageDrawer({
           variant="standard"
           action={
             <Tooltip title={"Close alert"} placement="top">
-              <IconButton onClick={() => setIsValidOpen(false)} size="medium">
+              <IconButton
+                onClick={() => setIsValidOpen(false)}
+                size="medium"
+                color="inherit"
+              >
                 <ClearRoundedIcon />
               </IconButton>
             </Tooltip>
