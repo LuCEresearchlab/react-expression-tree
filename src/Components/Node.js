@@ -66,7 +66,7 @@ function Node({
         editValueChange({ editValue: [] });
       }
       typeValueChange({ typeValue: selectingNode.type });
-      if (selectedEdgeRef !== null) {
+      if (selectedEdgeRef) {
         selectedEdgeRef.moveToBottom();
         setSelectedEdgeRef(null);
         clearEdgeSelection();
@@ -103,7 +103,7 @@ function Node({
 
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
-    if (selectedEdgeRef !== null) {
+    if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
       clearEdgeSelection();
@@ -122,7 +122,7 @@ function Node({
 
   const handlePieceConnectorDragStart = (e, nodeId) => {
     e.cancelBubble = true; // prevent onDragStart of Group
-    if (selectedEdgeRef !== null) {
+    if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
       clearEdgeSelection();
@@ -169,7 +169,7 @@ function Node({
 
   const handleRemoveClick = e => {
     document.body.style.cursor = "move";
-    if (selectedEdgeRef !== null) {
+    if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
       clearEdgeSelection();

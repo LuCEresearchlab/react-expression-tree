@@ -139,6 +139,7 @@ const useStyles = makeStyles(theme => ({
     overflowY: "scroll",
     borderRadius: "3px",
     marginTop: "10px",
+    paddingTop: "10px",
     padding: "5px 20px 5px 20px",
     boxShadow: "0 0 1px 1px #ddd",
   },
@@ -251,9 +252,9 @@ function StageDrawer({
   };
 
   const handleStateDownload = () => {
-    if (selectedNode !== null) {
+    if (selectedNode) {
       clearNodeSelection();
-    } else if (selectedEdgeRef !== null) {
+    } else if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
       clearEdgeSelection();
@@ -310,7 +311,7 @@ function StageDrawer({
 
   const handleUndo = () => {
     dispatch(ActionCreators.undo());
-    if (selectedEdgeRef !== null) {
+    if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
     }
@@ -320,7 +321,7 @@ function StageDrawer({
 
   const handleRedo = () => {
     dispatch(ActionCreators.redo());
-    if (selectedEdgeRef !== null) {
+    if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
     }
@@ -335,7 +336,7 @@ function StageDrawer({
       initialEdges: initialState.initialEdges,
       connectorPlaceholder: connectorPlaceholder,
     });
-    if (selectedEdgeRef !== null) {
+    if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
     }
@@ -385,10 +386,11 @@ function StageDrawer({
     visitedNodes.push(node.id);
     visitedBranch.push(node.id);
     if (node.type === "") {
+      const location = "Node ID: " + node.id;
       errors.push({
-        type: "completeness error",
-        problem: "missing node type",
-        location: node.id,
+        type: "Completeness error",
+        problem: "Missing node type",
+        location: location,
       });
     }
     var connectorNum = 0;
@@ -399,18 +401,32 @@ function StageDrawer({
         if (childEdges.length === 1) {
           const childNode = nodeById(childEdges[0].childNodeId, nodes);
           if (visitedBranch.find(e => e === childNode.id) !== undefined) {
+            const location =
+              " From node: " +
+              childNode.id +
+              ", to node: " +
+              node.id +
+              ", connector: " +
+              connectorNum;
             errors.push({
-              type: "structure error",
-              problem: "loop",
-              location: { from: node.id, to: childNode.id },
+              type: "Structure error",
+              problem: "Loop detected",
+              location: location,
             });
             visitedBranch.pop();
             return [errors, visitedBranch];
           } else if (visitedNodes.find(e => e === childNode.id) !== undefined) {
+            const location =
+              " From node " +
+              childNode.id +
+              ", to node " +
+              node.id +
+              ", connector: " +
+              connectorNum;
             errors.push({
-              type: "structure error",
-              problem: "multiple edge on single node connector",
-              location: { from: node.id, to: childNode.id },
+              type: "Structure error",
+              problem: "Multiple edge on single node connector",
+              location: location,
             });
             visitedBranch.pop();
             return [errors, visitedBranch];
@@ -423,16 +439,18 @@ function StageDrawer({
             );
           }
         } else if (childEdges.length > 1) {
+          const location = "Node: " + node.id + ", connector: " + connectorNum;
           errors.push({
-            type: "structure error",
-            problem: "multiple edge on single piece connector",
-            location: { node: node.id, piece: i },
+            type: "Structure error",
+            problem: "Multiple edge on single piece connector",
+            location: location,
           });
         } else if (childEdges.length === 0) {
+          const location = "Node: " + node.id + ", connector: " + connectorNum;
           errors.push({
-            type: "completeness error",
-            problem: "empty connector",
-            location: { node: node.id, connector: connectorNum },
+            type: "Completeness error",
+            problem: "Empty connector",
+            location: location,
           });
         }
       }
@@ -452,9 +470,9 @@ function StageDrawer({
       errors
     );
     console.log(errors);
-    setValidationErrors(errors);
-    setCurrentError(0);
     if (errors.length > 0) {
+      setValidationErrors(errors);
+      setCurrentError(0);
       setIsInvalidOpen(true);
     } else {
       setIsValidOpen(true);
@@ -546,35 +564,44 @@ function StageDrawer({
           variant="standard"
           action={
             <>
-              <Tooltip title={"Previous Error"} placement="top">
-                <span>
-                  <IconButton
-                    size="small"
-                    onClick={() => setCurrentError(currentError - 1)}
-                    disabled={validationErrors !== null && currentError === 0}
-                  >
-                    <ArrowBackRoundedIcon />
-                  </IconButton>
-                </span>
-              </Tooltip>
-              <Tooltip title={"Next Error"} placement="top">
-                <span>
-                  <IconButton
-                    size="small"
-                    onClick={() => setCurrentError(currentError + 1)}
-                    disabled={
-                      validationErrors !== null &&
-                      currentError === validationErrors.length - 1
-                    }
-                  >
-                    <ArrowForwardRoundedIcon />
-                  </IconButton>
-                </span>
-              </Tooltip>
+              {validationErrors && validationErrors.length > 1 ? (
+                <>
+                  <Tooltip title={"Previous Error"} placement="top">
+                    <span>
+                      <IconButton
+                        size="medium"
+                        color="secondary"
+                        onClick={() => setCurrentError(currentError - 1)}
+                        disabled={validationErrors && currentError === 0}
+                      >
+                        <ArrowBackRoundedIcon />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                  <Tooltip title={"Next Error"} placement="top">
+                    <span>
+                      <IconButton
+                        size="medium"
+                        color="secondary"
+                        onClick={() => setCurrentError(currentError + 1)}
+                        disabled={
+                          validationErrors &&
+                          currentError === validationErrors.length - 1
+                        }
+                      >
+                        <ArrowForwardRoundedIcon />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </>
+              ) : (
+                <></>
+              )}
               <Tooltip title={"Close alert"} placement="top">
                 <IconButton
                   onClick={() => setIsInvalidOpen(false)}
-                  size="small"
+                  size="medium"
+                  color="secondary"
                 >
                   <ClearRoundedIcon />
                 </IconButton>
@@ -583,16 +610,37 @@ function StageDrawer({
           }
         >
           <AlertTitle>
-            Invalid Tree (
-            {validationErrors !== null ? validationErrors.length : ""} error
-            {validationErrors !== null
-              ? validationErrors.length > 1
-                ? "s"
-                : ""
-              : ""}
-            )
+            Invalid Tree ({validationErrors ? validationErrors.length : ""}{" "}
+            error
+            {validationErrors ? (validationErrors.length > 1 ? "s" : "") : ""})
           </AlertTitle>
-          Error #{currentError + 1}
+          <Typography variant="body2">
+            <b>Error #{currentError + 1}</b>
+          </Typography>
+          <p>
+            <Typography variant="body2">
+              <b>Error type: </b>
+            </Typography>
+            <Typography variant="body2">
+              {validationErrors && validationErrors[currentError].type}
+            </Typography>
+          </p>
+          <p>
+            <Typography variant="body2">
+              <b>Error description: </b>
+            </Typography>
+            <Typography variant="body2">
+              {validationErrors && validationErrors[currentError].problem}
+            </Typography>
+          </p>
+          <p>
+            <Typography variant="body2">
+              <b>Error location: </b>
+            </Typography>
+            <Typography variant="body2">
+              {validationErrors && validationErrors[currentError].location}
+            </Typography>
+          </p>
         </Alert>
       </Snackbar>
       <Snackbar
@@ -610,7 +658,7 @@ function StageDrawer({
           variant="standard"
           action={
             <Tooltip title={"Close alert"} placement="top">
-              <IconButton onClick={() => setIsValidOpen(false)} size="small">
+              <IconButton onClick={() => setIsValidOpen(false)} size="medium">
                 <ClearRoundedIcon />
               </IconButton>
             </Tooltip>
@@ -755,36 +803,40 @@ function StageDrawer({
             </Tooltip>
           </div>
         </div>
-        <div>
-          <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="body1">
-                  Or select a template node:
-                </Typography>
-              </AccordionSummary>
-              <Divider />
-              <div className={classes.templateContainer}>
-                {templateNodes.map((e, i) => (
-                  <AccordionDetails key={"template-" + i}>
-                    <Typography
-                      variant="h6"
-                      id={i}
-                      className={
-                        selectedTemplate === i
-                          ? classes.selectedTemplateElement
-                          : classes.templateElement
-                      }
-                      onClick={() => handleTemplateClick(e, i)}
-                    >
-                      {e}
-                    </Typography>
-                  </AccordionDetails>
-                ))}
-              </div>
-            </Accordion>
-          </AccordionActions>
-        </div>
+        {templateNodes.length > 0 ? (
+          <div>
+            <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="body1">
+                    Or select a template node:
+                  </Typography>
+                </AccordionSummary>
+                <Divider />
+                <div className={classes.templateContainer}>
+                  {templateNodes.map((e, i) => (
+                    <AccordionDetails key={"template-" + i}>
+                      <Typography
+                        variant="h6"
+                        id={i}
+                        className={
+                          selectedTemplate === i
+                            ? classes.selectedTemplateElement
+                            : classes.templateElement
+                        }
+                        onClick={() => handleTemplateClick(e, i)}
+                      >
+                        {e}
+                      </Typography>
+                    </AccordionDetails>
+                  ))}
+                </div>
+              </Accordion>
+            </AccordionActions>
+          </div>
+        ) : (
+          <></>
+        )}
         <Divider />
         <div className={classes.toolbarInfo}>
           <Typography variant="h6">Edit an existing node:</Typography>
@@ -863,6 +915,16 @@ function StageDrawer({
                 row
                 className={classes.typeButtonContainer}
               >
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => handleTypeChange("")}
+                  disabled={typeValue === ""}
+                  color="primary"
+                  startIcon={<ClearRoundedIcon />}
+                >
+                  Clear node type
+                </Button>
                 {nodeTypes.map(type => (
                   <FormControlLabel
                     key={type}

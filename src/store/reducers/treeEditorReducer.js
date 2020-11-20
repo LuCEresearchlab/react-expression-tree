@@ -101,7 +101,7 @@ const treeEditorReducer = (state = initialState, action) => {
             edge.childNodeId !== action.payload.nodeId
         ),
         selectedRootNode:
-          state.selectedRootNode !== null &&
+          state.selectedRootNode &&
           state.selectedRootNode.id === action.payload.nodeId
             ? null
             : state.selectedRootNode,
@@ -259,7 +259,7 @@ const treeEditorReducer = (state = initialState, action) => {
           type: action.payload.type,
         },
         selectedRootNode:
-          state.selectedRootNode !== null &&
+          state.selectedRootNode &&
           action.payload.selectedNodeId === state.selectedRootNode.id
             ? { ...state.selectedRootNode, type: action.payload.type }
             : state.selectedRootNode,
@@ -323,13 +323,12 @@ const treeEditorReducer = (state = initialState, action) => {
       var unconnectedCount = -1;
       var newNodes = [];
       var visitedNodes = [];
-      var currentLevelX =
-        state.selectedRootNode !== null
-          ? [action.payload.reorderStartingX - state.selectedRootNode.width / 2]
-          : [];
+      var currentLevelX = state.selectedRootNode
+        ? [action.payload.reorderStartingX - state.selectedRootNode.width / 2]
+        : [];
       var levelIndex = 0;
       var currentY = textHeight * 2;
-      if (state.selectedRootNode !== null) {
+      if (state.selectedRootNode) {
         [newNodes, currentLevelX] = orderWalk(
           state.selectedRootNode,
           action.payload.connectorPlaceholder,

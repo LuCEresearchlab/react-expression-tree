@@ -87,10 +87,10 @@ function ExpressionTreeEditor({
     // Register (and later unregister) keydown listener
     const delListener = function (e) {
       if (e.key === "Backspace" || e.key === "Delete") {
-        if (selectedNode !== null && !selectedNode.isFinal) {
+        if (selectedNode && !selectedNode.isFinal) {
           clearNodeSelection();
           removeNode({ nodeId: selectedNode.id });
-        } else if (selectedEdge !== null) {
+        } else if (selectedEdge) {
           setSelectedEdgeRef(null);
           clearEdgeSelection();
           removeEdge({ edgeId: selectedEdge.id });
@@ -101,9 +101,9 @@ function ExpressionTreeEditor({
       if (e.key === "Escape") {
         if (addingNode) {
           clearAdding();
-        } else if (selectedNode !== null) {
+        } else if (selectedNode) {
           clearNodeSelection();
-        } else if (selectedEdge !== null) {
+        } else if (selectedEdge) {
           selectedEdgeRef.moveToBottom();
           setSelectedEdgeRef(null);
           clearEdgeSelection();
@@ -233,7 +233,7 @@ function ExpressionTreeEditor({
           nodes,
           connectorPlaceholder
         );
-        if (dragEdge.originalEdgeId !== null) {
+        if (dragEdge.originalEdgeId) {
           const originalEdge = edgeById(dragEdge.originalEdgeId, edges);
           if (
             parentPiece &&
@@ -280,7 +280,7 @@ function ExpressionTreeEditor({
           (pointerPos.y - stagePos.y) / stageScale.y,
           nodes
         );
-        if (dragEdge.originalEdgeId !== null) {
+        if (dragEdge.originalEdgeId) {
           const originalEdge = edgeById(dragEdge.originalEdgeId, edges);
           if (
             childNodeId &&
@@ -339,10 +339,10 @@ function ExpressionTreeEditor({
       });
       clearAdding();
     } else {
-      if (selectedNode !== null) {
+      if (selectedNode) {
         clearNodeSelection();
       }
-      if (selectedEdge !== null) {
+      if (selectedEdge) {
         selectedEdgeRef.moveToBottom();
         setSelectedEdgeRef(null);
         clearEdgeSelection();
@@ -368,12 +368,12 @@ function ExpressionTreeEditor({
     } else {
       e.currentTarget.moveToTop();
       const selectingNode = nodeById(nodeId, nodes);
-      if (selectedEdge !== null) {
+      if (selectedEdge) {
         selectedEdgeRef.moveToBottom();
         setSelectedEdgeRef(null);
         clearEdgeSelection();
       }
-      if (selectedNode === null) {
+      if (!selectedNode) {
         selectNode({ selectedNode: selectingNode });
         if (!selectingNode.isFinal) {
           document.getElementById(
@@ -398,7 +398,7 @@ function ExpressionTreeEditor({
   };
 
   const handleNodeDblClick = nodeId => {
-    if (selectedRootNode !== null && selectedRootNode.id === nodeId) {
+    if (selectedRootNode && selectedRootNode.id === nodeId) {
       clearRootSelection();
     } else {
       const selectedRootNode = nodeById(nodeId, nodes);
@@ -423,10 +423,10 @@ function ExpressionTreeEditor({
       clearAdding();
     } else {
       e.cancelBubble = true;
-      if (selectedNode !== null) {
+      if (selectedNode) {
         clearNodeSelection();
       }
-      if (selectedEdge === null) {
+      if (!selectedEdge) {
         e.currentTarget.moveToTop();
         const selectingEdge = edgeById(edgeId, edges);
         setSelectedEdgeRef(e.currentTarget);
@@ -554,9 +554,7 @@ function ExpressionTreeEditor({
               onEdgeClick={e => handleEdgeClick(e, edge.id)}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
               onPieceConnectorDragStart={handlePieceConnectorDragStart}
-              selected={
-                selectedEdge !== null ? selectedEdge.id === edge.id : false
-              }
+              selected={selectedEdge ? selectedEdge.id === edge.id : false}
               parentNodeId={edge.parentNodeId}
               parentPieceId={edge.parentPieceId}
               childNodeId={edge.childNodeId}
@@ -577,13 +575,9 @@ function ExpressionTreeEditor({
               y={nodePositionById(node.id, nodes).y}
               nodeWidth={node.width}
               pieces={node.pieces}
-              isSelected={
-                selectedNode !== null ? selectedNode.id === node.id : false
-              }
+              isSelected={selectedNode ? selectedNode.id === node.id : false}
               isSelectedRoot={
-                selectedRootNode !== null
-                  ? selectedRootNode.id === node.id
-                  : false
+                selectedRootNode ? selectedRootNode.id === node.id : false
               }
               type={node.type}
               stageWidth={width}
