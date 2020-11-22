@@ -89,6 +89,11 @@ export const typeValueChange = payload => ({
   payload,
 });
 
+export const nodeValueChange = payload => ({
+  type: "nodeValueChange",
+  payload,
+});
+
 export const selectEdge = payload => ({
   type: "selectEdge",
   payload,
@@ -100,6 +105,11 @@ export const clearEdgeSelection = () => ({
 
 export const nodeTypeEdit = payload => ({
   type: "nodeTypeEdit",
+  payload,
+});
+
+export const nodeValueEdit = payload => ({
+  type: "nodeValueEdit",
   payload,
 });
 

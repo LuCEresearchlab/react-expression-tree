@@ -30,13 +30,21 @@ function App() {
       nodeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
       initialState={{
         initialNodes: [
-          { pieces: ["19"], x: 320, y: 40, type: "", isFinal: true },
-          { pieces: ["age"], x: 320, y: 95, type: "", isFinal: false },
+          { pieces: ["19"], x: 320, y: 40, type: "", value: "", isFinal: true },
+          {
+            pieces: ["age"],
+            x: 320,
+            y: 95,
+            type: "",
+            value: "",
+            isFinal: false,
+          },
           {
             pieces: ['"Hello World!"'],
             x: 320,
             y: 150,
             type: "",
+            value: "",
             isFinal: false,
           },
           {
@@ -44,6 +52,7 @@ function App() {
             x: 320,
             y: 205,
             type: "",
+            value: "",
             isFinal: false,
           },
           {
@@ -51,6 +60,7 @@ function App() {
             x: 320,
             y: 260,
             type: "",
+            value: "",
             isFinal: true,
           },
           {
@@ -58,6 +68,7 @@ function App() {
             x: 320,
             y: 315,
             type: "",
+            value: "",
             isFinal: false,
           },
           {
@@ -65,6 +76,7 @@ function App() {
             x: 320,
             y: 370,
             type: "",
+            value: "",
             isFinal: false,
           },
           {
@@ -72,6 +84,7 @@ function App() {
             x: 320,
             y: 425,
             type: "",
+            value: "",
             isFinal: true,
           },
           {
@@ -79,6 +92,7 @@ function App() {
             x: 320,
             y: 480,
             type: "",
+            value: "",
             isFinal: false,
           },
           {
@@ -86,6 +100,7 @@ function App() {
             x: 320,
             y: 535,
             type: "",
+            value: "",
             isFinal: false,
           },
           {
@@ -93,6 +108,7 @@ function App() {
             x: 320,
             y: 590,
             type: "",
+            value: "",
             isFinal: false,
           },
         ],

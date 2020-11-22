@@ -86,6 +86,7 @@ const treeEditorReducer = (state = initialState, action) => {
             y: action.payload.y,
             width: action.payload.width,
             type: action.payload.type,
+            value: action.payload.value,
             isFinal: action.payload.isFinal,
           },
         ],
@@ -264,6 +265,27 @@ const treeEditorReducer = (state = initialState, action) => {
             ? { ...state.selectedRootNode, type: action.payload.type }
             : state.selectedRootNode,
       };
+    case "nodeValueEdit":
+      return {
+        ...state,
+        nodes: state.nodes.map(node =>
+          node.id === action.payload.selectedNodeId
+            ? {
+                ...node,
+                value: action.payload.value,
+              }
+            : node
+        ),
+        selectedNode: {
+          ...state.selectedNode,
+          value: action.payload.value,
+        },
+        selectedRootNode:
+          state.selectedRootNode &&
+          action.payload.selectedNodeId === state.selectedRootNode.id
+            ? { ...state.selectedRootNode, value: action.payload.value }
+            : state.selectedRootNode,
+      };
     case "stageReset":
       action.payload.initialNodes.map((node, i) => {
         node.width = computeNodeWidth(
@@ -388,6 +410,7 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "addValueChange" &&
       action.type !== "editValueChange" &&
       action.type !== "typeValueChange" &&
+      action.type !== "nodeValueChange" &&
       action.type !== "clearAdding" &&
       action.type !== "addingNodeClick" &&
       action.type !== "setInitialState"

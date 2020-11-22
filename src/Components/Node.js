@@ -36,10 +36,12 @@ function Node({
   edges,
   nodes,
   type,
+  value,
   selectedEdgeRef,
   setSelectedEdgeRef,
   editValueChange,
   typeValueChange,
+  nodeValueChange,
   clearNodeSelection,
   isFinal,
 }) {
@@ -63,9 +65,11 @@ function Node({
         document.getElementById("editField").value = selectingNode.pieces.join(
           ""
         );
-        editValueChange({ editValue: [] });
+        editValueChange({ editValue: selectingNode.pieces });
       }
       typeValueChange({ typeValue: selectingNode.type });
+      document.getElementById("valueField").value = selectingNode.value;
+      nodeValueChange({ nodeValue: selectingNode.value });
       if (selectedEdgeRef) {
         selectedEdgeRef.moveToBottom();
         setSelectedEdgeRef(null);
@@ -340,18 +344,18 @@ function Node({
         <Tag
           fill="#3f50b5"
           stroke="black"
-          strokeWidth={type !== "" ? 1 : 0}
+          strokeWidth={type !== "" || value !== "" ? 1 : 0}
           pointerDirection="down"
-          pointerWidth={type !== "" ? fontSize / 3 : 0}
-          pointerHeight={type !== "" ? fontSize / 4 : 0}
+          pointerWidth={type !== "" || value !== "" ? fontSize / 3 : 0}
+          pointerHeight={type !== "" || value !== "" ? fontSize / 4 : 0}
           cornerRadius={3}
         />
         <Text
           fill="white"
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
-          text={type}
-          padding={type !== "" ? 5 : 0}
+          text={type + (type !== "" || value !== "" ? ": " : "") + value}
+          padding={type !== "" || value !== "" ? 5 : 0}
         />
       </Label>
     </Group>

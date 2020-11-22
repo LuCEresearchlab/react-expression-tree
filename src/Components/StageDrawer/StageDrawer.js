@@ -157,6 +157,7 @@ function StageDrawer({
   addValueChange,
   editValueChange,
   typeValueChange,
+  nodeValueChange,
   clearAdding,
   clearEdgeSelection,
   clearNodeSelection,
@@ -165,6 +166,8 @@ function StageDrawer({
   editValue,
   typeValue,
   nodeTypeEdit,
+  nodeValue,
+  nodeValueEdit,
   stageReset,
   nodes,
   edges,
@@ -185,8 +188,10 @@ function StageDrawer({
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [nodeAnchorEl, setNodeAnchorEl] = useState(null);
-  const isNodeInfoOpen = !!nodeAnchorEl;
+  const [addAnchorEl, setAddAnchorEl] = useState(null);
+  const isAddInfoOpen = !!addAnchorEl;
+  const [editAnchorEl, setEditAnchorEl] = useState(null);
+  const isEditInfoOpen = !!editAnchorEl;
   const [validationAnchorEl, setValidationAnchorEl] = useState(null);
   const isValidationInfoOpen = !!validationAnchorEl;
   const [orderAnchorEl, setOrderAnchorEl] = useState(null);
@@ -240,7 +245,6 @@ function StageDrawer({
       width: nodeWidth,
       selectedNodeId: selectedNode.id,
     });
-    editValueChange({ editValue: [] });
   };
 
   const handleTypeChange = value => {
@@ -348,6 +352,7 @@ function StageDrawer({
     addValueChange({ addValue: [] });
     editValueChange({ editValue: [] });
     typeValueChange({ typeValue: "" });
+    nodeValueChange({ nodeValue: "" });
     setSelectedTemplate(null);
     dispatch(ActionCreators.clearHistory());
   };
@@ -390,6 +395,14 @@ function StageDrawer({
       errors.push({
         type: "Completeness error",
         problem: "Missing node type",
+        location: location,
+      });
+    }
+    if (node.value === "") {
+      const location = "Node ID: " + node.id;
+      errors.push({
+        type: "Completeness error",
+        problem: "Missing node value",
         location: location,
       });
     }
@@ -743,22 +756,23 @@ function StageDrawer({
           <div>
             <IconButton
               size="small"
-              onClick={e => setNodeAnchorEl(e.target)}
+              onClick={e => setAddAnchorEl(e.target)}
               color="primary"
             >
               <InfoOutlinedIcon />
             </IconButton>
             <Popover
               className={classes.infoPopover}
-              open={isNodeInfoOpen}
-              anchorEl={nodeAnchorEl}
+              open={isAddInfoOpen}
+              anchorEl={addAnchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={() => setNodeAnchorEl(null)}
+              onClose={() => setAddAnchorEl(null)}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
                 represented by the special {connectorPlaceholder} character
-                combination.
+                combination. Alternatively you can choose a template node from
+                the list below.
               </Typography>
             </Popover>
           </div>
@@ -770,6 +784,7 @@ function StageDrawer({
             variant="outlined"
             fullWidth
             size="medium"
+            label="Insert the node's pieces"
             placeholder={
               "ex: " +
               connectorPlaceholder +
@@ -843,22 +858,24 @@ function StageDrawer({
           <div>
             <IconButton
               size="small"
-              onClick={e => setNodeAnchorEl(e.target)}
+              onClick={e => setEditAnchorEl(e.target)}
               color="primary"
             >
               <InfoOutlinedIcon />
             </IconButton>
             <Popover
               className={classes.infoPopover}
-              open={isNodeInfoOpen}
-              anchorEl={nodeAnchorEl}
+              open={isEditInfoOpen}
+              anchorEl={editAnchorEl}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={() => setNodeAnchorEl(null)}
+              onClose={() => setEditAnchorEl(null)}
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Describe the node's pieces in the textfield below. Holes are
                 represented by the special {connectorPlaceholder} character
-                combination. Final nodes can't be modified or removed.
+                combination. Final nodes can't be modified or removed. Select
+                the node's out-coming type from the list below and insert the
+                node's out-coming value in the last textfield.
               </Typography>
             </Popover>
           </div>
@@ -874,6 +891,8 @@ function StageDrawer({
                   type="search"
                   fullWidth
                   size="medium"
+                  autoFocus
+                  label="Insert the node's pieces"
                   placeholder={
                     "ex: " +
                     connectorPlaceholder +
@@ -884,7 +903,11 @@ function StageDrawer({
                   margin="dense"
                   onChange={e => handleEditChange(e.target.value)}
                   onKeyPress={e => {
-                    if (e.key === "Enter" && editValue.length !== 0) {
+                    if (
+                      e.key === "Enter" &&
+                      editValue.length !== 0 &&
+                      editValue.join("") !== selectedNode.pieces.join("")
+                    ) {
                       handleNodeEdit();
                     }
                   }}
@@ -895,7 +918,10 @@ function StageDrawer({
                       <IconButton
                         size="medium"
                         onClick={() => handleNodeEdit()}
-                        disabled={isEditEmpty}
+                        disabled={
+                          isEditEmpty ||
+                          editValue.join("") === selectedNode.pieces.join("")
+                        }
                         color="primary"
                       >
                         <UpdateRoundedIcon />
@@ -936,6 +962,47 @@ function StageDrawer({
                 ))}
               </RadioGroup>
             </div>
+            <div className={classes.toolbarField}>
+              <TextField
+                key={selectedNode.id}
+                id="valueField"
+                variant="outlined"
+                type="search"
+                fullWidth
+                size="medium"
+                placeholder={"ex: 1234567890"}
+                margin="dense"
+                label="Insert the node's value"
+                onChange={e => nodeValueChange({ nodeValue: e.target.value })}
+                onKeyPress={e => {
+                  if (e.key === "Enter" && nodeValue !== selectedNode.value) {
+                    nodeValueEdit({
+                      value: nodeValue,
+                      selectedNodeId: selectedNode.id,
+                    });
+                  }
+                }}
+              ></TextField>
+              <div>
+                <Tooltip title={"Update node value"} placement="top">
+                  <span>
+                    <IconButton
+                      size="medium"
+                      onClick={() =>
+                        nodeValueEdit({
+                          value: nodeValue,
+                          selectedNodeId: selectedNode.id,
+                        })
+                      }
+                      disabled={nodeValue === selectedNode.value}
+                      color="primary"
+                    >
+                      <UpdateRoundedIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </div>
+            </div>
           </>
         ) : (
           <Typography className={classes.editText}>
@@ -962,7 +1029,8 @@ function StageDrawer({
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Reorder the nodes on stage. If a root node is selected, the
-                nodes connected to it will be ordered as a tree.
+                nodes connected to it will be ordered as a tree, otherwise they
+                will be ordered in rows.
               </Typography>
             </Popover>
           </div>
@@ -998,9 +1066,7 @@ function StageDrawer({
             >
               <Typography className={classes.infoPopoverText} variant="body2">
                 Validate a tree starting from a root node. Double click a node
-                to select it as root node. After the root node has been
-                selected, choose its out-coming type and click on the validation
-                button to vaildate the tree.
+                to select it as root node.
               </Typography>
             </Popover>
           </div>

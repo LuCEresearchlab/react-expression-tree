@@ -47,6 +47,7 @@ function ExpressionTreeEditor({
   addValue,
   editValueChange,
   typeValueChange,
+  nodeValueChange,
   clearAdding,
   selectEdge,
   clearEdgeSelection,
@@ -368,6 +369,7 @@ function ExpressionTreeEditor({
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
         type: "",
+        value: "",
         isFinal: false,
       });
       clearAdding();
@@ -395,6 +397,7 @@ function ExpressionTreeEditor({
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
         type: "",
+        value: "",
         isFinal: false,
       });
       clearAdding();
@@ -412,9 +415,11 @@ function ExpressionTreeEditor({
           document.getElementById(
             "editField"
           ).value = selectingNode.pieces.join("");
-          editValueChange({ editValue: [] });
+          editValueChange({ editValue: selectingNode.pieces });
         }
         typeValueChange({ typeValue: selectingNode.type });
+        document.getElementById("valueField").value = selectingNode.value;
+        nodeValueChange({ nodeValue: selectingNode.value });
       } else {
         if (selectedNode.id !== selectingNode.id) {
           selectNode({ selectedNode: selectingNode });
@@ -422,9 +427,11 @@ function ExpressionTreeEditor({
             document.getElementById(
               "editField"
             ).value = selectingNode.pieces.join("");
-            editValueChange({ editValue: [] });
+            editValueChange({ editValue: selectingNode.pieces });
           }
           typeValueChange({ typeValue: selectingNode.type });
+          document.getElementById("valueField").value = selectingNode.value;
+          nodeValueChange({ nodeValue: selectingNode.value });
         }
       }
     }
@@ -451,6 +458,7 @@ function ExpressionTreeEditor({
         y: (pointerPos.y - stagePos.y) / stageScale.y,
         width: nodeWidth,
         type: "",
+        value: "",
         isFinal: false,
       });
       clearAdding();
@@ -613,6 +621,7 @@ function ExpressionTreeEditor({
                 selectedRootNode ? selectedRootNode.id === node.id : false
               }
               type={node.type}
+              value={node.value}
               stageWidth={width}
               stageHeight={height}
               moveNodeTo={moveNodeTo}
@@ -629,6 +638,7 @@ function ExpressionTreeEditor({
               setSelectedEdgeRef={setSelectedEdgeRef}
               editValueChange={editValueChange}
               typeValueChange={typeValueChange}
+              nodeValueChange={nodeValueChange}
               isFinal={node.isFinal}
             />
           ))}
