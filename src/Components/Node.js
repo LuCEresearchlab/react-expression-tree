@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Rect, Text, Group, Circle, Star, Label, Tag } from "react-konva";
 import {
   xPad,
@@ -33,6 +33,7 @@ function Node({
   isSelectedRoot,
   nodeWidth,
   stageRef,
+  transformerRef,
   edges,
   nodes,
   type,
@@ -44,9 +45,9 @@ function Node({
   nodeValueChange,
   clearNodeSelection,
   isFinal,
+  pressingMeta,
+  draggingSelectionRect,
 }) {
-  const nodeRef = useRef();
-
   // keep track
   // to prevent onMoveNode() notifications
   // when we don't drag the node itself but drag from a connector
@@ -56,25 +57,30 @@ function Node({
   const piecesPos = computePiecesPositions(pieces, connectorPlaceholder);
 
   const handleDragStart = e => {
-    e.currentTarget.moveToTop();
-    setDraggingNode(true);
-    const selectingNode = nodeById(id, nodes);
-    if (!isSelected) {
-      selectNode({ selectedNode: selectingNode });
-      if (!selectingNode.isFinal) {
-        document.getElementById("editField").value = selectingNode.pieces.join(
-          ""
-        );
-        editValueChange({ editValue: selectingNode.pieces });
+    if (!pressingMeta) {
+      transformerRef.current.nodes([]);
+      e.currentTarget.moveToTop();
+      setDraggingNode(true);
+      const selectingNode = nodeById(id, nodes);
+      if (!isSelected) {
+        selectNode({ selectedNode: selectingNode });
+        if (!selectingNode.isFinal) {
+          document.getElementById(
+            "editField"
+          ).value = selectingNode.pieces.join("");
+          editValueChange({ editValue: selectingNode.pieces });
+        }
+        typeValueChange({ typeValue: selectingNode.type });
+        document.getElementById("valueField").value = selectingNode.value;
+        nodeValueChange({ nodeValue: selectingNode.value });
+        if (selectedEdgeRef) {
+          selectedEdgeRef.moveToBottom();
+          setSelectedEdgeRef(null);
+          clearEdgeSelection();
+        }
       }
-      typeValueChange({ typeValue: selectingNode.type });
-      document.getElementById("valueField").value = selectingNode.value;
-      nodeValueChange({ nodeValue: selectingNode.value });
-      if (selectedEdgeRef) {
-        selectedEdgeRef.moveToBottom();
-        setSelectedEdgeRef(null);
-        clearEdgeSelection();
-      }
+    } else {
+      e.target.stopDrag();
     }
   };
 
@@ -101,54 +107,67 @@ function Node({
   };
 
   const handleNodeClick = e => {
-    e.cancelBubble = true;
-    onNodeClick(e);
+    if (!pressingMeta) {
+      e.cancelBubble = true;
+      transformerRef.current.nodes([]);
+      onNodeClick(e);
+    }
   };
 
   const handleNodeConnectorDragStart = e => {
-    e.cancelBubble = true; // prevent onDragStart of Group
-    if (selectedEdgeRef) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-      clearEdgeSelection();
+    if (!pressingMeta) {
+      e.cancelBubble = true; // prevent onDragStart of Group
+      transformerRef.current.nodes([]);
+      if (selectedEdgeRef) {
+        selectedEdgeRef.moveToBottom();
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
+      }
+      document.body.style.cursor = "grabbing";
+      const nodeId = e.target.id();
+      // we don't want the connector to be moved
+      e.target.stopDrag();
+      // but we want to initiate the moving around of the connection
+      onNodeConnectorDragStart(
+        nodeId,
+        e.target.parent.x() + e.target.x(),
+        e.target.parent.y() + e.target.y()
+      );
+    } else {
+      e.target.stopDrag();
     }
-    document.body.style.cursor = "grabbing";
-    const nodeId = e.target.id();
-    // we don't want the connector to be moved
-    e.target.stopDrag();
-    // but we want to initiate the moving around of the connection
-    onNodeConnectorDragStart(
-      nodeId,
-      e.target.parent.x() + e.target.x(),
-      e.target.parent.y() + e.target.y()
-    );
   };
 
   const handlePieceConnectorDragStart = (e, nodeId) => {
-    e.cancelBubble = true; // prevent onDragStart of Group
-    if (selectedEdgeRef) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-      clearEdgeSelection();
+    if (!pressingMeta) {
+      e.cancelBubble = true; // prevent onDragStart of Group
+      transformerRef.current.nodes([]);
+      if (selectedEdgeRef) {
+        selectedEdgeRef.moveToBottom();
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
+      }
+      document.body.style.cursor = "grabbing";
+      const pieceId = e.target.id();
+      // const pos = e.target.absolutePosition();
+      // we don't want the connector to be moved
+      e.target.stopDrag();
+      // but we want to initiate the moving around of the connection
+      onPieceConnectorDragStart(
+        nodeId,
+        pieceId,
+        e.target.parent.parent.x() +
+          e.target.parent.x() +
+          e.target.x() +
+          holeWidth / 2,
+        e.target.parent.parent.y() +
+          e.target.parent.y() +
+          e.target.y() +
+          holeWidth * 0.75
+      );
+    } else {
+      e.target.stopDrag();
     }
-    document.body.style.cursor = "grabbing";
-    const pieceId = e.target.id();
-    // const pos = e.target.absolutePosition();
-    // we don't want the connector to be moved
-    e.target.stopDrag();
-    // but we want to initiate the moving around of the connection
-    onPieceConnectorDragStart(
-      nodeId,
-      pieceId,
-      e.target.parent.parent.x() +
-        e.target.parent.x() +
-        e.target.x() +
-        holeWidth / 2,
-      e.target.parent.parent.y() +
-        e.target.parent.y() +
-        e.target.y() +
-        holeWidth * 0.75
-    );
   };
 
   const checkDragBound = pos => {
@@ -172,6 +191,7 @@ function Node({
   };
 
   const handleRemoveClick = e => {
+    transformerRef.current.nodes([]);
     document.body.style.cursor = "move";
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
@@ -184,7 +204,6 @@ function Node({
 
   return (
     <Group
-      kind="Node"
       key={"Node-" + id}
       id={id}
       x={x}
@@ -202,7 +221,8 @@ function Node({
       }}
     >
       <Rect
-        kind="NodeRect"
+        name="Node"
+        id={id}
         key={"NodeRect-" + id}
         x={0}
         y={0}
@@ -216,7 +236,6 @@ function Node({
         shadowColor="black"
         shadowOffset={{ x: 3, y: 3 }}
         shadowBlur={3}
-        ref={nodeRef}
       />
       <Text
         x={3}
@@ -248,7 +267,6 @@ function Node({
         />
       ) : (
         <Circle
-          kind="NodeConnector"
           key={"NodeConnector-" + id}
           id={id}
           x={nodeWidth / 2}
@@ -306,7 +324,6 @@ function Node({
           </Group>
         ) : (
           <Text
-            kind="TextPiece"
             key={"TextPiece-" + i}
             x={xPad + piecesPos[i]}
             y={yPad}
@@ -327,14 +344,19 @@ function Node({
           text="X"
           onClick={e => handleRemoveClick(e)}
           onMouseOver={e => {
-            e.cancelBubble = true;
-            e.target.fill("red");
-            e.target.draw();
+            if (!draggingSelectionRect) {
+              e.cancelBubble = true;
+              document.body.style.cursor = "pointer";
+              e.target.fill("red");
+              e.target.draw();
+            }
           }}
           onMouseLeave={e => {
-            e.cancelBubble = true;
-            e.target.attrs.fill = "white";
-            e.target.draw();
+            if (!draggingSelectionRect) {
+              e.cancelBubble = true;
+              e.target.attrs.fill = "white";
+              e.target.draw();
+            }
           }}
         />
       ) : (
@@ -354,7 +376,7 @@ function Node({
           fill="white"
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
-          text={type + (type !== "" || value !== "" ? ": " : "") + value}
+          text={type + (type !== "" && value !== "" ? ": " : "") + value}
           padding={type !== "" || value !== "" ? 5 : 0}
         />
       </Label>

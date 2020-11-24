@@ -1,3 +1,4 @@
+import Konva from "konva";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ActionCreators } from "redux-undo";
@@ -5,7 +6,7 @@ import Node from "../Node.js";
 import Edge from "../Edge.js";
 import DragEdge from "../DragEdge.js";
 import StageDrawer from "../StageDrawer";
-import { Stage, Layer } from "react-konva";
+import { Stage, Layer, Rect, Transformer } from "react-konva";
 import {
   edgeByChildNode,
   computePiecesPositions,
@@ -59,14 +60,32 @@ function ExpressionTreeEditor({
   setInitialState,
   nodeTypes,
   allowStructuralErrors,
+  moveSelectedNodesTo,
+  moveSelectedNodesToEnd,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
   // (Konva doesn't provide key events).
   const stageRef = useRef();
+  const selectionRectRef = useRef();
+  const selectedRectRef = useRef();
+  const transformerRef = useRef();
+
   const dispatch = useDispatch();
 
   const [selectedEdgeRef, setSelectedEdgeRef] = useState(null);
+  const [pressingMeta, setPressingMeta] = useState(false);
+  const [draggingSelectionRect, setDraggingSelectionRect] = useState(false);
+  const [isSelectingRectVisible, setIsSelectingRectVisible] = useState(false);
+  const [isSelectedRectVisible, setIsSelectedRectVisible] = useState(false);
+  const [selectionRectStartPos, setSelectionRectStartPos] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [selectionRectEndPos, setSelectionRectEndPos] = useState({
+    x: 0,
+    y: 0,
+  });
 
   // Effects
   useEffect(() => {
@@ -87,7 +106,7 @@ function ExpressionTreeEditor({
     stage.container().tabIndex = 1;
     stage.container().focus();
     // Register (and later unregister) keydown listener
-    const delListener = function (e) {
+    const keyDownListener = function (e) {
       if (e.key === "Backspace" || e.key === "Delete") {
         if (selectedNode && !selectedNode.isFinal) {
           clearNodeSelection();
@@ -97,10 +116,7 @@ function ExpressionTreeEditor({
           clearEdgeSelection();
           removeEdge({ edgeId: selectedEdge.id });
         }
-      }
-    };
-    const escListener = function (e) {
-      if (e.key === "Escape") {
+      } else if (e.key === "Escape") {
         if (addingNode) {
           clearAdding();
         } else if (selectedNode) {
@@ -110,13 +126,47 @@ function ExpressionTreeEditor({
           setSelectedEdgeRef(null);
           clearEdgeSelection();
         }
+      } else if (
+        e.key === "Meta" ||
+        e.key === "Shift" ||
+        e.key === "Alt" ||
+        e.key === "Control"
+      ) {
+        document.body.style.cursor = "grab";
+        setPressingMeta(true);
       }
     };
-    stage.container().addEventListener("keydown", delListener);
-    stage.container().addEventListener("keydown", escListener);
+    const keyUpListener = function (e) {
+      if (
+        e.key === "Meta" ||
+        e.key === "Shift" ||
+        e.key === "Alt" ||
+        e.key === "Control"
+      ) {
+        document.body.style.cursor = "move";
+        setIsSelectingRectVisible(false);
+        setDraggingSelectionRect(false);
+        const allNodes = stageRef.current.find(".Node").toArray();
+        const box = selectionRectRef.current.getClientRect();
+        var intersectingNodes = allNodes.filter(node =>
+          Konva.Util.haveIntersection(box, node.getClientRect())
+        );
+        intersectingNodes.map(intersectingNode =>
+          intersectingNode.parent.moveToTop()
+        );
+        selectedRectRef.current.moveToTop();
+        transformerRef.current.nodes(intersectingNodes);
+        setIsSelectedRectVisible(true);
+        selectedRectRef.current.moveToTop();
+        setPressingMeta(false);
+      }
+    };
+    stage.container().addEventListener("keydown", keyDownListener);
+    stage.container().addEventListener("keyup", keyUpListener);
+
     return () => {
-      stage.container().removeEventListener("keydown", delListener);
-      stage.container().removeEventListener("keydown", escListener);
+      stage.container().removeEventListener("keydown", keyDownListener);
+      stage.container().removeEventListener("keyup", keyUpListener);
     };
   }, [
     addingNode,
@@ -132,7 +182,9 @@ function ExpressionTreeEditor({
   ]);
 
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
-    clearAdding();
+    if (addingNode) {
+      clearAdding();
+    }
     const edge = edgeByChildNode(nodeId, edges)[0];
     if (edge) {
       const parentPieceX = computePiecesPositions(
@@ -172,7 +224,9 @@ function ExpressionTreeEditor({
   };
 
   const handlePieceConnectorDragStart = (nodeId, pieceId, x, y) => {
-    clearAdding();
+    if (addingNode) {
+      clearAdding();
+    }
     const edge = edgeByParentPiece(nodeId, pieceId, edges)[0];
     if (edge) {
       const childPos = computeEdgeChildPos(edge.childNodeId, nodes);
@@ -219,6 +273,16 @@ function ExpressionTreeEditor({
           y: (pointerPos.y - stagePos.y) / stageScale.y,
         });
       }
+    }
+    if (draggingSelectionRect && pressingMeta) {
+      document.body.style.cursor = "grabbing";
+      const stagePos = stageRef.current.absolutePosition();
+      const pointerPos = stageRef.current.getPointerPosition();
+      const stageScale = stageRef.current.scale();
+      setSelectionRectEndPos({
+        x: (pointerPos.x - stagePos.x) / stageScale.x,
+        y: (pointerPos.y - stagePos.y) / stageScale.y,
+      });
     }
   };
 
@@ -271,7 +335,6 @@ function ExpressionTreeEditor({
             removeEdge({ edgeId: originalEdge.id });
           }
         } else {
-          document.body.style.cursor = "grab";
           if (
             parentPiece &&
             dragEdge.childNodeId !== parentPiece.parentNodeId
@@ -285,6 +348,7 @@ function ExpressionTreeEditor({
               (foundEdges.length > 0 && allowStructuralErrors) ||
               foundEdges.length === 0
             ) {
+              document.body.style.cursor = "grab";
               const newEdge = {
                 childNodeId: dragEdge.childNodeId,
                 parentNodeId: parentPiece.parentNodeId,
@@ -294,6 +358,8 @@ function ExpressionTreeEditor({
               clearDragEdge();
               addEdge({ edge: newEdge });
             }
+          } else {
+            document.body.style.cursor = "move";
           }
         }
       } else {
@@ -349,11 +415,29 @@ function ExpressionTreeEditor({
               clearDragEdge();
               addEdge({ edge: newEdge });
             }
+          } else {
+            document.body.style.cursor = "move";
           }
         }
       }
       clearDragEdge();
+    }
+    if (draggingSelectionRect && pressingMeta) {
       document.body.style.cursor = "move";
+      setIsSelectingRectVisible(false);
+      setDraggingSelectionRect(false);
+      const allNodes = stageRef.current.find(".Node").toArray();
+      const box = selectionRectRef.current.getClientRect();
+      var intersectingNodes = allNodes.filter(node =>
+        Konva.Util.haveIntersection(box, node.getClientRect())
+      );
+      intersectingNodes.map(intersectingNode =>
+        intersectingNode.parent.moveToTop()
+      );
+      selectedRectRef.current.moveToTop();
+      transformerRef.current.nodes(intersectingNodes);
+      setIsSelectedRectVisible(true);
+      selectedRectRef.current.moveToTop();
     }
   };
 
@@ -374,6 +458,8 @@ function ExpressionTreeEditor({
       });
       clearAdding();
     } else {
+      transformerRef.current.nodes([]);
+      setIsSelectedRectVisible(false);
       if (selectedNode) {
         clearNodeSelection();
       }
@@ -484,6 +570,28 @@ function ExpressionTreeEditor({
     }
   };
 
+  const handleStageMouseDown = e => {
+    if (pressingMeta) {
+      e.cancelBubble = true;
+      document.body.style.cursor = "grabbing";
+      const stagePos = stageRef.current.absolutePosition();
+      const pointerPos = stageRef.current.getPointerPosition();
+      const stageScale = stageRef.current.scale();
+      setSelectionRectStartPos({
+        x: (pointerPos.x - stagePos.x) / stageScale.x,
+        y: (pointerPos.y - stagePos.y) / stageScale.y,
+      });
+      setSelectionRectEndPos({
+        x: (pointerPos.x - stagePos.x) / stageScale.x,
+        y: (pointerPos.y - stagePos.y) / stageScale.y,
+      });
+      setIsSelectingRectVisible(true);
+      setIsSelectedRectVisible(false);
+      setDraggingSelectionRect(true);
+      selectionRectRef.current.moveToTop();
+    }
+  };
+
   const handleStageDragMove = e => {
     e.cancelBubble = true;
     const newPos = e.target.absolutePosition();
@@ -500,7 +608,7 @@ function ExpressionTreeEditor({
 
     const stage = stageRef.current;
 
-    const scaleBy = 1.01;
+    const scaleBy = 1.03;
     const oldScale = stage.scaleX();
     const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
@@ -533,6 +641,23 @@ function ExpressionTreeEditor({
     clearTimeout(wheelTimeout);
   };
 
+  const handleSelectedDragMove = e => {
+    e.cancelBubble = true;
+    moveSelectedNodesTo({
+      nodes: transformerRef.current.nodes(),
+      delta: { x: e.evt.movementX, y: e.evt.movementY },
+    });
+  };
+
+  const handleSelectedDragEnd = e => {
+    e.cancelBubble = true;
+    document.body.style.cursor = "grab";
+    moveSelectedNodesToEnd({
+      nodes: transformerRef.current.nodes(),
+      delta: { x: e.evt.movementX, y: e.evt.movementY },
+    });
+  };
+
   return (
     <div
       id="editorContainer"
@@ -546,6 +671,8 @@ function ExpressionTreeEditor({
         connectorPlaceholder={connectorPlaceholder}
         templateNodes={templateNodes}
         stageRef={stageRef}
+        transformerRef={transformerRef}
+        setIsSelectedRectVisible={setIsSelectedRectVisible}
         initialState={initialState}
         nodeTypes={nodeTypes}
         selectedEdgeRef={selectedEdgeRef}
@@ -559,7 +686,8 @@ function ExpressionTreeEditor({
         onMouseUp={handleStageMouseUp}
         onClick={handleStageClick}
         style={addingNode ? { cursor: "crosshair" } : {}}
-        draggable
+        draggable={!pressingMeta}
+        onMouseDown={handleStageMouseDown}
         onDragStart={e => {
           document.body.style.cursor = "grabbing";
         }}
@@ -602,6 +730,7 @@ function ExpressionTreeEditor({
               selectedEdgeRef={selectedEdgeRef}
               setSelectedEdgeRef={setSelectedEdgeRef}
               clearEdgeSelection={clearEdgeSelection}
+              draggingSelectionRect={draggingSelectionRect}
             />
           ))}
           {nodes.map((node, i) => (
@@ -609,6 +738,7 @@ function ExpressionTreeEditor({
               id={node.id}
               key={"Node-" + node.id}
               stageRef={stageRef}
+              transformerRef={transformerRef}
               edges={edges}
               nodes={nodes}
               connectorPlaceholder={connectorPlaceholder}
@@ -640,8 +770,66 @@ function ExpressionTreeEditor({
               typeValueChange={typeValueChange}
               nodeValueChange={nodeValueChange}
               isFinal={node.isFinal}
+              pressingMeta={pressingMeta}
+              draggingSelectionRect={draggingSelectionRect}
             />
           ))}
+          <Rect
+            ref={selectionRectRef}
+            fill="rgba(0,0,255,0.2)"
+            x={Math.min(selectionRectStartPos.x, selectionRectEndPos.x)}
+            y={Math.min(selectionRectStartPos.y, selectionRectEndPos.y)}
+            width={Math.abs(selectionRectEndPos.x - selectionRectStartPos.x)}
+            height={Math.abs(selectionRectEndPos.y - selectionRectStartPos.y)}
+            visible={isSelectingRectVisible}
+          ></Rect>
+          <Transformer
+            ref={transformerRef}
+            rotateEnabled={false}
+            resizeEnabled={false}
+          />
+          <Rect
+            ref={selectedRectRef}
+            fill="rgba(0,0,255,0)"
+            x={
+              transformerRef.current &&
+              stageRef.current &&
+              (transformerRef.current.getClientRect().x -
+                stageRef.current.absolutePosition().x) /
+                stageRef.current.scale().x
+            }
+            y={
+              transformerRef.current &&
+              stageRef.current &&
+              (transformerRef.current.getClientRect().y -
+                stageRef.current.absolutePosition().y) /
+                stageRef.current.scale().y
+            }
+            width={
+              transformerRef.current &&
+              transformerRef.current.getClientRect().width /
+                stageRef.current.scale().x
+            }
+            height={
+              transformerRef.current &&
+              transformerRef.current.getClientRect().height /
+                stageRef.current.scale().y
+            }
+            visible={isSelectedRectVisible}
+            draggable
+            onMouseEnter={() => {
+              document.body.style.cursor = "grab";
+            }}
+            onDragStart={() => {
+              document.body.style.cursor = "grabbing";
+            }}
+            onDragMove={handleSelectedDragMove}
+            onDragEnd={handleSelectedDragEnd}
+            onClick={e => {
+              e.cancelBubble = true;
+            }}
+            onMouseDown={handleStageMouseDown}
+          ></Rect>
           {dragEdge && (
             <DragEdge
               key="DragEdge"

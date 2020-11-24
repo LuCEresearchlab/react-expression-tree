@@ -141,3 +141,13 @@ export const reorderNodes = payload => ({
   type: "reorderNodes",
   payload,
 });
+
+export const moveSelectedNodesTo = payload => ({
+  type: "moveSelectedNodesTo",
+  payload,
+});
+
+export const moveSelectedNodesToEnd = payload => ({
+  type: "moveSelectedNodesToEnd",
+  payload,
+});

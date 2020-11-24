@@ -19,6 +19,17 @@ function App() {
       width={stageWidth}
       height={stageHeight}
       allowStructuralErrors={true}
+      // allowStructuralErrors={{
+      //  loop: true,
+      //  ...
+      // }}
+      // reportErrors={{
+      //  structural: {
+      //    loop: true,
+      //    ...
+      //  },
+      //  completeness: { ... }
+      // }}
       connectorPlaceholder="{{}}"
       templateNodes={[
         "{{}}?{{}}:{{}}",
@@ -28,6 +39,15 @@ function App() {
         "{{}}+{{}}",
       ]}
       nodeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
+      // nodeTypes={[
+      //   "String",
+      // { type: "Number", any: true, fixedValues: ["14", '"15"', "16"] },
+      //   "Boolean",
+      //   "Object",
+      //   "undefined",
+      //   "null",
+      // ]}
+      // {type: "String", any: true}
       initialState={{
         initialNodes: [
           { pieces: ["19"], x: 320, y: 40, type: "", value: "", isFinal: true },
@@ -145,6 +165,16 @@ function App() {
           },
         ],
       }}
+      onChange={function (tree) {}}
+      onNodeLabelChange={function (node, label) {}}
+      onNodeAdd={function (node, label) {}}
+      onNodeDelete={function (nodeId) {}}
+      onEdgeAdd={function (edge, node1, node2) {}}
+      onEdgeDelete={function (edgeId, node1, node2) {}}
+      onTypeChange={function (node, type) {}}
+      onValueChange={function (node, value) {}}
+      onReorder={function (tree) {}}
+      onValidate={function (tree, errors) {}}
     />
     //     <div style={{ height: "100px" }}>sdfadsfdas</div>
     //   </div>

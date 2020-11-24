@@ -21,6 +21,7 @@ function Edge({
   selectedEdgeRef,
   setSelectedEdgeRef,
   clearEdgeSelection,
+  draggingSelectionRect,
 }) {
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
@@ -73,7 +74,9 @@ function Edge({
         hitStrokeWidth={10}
         onMouseOver={e => {
           e.cancelBubble = true;
-          document.body.style.cursor = "pointer";
+          if (!draggingSelectionRect) {
+            document.body.style.cursor = "pointer";
+          }
         }}
       />
       <Circle
@@ -89,7 +92,9 @@ function Edge({
         onDragEnd={() => {}}
         onMouseOver={e => {
           e.cancelBubble = true;
-          document.body.style.cursor = "grab";
+          if (!draggingSelectionRect) {
+            document.body.style.cursor = "grab";
+          }
         }}
       />
       <Circle
@@ -105,7 +110,9 @@ function Edge({
         onDragEnd={e => {}}
         onMouseOver={e => {
           e.cancelBubble = true;
-          document.body.style.cursor = "grab";
+          if (!draggingSelectionRect) {
+            document.body.style.cursor = "grab";
+          }
         }}
       />
     </Group>

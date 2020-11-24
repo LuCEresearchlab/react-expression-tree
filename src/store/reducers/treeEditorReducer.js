@@ -390,6 +390,44 @@ const treeEditorReducer = (state = initialState, action) => {
         }),
       };
 
+    case "moveSelectedNodesTo":
+      return {
+        ...state,
+        nodes: state.nodes.map(node => {
+          const foundNode = action.payload.nodes.find(
+            payloadNode => payloadNode.attrs.id === node.id
+          );
+          if (foundNode !== undefined) {
+            return {
+              ...node,
+              x: node.x + action.payload.delta.x,
+              y: node.y + action.payload.delta.y,
+            };
+          } else {
+            return { ...node };
+          }
+        }),
+      };
+
+    case "moveSelectedNodesToEnd":
+      return {
+        ...state,
+        nodes: state.nodes.map(node => {
+          const foundNode = action.payload.nodes.find(
+            payloadNode => payloadNode.attrs.id === node.id
+          );
+          if (foundNode !== undefined) {
+            return {
+              ...node,
+              x: node.x + action.payload.delta.x,
+              y: node.y + action.payload.delta.y,
+            };
+          } else {
+            return { ...node };
+          }
+        }),
+      };
+
     default:
       return state;
   }
@@ -413,7 +451,8 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "nodeValueChange" &&
       action.type !== "clearAdding" &&
       action.type !== "addingNodeClick" &&
-      action.type !== "setInitialState"
+      action.type !== "setInitialState" &&
+      action.type !== "moveSelectedNodesTo"
     );
   },
   groupBy: groupByActionTypes("reorderNodes"),

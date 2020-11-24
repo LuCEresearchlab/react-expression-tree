@@ -49,12 +49,10 @@ export function edgeById(edgeId, edges) {
   return edge;
 }
 
-//TODO: what if we have multiple edges to a child node?
 export function edgeByChildNode(childNodeId, edges) {
   return edges.filter(edge => edge.childNodeId === childNodeId);
 }
 
-//TODO: what if we have multiple edges from a parent piece?
 export function edgeByParentPiece(parentNodeId, parentPieceId, edges) {
   return edges.filter(
     edge =>

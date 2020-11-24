@@ -177,6 +177,8 @@ function StageDrawer({
   selectedRootNode,
   templateNodes,
   stageRef,
+  transformerRef,
+  setIsSelectedRectVisible,
   initialState,
   reorderNodes,
   nodeTypes,
@@ -203,7 +205,9 @@ function StageDrawer({
   const [isInvalidOpen, setIsInvalidOpen] = useState(false);
 
   const handleAddChange = value => {
-    clearAdding();
+    if (addingNode) {
+      clearAdding();
+    }
     setSelectedTemplate(null);
     const values = value.split(connectorPlaceholder);
     var addValue = [];
@@ -305,6 +309,8 @@ function StageDrawer({
           x: state.stageScale.x,
           y: state.stageScale.y,
         });
+        transformerRef.current.nodes([]);
+        setIsSelectedRectVisible(false);
         dispatch(ActionCreators.clearHistory());
       } catch (e) {
         alert("Invalid JSON file.");
@@ -321,6 +327,7 @@ function StageDrawer({
     }
     clearNodeSelection();
     clearEdgeSelection();
+    transformerRef.current.nodes([]);
   };
 
   const handleRedo = () => {
@@ -331,6 +338,7 @@ function StageDrawer({
     }
     clearNodeSelection();
     clearEdgeSelection();
+    transformerRef.current.nodes([]);
   };
 
   const handleReset = () => {
@@ -347,6 +355,7 @@ function StageDrawer({
     const stage = stageRef.current;
     stage.position({ x: 0, y: 0 });
     stage.scale({ x: 1, y: 1 });
+    transformerRef.current.nodes([]);
     clearAdding();
     document.getElementById("addField").value = "";
     addValueChange({ addValue: [] });
@@ -358,7 +367,9 @@ function StageDrawer({
   };
 
   const handleTemplateClick = (value, id) => {
-    clearAdding();
+    if (addingNode) {
+      clearAdding();
+    }
     setSelectedTemplate(id);
     document.getElementById("addField").value = value;
     const values = value.split(connectorPlaceholder);
@@ -891,7 +902,6 @@ function StageDrawer({
                   type="search"
                   fullWidth
                   size="medium"
-                  autoFocus
                   label="Insert the node's pieces"
                   placeholder={
                     "ex: " +
@@ -913,7 +923,7 @@ function StageDrawer({
                   }}
                 ></TextField>
                 <div>
-                  <Tooltip title={"Update node"} placement="top">
+                  <Tooltip title={"Update node pieces"} placement="top">
                     <span>
                       <IconButton
                         size="medium"
