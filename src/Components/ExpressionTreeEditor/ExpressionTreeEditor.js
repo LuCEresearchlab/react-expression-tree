@@ -89,13 +89,14 @@ function ExpressionTreeEditor({
 
   // Effects
   useEffect(() => {
-    dispatch(
-      setInitialState({
-        initialNodes: initialState.initialNodes,
-        initialEdges: initialState.initialEdges,
-        connectorPlaceholder: connectorPlaceholder,
-      })
-    );
+    initialState &&
+      dispatch(
+        setInitialState({
+          initialNodes: initialState.initialNodes,
+          initialEdges: initialState.initialEdges,
+          connectorPlaceholder: connectorPlaceholder,
+        })
+      );
     dispatch(ActionCreators.clearHistory());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -685,7 +686,7 @@ function ExpressionTreeEditor({
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}
         onClick={handleStageClick}
-        style={addingNode ? { cursor: "crosshair" } : {}}
+        style={{ cursor: addingNode && "crosshair" }}
         draggable={!pressingMeta}
         onMouseDown={handleStageMouseDown}
         onDragStart={e => {
@@ -723,7 +724,7 @@ function ExpressionTreeEditor({
               onEdgeClick={e => handleEdgeClick(e, edge.id)}
               onNodeConnectorDragStart={handleNodeConnectorDragStart}
               onPieceConnectorDragStart={handlePieceConnectorDragStart}
-              selected={selectedEdge ? selectedEdge.id === edge.id : false}
+              selected={selectedEdge && selectedEdge.id === edge.id}
               parentNodeId={edge.parentNodeId}
               parentPieceId={edge.parentPieceId}
               childNodeId={edge.childNodeId}
@@ -746,9 +747,9 @@ function ExpressionTreeEditor({
               y={nodePositionById(node.id, nodes).y}
               nodeWidth={node.width}
               pieces={node.pieces}
-              isSelected={selectedNode ? selectedNode.id === node.id : false}
+              isSelected={selectedNode && selectedNode.id === node.id}
               isSelectedRoot={
-                selectedRootNode ? selectedRootNode.id === node.id : false
+                selectedRootNode && selectedRootNode.id === node.id
               }
               type={node.type}
               value={node.value}

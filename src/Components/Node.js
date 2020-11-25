@@ -232,7 +232,7 @@ function Node({
         stroke="black"
         strokeWidth={isSelected ? 2 : 1}
         cornerRadius={5}
-        shadowEnabled={isSelected}
+        shadowEnabled={isSelected ? true : false}
         shadowColor="black"
         shadowOffset={{ x: 3, y: 3 }}
         shadowBlur={3}
@@ -334,7 +334,7 @@ function Node({
           />
         )
       )}
-      {!isFinal ? (
+      {!isFinal && (
         <Text
           x={nodeWidth - xPad}
           y={3}
@@ -359,8 +359,6 @@ function Node({
             }
           }}
         />
-      ) : (
-        <></>
       )}
       <Label x={nodeWidth / 2} y={-fontSize / 4}>
         <Tag

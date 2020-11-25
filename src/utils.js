@@ -163,3 +163,20 @@ export function computeNodeWidth(pieces, connectorPlaceholder) {
   }
   return width + 2 * xPad;
 }
+
+export function parsePieces(value, connectorPlaceholder) {
+  const values = value.split(connectorPlaceholder);
+  var pieces = [];
+  values.length < 2
+    ? (pieces = values)
+    : values.forEach((e, i) => {
+        if (i === values.length - 1) {
+          pieces.push(values[i]);
+        } else {
+          pieces.push(values[i]);
+          pieces.push(connectorPlaceholder);
+        }
+      });
+  pieces = pieces.filter(e => e !== "");
+  return pieces;
+}

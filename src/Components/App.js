@@ -38,6 +38,8 @@ function App() {
         "-{{}}",
         "{{}}+{{}}",
       ]}
+      // toolbarFields={{ addField: true, editField: true }}
+      // fullDisabled={false}
       nodeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
       // nodeTypes={[
       //   "String",
@@ -165,16 +167,16 @@ function App() {
           },
         ],
       }}
-      onChange={function (tree) {}}
-      onNodeLabelChange={function (node, label) {}}
-      onNodeAdd={function (node, label) {}}
-      onNodeDelete={function (nodeId) {}}
-      onEdgeAdd={function (edge, node1, node2) {}}
-      onEdgeDelete={function (edgeId, node1, node2) {}}
-      onTypeChange={function (node, type) {}}
-      onValueChange={function (node, value) {}}
-      onReorder={function (tree) {}}
-      onValidate={function (tree, errors) {}}
+      // onChange={function (tree) {}}
+      // onNodeLabelChange={function (node, label) {}}
+      // onNodeAdd={function (node, label) {}}
+      // onNodeDelete={function (nodeId) {}}
+      // onEdgeAdd={function (edge, node1, node2) {}}
+      // onEdgeDelete={function (edgeId, node1, node2) {}}
+      // onTypeChange={function (node, type) {}}
+      // onValueChange={function (node, value) {}}
+      // onReorder={function (tree) {}}
+      // onValidate={function (tree, errors) {}}
     />
     //     <div style={{ height: "100px" }}>sdfadsfdas</div>
     //   </div>

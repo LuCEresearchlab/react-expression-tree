@@ -44,7 +44,12 @@ import {
   Snackbar,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
-import { computeNodeWidth, edgeByParentPiece, nodeById } from "../../utils.js";
+import {
+  computeNodeWidth,
+  edgeByParentPiece,
+  nodeById,
+  parsePieces,
+} from "../../utils.js";
 
 const drawerWidth = 300;
 
@@ -199,7 +204,7 @@ function StageDrawer({
   const [orderAnchorEl, setOrderAnchorEl] = useState(null);
   const isOrderInfoOpen = !!orderAnchorEl;
   const [isResetWarnOpen, setIsResetWarnOpen] = useState(false);
-  const [validationErrors, setValidationErrors] = useState(null);
+  const [validationErrors, setValidationErrors] = useState([]);
   const [currentError, setCurrentError] = useState(0);
   const [isValidOpen, setIsValidOpen] = useState(false);
   const [isInvalidOpen, setIsInvalidOpen] = useState(false);
@@ -209,36 +214,12 @@ function StageDrawer({
       clearAdding();
     }
     setSelectedTemplate(null);
-    const values = value.split(connectorPlaceholder);
-    var addValue = [];
-    values.length < 2
-      ? (addValue = values)
-      : values.forEach((e, i) => {
-          if (i === values.length - 1) {
-            addValue.push(values[i]);
-          } else {
-            addValue.push(values[i]);
-            addValue.push(connectorPlaceholder);
-          }
-        });
-    addValue = addValue.filter(e => e !== "");
+    const addValue = parsePieces(value, connectorPlaceholder);
     addValueChange({ addValue: addValue });
   };
 
   const handleEditChange = value => {
-    const values = value.split(connectorPlaceholder);
-    var editValue = [];
-    values.length < 2
-      ? (editValue = values)
-      : values.forEach((e, i) => {
-          if (i === values.length - 1) {
-            editValue.push(values[i]);
-          } else {
-            editValue.push(values[i]);
-            editValue.push(connectorPlaceholder);
-          }
-        });
-    editValue = editValue.filter(e => e !== "");
+    const editValue = parsePieces(value, connectorPlaceholder);
     editValueChange({ editValue: editValue });
   };
 
@@ -372,19 +353,7 @@ function StageDrawer({
     }
     setSelectedTemplate(id);
     document.getElementById("addField").value = value;
-    const values = value.split(connectorPlaceholder);
-    var addValue = [];
-    values.length < 2
-      ? (addValue = values)
-      : values.forEach((e, i) => {
-          if (i === values.length - 1) {
-            addValue.push(values[i]);
-          } else {
-            addValue.push(values[i]);
-            addValue.push(connectorPlaceholder);
-          }
-        });
-    addValue = addValue.filter(e => e !== "");
+    const addValue = parsePieces(value, connectorPlaceholder);
     addValueChange({ addValue: addValue });
   };
 
@@ -587,7 +556,7 @@ function StageDrawer({
           variant="standard"
           action={
             <>
-              {validationErrors && validationErrors.length > 1 ? (
+              {validationErrors.length > 1 && (
                 <>
                   <Tooltip title={"Previous Error"} placement="top">
                     <span>
@@ -595,7 +564,7 @@ function StageDrawer({
                         size="medium"
                         color="inherit"
                         onClick={() => setCurrentError(currentError - 1)}
-                        disabled={validationErrors && currentError === 0}
+                        disabled={currentError === 0}
                       >
                         <ArrowBackRoundedIcon />
                       </IconButton>
@@ -607,18 +576,13 @@ function StageDrawer({
                         size="medium"
                         color="inherit"
                         onClick={() => setCurrentError(currentError + 1)}
-                        disabled={
-                          validationErrors &&
-                          currentError === validationErrors.length - 1
-                        }
+                        disabled={currentError === validationErrors.length - 1}
                       >
                         <ArrowForwardRoundedIcon />
                       </IconButton>
                     </span>
                   </Tooltip>
                 </>
-              ) : (
-                <></>
               )}
               <Tooltip title={"Close alert"} placement="top">
                 <IconButton
@@ -633,9 +597,8 @@ function StageDrawer({
           }
         >
           <AlertTitle>
-            Invalid Tree ({validationErrors ? validationErrors.length : ""}{" "}
-            error
-            {validationErrors ? (validationErrors.length > 1 ? "s" : "") : ""})
+            Invalid Tree ({validationErrors.length} error
+            {validationErrors.length > 1 && "s"})
           </AlertTitle>
           <Typography variant="body2" paragraph>
             <b>Error #{currentError + 1}</b>
@@ -645,21 +608,24 @@ function StageDrawer({
             <b>Error type: </b>
           </Typography>
           <Typography variant="body2" paragraph>
-            {validationErrors && validationErrors[currentError].type}
+            {validationErrors[currentError] &&
+              validationErrors[currentError].type}
           </Typography>
 
           <Typography variant="body2">
             <b>Error description: </b>
           </Typography>
           <Typography variant="body2" paragraph>
-            {validationErrors && validationErrors[currentError].problem}
+            {validationErrors[currentError] &&
+              validationErrors[currentError].problem}
           </Typography>
 
           <Typography variant="body2">
             <b>Error location: </b>
           </Typography>
           <Typography variant="body2">
-            {validationErrors && validationErrors[currentError].location}
+            {validationErrors[currentError] &&
+              validationErrors[currentError].location}
           </Typography>
         </Alert>
       </Snackbar>
@@ -796,6 +762,9 @@ function StageDrawer({
             fullWidth
             size="medium"
             label="Insert the node's pieces"
+            InputLabelProps={{
+              shrink: true,
+            }}
             placeholder={
               "ex: " +
               connectorPlaceholder +
@@ -829,7 +798,7 @@ function StageDrawer({
             </Tooltip>
           </div>
         </div>
-        {templateNodes.length > 0 ? (
+        {templateNodes && templateNodes.length > 0 && (
           <div>
             <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
               <Accordion>
@@ -860,8 +829,6 @@ function StageDrawer({
               </Accordion>
             </AccordionActions>
           </div>
-        ) : (
-          <></>
         )}
         <Divider />
         <div className={classes.toolbarInfo}>
@@ -893,7 +860,7 @@ function StageDrawer({
         </div>
         {selectedNode ? (
           <>
-            {!selectedNode.isFinal ? (
+            {!selectedNode.isFinal && (
               <div className={classes.toolbarField}>
                 <TextField
                   key={selectedNode.id}
@@ -903,6 +870,9 @@ function StageDrawer({
                   fullWidth
                   size="medium"
                   label="Insert the node's pieces"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   placeholder={
                     "ex: " +
                     connectorPlaceholder +
@@ -940,8 +910,6 @@ function StageDrawer({
                   </Tooltip>
                 </div>
               </div>
-            ) : (
-              <></>
             )}
             <div className={classes.typeField}>
               <FormLabel>Select the node type from the list:</FormLabel>
@@ -983,6 +951,9 @@ function StageDrawer({
                 placeholder={"ex: 1234567890"}
                 margin="dense"
                 label="Insert the node's value"
+                InputLabelProps={{
+                  shrink: true,
+                }}
                 onChange={e => nodeValueChange({ nodeValue: e.target.value })}
                 onKeyPress={e => {
                   if (e.key === "Enter" && nodeValue !== selectedNode.value) {
