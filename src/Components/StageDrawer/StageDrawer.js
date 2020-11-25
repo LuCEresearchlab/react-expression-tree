@@ -189,6 +189,7 @@ function StageDrawer({
   nodeTypes,
   selectedEdgeRef,
   setSelectedEdgeRef,
+  reportedErrors,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -372,19 +373,21 @@ function StageDrawer({
     visitedBranch.push(node.id);
     if (node.type === "") {
       const location = "Node ID: " + node.id;
-      errors.push({
-        type: "Completeness error",
-        problem: "Missing node type",
-        location: location,
-      });
+      reportedErrors.missingNodeType &&
+        errors.push({
+          type: "Completeness error",
+          problem: "Missing node type",
+          location: location,
+        });
     }
     if (node.value === "") {
       const location = "Node ID: " + node.id;
-      errors.push({
-        type: "Completeness error",
-        problem: "Missing node value",
-        location: location,
-      });
+      reportedErrors.missingNodeValue &&
+        errors.push({
+          type: "Completeness error",
+          problem: "Missing node value",
+          location: location,
+        });
     }
     var connectorNum = 0;
     node.pieces.forEach((piece, i) => {
@@ -401,11 +404,12 @@ function StageDrawer({
               node.id +
               ", connector: " +
               connectorNum;
-            errors.push({
-              type: "Structure error",
-              problem: "Loop detected",
-              location: location,
-            });
+            reportedErrors.loop &&
+              errors.push({
+                type: "Structure error",
+                problem: "Loop detected",
+                location: location,
+              });
             visitedBranch.pop();
             return [errors, visitedBranch];
           } else if (visitedNodes.find(e => e === childNode.id) !== undefined) {
@@ -416,11 +420,12 @@ function StageDrawer({
               node.id +
               ", connector: " +
               connectorNum;
-            errors.push({
-              type: "Structure error",
-              problem: "Multiple edge on single node connector",
-              location: location,
-            });
+            reportedErrors.multiEdgeOnNodeConnector &&
+              errors.push({
+                type: "Structure error",
+                problem: "Multiple edge on single node connector",
+                location: location,
+              });
             visitedBranch.pop();
             return [errors, visitedBranch];
           } else {
@@ -433,18 +438,20 @@ function StageDrawer({
           }
         } else if (childEdges.length > 1) {
           const location = "Node: " + node.id + ", connector: " + connectorNum;
-          errors.push({
-            type: "Structure error",
-            problem: "Multiple edge on single piece connector",
-            location: location,
-          });
+          reportedErrors.multiEdgeOnNodeConnector &&
+            errors.push({
+              type: "Structure error",
+              problem: "Multiple edge on single piece connector",
+              location: location,
+            });
         } else if (childEdges.length === 0) {
           const location = "Node: " + node.id + ", connector: " + connectorNum;
-          errors.push({
-            type: "Completeness error",
-            problem: "Empty connector",
-            location: location,
-          });
+          reportedErrors.emptyPieceConnector &&
+            errors.push({
+              type: "Completeness error",
+              problem: "Empty connector",
+              location: location,
+            });
         }
       }
     });

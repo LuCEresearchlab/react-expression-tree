@@ -59,7 +59,8 @@ function ExpressionTreeEditor({
   initialState,
   setInitialState,
   nodeTypes,
-  allowStructuralErrors,
+  allowedErrors,
+  reportedErrors,
   moveSelectedNodesTo,
   moveSelectedNodesToEnd,
 }) {
@@ -314,7 +315,8 @@ function ExpressionTreeEditor({
               edges
             );
             if (
-              (foundEdges.length > 0 && allowStructuralErrors) ||
+              (foundEdges.length > 0 &&
+                allowedErrors.multiEdgeOnPieceConnector) ||
               foundEdges.length === 0
             ) {
               document.body.style.cursor = "grab";
@@ -346,7 +348,8 @@ function ExpressionTreeEditor({
               edges
             );
             if (
-              (foundEdges.length > 0 && allowStructuralErrors) ||
+              (foundEdges.length > 0 &&
+                allowedErrors.multiEdgeOnPieceConnector) ||
               foundEdges.length === 0
             ) {
               document.body.style.cursor = "grab";
@@ -378,7 +381,8 @@ function ExpressionTreeEditor({
           ) {
             const foundEdges = edgeByChildNode(childNodeId, edges);
             if (
-              (foundEdges.length > 0 && allowStructuralErrors) ||
+              (foundEdges.length > 0 &&
+                allowedErrors.multiEdgeOnNodeConnector) ||
               foundEdges.length === 0
             ) {
               document.body.style.cursor = "grab";
@@ -403,7 +407,8 @@ function ExpressionTreeEditor({
           if (childNodeId && dragEdge.parentNodeId !== childNodeId) {
             const foundEdges = edgeByChildNode(childNodeId, edges);
             if (
-              (foundEdges.length > 0 && allowStructuralErrors) ||
+              (foundEdges.length > 0 &&
+                allowedErrors.multiEdgeOnNodeConnector) ||
               foundEdges.length === 0
             ) {
               document.body.style.cursor = "grab";
@@ -678,6 +683,7 @@ function ExpressionTreeEditor({
         nodeTypes={nodeTypes}
         selectedEdgeRef={selectedEdgeRef}
         setSelectedEdgeRef={setSelectedEdgeRef}
+        reportedErrors={reportedErrors}
       />
       <Stage
         ref={stageRef}

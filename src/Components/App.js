@@ -18,18 +18,19 @@ function App() {
     <ExpressionTreeEditor
       width={stageWidth}
       height={stageHeight}
-      allowStructuralErrors={true}
-      // allowStructuralErrors={{
-      //  loop: true,
-      //  ...
-      // }}
-      // reportErrors={{
-      //  structural: {
-      //    loop: true,
-      //    ...
-      //  },
-      //  completeness: { ... }
-      // }}
+      allowedErrors={{
+        // loop: true,
+        multiEdgeOnPieceConnector: true,
+        multiEdgeOnNodeConnector: false,
+      }}
+      reportedErrors={{
+        loop: true,
+        multiEdgeOnPieceConnector: true,
+        multiEdgeOnNodeConnector: true,
+        emptyPieceConnector: true,
+        missingNodeType: true,
+        missingNodeValue: true,
+      }}
       connectorPlaceholder="{{}}"
       templateNodes={[
         "{{}}?{{}}:{{}}",
