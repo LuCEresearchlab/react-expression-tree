@@ -197,6 +197,7 @@ function StageDrawer({
   toolbarButtons,
   drawerFields,
   fullDisabled,
+  setCurrentErrorLocation,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -398,6 +399,7 @@ function StageDrawer({
           type: "Completeness error",
           problem: "Missing node type",
           location: location,
+          currentErrorLocation: { node: true, nodeId: node.id },
         });
     }
     if (node.value === "") {
@@ -407,6 +409,7 @@ function StageDrawer({
           type: "Completeness error",
           problem: "Missing node value",
           location: location,
+          currentErrorLocation: { node: true, nodeId: node.id },
         });
     }
     var connectorNum = 0;
@@ -414,39 +417,75 @@ function StageDrawer({
       if (piece === connectorPlaceholder) {
         connectorNum++;
         const childEdges = edgeByParentPiece(node.id, i, edges);
-        if (childEdges.length === 1) {
-          const childNode = nodeById(childEdges[0].childNodeId, nodes);
+        if (childEdges.length > 1) {
+          const location =
+            "Node ID: " + node.id + ", connector number: " + connectorNum;
+          reportedErrors.multiEdgeOnNodeConnector &&
+            errors.push({
+              type: "Structure error",
+              problem: "Multiple edge on single piece connector",
+              location: location,
+              currentErrorLocation: {
+                pieceConnector: true,
+                nodeId: node.id,
+                pieceId: i,
+              },
+            });
+        } else if (childEdges.length === 0) {
+          const location =
+            "Node ID: " + node.id + ", connector number: " + connectorNum;
+          reportedErrors.emptyPieceConnector &&
+            errors.push({
+              type: "Completeness error",
+              problem: "Empty connector",
+              location: location,
+              currentErrorLocation: {
+                pieceConnector: true,
+                nodeId: node.id,
+                pieceId: i,
+              },
+            });
+        }
+        childEdges.forEach(edge => {
+          const childNode = nodeById(edge.childNodeId, nodes);
+          var foundError = false;
+          if (visitedNodes.find(e => e === childNode.id) !== undefined) {
+            const location = "Node ID: " + childNode.id;
+            reportedErrors.multiEdgeOnNodeConnector &&
+              errors.find(
+                error =>
+                  error.problem === "Multiple edge on single node connector" &&
+                  error.location === location
+              ) === undefined &&
+              errors.push({
+                type: "Structure error",
+                problem: "Multiple edge on single node connector",
+                location: location,
+                currentErrorLocation: {
+                  nodeConnector: true,
+                  nodeId: childNode.id,
+                },
+              });
+            foundError = true;
+          }
           if (visitedBranch.find(e => e === childNode.id) !== undefined) {
             const location =
-              " From node: " +
+              " From node ID: " +
               childNode.id +
-              ", to node: " +
+              ", to nodeID: " +
               node.id +
-              ", connector: " +
+              ", connector number: " +
               connectorNum;
             reportedErrors.loop &&
               errors.push({
                 type: "Structure error",
                 problem: "Loop detected",
                 location: location,
+                currentErrorLocation: { edge: true, edgeId: edge.id },
               });
-            visitedBranch.pop();
-            return [errors, visitedBranch];
-          } else if (visitedNodes.find(e => e === childNode.id) !== undefined) {
-            const location =
-              " From node " +
-              childNode.id +
-              ", to node " +
-              node.id +
-              ", connector: " +
-              connectorNum;
-            reportedErrors.multiEdgeOnNodeConnector &&
-              errors.push({
-                type: "Structure error",
-                problem: "Multiple edge on single node connector",
-                location: location,
-              });
-            visitedBranch.pop();
+            foundError = true;
+          }
+          if (foundError) {
             return [errors, visitedBranch];
           } else {
             [errors, visitedBranch] = orderWalk(
@@ -456,23 +495,7 @@ function StageDrawer({
               errors
             );
           }
-        } else if (childEdges.length > 1) {
-          const location = "Node: " + node.id + ", connector: " + connectorNum;
-          reportedErrors.multiEdgeOnNodeConnector &&
-            errors.push({
-              type: "Structure error",
-              problem: "Multiple edge on single piece connector",
-              location: location,
-            });
-        } else if (childEdges.length === 0) {
-          const location = "Node: " + node.id + ", connector: " + connectorNum;
-          reportedErrors.emptyPieceConnector &&
-            errors.push({
-              type: "Completeness error",
-              problem: "Empty connector",
-              location: location,
-            });
-        }
+        });
       }
     });
     visitedBranch.pop();
@@ -492,6 +515,37 @@ function StageDrawer({
     if (errors.length > 0) {
       setValidationErrors(errors);
       setCurrentError(0);
+      setCurrentErrorLocation(errors[0].currentErrorLocation);
+      if (selectedNode) {
+        clearNodeSelection();
+      }
+      if (selectedEdgeRef) {
+        selectedEdgeRef.moveToBottom();
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
+      }
+      if (
+        errors[0].currentErrorLocation.node ||
+        errors[0].currentErrorLocation.pieceConnector ||
+        errors[0].currentErrorLocation.nodeConnector
+      ) {
+        const currentNode = stageRef.current
+          .find(".Node")
+          .toArray()
+          .find(
+            node => node.attrs.id === errors[0].currentErrorLocation.nodeId
+          );
+        currentNode.parent.moveToTop();
+      } else if (errors[0].currentErrorLocation.edge) {
+        const currentEdge = stageRef.current
+          .find(".Edge")
+          .toArray()
+          .find(
+            edge => edge.attrs.id === errors[0].currentErrorLocation.edgeId
+          );
+        currentEdge.moveToTop();
+        setSelectedEdgeRef(currentEdge);
+      }
       setIsInvalidOpen(true);
     } else {
       setIsValidOpen(true);
@@ -526,6 +580,64 @@ function StageDrawer({
   };
 
   const handleInfoClick = () => {};
+
+  const handlePreviousErrorClick = () => {
+    if (selectedEdgeRef) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+    }
+    setCurrentError(currentError - 1);
+    const currentErrorLocation =
+      validationErrors[currentError - 1].currentErrorLocation;
+    setCurrentErrorLocation(currentErrorLocation);
+    if (
+      currentErrorLocation.node ||
+      currentErrorLocation.pieceConnector ||
+      currentErrorLocation.nodeConnector
+    ) {
+      const currentNode = stageRef.current
+        .find(".Node")
+        .toArray()
+        .find(node => node.attrs.id === currentErrorLocation.nodeId);
+      currentNode.parent.moveToTop();
+    } else if (currentErrorLocation.edge) {
+      const currentEdge = stageRef.current
+        .find(".Edge")
+        .toArray()
+        .find(edge => edge.attrs.id === currentErrorLocation.edgeId);
+      currentEdge.moveToTop();
+      setSelectedEdgeRef(currentEdge);
+    }
+  };
+
+  const handleNextErrorClick = () => {
+    if (selectedEdgeRef) {
+      selectedEdgeRef.moveToBottom();
+      setSelectedEdgeRef(null);
+    }
+    setCurrentError(currentError + 1);
+    const currentErrorLocation =
+      validationErrors[currentError + 1].currentErrorLocation;
+    setCurrentErrorLocation(currentErrorLocation);
+    if (
+      currentErrorLocation.node ||
+      currentErrorLocation.pieceConnector ||
+      currentErrorLocation.nodeConnector
+    ) {
+      const currentNode = stageRef.current
+        .find(".Node")
+        .toArray()
+        .find(node => node.attrs.id === currentErrorLocation.nodeId);
+      currentNode.parent.moveToTop();
+    } else if (currentErrorLocation.edge) {
+      const currentEdge = stageRef.current
+        .find(".Edge")
+        .toArray()
+        .find(edge => edge.attrs.id === currentErrorLocation.edgeId);
+      currentEdge.moveToTop();
+      setSelectedEdgeRef(currentEdge);
+    }
+  };
 
   return (
     <>
@@ -746,6 +858,11 @@ function StageDrawer({
         onClose={(e, reason) => {
           if (reason === "clickaway") {
             setIsInvalidOpen(false);
+            setCurrentErrorLocation({});
+            if (selectedEdgeRef) {
+              selectedEdgeRef.moveToBottom();
+              setSelectedEdgeRef(null);
+            }
           }
         }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
@@ -762,7 +879,7 @@ function StageDrawer({
                       <IconButton
                         size="medium"
                         color="inherit"
-                        onClick={() => setCurrentError(currentError - 1)}
+                        onClick={handlePreviousErrorClick}
                         disabled={currentError === 0}
                       >
                         <ArrowBackRoundedIcon />
@@ -774,7 +891,7 @@ function StageDrawer({
                       <IconButton
                         size="medium"
                         color="inherit"
-                        onClick={() => setCurrentError(currentError + 1)}
+                        onClick={handleNextErrorClick}
                         disabled={currentError === validationErrors.length - 1}
                       >
                         <ArrowForwardRoundedIcon />
@@ -785,7 +902,14 @@ function StageDrawer({
               )}
               <Tooltip title={"Close alert"} placement="top">
                 <IconButton
-                  onClick={() => setIsInvalidOpen(false)}
+                  onClick={() => {
+                    setIsInvalidOpen(false);
+                    setCurrentErrorLocation({});
+                    if (selectedEdgeRef) {
+                      selectedEdgeRef.moveToBottom();
+                      setSelectedEdgeRef(null);
+                    }
+                  }}
                   size="medium"
                   color="inherit"
                 >

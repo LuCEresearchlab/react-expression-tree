@@ -23,6 +23,7 @@ function Edge({
   clearEdgeSelection,
   draggingSelectionRect,
   fullDisabled,
+  currentErrorLocation,
 }) {
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
@@ -59,7 +60,7 @@ function Edge({
   };
 
   return (
-    <Group onClick={!fullDisabled && onEdgeClick}>
+    <Group id={id} name="Edge" onClick={!fullDisabled && onEdgeClick}>
       <Line
         key={"Edge-Line-" + id}
         points={[
@@ -68,7 +69,17 @@ function Edge({
           parentX + xPad + parentPieceX + holeWidth / 2,
           parentY + yPad + textHeight / 2,
         ]}
-        stroke={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
+        stroke={
+          beingDragged
+            ? "#f0f0f0"
+            : currentErrorLocation &&
+              currentErrorLocation.edge &&
+              currentErrorLocation.edgeId === id
+            ? "#ff2f2f"
+            : selected
+            ? "#3f50b5"
+            : "black"
+        }
         strokeWidth={fontSize / 4}
         lineCap="round"
         lineJoin="round"
@@ -87,7 +98,17 @@ function Edge({
         x={childX + childWidth / 2}
         y={childY}
         radius={fontSize / 4}
-        fill={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
+        fill={
+          beingDragged
+            ? "#f0f0f0"
+            : currentErrorLocation &&
+              currentErrorLocation.edge &&
+              currentErrorLocation.edgeId === id
+            ? "#ff2f2f"
+            : selected
+            ? "#3f50b5"
+            : "black"
+        }
         stroke="black"
         strokeWidth={1}
         draggable
@@ -108,7 +129,17 @@ function Edge({
         x={parentX + xPad + parentPieceX + holeWidth / 2}
         y={parentY + yPad + textHeight / 2}
         radius={fontSize / 4}
-        fill={beingDragged ? "#f0f0f0" : selected ? "#3f50b5" : "black"}
+        fill={
+          beingDragged
+            ? "#f0f0f0"
+            : currentErrorLocation &&
+              currentErrorLocation.edge &&
+              currentErrorLocation.edgeId === id
+            ? "#ff2f2f"
+            : selected
+            ? "#3f50b5"
+            : "black"
+        }
         stroke="black"
         strokeWidth={1}
         draggable

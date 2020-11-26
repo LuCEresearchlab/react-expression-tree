@@ -49,6 +49,7 @@ function Node({
   draggingSelectionRect,
   drawerFields,
   fullDisabled,
+  currentErrorLocation,
 }) {
   // keep track
   // to prevent onMoveNode() notifications
@@ -235,7 +236,17 @@ function Node({
         y={0}
         width={nodeWidth}
         height={nodeHeight}
-        fill={isFinal ? "#208080" : isSelected ? "#3f50b5" : "#208020"}
+        fill={
+          currentErrorLocation &&
+          currentErrorLocation.node &&
+          currentErrorLocation.nodeId === id
+            ? "#ff2f2f"
+            : isSelected
+            ? "#3f50b5"
+            : isFinal
+            ? "#208080"
+            : "#208020"
+        }
         stroke="black"
         strokeWidth={isSelected ? 2 : 1}
         cornerRadius={5}
@@ -260,7 +271,13 @@ function Node({
           numPoints={5}
           innerRadius={fontSize / 5}
           outerRadius={fontSize / 2.5}
-          fill="#3f50b5"
+          fill={
+            currentErrorLocation &&
+            currentErrorLocation.nodeConnector &&
+            currentErrorLocation.nodeId === id
+              ? "#ff2f2f"
+              : "#3f50b5"
+          }
           stroke="black"
           strokeWidth={2}
           draggable={!fullDisabled}
@@ -282,7 +299,13 @@ function Node({
           x={nodeWidth / 2}
           y={0}
           radius={fontSize / 4}
-          fill="black"
+          fill={
+            currentErrorLocation &&
+            currentErrorLocation.nodeConnector &&
+            currentErrorLocation.nodeId === id
+              ? "#ff2f2f"
+              : "black"
+          }
           draggable={!fullDisabled}
           onDragStart={!fullDisabled && handleNodeConnectorDragStart}
           onDragMove={() => {}}
@@ -305,7 +328,14 @@ function Node({
               y={nodeHeight / 2 - yPad}
               width={holeWidth}
               height={textHeight}
-              fill="#104010"
+              fill={
+                currentErrorLocation &&
+                currentErrorLocation.pieceConnector &&
+                currentErrorLocation.nodeId === id &&
+                currentErrorLocation.pieceId === i
+                  ? "#ff2f2f"
+                  : "#104010"
+              }
               stroke="black"
               strokeWidth={1}
               cornerRadius={3}

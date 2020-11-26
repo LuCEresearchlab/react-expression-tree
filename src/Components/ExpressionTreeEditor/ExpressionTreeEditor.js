@@ -90,6 +90,7 @@ function ExpressionTreeEditor({
     x: 0,
     y: 0,
   });
+  const [currentErrorLocation, setCurrentErrorLocation] = useState({});
 
   // Effects
   useEffect(() => {
@@ -696,6 +697,7 @@ function ExpressionTreeEditor({
         toolbarButtons={toolbarButtons}
         drawerFields={drawerFields}
         fullDisabled={fullDisabled}
+        setCurrentErrorLocation={setCurrentErrorLocation}
       />
       <Stage
         ref={stageRef}
@@ -763,6 +765,7 @@ function ExpressionTreeEditor({
               clearEdgeSelection={clearEdgeSelection}
               draggingSelectionRect={draggingSelectionRect}
               fullDisabled={fullDisabled}
+              currentErrorLocation={currentErrorLocation}
             />
           ))}
           {nodes.map((node, i) => (
@@ -806,6 +809,7 @@ function ExpressionTreeEditor({
               draggingSelectionRect={draggingSelectionRect}
               drawerFields={drawerFields}
               fullDisabled={fullDisabled}
+              currentErrorLocation={currentErrorLocation}
             />
           ))}
           <Rect
