@@ -63,6 +63,9 @@ function ExpressionTreeEditor({
   reportedErrors,
   moveSelectedNodesTo,
   moveSelectedNodesToEnd,
+  toolbarButtons,
+  drawerFields,
+  fullDisabled,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -163,9 +166,10 @@ function ExpressionTreeEditor({
         setPressingMeta(false);
       }
     };
-    stage.container().addEventListener("keydown", keyDownListener);
-    stage.container().addEventListener("keyup", keyUpListener);
-
+    if (!fullDisabled) {
+      stage.container().addEventListener("keydown", keyDownListener);
+      stage.container().addEventListener("keyup", keyUpListener);
+    }
     return () => {
       stage.container().removeEventListener("keydown", keyDownListener);
       stage.container().removeEventListener("keyup", keyUpListener);
@@ -175,6 +179,7 @@ function ExpressionTreeEditor({
     clearAdding,
     clearEdgeSelection,
     clearNodeSelection,
+    fullDisabled,
     removeEdge,
     removeNode,
     selectedEdge,
@@ -503,18 +508,7 @@ function ExpressionTreeEditor({
       }
       if (!selectedNode) {
         selectNode({ selectedNode: selectingNode });
-        if (!selectingNode.isFinal) {
-          document.getElementById(
-            "editField"
-          ).value = selectingNode.pieces.join("");
-          editValueChange({ editValue: selectingNode.pieces });
-        }
-        typeValueChange({ typeValue: selectingNode.type });
-        document.getElementById("valueField").value = selectingNode.value;
-        nodeValueChange({ nodeValue: selectingNode.value });
-      } else {
-        if (selectedNode.id !== selectingNode.id) {
-          selectNode({ selectedNode: selectingNode });
+        if (drawerFields.editField) {
           if (!selectingNode.isFinal) {
             document.getElementById(
               "editField"
@@ -524,6 +518,21 @@ function ExpressionTreeEditor({
           typeValueChange({ typeValue: selectingNode.type });
           document.getElementById("valueField").value = selectingNode.value;
           nodeValueChange({ nodeValue: selectingNode.value });
+        }
+      } else {
+        if (selectedNode.id !== selectingNode.id) {
+          selectNode({ selectedNode: selectingNode });
+          if (drawerFields.editField) {
+            if (!selectingNode.isFinal) {
+              document.getElementById(
+                "editField"
+              ).value = selectingNode.pieces.join("");
+              editValueChange({ editValue: selectingNode.pieces });
+            }
+            typeValueChange({ typeValue: selectingNode.type });
+            document.getElementById("valueField").value = selectingNode.value;
+            nodeValueChange({ nodeValue: selectingNode.value });
+          }
         }
       }
     }
@@ -684,31 +693,46 @@ function ExpressionTreeEditor({
         selectedEdgeRef={selectedEdgeRef}
         setSelectedEdgeRef={setSelectedEdgeRef}
         reportedErrors={reportedErrors}
+        toolbarButtons={toolbarButtons}
+        drawerFields={drawerFields}
+        fullDisabled={fullDisabled}
       />
       <Stage
         ref={stageRef}
         width={width}
         height={height}
-        onMouseMove={handleStageMouseMove}
-        onMouseUp={handleStageMouseUp}
-        onClick={handleStageClick}
+        onMouseMove={!fullDisabled && handleStageMouseMove}
+        onMouseUp={!fullDisabled && handleStageMouseUp}
+        onClick={!fullDisabled && handleStageClick}
         style={{ cursor: addingNode && "crosshair" }}
-        draggable={!pressingMeta}
-        onMouseDown={handleStageMouseDown}
-        onDragStart={e => {
-          document.body.style.cursor = "grabbing";
-        }}
-        onDragMove={e => handleStageDragMove(e)}
-        onDragEnd={e => {
-          document.body.style.cursor = "move";
-        }}
-        onWheel={handleStageWheel}
-        onMouseOver={e => {
-          document.body.style.cursor = "move";
-        }}
-        onMouseLeave={e => {
-          document.body.style.cursor = "default";
-        }}
+        draggable={!pressingMeta && !fullDisabled}
+        onMouseDown={!fullDisabled && handleStageMouseDown}
+        onDragStart={
+          !fullDisabled &&
+          (e => {
+            document.body.style.cursor = "grabbing";
+          })
+        }
+        onDragMove={!fullDisabled && (e => handleStageDragMove(e))}
+        onDragEnd={
+          !fullDisabled &&
+          (e => {
+            document.body.style.cursor = "move";
+          })
+        }
+        onWheel={!fullDisabled && handleStageWheel}
+        onMouseOver={
+          !fullDisabled &&
+          (e => {
+            document.body.style.cursor = "move";
+          })
+        }
+        onMouseLeave={
+          !fullDisabled &&
+          (e => {
+            document.body.style.cursor = "default";
+          })
+        }
       >
         <Layer>
           {edges.map((edge, i) => (
@@ -738,6 +762,7 @@ function ExpressionTreeEditor({
               setSelectedEdgeRef={setSelectedEdgeRef}
               clearEdgeSelection={clearEdgeSelection}
               draggingSelectionRect={draggingSelectionRect}
+              fullDisabled={fullDisabled}
             />
           ))}
           {nodes.map((node, i) => (
@@ -779,6 +804,8 @@ function ExpressionTreeEditor({
               isFinal={node.isFinal}
               pressingMeta={pressingMeta}
               draggingSelectionRect={draggingSelectionRect}
+              drawerFields={drawerFields}
+              fullDisabled={fullDisabled}
             />
           ))}
           <Rect
@@ -832,9 +859,6 @@ function ExpressionTreeEditor({
             }}
             onDragMove={handleSelectedDragMove}
             onDragEnd={handleSelectedDragEnd}
-            onClick={e => {
-              e.cancelBubble = true;
-            }}
             onMouseDown={handleStageMouseDown}
           ></Rect>
           {dragEdge && (

@@ -373,7 +373,7 @@ const treeEditorReducer = (state = initialState, action) => {
             };
           } else {
             unconnectedCount++;
-            if (unconnectedCount % 10 === 0) {
+            if (unconnectedCount % 8 === 0) {
               unconnectedCurrentX = 320;
             }
             var tmpX = unconnectedCurrentX;
@@ -382,8 +382,8 @@ const treeEditorReducer = (state = initialState, action) => {
               ...node,
               x: tmpX,
               y:
-                textHeight * 2 +
-                (currentLevelX.length + Math.floor(unconnectedCount / 10)) *
+                textHeight * 3 +
+                (currentLevelX.length + Math.floor(unconnectedCount / 8)) *
                   (textHeight * 4),
             };
           }

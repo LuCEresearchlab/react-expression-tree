@@ -18,10 +18,26 @@ function App() {
     <ExpressionTreeEditor
       width={stageWidth}
       height={stageHeight}
+      toolbarButtons={{
+        drawerButton: true,
+        reset: true,
+        undo: true,
+        redo: true,
+        reorder: true,
+        validate: true,
+        download: true,
+        upload: true,
+        screenshot: true,
+        zoomIn: true,
+        zoomOut: true,
+        info: true,
+      }}
+      drawerFields={{ addField: true, editField: true }}
+      fullDisabled={false}
       allowedErrors={{
         // loop: true,
         multiEdgeOnPieceConnector: true,
-        multiEdgeOnNodeConnector: false,
+        multiEdgeOnNodeConnector: true,
       }}
       reportedErrors={{
         loop: true,
@@ -39,8 +55,6 @@ function App() {
         "-{{}}",
         "{{}}+{{}}",
       ]}
-      // toolbarFields={{ addField: true, editField: true }}
-      // fullDisabled={false}
       nodeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
       // nodeTypes={[
       //   "String",
@@ -53,11 +67,11 @@ function App() {
       // {type: "String", any: true}
       initialState={{
         initialNodes: [
-          { pieces: ["19"], x: 320, y: 40, type: "", value: "", isFinal: true },
+          { pieces: ["19"], x: 320, y: 60, type: "", value: "", isFinal: true },
           {
             pieces: ["age"],
             x: 320,
-            y: 95,
+            y: 115,
             type: "",
             value: "",
             isFinal: false,
@@ -65,7 +79,7 @@ function App() {
           {
             pieces: ['"Hello World!"'],
             x: 320,
-            y: 150,
+            y: 170,
             type: "",
             value: "",
             isFinal: false,
@@ -73,7 +87,7 @@ function App() {
           {
             pieces: ["-", "{{}}"],
             x: 320,
-            y: 205,
+            y: 225,
             type: "",
             value: "",
             isFinal: false,
@@ -81,7 +95,7 @@ function App() {
           {
             pieces: ["{{}}", "<", "{{}}"],
             x: 320,
-            y: 260,
+            y: 280,
             type: "",
             value: "",
             isFinal: true,
@@ -89,7 +103,7 @@ function App() {
           {
             pieces: ["{{}}", "+", "{{}}"],
             x: 320,
-            y: 315,
+            y: 335,
             type: "",
             value: "",
             isFinal: false,
@@ -97,7 +111,7 @@ function App() {
           {
             pieces: ["(int)", "{{}}"],
             x: 320,
-            y: 370,
+            y: 390,
             type: "",
             value: "",
             isFinal: false,
@@ -105,7 +119,7 @@ function App() {
           {
             pieces: ["{{}}", "?", "{{}}", ":", "{{}}"],
             x: 320,
-            y: 425,
+            y: 445,
             type: "",
             value: "",
             isFinal: true,
@@ -113,7 +127,7 @@ function App() {
           {
             pieces: ["{{}}", ".length"],
             x: 320,
-            y: 480,
+            y: 500,
             type: "",
             value: "",
             isFinal: false,
@@ -121,15 +135,7 @@ function App() {
           {
             pieces: ["{{}}", ".length()"],
             x: 320,
-            y: 535,
-            type: "",
-            value: "",
-            isFinal: false,
-          },
-          {
-            pieces: ["{{}}", ".append(", "{{}}", ")"],
-            x: 320,
-            y: 590,
+            y: 555,
             type: "",
             value: "",
             isFinal: false,

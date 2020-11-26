@@ -47,6 +47,8 @@ function Node({
   isFinal,
   pressingMeta,
   draggingSelectionRect,
+  drawerFields,
+  fullDisabled,
 }) {
   // keep track
   // to prevent onMoveNode() notifications
@@ -64,15 +66,17 @@ function Node({
       const selectingNode = nodeById(id, nodes);
       if (!isSelected) {
         selectNode({ selectedNode: selectingNode });
-        if (!selectingNode.isFinal) {
-          document.getElementById(
-            "editField"
-          ).value = selectingNode.pieces.join("");
-          editValueChange({ editValue: selectingNode.pieces });
+        if (drawerFields.editField) {
+          if (!selectingNode.isFinal) {
+            document.getElementById(
+              "editField"
+            ).value = selectingNode.pieces.join("");
+            editValueChange({ editValue: selectingNode.pieces });
+          }
+          typeValueChange({ typeValue: selectingNode.type });
+          document.getElementById("valueField").value = selectingNode.value;
+          nodeValueChange({ nodeValue: selectingNode.value });
         }
-        typeValueChange({ typeValue: selectingNode.type });
-        document.getElementById("valueField").value = selectingNode.value;
-        nodeValueChange({ nodeValue: selectingNode.value });
         if (selectedEdgeRef) {
           selectedEdgeRef.moveToBottom();
           setSelectedEdgeRef(null);
@@ -149,7 +153,6 @@ function Node({
       }
       document.body.style.cursor = "grabbing";
       const pieceId = e.target.id();
-      // const pos = e.target.absolutePosition();
       // we don't want the connector to be moved
       e.target.stopDrag();
       // but we want to initiate the moving around of the connection
@@ -191,6 +194,7 @@ function Node({
   };
 
   const handleRemoveClick = e => {
+    e.cancelBubble = true;
     transformerRef.current.nodes([]);
     document.body.style.cursor = "move";
     if (selectedEdgeRef) {
@@ -208,17 +212,20 @@ function Node({
       id={id}
       x={x}
       y={y}
-      draggable
-      onClick={handleNodeClick}
-      onDblClick={onNodeDblClick}
-      onDragStart={e => handleDragStart(e)}
-      onDragMove={handleDragMove}
-      onDragEnd={handleDragEnd}
+      draggable={!fullDisabled}
+      onClick={!fullDisabled && handleNodeClick}
+      onDblClick={!fullDisabled && onNodeDblClick}
+      onDragStart={!fullDisabled && (e => handleDragStart(e))}
+      onDragMove={!fullDisabled && handleDragMove}
+      onDragEnd={!fullDisabled && handleDragEnd}
       dragBoundFunc={pos => checkDragBound(pos)}
-      onMouseOver={e => {
-        e.cancelBubble = true;
-        document.body.style.cursor = "pointer";
-      }}
+      onMouseOver={
+        !fullDisabled &&
+        (e => {
+          e.cancelBubble = true;
+          document.body.style.cursor = "pointer";
+        })
+      }
     >
       <Rect
         name="Node"
@@ -256,14 +263,17 @@ function Node({
           fill="#3f50b5"
           stroke="black"
           strokeWidth={2}
-          draggable
-          onDragStart={handleNodeConnectorDragStart}
+          draggable={!fullDisabled}
+          onDragStart={!fullDisabled && handleNodeConnectorDragStart}
           onDragMove={() => {}}
           onDragEnd={() => {}}
-          onMouseOver={e => {
-            e.cancelBubble = true;
-            document.body.style.cursor = "grab";
-          }}
+          onMouseOver={
+            !fullDisabled &&
+            (e => {
+              e.cancelBubble = true;
+              document.body.style.cursor = "grab";
+            })
+          }
         />
       ) : (
         <Circle
@@ -273,14 +283,17 @@ function Node({
           y={0}
           radius={fontSize / 4}
           fill="black"
-          draggable
-          onDragStart={handleNodeConnectorDragStart}
-          onDragMove={e => {}}
-          onDragEnd={e => {}}
-          onMouseOver={e => {
-            e.cancelBubble = true;
-            document.body.style.cursor = "grab";
-          }}
+          draggable={!fullDisabled}
+          onDragStart={!fullDisabled && handleNodeConnectorDragStart}
+          onDragMove={() => {}}
+          onDragEnd={() => {}}
+          onMouseOver={
+            !fullDisabled &&
+            (e => {
+              e.cancelBubble = true;
+              document.body.style.cursor = "grab";
+            })
+          }
         />
       )}
       {pieces.map((p, i) =>
@@ -296,29 +309,39 @@ function Node({
               stroke="black"
               strokeWidth={1}
               cornerRadius={3}
-              draggable
-              onDragStart={e => handlePieceConnectorDragStart(e, id)}
-              onDragMove={e => {}}
-              onDragEnd={e => {}}
-              onMouseOver={e => {
-                e.cancelBubble = true;
-                document.body.style.cursor = "grab";
-              }}
+              draggable={!fullDisabled}
+              onDragStart={
+                !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
+              }
+              onDragMove={() => {}}
+              onDragEnd={() => {}}
+              onMouseOver={
+                !fullDisabled &&
+                (e => {
+                  e.cancelBubble = true;
+                  document.body.style.cursor = "grab";
+                })
+              }
             />
             <Circle
               id={i}
               x={xPad + piecesPos[i] + holeWidth / 2}
               y={yPad + textHeight / 2}
-              draggable
-              onDragStart={e => handlePieceConnectorDragStart(e, id)}
+              draggable={!fullDisabled}
+              onDragStart={
+                !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
+              }
               onDragMove={e => {}}
               onDragEnd={e => {}}
               radius={fontSize / 4}
               fill="black"
-              onMouseOver={e => {
-                e.cancelBubble = true;
-                document.body.style.cursor = "grab";
-              }}
+              onMouseOver={
+                !fullDisabled &&
+                (e => {
+                  e.cancelBubble = true;
+                  document.body.style.cursor = "grab";
+                })
+              }
               visible={edgeByParentPiece(id, i, edges).length > 0}
             />
           </Group>
@@ -342,15 +365,18 @@ function Node({
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
           text="X"
-          onClick={e => handleRemoveClick(e)}
-          onMouseOver={e => {
-            if (!draggingSelectionRect) {
-              e.cancelBubble = true;
-              document.body.style.cursor = "pointer";
-              e.target.fill("red");
-              e.target.draw();
-            }
-          }}
+          onClick={e => !fullDisabled && handleRemoveClick(e)}
+          onMouseOver={
+            !fullDisabled &&
+            (e => {
+              if (!draggingSelectionRect) {
+                e.cancelBubble = true;
+                document.body.style.cursor = "pointer";
+                e.target.fill("red");
+                e.target.draw();
+              }
+            })
+          }
           onMouseLeave={e => {
             if (!draggingSelectionRect) {
               e.cancelBubble = true;

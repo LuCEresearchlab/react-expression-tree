@@ -22,6 +22,7 @@ function Edge({
   setSelectedEdgeRef,
   clearEdgeSelection,
   draggingSelectionRect,
+  fullDisabled,
 }) {
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
@@ -58,7 +59,7 @@ function Edge({
   };
 
   return (
-    <Group onClick={onEdgeClick}>
+    <Group onClick={!fullDisabled && onEdgeClick}>
       <Line
         key={"Edge-Line-" + id}
         points={[
@@ -72,12 +73,15 @@ function Edge({
         lineCap="round"
         lineJoin="round"
         hitStrokeWidth={10}
-        onMouseOver={e => {
-          e.cancelBubble = true;
-          if (!draggingSelectionRect) {
-            document.body.style.cursor = "pointer";
-          }
-        }}
+        onMouseOver={
+          !fullDisabled &&
+          (e => {
+            e.cancelBubble = true;
+            if (!draggingSelectionRect) {
+              document.body.style.cursor = "pointer";
+            }
+          })
+        }
       />
       <Circle
         x={childX + childWidth / 2}
@@ -87,15 +91,18 @@ function Edge({
         stroke="black"
         strokeWidth={1}
         draggable
-        onDragStart={handleNodeConnectorDragStart}
+        onDragStart={!fullDisabled && handleNodeConnectorDragStart}
         onDragMove={() => {}}
         onDragEnd={() => {}}
-        onMouseOver={e => {
-          e.cancelBubble = true;
-          if (!draggingSelectionRect) {
-            document.body.style.cursor = "grab";
-          }
-        }}
+        onMouseOver={
+          !fullDisabled &&
+          (e => {
+            e.cancelBubble = true;
+            if (!draggingSelectionRect) {
+              document.body.style.cursor = "grab";
+            }
+          })
+        }
       />
       <Circle
         x={parentX + xPad + parentPieceX + holeWidth / 2}
@@ -105,15 +112,18 @@ function Edge({
         stroke="black"
         strokeWidth={1}
         draggable
-        onDragStart={handlePieceConnectorDragStart}
+        onDragStart={!fullDisabled && handlePieceConnectorDragStart}
         onDragMove={e => {}}
         onDragEnd={e => {}}
-        onMouseOver={e => {
-          e.cancelBubble = true;
-          if (!draggingSelectionRect) {
-            document.body.style.cursor = "grab";
-          }
-        }}
+        onMouseOver={
+          !fullDisabled &&
+          (e => {
+            e.cancelBubble = true;
+            if (!draggingSelectionRect) {
+              document.body.style.cursor = "grab";
+            }
+          })
+        }
       />
     </Group>
   );

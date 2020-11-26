@@ -19,6 +19,10 @@ import ViewModuleRoundedIcon from "@material-ui/icons/ViewModuleRounded";
 import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded";
 import ArrowForwardRoundedIcon from "@material-ui/icons/ArrowForwardRounded";
 import ClearRoundedIcon from "@material-ui/icons/ClearRounded";
+import PhotoCameraRoundedIcon from "@material-ui/icons/PhotoCameraRounded";
+import ZoomOutRoundedIcon from "@material-ui/icons/ZoomOutRounded";
+import ZoomInRoundedIcon from "@material-ui/icons/ZoomInRounded";
+
 import {
   Drawer,
   IconButton,
@@ -57,22 +61,35 @@ const useStyles = makeStyles(theme => ({
   drawer: {
     width: drawerWidth,
     position: "absolute",
-    maxHeight: "99.5%",
+    top: "50px",
+    maxHeight: "92%",
     overflowY: "scroll",
-    margin: "1px 0 0 1px",
+    marginLeft: "1px",
   },
-  drawerHeader: {
+  toolbar: {
+    zIndex: "1",
+    position: "absolute",
+    margin: "1px 0 0 1px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
-  toolbarInfo: {
+  toolbarButton: {
+    backgroundColor: "#fff",
+    "&:hover": {
+      backgroundColor: "#f5f5f5",
+    },
+    "&:disabled": {
+      backgroundColor: "#fff",
+    },
+  },
+  drawerInfo: {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
     margin: "10px 0 0 10px",
   },
-  toolbarField: {
+  drawerField: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -91,9 +108,6 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.primary.main,
     padding: "3px 6px 3px 6px",
     maxWidth: "500px",
-  },
-  toolbarTitle: {
-    margin: "10px 0 0 10px",
   },
   templateElement: {
     color: "white",
@@ -125,16 +139,6 @@ const useStyles = makeStyles(theme => ({
   templateContainer: {
     maxHeight: "200px",
     overflowY: "scroll",
-  },
-  openDrawerButton: {
-    position: "absolute",
-    top: "5px",
-    left: "5px",
-    zIndex: "1",
-    backgroundColor: "#f9f9f9",
-    "&:hover": {
-      backgroundColor: "#f0f0f0",
-    },
   },
   typeField: {
     margin: "10px 10px 10px 10px",
@@ -190,6 +194,9 @@ function StageDrawer({
   selectedEdgeRef,
   setSelectedEdgeRef,
   reportedErrors,
+  toolbarButtons,
+  drawerFields,
+  fullDisabled,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -200,10 +207,6 @@ function StageDrawer({
   const isAddInfoOpen = !!addAnchorEl;
   const [editAnchorEl, setEditAnchorEl] = useState(null);
   const isEditInfoOpen = !!editAnchorEl;
-  const [validationAnchorEl, setValidationAnchorEl] = useState(null);
-  const isValidationInfoOpen = !!validationAnchorEl;
-  const [orderAnchorEl, setOrderAnchorEl] = useState(null);
-  const isOrderInfoOpen = !!orderAnchorEl;
   const [isResetWarnOpen, setIsResetWarnOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
   const [currentError, setCurrentError] = useState(0);
@@ -262,8 +265,8 @@ function StageDrawer({
       "data:text/json;charset=utf-8," +
       encodeURIComponent(JSON.stringify(currentState, null, 4));
     var downloadElement = document.createElement("a");
-    downloadElement.setAttribute("href", stateData);
-    downloadElement.setAttribute("download", "expression_editor_state.json");
+    downloadElement.href = stateData;
+    downloadElement.download = "expression_editor_state.json";
     document.body.appendChild(downloadElement);
     downloadElement.click();
     downloadElement.remove();
@@ -286,6 +289,19 @@ function StageDrawer({
           edges: state.edges,
           selectedRootNode: state.selectedRootNode,
         });
+        if (selectedEdgeRef) {
+          selectedEdgeRef.moveToBottom();
+          setSelectedEdgeRef(null);
+        }
+        clearAdding();
+        if (drawerFields.addField) {
+          document.getElementById("addField").value = "";
+        }
+        addValueChange({ addValue: [] });
+        editValueChange({ editValue: [] });
+        typeValueChange({ typeValue: "" });
+        nodeValueChange({ nodeValue: "" });
+        setSelectedTemplate(null);
         stageRef.current.position({ x: state.stagePos.x, y: state.stagePos.y });
         stageRef.current.scale({
           x: state.stageScale.x,
@@ -339,12 +355,16 @@ function StageDrawer({
     stage.scale({ x: 1, y: 1 });
     transformerRef.current.nodes([]);
     clearAdding();
-    document.getElementById("addField").value = "";
+    if (drawerFields.addField) {
+      document.getElementById("addField").value = "";
+    }
     addValueChange({ addValue: [] });
     editValueChange({ editValue: [] });
     typeValueChange({ typeValue: "" });
     nodeValueChange({ nodeValue: "" });
     setSelectedTemplate(null);
+    transformerRef.current.nodes([]);
+    setIsSelectedRectVisible(false);
     dispatch(ActionCreators.clearHistory());
   };
 
@@ -478,20 +498,190 @@ function StageDrawer({
     }
   };
 
+  const handleImageClick = () => {
+    var downloadElement = document.createElement("a");
+    downloadElement.href = stageRef.current.toDataURL({ pixelRatio: 2 });
+    downloadElement.download = "expression_editor_image.png";
+    document.body.appendChild(downloadElement);
+    downloadElement.click();
+    downloadElement.remove();
+  };
+
+  const handleZoomInClick = () => {
+    const currentScale = stageRef.current.scale();
+    stageRef.current.scale({
+      x: currentScale.x * 1.2,
+      y: currentScale.x * 1.2,
+    });
+    stageRef.current.draw();
+  };
+
+  const handleZoomOutClick = () => {
+    const currentScale = stageRef.current.scale();
+    stageRef.current.scale({
+      x: currentScale.x * 0.8,
+      y: currentScale.x * 0.8,
+    });
+    stageRef.current.draw();
+  };
+
+  const handleInfoClick = () => {};
+
   return (
     <>
-      <Tooltip title={"Open toolbar"} placement="right">
-        <IconButton
-          onClick={() => setIsDrawerOpen(true)}
-          color="primary"
-          style={{
-            visibility: isDrawerOpen ? "hidden" : "visible",
-          }}
-          classes={{ root: classes.openDrawerButton }}
-        >
-          <MenuRoundedIcon />
-        </IconButton>
-      </Tooltip>
+      <div className={classes.toolbar}>
+        {toolbarButtons.drawerButton && !fullDisabled && (
+          <Tooltip
+            title={isDrawerOpen ? "Close toolbar" : "Open toolbar"}
+            placement="bottom"
+          >
+            <IconButton
+              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              {isDrawerOpen ? <ChevronLeftRoundedIcon /> : <MenuRoundedIcon />}
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.reset && !fullDisabled && (
+          <Tooltip title={"Reset state"} placement="bottom">
+            <IconButton
+              onClick={() => setIsResetWarnOpen(true)}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <NoteAddRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.undo && !fullDisabled && (
+          <Tooltip title={"Undo action"} placement="bottom">
+            <span>
+              <IconButton
+                onClick={handleUndo}
+                color="primary"
+                disabled={!canUndo}
+                className={classes.toolbarButton}
+              >
+                <UndoRoundedIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {toolbarButtons.redo && !fullDisabled && (
+          <Tooltip title={"Redo action"} placement="bottom">
+            <span>
+              <IconButton
+                onClick={handleRedo}
+                color="primary"
+                disabled={!canRedo}
+                className={classes.toolbarButton}
+              >
+                <RedoRoundedIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {toolbarButtons.reorder && !fullDisabled && (
+          <Tooltip title="Reorder nodes" placement="bottom">
+            <IconButton
+              onClick={handleReorderClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <ViewModuleRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.validate && !fullDisabled && (
+          <Tooltip title="Validate tree" placement="bottom">
+            <span>
+              <IconButton
+                onClick={handleTreeValidation}
+                color="primary"
+                className={classes.toolbarButton}
+                disabled={!selectedRootNode}
+              >
+                <CheckRoundedIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {toolbarButtons.download && !fullDisabled && (
+          <Tooltip title={"Download state"} placement="bottom">
+            <IconButton
+              onClick={handleStateDownload}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <GetAppRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.upload && !fullDisabled && (
+          <Tooltip title={"Upload state"} placement="bottom">
+            <IconButton
+              onClick={handleStateUpload}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <PublishRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        <input
+          id={"stateUploadButton"}
+          style={{ display: "none" }}
+          type="file"
+          accept=".json"
+          onChange={e => handleFileChange(e)}
+        />
+        {toolbarButtons.screenshot && !fullDisabled && (
+          <Tooltip title="Save state image" placement="bottom">
+            <IconButton
+              onClick={handleImageClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <PhotoCameraRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.zoomIn && !fullDisabled && (
+          <Tooltip title="Zoom-in" placement="bottom">
+            <IconButton
+              onClick={handleZoomInClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <ZoomInRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.zoomOut && !fullDisabled && (
+          <Tooltip title="Zoom-out" placement="bottom">
+            <IconButton
+              onClick={handleZoomOutClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <ZoomOutRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.info && !fullDisabled && (
+          <Tooltip title="Info" placement="bottom">
+            <IconButton
+              onClick={handleInfoClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <InfoOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+      </div>
       <Dialog
         style={{ position: "absolute" }}
         open={isResetWarnOpen}
@@ -520,6 +710,7 @@ function StageDrawer({
         <DialogActions>
           <Button
             onClick={() => setIsResetWarnOpen(false)}
+            variant="contained"
             color="primary"
             endIcon={<CloseRoundedIcon />}
           >
@@ -527,6 +718,7 @@ function StageDrawer({
           </Button>
           <Button
             onClick={handleReset}
+            variant="contained"
             color="primary"
             endIcon={<CheckRoundedIcon />}
           >
@@ -679,404 +871,292 @@ function StageDrawer({
           },
         }}
       >
-        <Divider />
-        <div className={classes.drawerHeader}>
-          <Tooltip title={"Undo action"} placement="bottom">
-            <span>
-              <IconButton
-                onClick={handleUndo}
-                color="primary"
-                disabled={!canUndo}
-              >
-                <UndoRoundedIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title={"Redo action"} placement="bottom">
-            <span>
-              <IconButton
-                onClick={handleRedo}
-                color="primary"
-                disabled={!canRedo}
-              >
-                <RedoRoundedIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title={"Reset state"} placement="bottom">
-            <IconButton
-              onClick={() => setIsResetWarnOpen(true)}
-              color="primary"
-            >
-              <NoteAddRoundedIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={"Download state"} placement="bottom">
-            <IconButton onClick={handleStateDownload} color="primary">
-              <GetAppRoundedIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={"Upload state"} placement="bottom">
-            <IconButton onClick={handleStateUpload} color="primary">
-              <PublishRoundedIcon />
-            </IconButton>
-          </Tooltip>
-          <input
-            id={"stateUploadButton"}
-            style={{ display: "none" }}
-            type="file"
-            accept=".json"
-            onChange={e => handleFileChange(e)}
-          />
-          <Tooltip title={"Close toolbar"} placement="right">
-            <IconButton onClick={() => setIsDrawerOpen(false)} color="primary">
-              <ChevronLeftRoundedIcon />
-            </IconButton>
-          </Tooltip>
-        </div>
-        <Divider />
-        <div className={classes.toolbarInfo}>
-          <Typography variant="h6">Create a new node:</Typography>
+        {drawerFields.addField && !fullDisabled && (
           <div>
-            <IconButton
-              size="small"
-              onClick={e => setAddAnchorEl(e.target)}
-              color="primary"
-            >
-              <InfoOutlinedIcon />
-            </IconButton>
-            <Popover
-              className={classes.infoPopover}
-              open={isAddInfoOpen}
-              anchorEl={addAnchorEl}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={() => setAddAnchorEl(null)}
-            >
-              <Typography className={classes.infoPopoverText} variant="body2">
-                Describe the node's pieces in the textfield below. Holes are
-                represented by the special {connectorPlaceholder} character
-                combination. Alternatively you can choose a template node from
-                the list below.
-              </Typography>
-            </Popover>
-          </div>
-        </div>
-        <div className={classes.toolbarField}>
-          <TextField
-            id="addField"
-            type="search"
-            variant="outlined"
-            fullWidth
-            size="medium"
-            label="Insert the node's pieces"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            placeholder={
-              "ex: " +
-              connectorPlaceholder +
-              ".append(" +
-              connectorPlaceholder +
-              ")"
-            }
-            margin="dense"
-            onChange={e => handleAddChange(e.target.value)}
-            onKeyPress={e => {
-              if (e.key === "Enter" && e.target.value !== "") {
-                addingNodeClick();
-              }
-            }}
-          ></TextField>
-          <div>
-            <Tooltip
-              title={addingNode ? "Clear adding" : "Add node"}
-              placement="top"
-            >
-              <span>
+            <Divider />
+            <div className={classes.drawerInfo}>
+              <Typography variant="h6">Create a new node:</Typography>
+              <div>
                 <IconButton
-                  size="medium"
-                  onClick={() => addingNodeClick()}
-                  disabled={isAddEmpty}
-                  color={addingNode ? "secondary" : "primary"}
-                >
-                  <AddRoundedIcon />
-                </IconButton>
-              </span>
-            </Tooltip>
-          </div>
-        </div>
-        {templateNodes && templateNodes.length > 0 && (
-          <div>
-            <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
-              <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography variant="body1">
-                    Or select a template node:
-                  </Typography>
-                </AccordionSummary>
-                <Divider />
-                <div className={classes.templateContainer}>
-                  {templateNodes.map((e, i) => (
-                    <AccordionDetails key={"template-" + i}>
-                      <Typography
-                        variant="h6"
-                        id={i}
-                        className={
-                          selectedTemplate === i
-                            ? classes.selectedTemplateElement
-                            : classes.templateElement
-                        }
-                        onClick={() => handleTemplateClick(e, i)}
-                      >
-                        {e}
-                      </Typography>
-                    </AccordionDetails>
-                  ))}
-                </div>
-              </Accordion>
-            </AccordionActions>
-          </div>
-        )}
-        <Divider />
-        <div className={classes.toolbarInfo}>
-          <Typography variant="h6">Edit an existing node:</Typography>
-          <div>
-            <IconButton
-              size="small"
-              onClick={e => setEditAnchorEl(e.target)}
-              color="primary"
-            >
-              <InfoOutlinedIcon />
-            </IconButton>
-            <Popover
-              className={classes.infoPopover}
-              open={isEditInfoOpen}
-              anchorEl={editAnchorEl}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={() => setEditAnchorEl(null)}
-            >
-              <Typography className={classes.infoPopoverText} variant="body2">
-                Describe the node's pieces in the textfield below. Holes are
-                represented by the special {connectorPlaceholder} character
-                combination. Final nodes can't be modified or removed. Select
-                the node's out-coming type from the list below and insert the
-                node's out-coming value in the last textfield.
-              </Typography>
-            </Popover>
-          </div>
-        </div>
-        {selectedNode ? (
-          <>
-            {!selectedNode.isFinal && (
-              <div className={classes.toolbarField}>
-                <TextField
-                  key={selectedNode.id}
-                  id="editField"
-                  variant="outlined"
-                  type="search"
-                  fullWidth
-                  size="medium"
-                  label="Insert the node's pieces"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  placeholder={
-                    "ex: " +
-                    connectorPlaceholder +
-                    ".append(" +
-                    connectorPlaceholder +
-                    ")"
-                  }
-                  margin="dense"
-                  onChange={e => handleEditChange(e.target.value)}
-                  onKeyPress={e => {
-                    if (
-                      e.key === "Enter" &&
-                      editValue.length !== 0 &&
-                      editValue.join("") !== selectedNode.pieces.join("")
-                    ) {
-                      handleNodeEdit();
-                    }
-                  }}
-                ></TextField>
-                <div>
-                  <Tooltip title={"Update node pieces"} placement="top">
-                    <span>
-                      <IconButton
-                        size="medium"
-                        onClick={() => handleNodeEdit()}
-                        disabled={
-                          isEditEmpty ||
-                          editValue.join("") === selectedNode.pieces.join("")
-                        }
-                        color="primary"
-                      >
-                        <UpdateRoundedIcon />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </div>
-              </div>
-            )}
-            <div className={classes.typeField}>
-              <FormLabel>Select the node type from the list:</FormLabel>
-              <RadioGroup
-                value={typeValue}
-                onChange={e => handleTypeChange(e.target.value)}
-                row
-                className={classes.typeButtonContainer}
-              >
-                <Button
-                  variant="text"
                   size="small"
-                  onClick={() => handleTypeChange("")}
-                  disabled={typeValue === ""}
+                  onClick={e => setAddAnchorEl(e.target)}
                   color="primary"
-                  startIcon={<ClearRoundedIcon />}
                 >
-                  Clear node type
-                </Button>
-                {nodeTypes.map(type => (
-                  <FormControlLabel
-                    key={type}
-                    value={type}
-                    control={<Radio color="primary" />}
-                    label={type}
-                    className={classes.typeButton}
-                  />
-                ))}
-              </RadioGroup>
+                  <InfoOutlinedIcon />
+                </IconButton>
+                <Popover
+                  className={classes.infoPopover}
+                  open={isAddInfoOpen}
+                  anchorEl={addAnchorEl}
+                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  onClose={() => setAddAnchorEl(null)}
+                >
+                  <Typography
+                    className={classes.infoPopoverText}
+                    variant="body2"
+                  >
+                    Describe the node's pieces in the textfield below. Holes are
+                    represented by the special {connectorPlaceholder} character
+                    combination. Alternatively you can choose a template node
+                    from the list below.
+                  </Typography>
+                </Popover>
+              </div>
             </div>
-            <div className={classes.toolbarField}>
+            <div className={classes.drawerField}>
               <TextField
-                key={selectedNode.id}
-                id="valueField"
-                variant="outlined"
+                id="addField"
                 type="search"
+                variant="outlined"
                 fullWidth
                 size="medium"
-                placeholder={"ex: 1234567890"}
-                margin="dense"
-                label="Insert the node's value"
+                label="Insert the node's pieces"
                 InputLabelProps={{
                   shrink: true,
                 }}
-                onChange={e => nodeValueChange({ nodeValue: e.target.value })}
+                placeholder={
+                  "ex: " +
+                  connectorPlaceholder +
+                  ".append(" +
+                  connectorPlaceholder +
+                  ")"
+                }
+                margin="dense"
+                onChange={e => handleAddChange(e.target.value)}
                 onKeyPress={e => {
-                  if (e.key === "Enter" && nodeValue !== selectedNode.value) {
-                    nodeValueEdit({
-                      value: nodeValue,
-                      selectedNodeId: selectedNode.id,
-                    });
+                  if (e.key === "Enter" && e.target.value !== "") {
+                    addingNodeClick();
                   }
                 }}
               ></TextField>
               <div>
-                <Tooltip title={"Update node value"} placement="top">
+                <Tooltip
+                  title={addingNode ? "Clear adding" : "Add node"}
+                  placement="top"
+                >
                   <span>
                     <IconButton
                       size="medium"
-                      onClick={() =>
-                        nodeValueEdit({
-                          value: nodeValue,
-                          selectedNodeId: selectedNode.id,
-                        })
-                      }
-                      disabled={nodeValue === selectedNode.value}
-                      color="primary"
+                      onClick={() => addingNodeClick()}
+                      disabled={isAddEmpty}
+                      color={addingNode ? "secondary" : "primary"}
                     >
-                      <UpdateRoundedIcon />
+                      <AddRoundedIcon />
                     </IconButton>
                   </span>
                 </Tooltip>
               </div>
             </div>
-          </>
-        ) : (
-          <Typography className={classes.editText}>
-            Start by selecting a node.
-          </Typography>
+            {templateNodes && templateNodes.length > 0 && (
+              <div>
+                <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
+                  <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography variant="body1">
+                        Or select a template node:
+                      </Typography>
+                    </AccordionSummary>
+                    <Divider />
+                    <div className={classes.templateContainer}>
+                      {templateNodes.map((e, i) => (
+                        <AccordionDetails key={"template-" + i}>
+                          <Typography
+                            variant="h6"
+                            id={i}
+                            className={
+                              selectedTemplate === i
+                                ? classes.selectedTemplateElement
+                                : classes.templateElement
+                            }
+                            onClick={() => handleTemplateClick(e, i)}
+                          >
+                            {e}
+                          </Typography>
+                        </AccordionDetails>
+                      ))}
+                    </div>
+                  </Accordion>
+                </AccordionActions>
+              </div>
+            )}
+          </div>
         )}
-        <Divider />
-        <div className={classes.toolbarInfo}>
-          <Typography variant="h6">Reorder nodes:</Typography>
-          <div>
-            <IconButton
-              size="small"
-              onClick={e => setOrderAnchorEl(e.target)}
-              color="primary"
-            >
-              <InfoOutlinedIcon />
-            </IconButton>
-            <Popover
-              className={classes.infoPopover}
-              open={isOrderInfoOpen}
-              anchorEl={orderAnchorEl}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={() => setOrderAnchorEl(null)}
-            >
-              <Typography className={classes.infoPopoverText} variant="body2">
-                Reorder the nodes on stage. If a root node is selected, the
-                nodes connected to it will be ordered as a tree, otherwise they
-                will be ordered in rows.
-              </Typography>
-            </Popover>
-          </div>
-        </div>
-        <div className={classes.toolbarField}>
-          <Button
-            variant="contained"
-            size="medium"
-            color="primary"
-            endIcon={<ViewModuleRoundedIcon />}
-            onClick={handleReorderClick}
-          >
-            Reorder nodes
-          </Button>
-        </div>
-        <Divider />
-        <div className={classes.toolbarInfo}>
-          <Typography variant="h6">Validate a tree:</Typography>
-          <div>
-            <IconButton
-              size="small"
-              onClick={e => setValidationAnchorEl(e.target)}
-              color="primary"
-            >
-              <InfoOutlinedIcon />
-            </IconButton>
-            <Popover
-              className={classes.infoPopover}
-              open={isValidationInfoOpen}
-              anchorEl={validationAnchorEl}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              onClose={() => setValidationAnchorEl(null)}
-            >
-              <Typography className={classes.infoPopoverText} variant="body2">
-                Validate a tree starting from a root node. Double click a node
-                to select it as root node.
-              </Typography>
-            </Popover>
-          </div>
-        </div>
-        {selectedRootNode ? (
-          <div className={classes.toolbarField}>
-            <Button
-              variant="contained"
-              size="medium"
-              color="primary"
-              endIcon={<CheckRoundedIcon />}
-              onClick={handleTreeValidation}
-            >
-              Validate tree
-            </Button>
-          </div>
-        ) : (
-          <Typography className={classes.editText}>
-            Start by selecting a node as root.
-          </Typography>
+        {(drawerFields.addField || drawerFields.editField) && !fullDisabled && (
+          <Divider />
         )}
-        <Divider />
+        {drawerFields.editField && !fullDisabled && (
+          <div>
+            <div className={classes.drawerInfo}>
+              <Typography variant="h6">Edit an existing node:</Typography>
+              <div>
+                <IconButton
+                  size="small"
+                  onClick={e => setEditAnchorEl(e.target)}
+                  color="primary"
+                >
+                  <InfoOutlinedIcon />
+                </IconButton>
+                <Popover
+                  className={classes.infoPopover}
+                  open={isEditInfoOpen}
+                  anchorEl={editAnchorEl}
+                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  onClose={() => setEditAnchorEl(null)}
+                >
+                  <Typography
+                    className={classes.infoPopoverText}
+                    variant="body2"
+                  >
+                    Describe the node's pieces in the textfield below. Holes are
+                    represented by the special {connectorPlaceholder} character
+                    combination. Final nodes can't be modified or removed.
+                    Select the node's out-coming type from the list below and
+                    insert the node's out-coming value in the last textfield.
+                  </Typography>
+                </Popover>
+              </div>
+            </div>
+            {selectedNode ? (
+              <>
+                {!selectedNode.isFinal && (
+                  <div className={classes.drawerField}>
+                    <TextField
+                      key={selectedNode.id}
+                      id="editField"
+                      variant="outlined"
+                      type="search"
+                      fullWidth
+                      size="medium"
+                      label="Insert the node's pieces"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      placeholder={
+                        "ex: " +
+                        connectorPlaceholder +
+                        ".append(" +
+                        connectorPlaceholder +
+                        ")"
+                      }
+                      margin="dense"
+                      onChange={e => handleEditChange(e.target.value)}
+                      onKeyPress={e => {
+                        if (
+                          e.key === "Enter" &&
+                          editValue.length !== 0 &&
+                          editValue.join("") !== selectedNode.pieces.join("")
+                        ) {
+                          handleNodeEdit();
+                        }
+                      }}
+                    ></TextField>
+                    <div>
+                      <Tooltip title={"Update node pieces"} placement="top">
+                        <span>
+                          <IconButton
+                            size="medium"
+                            onClick={() => handleNodeEdit()}
+                            disabled={
+                              isEditEmpty ||
+                              editValue.join("") ===
+                                selectedNode.pieces.join("")
+                            }
+                            color="primary"
+                          >
+                            <UpdateRoundedIcon />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </div>
+                  </div>
+                )}
+                <div className={classes.typeField}>
+                  <FormLabel>Select the node type from the list:</FormLabel>
+                  <RadioGroup
+                    value={typeValue}
+                    onChange={e => handleTypeChange(e.target.value)}
+                    row
+                    className={classes.typeButtonContainer}
+                  >
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={() => handleTypeChange("")}
+                      disabled={typeValue === ""}
+                      color="primary"
+                      startIcon={<ClearRoundedIcon />}
+                    >
+                      Clear node type
+                    </Button>
+                    {nodeTypes.map(type => (
+                      <FormControlLabel
+                        key={type}
+                        value={type}
+                        control={<Radio color="primary" />}
+                        label={type}
+                        className={classes.typeButton}
+                      />
+                    ))}
+                  </RadioGroup>
+                </div>
+                <div className={classes.drawerField}>
+                  <TextField
+                    key={selectedNode.id}
+                    id="valueField"
+                    variant="outlined"
+                    type="search"
+                    fullWidth
+                    size="medium"
+                    placeholder={"ex: 1234567890"}
+                    margin="dense"
+                    label="Insert the node's value"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    onChange={e =>
+                      nodeValueChange({ nodeValue: e.target.value })
+                    }
+                    onKeyPress={e => {
+                      if (
+                        e.key === "Enter" &&
+                        nodeValue !== selectedNode.value
+                      ) {
+                        nodeValueEdit({
+                          value: nodeValue,
+                          selectedNodeId: selectedNode.id,
+                        });
+                      }
+                    }}
+                  ></TextField>
+                  <div>
+                    <Tooltip title={"Update node value"} placement="top">
+                      <span>
+                        <IconButton
+                          size="medium"
+                          onClick={() =>
+                            nodeValueEdit({
+                              value: nodeValue,
+                              selectedNodeId: selectedNode.id,
+                            })
+                          }
+                          disabled={nodeValue === selectedNode.value}
+                          color="primary"
+                        >
+                          <UpdateRoundedIcon />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <Typography className={classes.editText}>
+                Start by selecting a node.
+              </Typography>
+            )}
+            <Divider />
+          </div>
+        )}
       </Drawer>
     </>
   );
