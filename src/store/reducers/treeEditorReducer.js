@@ -74,25 +74,26 @@ const treeEditorReducer = (state = initialState, action) => {
 
   switch (action.type) {
     case "addNode":
-      const id = maxNodeId() + 1;
+      const addingNodeId = maxNodeId() + 1;
+      const addingNode = {
+        id: addingNodeId,
+        pieces: action.payload.pieces,
+        x: action.payload.x,
+        y: action.payload.y,
+        width: action.payload.width,
+        type: action.payload.type,
+        value: action.payload.value,
+        isFinal: action.payload.isFinal,
+      };
+      action.payload.onNodeAdd && action.payload.onNodeAdd(addingNode);
       return {
         ...state,
-        nodes: [
-          ...state.nodes,
-          {
-            id,
-            pieces: action.payload.pieces,
-            x: action.payload.x,
-            y: action.payload.y,
-            width: action.payload.width,
-            type: action.payload.type,
-            value: action.payload.value,
-            isFinal: action.payload.isFinal,
-          },
-        ],
+        nodes: [...state.nodes, addingNode],
       };
 
     case "removeNode":
+      action.payload.onNodeDelete &&
+        action.payload.onNodeDelete(action.payload.nodeId);
       return {
         ...state,
         nodes: state.nodes.filter(node => node.id !== action.payload.nodeId),
@@ -149,32 +150,30 @@ const treeEditorReducer = (state = initialState, action) => {
       };
 
     case "addEdge":
+      const addingEdgeId = maxEdgeId() + 1;
+      const addingEdge = { ...action.payload.edge, id: addingEdgeId };
+      action.payload.onEdgeAdd && action.payload.onEdgeAdd(addingEdge);
       return {
         ...state,
-        edges: [
-          ...state.edges,
-          {
-            ...action.payload.edge,
-            id: maxEdgeId() + 1,
-          },
-        ],
+        edges: [...state.edges, addingEdge],
       };
 
     case "removeEdge":
+      action.payload.onEdgeDelete &&
+        action.payload.onEdgeDelete(action.payload.edgeId);
       return {
         ...state,
         edges: state.edges.filter(edge => edge.id !== action.payload.edgeId),
       };
 
     case "updateEdge":
+      action.payload.onEdgeUpdate &&
+        action.payload.onEdgeUpdate(action.payload.newEdge);
       return {
         ...state,
         edges: [
           ...state.edges.filter(edge => edge.id !== action.payload.edgeId),
-          {
-            ...action.payload.newEdge,
-            id: maxEdgeId() + 1,
-          },
+          action.payload.newEdge,
         ],
       };
 
@@ -211,6 +210,8 @@ const treeEditorReducer = (state = initialState, action) => {
       };
 
     case "editNode":
+      action.payload.onNodePiecesChange &&
+        action.payload.onNodePiecesChange(action.payload.pieces);
       return {
         ...state,
         nodes: state.nodes.map(node =>
@@ -245,6 +246,8 @@ const treeEditorReducer = (state = initialState, action) => {
       };
 
     case "nodeTypeEdit":
+      action.payload.onNodeTypeChange &&
+        action.payload.onNodeTypeChange(action.payload.type);
       return {
         ...state,
         nodes: state.nodes.map(node =>
@@ -266,6 +269,8 @@ const treeEditorReducer = (state = initialState, action) => {
             : state.selectedRootNode,
       };
     case "nodeValueEdit":
+      action.payload.onNodeValueChange &&
+        action.payload.onNodeValueChange(action.payload.value);
       return {
         ...state,
         nodes: state.nodes.map(node =>

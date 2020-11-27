@@ -66,6 +66,15 @@ function ExpressionTreeEditor({
   toolbarButtons,
   drawerFields,
   fullDisabled,
+  onNodeAdd,
+  onNodeDelete,
+  onNodePiecesChange,
+  onNodeTypeChange,
+  onNodeValueChange,
+  onEdgeAdd,
+  onEdgeDelete,
+  onEdgeUpdate,
+  onValidate,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -116,11 +125,11 @@ function ExpressionTreeEditor({
       if (e.key === "Backspace" || e.key === "Delete") {
         if (selectedNode && !selectedNode.isFinal) {
           clearNodeSelection();
-          removeNode({ nodeId: selectedNode.id });
+          removeNode({ nodeId: selectedNode.id, onNodeDelete: onNodeDelete });
         } else if (selectedEdge) {
           setSelectedEdgeRef(null);
           clearEdgeSelection();
-          removeEdge({ edgeId: selectedEdge.id });
+          removeEdge({ edgeId: selectedEdge.id, onEdgeDelete: onEdgeDelete });
         }
       } else if (e.key === "Escape") {
         if (addingNode) {
@@ -181,6 +190,8 @@ function ExpressionTreeEditor({
     clearEdgeSelection,
     clearNodeSelection,
     fullDisabled,
+    onEdgeDelete,
+    onNodeDelete,
     removeEdge,
     removeNode,
     selectedEdge,
@@ -330,18 +341,23 @@ function ExpressionTreeEditor({
               setSelectedEdgeRef(null);
               clearEdgeSelection();
               const newEdge = {
+                id: originalEdge.id,
                 childNodeId: originalEdge.childNodeId,
                 parentNodeId: parentPiece.parentNodeId,
                 parentPieceId: parentPiece.parentPieceId,
                 type: "",
               };
-              updateEdge({ edgeId: originalEdge.id, newEdge: newEdge });
+              updateEdge({
+                edgeId: originalEdge.id,
+                newEdge: newEdge,
+                onEdgeUpdate: onEdgeUpdate,
+              });
             }
           } else if (!parentPiece) {
             document.body.style.cursor = "move";
             clearDragEdge();
             setSelectedEdgeRef(null);
-            removeEdge({ edgeId: originalEdge.id });
+            removeEdge({ edgeId: originalEdge.id, onEdgeDelete: onEdgeDelete });
           }
         } else {
           if (
@@ -366,7 +382,7 @@ function ExpressionTreeEditor({
                 type: "",
               };
               clearDragEdge();
-              addEdge({ edge: newEdge });
+              addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
             }
           } else {
             document.body.style.cursor = "move";
@@ -401,13 +417,17 @@ function ExpressionTreeEditor({
                 childNodeId: childNodeId,
                 type: "",
               };
-              updateEdge({ edgeId: dragEdge.originalEdgeId, newEdge: newEdge });
+              updateEdge({
+                edgeId: dragEdge.originalEdgeId,
+                newEdge: newEdge,
+                onEdgeUpdate: onEdgeUpdate,
+              });
             }
           } else if (!childNodeId) {
             document.body.style.cursor = "move";
             clearDragEdge();
             setSelectedEdgeRef(null);
-            removeEdge({ edgeId: originalEdge.id });
+            removeEdge({ edgeId: originalEdge.id, onEdgeDelete: onEdgeDelete });
           }
         } else {
           if (childNodeId && dragEdge.parentNodeId !== childNodeId) {
@@ -425,7 +445,7 @@ function ExpressionTreeEditor({
                 type: "",
               };
               clearDragEdge();
-              addEdge({ edge: newEdge });
+              addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
             }
           } else {
             document.body.style.cursor = "move";
@@ -467,6 +487,7 @@ function ExpressionTreeEditor({
         type: "",
         value: "",
         isFinal: false,
+        onNodeAdd: onNodeAdd,
       });
       clearAdding();
     } else {
@@ -497,6 +518,7 @@ function ExpressionTreeEditor({
         type: "",
         value: "",
         isFinal: false,
+        onNodeAdd: onNodeAdd,
       });
       clearAdding();
     } else {
@@ -562,6 +584,7 @@ function ExpressionTreeEditor({
         type: "",
         value: "",
         isFinal: false,
+        onNodeAdd: onNodeAdd,
       });
       clearAdding();
     } else {
@@ -698,6 +721,10 @@ function ExpressionTreeEditor({
         drawerFields={drawerFields}
         fullDisabled={fullDisabled}
         setCurrentErrorLocation={setCurrentErrorLocation}
+        onNodePiecesChange={onNodePiecesChange}
+        onNodeTypeChange={onNodeTypeChange}
+        onNodeValueChange={onNodeValueChange}
+        onValidate={onValidate}
       />
       <Stage
         ref={stageRef}
@@ -810,6 +837,7 @@ function ExpressionTreeEditor({
               drawerFields={drawerFields}
               fullDisabled={fullDisabled}
               currentErrorLocation={currentErrorLocation}
+              onNodeDelete={onNodeDelete}
             />
           ))}
           <Rect

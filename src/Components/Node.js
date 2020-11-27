@@ -50,6 +50,7 @@ function Node({
   drawerFields,
   fullDisabled,
   currentErrorLocation,
+  onNodeDelete,
 }) {
   // keep track
   // to prevent onMoveNode() notifications
@@ -204,7 +205,10 @@ function Node({
       clearEdgeSelection();
     }
     clearNodeSelection();
-    removeNode({ nodeId: e.target.parent.attrs.id });
+    removeNode({
+      nodeId: e.target.parent.attrs.id,
+      onNodeDelete: onNodeDelete,
+    });
   };
 
   return (

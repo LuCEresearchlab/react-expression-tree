@@ -174,16 +174,33 @@ function App() {
           },
         ],
       }}
-      // onChange={function (tree) {}}
-      // onNodeLabelChange={function (node, label) {}}
-      // onNodeAdd={function (node, label) {}}
-      // onNodeDelete={function (nodeId) {}}
-      // onEdgeAdd={function (edge, node1, node2) {}}
-      // onEdgeDelete={function (edgeId, node1, node2) {}}
-      // onTypeChange={function (node, type) {}}
-      // onValueChange={function (node, value) {}}
-      // onReorder={function (tree) {}}
-      // onValidate={function (tree, errors) {}}
+      onNodeAdd={function (node) {
+        console.log("onNodeAdd", node);
+      }}
+      onNodeDelete={function (nodeId) {
+        console.log("onNodeDelete", nodeId);
+      }}
+      onNodePiecesChange={function (nodePieces) {
+        console.log("onNodePiecesChange", nodePieces);
+      }}
+      onNodeTypeChange={function (nodeType) {
+        console.log("onNodeTypeChange", nodeType);
+      }}
+      onNodeValueChange={function (nodeValue) {
+        console.log("onNodeValueChange", nodeValue);
+      }}
+      onEdgeAdd={function (edge) {
+        console.log("onEdgeAdd", edge);
+      }}
+      onEdgeDelete={function (edgeId) {
+        console.log("onEdgeDelete", edgeId);
+      }}
+      onEdgeUpdate={function (edge) {
+        console.log("onEdgeUpdate", edge);
+      }}
+      onValidate={function (nodes, edges, errors) {
+        console.log("onValidate", nodes, edges, errors);
+      }}
     />
     //     <div style={{ height: "100px" }}>sdfadsfdas</div>
     //   </div>

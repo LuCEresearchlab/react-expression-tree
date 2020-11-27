@@ -198,6 +198,10 @@ function StageDrawer({
   drawerFields,
   fullDisabled,
   setCurrentErrorLocation,
+  onNodePiecesChange,
+  onNodeTypeChange,
+  onNodeValueChange,
+  onValidate,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -234,6 +238,7 @@ function StageDrawer({
       pieces: editValue,
       width: nodeWidth,
       selectedNodeId: selectedNode.id,
+      onNodePiecesChange: onNodePiecesChange,
     });
   };
 
@@ -242,6 +247,8 @@ function StageDrawer({
     nodeTypeEdit({
       type: value,
       selectedNodeId: selectedNode.id,
+      onNodeTypeChange: onNodeTypeChange,
+      onNodeValueChange: onNodeValueChange,
     });
   };
 
@@ -512,6 +519,7 @@ function StageDrawer({
       visitedBranch,
       errors
     );
+    onValidate && onValidate(nodes, edges, errors);
     if (errors.length > 0) {
       setValidationErrors(errors);
       setCurrentError(0);
@@ -1248,6 +1256,7 @@ function StageDrawer({
                         nodeValueEdit({
                           value: nodeValue,
                           selectedNodeId: selectedNode.id,
+                          onNodeValueChange: onNodeValueChange,
                         });
                       }
                     }}
@@ -1261,6 +1270,7 @@ function StageDrawer({
                             nodeValueEdit({
                               value: nodeValue,
                               selectedNodeId: selectedNode.id,
+                              onNodeValueChange: onNodeValueChange,
                             })
                           }
                           disabled={nodeValue === selectedNode.value}
