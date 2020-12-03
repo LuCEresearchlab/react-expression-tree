@@ -22,6 +22,7 @@ import ClearRoundedIcon from "@material-ui/icons/ClearRounded";
 import PhotoCameraRoundedIcon from "@material-ui/icons/PhotoCameraRounded";
 import ZoomOutRoundedIcon from "@material-ui/icons/ZoomOutRounded";
 import ZoomInRoundedIcon from "@material-ui/icons/ZoomInRounded";
+import AspectRatioRoundedIcon from "@material-ui/icons/AspectRatioRounded";
 
 import {
   Drawer,
@@ -53,6 +54,8 @@ import {
   edgeByParentPiece,
   nodeById,
   parsePieces,
+  textHeight,
+  yPad,
 } from "../../utils.js";
 
 const drawerWidth = 300;
@@ -394,6 +397,30 @@ function StageDrawer({
       reorderStartingX:
         drawerWidth + (stageRef.current.attrs.width - drawerWidth) / 2,
     });
+  };
+
+  const handleCenteringClick = () => {
+    var nodesCenters = [];
+    var averageCenterX = 0;
+    var averageCenterY = 0;
+    nodes.forEach(node =>
+      nodesCenters.push({
+        x: node.x + node.width / 2,
+        y: node.y + yPad + textHeight / 2,
+      })
+    );
+    nodesCenters.forEach(nodeCenter => {
+      averageCenterX += nodeCenter.x;
+      averageCenterY += nodeCenter.y;
+    });
+    averageCenterX /= nodesCenters.length;
+    averageCenterY /= nodesCenters.length;
+    console.log(averageCenterX, averageCenterY);
+    stageRef.current.position({
+      x: averageCenterX - stageRef.current.attrs.width / 2,
+      y: averageCenterY - stageRef.current.attrs.height / 2,
+    });
+    stageRef.current.draw();
   };
 
   function orderWalk(node, visitedNodes, visitedBranch, errors) {
@@ -798,6 +825,17 @@ function StageDrawer({
               className={classes.toolbarButton}
             >
               <InfoOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.info && !fullDisabled && (
+          <Tooltip title="Center and fit nodes" placement="bottom">
+            <IconButton
+              onClick={handleCenteringClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <AspectRatioRoundedIcon />
             </IconButton>
           </Tooltip>
         )}

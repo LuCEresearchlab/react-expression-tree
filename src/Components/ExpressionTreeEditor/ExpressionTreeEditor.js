@@ -412,6 +412,7 @@ function ExpressionTreeEditor({
               setSelectedEdgeRef(null);
               clearEdgeSelection();
               const newEdge = {
+                id: originalEdge.id,
                 parentNodeId: originalEdge.parentNodeId,
                 parentPieceId: originalEdge.parentPieceId,
                 childNodeId: childNodeId,

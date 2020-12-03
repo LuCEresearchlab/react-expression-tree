@@ -146,31 +146,37 @@ function App() {
             parentNodeId: 4,
             parentPieceId: 1,
             childNodeId: 1,
+            id: 1,
           },
           {
             parentNodeId: 5,
             parentPieceId: 0,
             childNodeId: 4,
+            id: 2,
           },
           {
             parentNodeId: 5,
             parentPieceId: 2,
             childNodeId: 2,
+            id: 3,
           },
           {
             parentNodeId: 8,
             parentPieceId: 0,
             childNodeId: 5,
+            id: 4,
           },
           {
             parentNodeId: 8,
             parentPieceId: 2,
             childNodeId: 10,
+            id: 5,
           },
           {
             parentNodeId: 10,
             parentPieceId: 0,
             childNodeId: 3,
+            id: 6,
           },
         ],
       }}
@@ -201,6 +207,8 @@ function App() {
       onValidate={function (nodes, edges, errors) {
         console.log("onValidate", nodes, edges, errors);
       }}
+      onNodeSelect={() => {}}
+      onEdgeSelect={() => {}}
     />
     //     <div style={{ height: "100px" }}>sdfadsfdas</div>
     //   </div>
