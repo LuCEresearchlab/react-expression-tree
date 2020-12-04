@@ -35,7 +35,7 @@ function App() {
       drawerFields={{ addField: true, editField: true }}
       fullDisabled={false}
       allowedErrors={{
-        // loop: true,
+        loop: true,
         multiEdgeOnPieceConnector: true,
         multiEdgeOnNodeConnector: true,
       }}

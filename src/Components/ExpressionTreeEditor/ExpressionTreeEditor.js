@@ -190,6 +190,30 @@ function ExpressionTreeEditor({
     setInitialState,
   ]);
 
+  function checkIsCreatingLoop(node, visitedBranch, creatingLoop) {
+    visitedBranch.push(node.id);
+    node.pieces.forEach((piece, i) => {
+      if (piece === connectorPlaceholder) {
+        const childEdges = edgeByParentPiece(node.id, i, edges);
+        childEdges.forEach(edge => {
+          const childNode = nodeById(edge.childNodeId, nodes);
+          if (visitedBranch.find(e => e === childNode.id) !== undefined) {
+            creatingLoop = true;
+            return [visitedBranch, creatingLoop];
+          } else {
+            [visitedBranch, creatingLoop] = checkIsCreatingLoop(
+              childNode,
+              visitedBranch,
+              creatingLoop
+            );
+          }
+        });
+      }
+    });
+    visitedBranch.pop();
+    return [visitedBranch, creatingLoop];
+  }
+
   const handleNodeConnectorDragStart = (nodeId, x, y) => {
     if (addingNode) {
       clearAdding();
@@ -337,11 +361,19 @@ function ExpressionTreeEditor({
                 parentPieceId: parentPiece.parentPieceId,
                 type: "",
               };
-              updateEdge({
-                edgeId: originalEdge.id,
-                newEdge: newEdge,
-                onEdgeUpdate: onEdgeUpdate,
-              });
+              // eslint-disable-next-line no-unused-vars
+              const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
+                nodeById(originalEdge.childNodeId, nodes),
+                [parentPiece.parentNodeId],
+                false
+              );
+              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
+                updateEdge({
+                  edgeId: originalEdge.id,
+                  newEdge: newEdge,
+                  onEdgeUpdate: onEdgeUpdate,
+                });
+              }
             }
           } else if (!parentPiece) {
             document.body.style.cursor = "move";
@@ -372,7 +404,15 @@ function ExpressionTreeEditor({
                 type: "",
               };
               clearDragEdge();
-              addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
+              // eslint-disable-next-line no-unused-vars
+              const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
+                nodeById(dragEdge.childNodeId, nodes),
+                [parentPiece.parentNodeId],
+                false
+              );
+              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
+                addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
+              }
             }
           } else {
             document.body.style.cursor = "move";
@@ -408,11 +448,19 @@ function ExpressionTreeEditor({
                 childNodeId: childNodeId,
                 type: "",
               };
-              updateEdge({
-                edgeId: dragEdge.originalEdgeId,
-                newEdge: newEdge,
-                onEdgeUpdate: onEdgeUpdate,
-              });
+              // eslint-disable-next-line no-unused-vars
+              const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
+                nodeById(childNodeId, nodes),
+                [originalEdge.parentNodeId],
+                false
+              );
+              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
+                updateEdge({
+                  edgeId: dragEdge.originalEdgeId,
+                  newEdge: newEdge,
+                  onEdgeUpdate: onEdgeUpdate,
+                });
+              }
             }
           } else if (!childNodeId) {
             document.body.style.cursor = "move";
@@ -436,7 +484,15 @@ function ExpressionTreeEditor({
                 type: "",
               };
               clearDragEdge();
-              addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
+              // eslint-disable-next-line no-unused-vars
+              const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
+                nodeById(childNodeId, nodes),
+                [dragEdge.parentNodeId],
+                false
+              );
+              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
+                addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
+              }
             }
           } else {
             document.body.style.cursor = "move";
