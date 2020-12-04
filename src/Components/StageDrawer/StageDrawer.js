@@ -395,8 +395,11 @@ function StageDrawer({
     stageRef.current.scale({ x: 1, y: 1 });
     reorderNodes({
       connectorPlaceholder: connectorPlaceholder,
-      reorderStartingX:
-        drawerWidth + (stageRef.current.attrs.width - drawerWidth) / 2,
+      reorderStartingX: isDrawerOpen
+        ? drawerWidth + (stageRef.current.attrs.width - drawerWidth) / 2
+        : stageRef.current.attrs.width / 2,
+      isDrawerOpen: isDrawerOpen,
+      drawerWidth: drawerWidth,
     });
   };
 

@@ -346,7 +346,11 @@ const treeEditorReducer = (state = initialState, action) => {
         edges: action.payload.initialEdges,
       };
     case "reorderNodes":
-      var unconnectedCurrentX = 320;
+      const nodesPerRow = action.payload.isDrawerOpen ? 8 : 10;
+      const initialX = action.payload.isDrawerOpen
+        ? action.payload.drawerWidth + 20
+        : 20;
+      var unconnectedCurrentX = initialX;
       var unconnectedCount = -1;
       var newNodes = [];
       var visitedNodes = [];
@@ -354,7 +358,7 @@ const treeEditorReducer = (state = initialState, action) => {
         ? [action.payload.reorderStartingX - state.selectedRootNode.width / 2]
         : [];
       var levelIndex = 0;
-      var currentY = textHeight * 2;
+      var currentY = textHeight * 3;
       if (state.selectedRootNode) {
         [newNodes, currentLevelX] = orderWalk(
           state.selectedRootNode,
@@ -378,8 +382,8 @@ const treeEditorReducer = (state = initialState, action) => {
             };
           } else {
             unconnectedCount++;
-            if (unconnectedCount % 8 === 0) {
-              unconnectedCurrentX = 320;
+            if (unconnectedCount % nodesPerRow === 0) {
+              unconnectedCurrentX = initialX;
             }
             var tmpX = unconnectedCurrentX;
             unconnectedCurrentX += node.width + 10;
@@ -388,7 +392,8 @@ const treeEditorReducer = (state = initialState, action) => {
               x: tmpX,
               y:
                 textHeight * 3 +
-                (currentLevelX.length + Math.floor(unconnectedCount / 8)) *
+                (currentLevelX.length +
+                  Math.floor(unconnectedCount / nodesPerRow)) *
                   (textHeight * 4),
             };
           }
