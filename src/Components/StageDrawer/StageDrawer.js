@@ -220,6 +220,7 @@ function StageDrawer({
   const [currentError, setCurrentError] = useState(0);
   const [isValidOpen, setIsValidOpen] = useState(false);
   const [isInvalidOpen, setIsInvalidOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   const handleAddChange = value => {
     if (addingNode) {
@@ -614,8 +615,6 @@ function StageDrawer({
     stageRef.current.draw();
   };
 
-  const handleInfoClick = () => {};
-
   const handlePreviousErrorClick = () => {
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
@@ -679,7 +678,7 @@ function StageDrawer({
       <div className={classes.toolbar}>
         {toolbarButtons.drawerButton && !fullDisabled && (
           <Tooltip
-            title={isDrawerOpen ? "Close toolbar" : "Open toolbar"}
+            title={isDrawerOpen ? "Close drawer" : "Open drawer"}
             placement="bottom"
           >
             <IconButton
@@ -688,6 +687,17 @@ function StageDrawer({
               className={classes.toolbarButton}
             >
               {isDrawerOpen ? <ChevronLeftRoundedIcon /> : <MenuRoundedIcon />}
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.info && !fullDisabled && (
+          <Tooltip title="Editor info" placement="bottom">
+            <IconButton
+              onClick={() => setIsInfoOpen(true)}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <InfoOutlinedIcon />
             </IconButton>
           </Tooltip>
         )}
@@ -818,17 +828,6 @@ function StageDrawer({
           </Tooltip>
         )}
         {toolbarButtons.info && !fullDisabled && (
-          <Tooltip title="Info" placement="bottom">
-            <IconButton
-              onClick={handleInfoClick}
-              color="primary"
-              className={classes.toolbarButton}
-            >
-              <InfoOutlinedIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-        {toolbarButtons.info && !fullDisabled && (
           <Tooltip title="Center and fit nodes" placement="bottom">
             <IconButton
               onClick={handleCenteringClick}
@@ -881,6 +880,93 @@ function StageDrawer({
             endIcon={<CheckRoundedIcon />}
           >
             Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        style={{ position: "absolute" }}
+        open={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+        onKeyPress={e => {
+          if (e.key === "Enter") {
+            setIsInfoOpen(false);
+          }
+        }}
+        BackdropProps={{ style: { position: "absolute" } }}
+        container={document.getElementById("editorContainer")}
+        PaperProps={{
+          style: { border: "2px solid #3f50b5", borderRadius: "5px" },
+        }}
+      >
+        <DialogTitle>{"Expression Tree Editor Usage Infos"}</DialogTitle>
+        <DialogContent
+          dividers
+          style={{ maxHeight: "300px", overflowY: "scroll" }}
+        >
+          <ul>
+            <li>
+              <b>Stage scroll: </b>Zoom in/out the editor stage.
+            </li>
+            <br />
+            <li>
+              <b>Stage drag: </b>Move the editor stage.
+            </li>
+            <br />
+            <li>
+              <b>Shift/Command + stage drag: </b>Drag a selection rectangle to
+              create a multiple nodes draggable selection.
+            </li>
+            <br />
+            <li>
+              <b>Node click: </b>Select a node.
+            </li>
+            <br />
+            <li>
+              <b>Node drag: </b>Move a node.
+            </li>
+            <br />
+            <li>
+              <b>Node double click: </b>Select/Deselect a root node to
+              activate/deactivate the tree validation button.
+            </li>
+            <br />
+            <li>
+              <b>Nodes reordering: </b>If a root node is selected, all its
+              children nodes will be reordered as a tree, the remaining nodes
+              will be reordered as compact rows.
+            </li>
+            <br />
+            <li>
+              <b>Node deletion: </b>Select a node and press the <i>delete</i>{" "}
+              button or click on the node's <i>x</i> button.
+            </li>
+            <br />
+            <li>
+              <b>Node connector/hole drag: </b>Start dragging an edge from the
+              node connector/hole, if an edge is already connected to the
+              connector/hole, it will be updated, otherwise a new edge will be
+              created.
+            </li>
+            <br />
+            <li>
+              <b>Edge click: </b>Select an edge.
+            </li>
+            <br />
+            <li>
+              <b>Edge deletion: </b>Select an edge and press the <i>delete</i>
+              button or drag and drop the node to an invalid location.
+            </li>
+            <br />
+          </ul>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setIsInfoOpen(false)}
+            variant="contained"
+            color="primary"
+            endIcon={<CloseRoundedIcon />}
+          >
+            Close
           </Button>
         </DialogActions>
       </Dialog>

@@ -14,7 +14,7 @@ function App() {
     // <div style={{ display: "flex" }}>
     //   <div style={{ width: "100px" }}>fdsgdsfgsdf</div>
     //   <div style={{ display: "block" }}>
-    //     <div style={{ height: "700px" }}>dsafadsfadsf</div>
+    //     <div style={{ height: "100px" }}>dsafadsfadsf</div>
     <ExpressionTreeEditor
       width={stageWidth}
       height={stageHeight}

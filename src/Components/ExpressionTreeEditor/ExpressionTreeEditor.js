@@ -141,23 +141,13 @@ function ExpressionTreeEditor({
           setSelectedEdgeRef(null);
           clearEdgeSelection();
         }
-      } else if (
-        e.key === "Meta" ||
-        e.key === "Shift" ||
-        e.key === "Alt" ||
-        e.key === "Control"
-      ) {
+      } else if (e.key === "Meta" || e.key === "Shift") {
         document.body.style.cursor = "grab";
         setPressingMeta(true);
       }
     };
     const keyUpListener = function (e) {
-      if (
-        e.key === "Meta" ||
-        e.key === "Shift" ||
-        e.key === "Alt" ||
-        e.key === "Control"
-      ) {
+      if (e.key === "Meta" || e.key === "Shift") {
         document.body.style.cursor = "move";
         setIsSelectingRectVisible(false);
         setDraggingSelectionRect(false);
