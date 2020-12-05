@@ -110,6 +110,8 @@ const treeEditorReducer = (state = initialState, action) => {
       };
 
     case "selectNode":
+      action.payload.onNodeSelect &&
+        action.payload.onNodeSelect(action.payload.selectedNode);
       return {
         ...state,
         selectedNode: action.payload.selectedNode,
@@ -234,6 +236,8 @@ const treeEditorReducer = (state = initialState, action) => {
       };
 
     case "selectEdge":
+      action.payload.onEdgeSelect &&
+        action.payload.onEdgeSelect(action.payload.selectedEdge);
       return {
         ...state,
         selectedEdge: action.payload.selectedEdge,

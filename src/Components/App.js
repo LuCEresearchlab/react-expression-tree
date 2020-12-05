@@ -68,7 +68,6 @@ function App() {
       //   "undefined",
       //   "null",
       // ]}
-      // {type: "String", any: true}
       initialState={{
         initialNodes: [
           { pieces: ["19"], x: 320, y: 60, type: "", value: "", isFinal: true },
@@ -190,6 +189,9 @@ function App() {
       onNodeDelete={function (nodeId) {
         console.log("onNodeDelete", nodeId);
       }}
+      onNodeSelect={function (node) {
+        console.log("onNodeSelect", node);
+      }}
       onNodePiecesChange={function (nodePieces) {
         console.log("onNodePiecesChange", nodePieces);
       }}
@@ -208,11 +210,12 @@ function App() {
       onEdgeUpdate={function (edge) {
         console.log("onEdgeUpdate", edge);
       }}
+      onEdgeSelect={function (edge) {
+        console.log("onEdgeSelect", edge);
+      }}
       onValidate={function (nodes, edges, errors) {
         console.log("onValidate", nodes, edges, errors);
       }}
-      onNodeSelect={() => {}}
-      onEdgeSelect={() => {}}
     />
     //     <div style={{ height: "100px" }}>sdfadsfdas</div>
     //   </div>

@@ -68,12 +68,14 @@ function ExpressionTreeEditor({
   fullDisabled,
   onNodeAdd,
   onNodeDelete,
+  onNodeSelect,
   onNodePiecesChange,
   onNodeTypeChange,
   onNodeValueChange,
   onEdgeAdd,
   onEdgeDelete,
   onEdgeUpdate,
+  onEdgeSelect,
   onValidate,
 }) {
   // Get access to DOM node corresponding to <Stage>
@@ -577,7 +579,7 @@ function ExpressionTreeEditor({
         clearEdgeSelection();
       }
       if (!selectedNode) {
-        selectNode({ selectedNode: selectingNode });
+        selectNode({ selectedNode: selectingNode, onNodeSelect: onNodeSelect });
         if (drawerFields.editField) {
           if (!selectingNode.isFinal) {
             document.getElementById(
@@ -591,7 +593,10 @@ function ExpressionTreeEditor({
         }
       } else {
         if (selectedNode.id !== selectingNode.id) {
-          selectNode({ selectedNode: selectingNode });
+          selectNode({
+            selectedNode: selectingNode,
+            onNodeSelect: onNodeSelect,
+          });
           if (drawerFields.editField) {
             if (!selectingNode.isFinal) {
               document.getElementById(
@@ -643,14 +648,14 @@ function ExpressionTreeEditor({
         e.currentTarget.moveToTop();
         const selectingEdge = edgeById(edgeId, edges);
         setSelectedEdgeRef(e.currentTarget);
-        selectEdge({ selectedEdge: selectingEdge });
+        selectEdge({ selectedEdge: selectingEdge, onEdgeSelect: onEdgeSelect });
       } else {
         if (selectedEdgeRef !== e.currentTarget) {
           selectedEdgeRef.moveToBottom();
           e.currentTarget.moveToTop();
           const selectingEdge = edgeById(edgeId, edges);
           setSelectedEdgeRef(e.currentTarget);
-          selectEdge({ selectedEdge: selectingEdge });
+          selectEdge({ selectedEdge: selectingEdge, onEdgeSelect: onEdgeSelect });
         }
       }
     }
@@ -885,6 +890,7 @@ function ExpressionTreeEditor({
               fullDisabled={fullDisabled}
               currentErrorLocation={currentErrorLocation}
               onNodeDelete={onNodeDelete}
+              onNodeSelect={onNodeSelect}
             />
           ))}
           <Rect

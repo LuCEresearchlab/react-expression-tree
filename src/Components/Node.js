@@ -51,6 +51,7 @@ function Node({
   fullDisabled,
   currentErrorLocation,
   onNodeDelete,
+  onNodeSelect,
 }) {
   // keep track
   // to prevent onMoveNode() notifications
@@ -67,7 +68,7 @@ function Node({
       setDraggingNode(true);
       const selectingNode = nodeById(id, nodes);
       if (!isSelected) {
-        selectNode({ selectedNode: selectingNode });
+        selectNode({ selectedNode: selectingNode, onNodeSelect: onNodeSelect });
         if (drawerFields.editField) {
           if (!selectingNode.isFinal) {
             document.getElementById(
