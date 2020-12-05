@@ -40,12 +40,16 @@ function App() {
         multiEdgeOnNodeConnector: true,
       }}
       reportedErrors={{
-        loop: true,
-        multiEdgeOnPieceConnector: true,
-        multiEdgeOnNodeConnector: true,
-        emptyPieceConnector: true,
-        missingNodeType: true,
-        missingNodeValue: true,
+        structureErrors: {
+          loop: true,
+          multiEdgeOnPieceConnector: true,
+          multiEdgeOnNodeConnector: true,
+        },
+        completenessErrors: {
+          emptyPieceConnector: true,
+          missingNodeType: true,
+          missingNodeValue: true,
+        },
       }}
       connectorPlaceholder="{{}}"
       templateNodes={[

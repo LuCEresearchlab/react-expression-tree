@@ -439,7 +439,9 @@ function StageDrawer({
     visitedBranch.push(node.id);
     if (node.type === "") {
       const location = "Node ID: " + node.id;
-      reportedErrors.missingNodeType &&
+      reportedErrors &&
+        reportedErrors.completenessErrors &&
+        reportedErrors.completenessErrors.missingNodeType &&
         errors.push({
           type: "Completeness error",
           problem: "Missing node type",
@@ -449,7 +451,9 @@ function StageDrawer({
     }
     if (node.value === "") {
       const location = "Node ID: " + node.id;
-      reportedErrors.missingNodeValue &&
+      reportedErrors &&
+        reportedErrors.completenessErrors &&
+        reportedErrors.completenessErrors.missingNodeValue &&
         errors.push({
           type: "Completeness error",
           problem: "Missing node value",
@@ -465,7 +469,9 @@ function StageDrawer({
         if (childEdges.length > 1) {
           const location =
             "Node ID: " + node.id + ", connector number: " + connectorNum;
-          reportedErrors.multiEdgeOnNodeConnector &&
+          reportedErrors &&
+            reportedErrors.structureErrors &&
+            reportedErrors.structureErrors.multiEdgeOnNodeConnector &&
             errors.push({
               type: "Structure error",
               problem: "Multiple edge on single piece connector",
@@ -479,7 +485,9 @@ function StageDrawer({
         } else if (childEdges.length === 0) {
           const location =
             "Node ID: " + node.id + ", connector number: " + connectorNum;
-          reportedErrors.emptyPieceConnector &&
+          reportedErrors &&
+            reportedErrors.completenessErrors &&
+            reportedErrors.completenessErrors.emptyPieceConnector &&
             errors.push({
               type: "Completeness error",
               problem: "Empty connector",
@@ -496,7 +504,9 @@ function StageDrawer({
           var foundError = false;
           if (visitedNodes.find(e => e === childNode.id) !== undefined) {
             const location = "Node ID: " + childNode.id;
-            reportedErrors.multiEdgeOnNodeConnector &&
+            reportedErrors &&
+              reportedErrors.structureErrors &&
+              reportedErrors.structureErrors.multiEdgeOnNodeConnector &&
               errors.find(
                 error =>
                   error.problem === "Multiple edge on single node connector" &&
@@ -521,7 +531,9 @@ function StageDrawer({
               node.id +
               ", connector number: " +
               connectorNum;
-            reportedErrors.loop &&
+            reportedErrors &&
+              reportedErrors.structureErrors &&
+              reportedErrors.structureErrors.loop &&
               errors.push({
                 type: "Structure error",
                 problem: "Loop detected",
