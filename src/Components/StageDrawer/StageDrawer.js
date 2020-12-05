@@ -96,11 +96,10 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: "10px",
-    marginBottom: "10px",
+    margin: "0 0 10px 10px",
   },
   editText: {
-    margin: "10px 10px 10px 10px",
+    margin: "10px 0 10px 10px",
   },
   infoPopover: {
     marginLeft: "5px",
@@ -111,6 +110,11 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.primary.main,
     padding: "3px 6px 3px 6px",
     maxWidth: "500px",
+  },
+  accordionContainer: {
+    display: "block",
+    padding: 0,
+    margin: "0 10px 10px 10px",
   },
   templateElement: {
     color: "white",
@@ -157,6 +161,10 @@ const useStyles = makeStyles(theme => ({
   },
   typeButton: {
     marginRight: "30px",
+  },
+  infoContent: {
+    maxHeight: "300px",
+    overflowY: "scroll",
   },
 }));
 
@@ -407,22 +415,21 @@ function StageDrawer({
     var nodesCenters = [];
     var averageCenterX = 0;
     var averageCenterY = 0;
-    nodes.forEach(node =>
+    nodes.forEach(node => {
       nodesCenters.push({
         x: node.x + node.width / 2,
         y: node.y + yPad + textHeight / 2,
-      })
-    );
+      });
+    });
     nodesCenters.forEach(nodeCenter => {
       averageCenterX += nodeCenter.x;
       averageCenterY += nodeCenter.y;
     });
     averageCenterX /= nodesCenters.length;
     averageCenterY /= nodesCenters.length;
-    console.log(averageCenterX, averageCenterY);
     stageRef.current.position({
       x: averageCenterX - stageRef.current.attrs.width / 2,
-      y: averageCenterY - stageRef.current.attrs.height / 2,
+      y: averageCenterY - (stageRef.current.attrs.height - 60) / 2,
     });
     stageRef.current.draw();
   };
@@ -843,7 +850,6 @@ function StageDrawer({
         )}
       </div>
       <Dialog
-        style={{ position: "absolute" }}
         open={isResetWarnOpen}
         onClose={() => setIsResetWarnOpen(false)}
         onKeyPress={e => {
@@ -851,6 +857,7 @@ function StageDrawer({
             handleReset();
           }
         }}
+        style={{ position: "absolute" }}
         BackdropProps={{ style: { position: "absolute" } }}
         container={document.getElementById("editorContainer")}
         PaperProps={{
@@ -887,7 +894,6 @@ function StageDrawer({
         </DialogActions>
       </Dialog>
       <Dialog
-        style={{ position: "absolute" }}
         open={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
         onKeyPress={e => {
@@ -895,6 +901,7 @@ function StageDrawer({
             setIsInfoOpen(false);
           }
         }}
+        style={{ position: "absolute" }}
         BackdropProps={{ style: { position: "absolute" } }}
         container={document.getElementById("editorContainer")}
         PaperProps={{
@@ -902,10 +909,7 @@ function StageDrawer({
         }}
       >
         <DialogTitle>{"Expression Tree Editor Usage Infos"}</DialogTitle>
-        <DialogContent
-          dividers
-          style={{ maxHeight: "300px", overflowY: "scroll" }}
-        >
+        <DialogContent dividers className={classes.infoContent}>
           <ul>
             <li>
               <b>Stage scroll: </b>Zoom in/out the editor stage.
@@ -959,7 +963,6 @@ function StageDrawer({
               <b>Edge deletion: </b>Select an edge and press the <i>delete</i>
               button or drag and drop the node to an invalid location.
             </li>
-            <br />
           </ul>
         </DialogContent>
         <DialogActions>
@@ -1208,7 +1211,10 @@ function StageDrawer({
             </div>
             {templateNodes && templateNodes.length > 0 && (
               <div>
-                <AccordionActions disableSpacing style={{ marginTop: "-10px" }}>
+                <AccordionActions
+                  disableSpacing
+                  classes={{ root: classes.accordionContainer }}
+                >
                   <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                       <Typography variant="body1">
