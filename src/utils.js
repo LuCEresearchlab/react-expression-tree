@@ -1,20 +1,5 @@
 import Konva from "konva";
 
-// Layout Defaults
-export const fontSize = 24;
-export const xPad = fontSize / 2;
-export const yPad = fontSize / 2;
-export const gapWidth = fontSize / 5;
-export const fontFamily = "Ubuntu Mono, Courier";
-export const oText = new Konva.Text({
-  text: "o",
-  fontFamily: fontFamily,
-  fontSize: fontSize,
-});
-export const textHeight = oText.fontSize();
-export const holeWidth = oText.getTextWidth();
-export const targetRange = textHeight;
-
 // Utility Functions
 export function nodeById(nodeId, nodes) {
   if (nodeId === undefined || nodeId === null) {
@@ -70,11 +55,20 @@ export const computeEdgeChildPos = (childNodeId, nodes) => {
 
 export const computeEdgeParentPos = (
   parentNodeId,
-  parentPieceId,
   parentPieceX,
   nodes,
-  connectorPlaceholder
+  fontSize,
+  fontFamily
 ) => {
+  const xPad = fontSize / 2;
+  const yPad = fontSize / 2;
+  const oText = new Konva.Text({
+    text: "o",
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+  });
+  const textHeight = oText.fontSize();
+  const holeWidth = oText.getTextWidth();
   const node = nodeById(parentNodeId, nodes);
   return {
     x: node.x + xPad + parentPieceX + holeWidth / 2,
@@ -86,7 +80,13 @@ export const distance = (x1, y1, x2, y2) => {
   return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 };
 
-export const closestChildId = (x, y, nodes) => {
+export const closestChildId = (x, y, nodes, fontSize, fontFamily) => {
+  const oText = new Konva.Text({
+    text: "o",
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+  });
+  const targetRange = oText.fontSize();
   let closestNodeId = null;
   let closestDist = null;
   nodes.forEach(node => {
@@ -100,20 +100,38 @@ export const closestChildId = (x, y, nodes) => {
   return closestNodeId;
 };
 
-export const closestParentPiece = (x, y, nodes, connectorPlaceholder) => {
+export const closestParentPiece = (
+  x,
+  y,
+  nodes,
+  connectorPlaceholder,
+  fontSize,
+  fontFamily
+) => {
+  const oText = new Konva.Text({
+    text: "o",
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+  });
+  const targetRange = oText.fontSize();
   let closestPiece = null;
   let closestDist = null;
   nodes.forEach(node => {
     const pieces = nodeById(node.id, nodes).pieces;
     pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
-        const pieceX = computePiecesPositions(pieces, connectorPlaceholder)[i];
+        const pieceX = computePiecesPositions(
+          pieces,
+          connectorPlaceholder,
+          fontSize,
+          fontFamily
+        )[i];
         const pos = computeEdgeParentPos(
           node.id,
-          i,
           pieceX,
           nodes,
-          connectorPlaceholder
+          fontSize,
+          fontFamily
         );
         const dist = distance(pos.x, pos.y, x, y);
         if (dist < targetRange && (!closestDist || dist < closestDist)) {
@@ -129,7 +147,18 @@ export const closestParentPiece = (x, y, nodes, connectorPlaceholder) => {
   return closestPiece;
 };
 
-export function computePiecesWidths(pieces, connectorPlaceholder) {
+export function computePiecesWidths(
+  pieces,
+  connectorPlaceholder,
+  fontSize,
+  fontFamily
+) {
+  const oText = new Konva.Text({
+    text: "o",
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+  });
+  const holeWidth = oText.getTextWidth();
   return pieces.map(p => {
     if (p === connectorPlaceholder) {
       return holeWidth;
@@ -144,8 +173,19 @@ export function computePiecesWidths(pieces, connectorPlaceholder) {
   });
 }
 
-export function computePiecesPositions(pieces, connectorPlaceholder) {
-  const widths = computePiecesWidths(pieces, connectorPlaceholder);
+export function computePiecesPositions(
+  pieces,
+  connectorPlaceholder,
+  fontSize,
+  fontFamily
+) {
+  const gapWidth = fontSize / 5;
+  const widths = computePiecesWidths(
+    pieces,
+    connectorPlaceholder,
+    fontSize,
+    fontFamily
+  );
   let pieceX = 0;
   const xes = widths.map(w => {
     let myX = pieceX;
@@ -155,8 +195,20 @@ export function computePiecesPositions(pieces, connectorPlaceholder) {
   return xes;
 }
 
-export function computeNodeWidth(pieces, connectorPlaceholder) {
-  const widths = computePiecesWidths(pieces, connectorPlaceholder);
+export function computeNodeWidth(
+  pieces,
+  connectorPlaceholder,
+  fontSize,
+  fontFamily
+) {
+  const xPad = fontSize / 2;
+  const widths = computePiecesWidths(
+    pieces,
+    connectorPlaceholder,
+    fontSize,
+    fontFamily
+  );
+  const gapWidth = fontSize / 5;
   let width = gapWidth * (pieces.length - 1);
   for (const w of widths) {
     width += w;

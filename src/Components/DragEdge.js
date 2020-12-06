@@ -1,8 +1,7 @@
 import React from "react";
 import { Line, Circle } from "react-konva";
-import { fontSize } from "../utils.js";
 
-function DragEdge({ childX, childY, parentX, parentY }) {
+function DragEdge({ childX, childY, parentX, parentY, fontSize }) {
   return (
     <>
       <Line

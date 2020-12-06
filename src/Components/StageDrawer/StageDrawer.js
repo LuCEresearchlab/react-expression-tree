@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Konva from "konva";
 import { useDispatch } from "react-redux";
 import { ActionCreators } from "redux-undo";
 import { makeStyles } from "@material-ui/core/styles";
@@ -54,8 +55,6 @@ import {
   edgeByParentPiece,
   nodeById,
   parsePieces,
-  textHeight,
-  yPad,
 } from "../../utils.js";
 
 const drawerWidth = 300;
@@ -213,9 +212,19 @@ function StageDrawer({
   onNodeTypeChange,
   onNodeValueChange,
   onValidate,
+  fontSize,
+  fontFamily,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
+
+  const yPad = fontSize / 2;
+  const oText = new Konva.Text({
+    text: "o",
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+  });
+  const textHeight = oText.fontSize();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -245,7 +254,12 @@ function StageDrawer({
   };
 
   const handleNodeEdit = () => {
-    const nodeWidth = computeNodeWidth(editValue, connectorPlaceholder);
+    const nodeWidth = computeNodeWidth(
+      editValue,
+      connectorPlaceholder,
+      fontSize,
+      fontFamily
+    );
     editNode({
       pieces: editValue,
       width: nodeWidth,
@@ -365,6 +379,8 @@ function StageDrawer({
       initialNodes: initialState.initialNodes,
       initialEdges: initialState.initialEdges,
       connectorPlaceholder: connectorPlaceholder,
+      fontSize: fontSize,
+      fontFamily: fontFamily,
     });
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
@@ -408,6 +424,7 @@ function StageDrawer({
         : stageRef.current.attrs.width / 2,
       isDrawerOpen: isDrawerOpen,
       drawerWidth: drawerWidth,
+      textHeight: textHeight,
     });
   };
 

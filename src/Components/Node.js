@@ -1,12 +1,7 @@
 import React, { useState } from "react";
+import Konva from "konva";
 import { Rect, Text, Group, Circle, Star, Label, Tag } from "react-konva";
 import {
-  xPad,
-  yPad,
-  fontFamily,
-  fontSize,
-  textHeight,
-  holeWidth,
   computePiecesPositions,
   edgeByParentPiece,
   nodeById,
@@ -52,14 +47,30 @@ function Node({
   currentErrorLocation,
   onNodeDelete,
   onNodeSelect,
+  fontSize,
+  fontFamily,
 }) {
   // keep track
   // to prevent onMoveNode() notifications
   // when we don't drag the node itself but drag from a connector
   const [draggingNode, setDraggingNode] = useState(false);
 
+  const xPad = fontSize / 2;
+  const yPad = fontSize / 2;
+  const oText = new Konva.Text({
+    text: "o",
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+  });
+  const holeWidth = oText.getTextWidth();
+  const textHeight = oText.fontSize();
   const nodeHeight = 2 * yPad + textHeight;
-  const piecesPos = computePiecesPositions(pieces, connectorPlaceholder);
+  const piecesPos = computePiecesPositions(
+    pieces,
+    connectorPlaceholder,
+    fontSize,
+    fontFamily
+  );
 
   const handleDragStart = e => {
     if (!pressingMeta) {

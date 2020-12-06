@@ -1,10 +1,5 @@
 import undoable, { groupByActionTypes } from "redux-undo";
-import {
-  computeNodeWidth,
-  edgeByParentPiece,
-  nodeById,
-  textHeight,
-} from "../../utils.js";
+import { computeNodeWidth, edgeByParentPiece, nodeById } from "../../utils.js";
 
 const initialState = {
   nodes: [],
@@ -35,7 +30,8 @@ const treeEditorReducer = (state = initialState, action) => {
     visitedNodes,
     currentLevelX,
     currentY,
-    levelIndex
+    levelIndex,
+    textHeight
   ) {
     if (currentLevelX[levelIndex] === undefined) {
       currentLevelX[levelIndex] = currentLevelX[levelIndex - 1] - 50;
@@ -60,7 +56,8 @@ const treeEditorReducer = (state = initialState, action) => {
               visitedNodes,
               currentLevelX,
               currentY,
-              levelIndex + 1
+              levelIndex + 1,
+              textHeight
             );
           } else {
             return;
@@ -299,7 +296,9 @@ const treeEditorReducer = (state = initialState, action) => {
       action.payload.initialNodes.map((node, i) => {
         node.width = computeNodeWidth(
           node.pieces,
-          action.payload.connectorPlaceholder
+          action.payload.connectorPlaceholder,
+          action.payload.fontSize,
+          action.payload.fontFamily
         );
         node.id = i + 1;
         return node;
@@ -338,7 +337,9 @@ const treeEditorReducer = (state = initialState, action) => {
       action.payload.initialNodes.map((node, i) => {
         node.width = computeNodeWidth(
           node.pieces,
-          action.payload.connectorPlaceholder
+          action.payload.connectorPlaceholder,
+          action.payload.fontSize,
+          action.payload.fontFamily
         );
         node.id = i + 1;
         return node;
@@ -362,7 +363,7 @@ const treeEditorReducer = (state = initialState, action) => {
         ? [action.payload.reorderStartingX - state.selectedRootNode.width / 2]
         : [];
       var levelIndex = 0;
-      var currentY = textHeight * 3;
+      var currentY = action.payload.textHeight * 3;
       if (state.selectedRootNode) {
         [newNodes, currentLevelX] = orderWalk(
           state.selectedRootNode,
@@ -371,7 +372,8 @@ const treeEditorReducer = (state = initialState, action) => {
           visitedNodes,
           currentLevelX,
           currentY,
-          levelIndex
+          levelIndex,
+          action.payload.textHeight
         );
       }
       return {
@@ -395,10 +397,10 @@ const treeEditorReducer = (state = initialState, action) => {
               ...node,
               x: tmpX,
               y:
-                textHeight * 3 +
+                action.payload.textHeight * 3 +
                 (currentLevelX.length +
                   Math.floor(unconnectedCount / nodesPerRow)) *
-                  (textHeight * 4),
+                  (action.payload.textHeight * 4),
             };
           }
         }),

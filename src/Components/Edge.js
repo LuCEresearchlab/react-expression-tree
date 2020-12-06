@@ -1,6 +1,6 @@
 import React from "react";
+import Konva from "konva";
 import { Line, Circle, Group } from "react-konva";
-import { xPad, yPad, holeWidth, textHeight, fontSize } from "../utils.js";
 
 function Edge({
   id,
@@ -24,7 +24,19 @@ function Edge({
   draggingSelectionRect,
   fullDisabled,
   currentErrorLocation,
+  fontSize,
+  fontFamily,
 }) {
+  const xPad = fontSize / 2;
+  const yPad = fontSize / 2;
+  const oText = new Konva.Text({
+    text: "o",
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+  });
+  const holeWidth = oText.getTextWidth();
+  const textHeight = oText.fontSize();
+
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
     document.body.style.cursor = "grabbing";

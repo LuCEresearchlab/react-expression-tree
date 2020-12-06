@@ -18,6 +18,8 @@ function App() {
     <ExpressionTreeEditor
       width={stageWidth}
       height={stageHeight}
+      fontSize={24}
+      fontFamily="Ubuntu Mono, Courier"
       toolbarButtons={{
         drawerButton: true,
         reset: true,

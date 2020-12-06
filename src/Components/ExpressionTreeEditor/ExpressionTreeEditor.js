@@ -19,12 +19,13 @@ import {
   nodeById,
   nodePositionById,
   computeNodeWidth,
-  textHeight,
 } from "../../utils.js";
 
 function ExpressionTreeEditor({
   width,
   height,
+  fontSize,
+  fontFamily,
   connectorPlaceholder,
   templateNodes,
   nodes,
@@ -88,6 +89,13 @@ function ExpressionTreeEditor({
 
   const dispatch = useDispatch();
 
+  const oText = new Konva.Text({
+    text: "o",
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+  });
+  const textHeight = oText.fontSize();
+
   const [selectedEdgeRef, setSelectedEdgeRef] = useState(null);
   const [pressingMeta, setPressingMeta] = useState(false);
   const [draggingSelectionRect, setDraggingSelectionRect] = useState(false);
@@ -111,6 +119,8 @@ function ExpressionTreeEditor({
           initialNodes: initialState.initialNodes,
           initialEdges: initialState.initialEdges,
           connectorPlaceholder: connectorPlaceholder,
+          fontSize: fontSize,
+          fontFamily: fontFamily,
         })
       );
     dispatch(ActionCreators.clearHistory());
@@ -224,14 +234,16 @@ function ExpressionTreeEditor({
     if (edge) {
       const parentPieceX = computePiecesPositions(
         nodeById(edge.parentNodeId, nodes).pieces,
-        connectorPlaceholder
+        connectorPlaceholder,
+        fontSize,
+        fontFamily
       )[edge.parentPieceId];
       const parentPos = computeEdgeParentPos(
         edge.parentNodeId,
-        edge.parentPieceId,
         parentPieceX,
         nodes,
-        connectorPlaceholder
+        fontSize,
+        fontFamily
       );
       const newDragEdge = {
         originalEdgeId: edge.id,
@@ -332,7 +344,9 @@ function ExpressionTreeEditor({
           (pointerPos.x - stagePos.x) / stageScale.x,
           (pointerPos.y - stagePos.y) / stageScale.y,
           nodes,
-          connectorPlaceholder
+          connectorPlaceholder,
+          fontSize,
+          fontFamily
         );
         if (dragEdge.originalEdgeId) {
           const originalEdge = edgeById(dragEdge.originalEdgeId, edges);
@@ -349,6 +363,7 @@ function ExpressionTreeEditor({
             );
             if (
               (foundEdges.length > 0 &&
+                allowedErrors &&
                 allowedErrors.multiEdgeOnPieceConnector) ||
               foundEdges.length === 0
             ) {
@@ -369,7 +384,10 @@ function ExpressionTreeEditor({
                 [parentPiece.parentNodeId],
                 false
               );
-              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
+              if (
+                (allowedErrors && allowedErrors.loop && creatingLoop) ||
+                !creatingLoop
+              ) {
                 updateEdge({
                   edgeId: originalEdge.id,
                   newEdge: newEdge,
@@ -395,6 +413,7 @@ function ExpressionTreeEditor({
             );
             if (
               (foundEdges.length > 0 &&
+                allowedErrors &&
                 allowedErrors.multiEdgeOnPieceConnector) ||
               foundEdges.length === 0
             ) {
@@ -412,7 +431,10 @@ function ExpressionTreeEditor({
                 [parentPiece.parentNodeId],
                 false
               );
-              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
+              if (
+                (allowedErrors && allowedErrors.loop && creatingLoop) ||
+                !creatingLoop
+              ) {
                 addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
               }
             }
@@ -424,7 +446,9 @@ function ExpressionTreeEditor({
         const childNodeId = closestChildId(
           (pointerPos.x - stagePos.x) / stageScale.x,
           (pointerPos.y - stagePos.y) / stageScale.y,
-          nodes
+          nodes,
+          fontSize,
+          fontFamily
         );
         if (dragEdge.originalEdgeId) {
           const originalEdge = edgeById(dragEdge.originalEdgeId, edges);
@@ -436,6 +460,7 @@ function ExpressionTreeEditor({
             const foundEdges = edgeByChildNode(childNodeId, edges);
             if (
               (foundEdges.length > 0 &&
+                allowedErrors &&
                 allowedErrors.multiEdgeOnNodeConnector) ||
               foundEdges.length === 0
             ) {
@@ -456,7 +481,10 @@ function ExpressionTreeEditor({
                 [originalEdge.parentNodeId],
                 false
               );
-              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
+              if (
+                (allowedErrors && allowedErrors.loop && creatingLoop) ||
+                !creatingLoop
+              ) {
                 updateEdge({
                   edgeId: dragEdge.originalEdgeId,
                   newEdge: newEdge,
@@ -475,6 +503,7 @@ function ExpressionTreeEditor({
             const foundEdges = edgeByChildNode(childNodeId, edges);
             if (
               (foundEdges.length > 0 &&
+                allowedErrors &&
                 allowedErrors.multiEdgeOnNodeConnector) ||
               foundEdges.length === 0
             ) {
@@ -492,7 +521,10 @@ function ExpressionTreeEditor({
                 [dragEdge.parentNodeId],
                 false
               );
-              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
+              if (
+                (allowedErrors && allowedErrors.loop && creatingLoop) ||
+                !creatingLoop
+              ) {
                 addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
               }
             }
@@ -527,7 +559,12 @@ function ExpressionTreeEditor({
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
       const stageScale = stageRef.current.scale();
-      const nodeWidth = computeNodeWidth(addValue, connectorPlaceholder);
+      const nodeWidth = computeNodeWidth(
+        addValue,
+        connectorPlaceholder,
+        fontSize,
+        fontFamily
+      );
       addNode({
         pieces: addValue,
         x: (pointerPos.x - stagePos.x) / stageScale.x,
@@ -558,7 +595,12 @@ function ExpressionTreeEditor({
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
       const stageScale = stageRef.current.scale();
-      const nodeWidth = computeNodeWidth(addValue, connectorPlaceholder);
+      const nodeWidth = computeNodeWidth(
+        addValue,
+        connectorPlaceholder,
+        fontSize,
+        fontFamily
+      );
       addNode({
         pieces: addValue,
         x: (pointerPos.x - stagePos.x) / stageScale.x,
@@ -627,7 +669,12 @@ function ExpressionTreeEditor({
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
       const stageScale = stageRef.current.scale();
-      const nodeWidth = computeNodeWidth(addValue, connectorPlaceholder);
+      const nodeWidth = computeNodeWidth(
+        addValue,
+        connectorPlaceholder,
+        fontSize,
+        fontFamily
+      );
       addNode({
         pieces: addValue,
         x: (pointerPos.x - stagePos.x) / stageScale.x,
@@ -655,7 +702,10 @@ function ExpressionTreeEditor({
           e.currentTarget.moveToTop();
           const selectingEdge = edgeById(edgeId, edges);
           setSelectedEdgeRef(e.currentTarget);
-          selectEdge({ selectedEdge: selectingEdge, onEdgeSelect: onEdgeSelect });
+          selectEdge({
+            selectedEdge: selectingEdge,
+            onEdgeSelect: onEdgeSelect,
+          });
         }
       }
     }
@@ -777,6 +827,8 @@ function ExpressionTreeEditor({
         onNodeTypeChange={onNodeTypeChange}
         onNodeValueChange={onNodeValueChange}
         onValidate={onValidate}
+        fontSize={fontSize}
+        fontFamily={fontFamily}
       />
       <Stage
         ref={stageRef}
@@ -824,7 +876,9 @@ function ExpressionTreeEditor({
               parentPieceX={
                 computePiecesPositions(
                   nodeById(edge.parentNodeId, nodes).pieces,
-                  connectorPlaceholder
+                  connectorPlaceholder,
+                  fontSize,
+                  fontFamily
                 )[edge.parentPieceId]
               }
               childWidth={nodeById(edge.childNodeId, nodes).width}
@@ -845,6 +899,8 @@ function ExpressionTreeEditor({
               draggingSelectionRect={draggingSelectionRect}
               fullDisabled={fullDisabled}
               currentErrorLocation={currentErrorLocation}
+              fontSize={fontSize}
+              fontFamily={fontFamily}
             />
           ))}
           {nodes.map((node, i) => (
@@ -891,6 +947,8 @@ function ExpressionTreeEditor({
               currentErrorLocation={currentErrorLocation}
               onNodeDelete={onNodeDelete}
               onNodeSelect={onNodeSelect}
+              fontSize={fontSize}
+              fontFamily={fontFamily}
             />
           ))}
           <Rect
@@ -953,6 +1011,7 @@ function ExpressionTreeEditor({
               parentY={dragEdge.parentY}
               childX={dragEdge.childX}
               childY={dragEdge.childY}
+              fontSize={fontSize}
             />
           )}
         </Layer>
