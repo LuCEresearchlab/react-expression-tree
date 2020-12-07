@@ -78,6 +78,24 @@ function ExpressionTreeEditor({
   onEdgeUpdate,
   onEdgeSelect,
   onValidate,
+  errorColor,
+  nodeColor,
+  selectedNodeColor,
+  finalNodeColor,
+  rootConnectorColor,
+  nodeConnectorColor,
+  nodeHoleColor,
+  nodeTagColor,
+  nodeTextColor,
+  nodeDeleteButtonColor,
+  edgeColor,
+  edgeChildConnectorColor,
+  edgeParentConnectorColor,
+  selectedEdgeColor,
+  draggingEdgeColor,
+  dragEdgeColor,
+  dragEdgeChildConnectorColor,
+  dragEdgeParentConnectorColor,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -89,12 +107,16 @@ function ExpressionTreeEditor({
 
   const dispatch = useDispatch();
 
+  const xPad = fontSize / 2;
+  const yPad = fontSize / 2;
   const oText = new Konva.Text({
     text: "o",
     fontFamily: fontFamily,
     fontSize: fontSize,
   });
   const textHeight = oText.fontSize();
+  const holeWidth = oText.getTextWidth();
+  const nodeHeight = 2 * yPad + textHeight;
 
   const [selectedEdgeRef, setSelectedEdgeRef] = useState(null);
   const [pressingMeta, setPressingMeta] = useState(false);
@@ -829,6 +851,8 @@ function ExpressionTreeEditor({
         onValidate={onValidate}
         fontSize={fontSize}
         fontFamily={fontFamily}
+        yPad={yPad}
+        textHeight={textHeight}
       />
       <Stage
         ref={stageRef}
@@ -901,6 +925,16 @@ function ExpressionTreeEditor({
               currentErrorLocation={currentErrorLocation}
               fontSize={fontSize}
               fontFamily={fontFamily}
+              xPad={xPad}
+              yPad={yPad}
+              holeWidth={holeWidth}
+              textHeight={textHeight}
+              errorColor={errorColor}
+              edgeColor={edgeColor}
+              edgeChildConnectorColor={edgeChildConnectorColor}
+              edgeParentConnectorColor={edgeParentConnectorColor}
+              selectedEdgeColor={selectedEdgeColor}
+              draggingEdgeColor={draggingEdgeColor}
             />
           ))}
           {nodes.map((node, i) => (
@@ -915,6 +949,7 @@ function ExpressionTreeEditor({
               x={nodePositionById(node.id, nodes).x}
               y={nodePositionById(node.id, nodes).y}
               nodeWidth={node.width}
+              nodeHeight={nodeHeight}
               pieces={node.pieces}
               isSelected={selectedNode && selectedNode.id === node.id}
               isSelectedRoot={
@@ -949,6 +984,22 @@ function ExpressionTreeEditor({
               onNodeSelect={onNodeSelect}
               fontSize={fontSize}
               fontFamily={fontFamily}
+              xPad={xPad}
+              yPad={yPad}
+              holeWidth={holeWidth}
+              textHeight={textHeight}
+              errorColor={errorColor}
+              nodeColor={nodeColor}
+              selectedNodeColor={selectedNodeColor}
+              finalNodeColor={finalNodeColor}
+              rootConnectorColor={rootConnectorColor}
+              nodeConnectorColor={nodeConnectorColor}
+              nodeHoleColor={nodeHoleColor}
+              nodeTagColor={nodeTagColor}
+              nodeTextColor={nodeTextColor}
+              nodeDeleteButtonColor={nodeDeleteButtonColor}
+              edgeChildConnectorColor={edgeChildConnectorColor}
+              edgeParentConnectorColor={edgeParentConnectorColor}
             />
           ))}
           <Rect
@@ -1012,6 +1063,9 @@ function ExpressionTreeEditor({
               childX={dragEdge.childX}
               childY={dragEdge.childY}
               fontSize={fontSize}
+              dragEdgeColor={dragEdgeColor}
+              dragEdgeChildConnectorColor={dragEdgeChildConnectorColor}
+              dragEdgeParentConnectorColor={dragEdgeParentConnectorColor}
             />
           )}
         </Layer>

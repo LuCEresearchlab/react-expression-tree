@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Konva from "konva";
 import { useDispatch } from "react-redux";
 import { ActionCreators } from "redux-undo";
 import { makeStyles } from "@material-ui/core/styles";
@@ -24,7 +23,6 @@ import PhotoCameraRoundedIcon from "@material-ui/icons/PhotoCameraRounded";
 import ZoomOutRoundedIcon from "@material-ui/icons/ZoomOutRounded";
 import ZoomInRoundedIcon from "@material-ui/icons/ZoomInRounded";
 import AspectRatioRoundedIcon from "@material-ui/icons/AspectRatioRounded";
-
 import {
   Drawer,
   IconButton,
@@ -214,17 +212,11 @@ function StageDrawer({
   onValidate,
   fontSize,
   fontFamily,
+  yPad,
+  textHeight,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
-
-  const yPad = fontSize / 2;
-  const oText = new Konva.Text({
-    text: "o",
-    fontFamily: fontFamily,
-    fontSize: fontSize,
-  });
-  const textHeight = oText.fontSize();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(null);

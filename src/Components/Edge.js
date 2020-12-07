@@ -1,5 +1,4 @@
 import React from "react";
-import Konva from "konva";
 import { Line, Circle, Group } from "react-konva";
 
 function Edge({
@@ -26,17 +25,17 @@ function Edge({
   currentErrorLocation,
   fontSize,
   fontFamily,
+  xPad,
+  yPad,
+  holeWidth,
+  textHeight,
+  errorColor,
+  edgeColor,
+  edgeChildConnectorColor,
+  edgeParentConnectorColor,
+  selectedEdgeColor,
+  draggingEdgeColor,
 }) {
-  const xPad = fontSize / 2;
-  const yPad = fontSize / 2;
-  const oText = new Konva.Text({
-    text: "o",
-    fontFamily: fontFamily,
-    fontSize: fontSize,
-  });
-  const holeWidth = oText.getTextWidth();
-  const textHeight = oText.fontSize();
-
   const handleNodeConnectorDragStart = e => {
     e.cancelBubble = true; // prevent onDragStart of Group
     document.body.style.cursor = "grabbing";
@@ -83,14 +82,14 @@ function Edge({
         ]}
         stroke={
           beingDragged
-            ? "#f0f0f0"
+            ? draggingEdgeColor || "#f0f0f0"
             : currentErrorLocation &&
               currentErrorLocation.edge &&
               currentErrorLocation.edgeId === id
-            ? "#ff2f2f"
+            ? errorColor || "#ff2f2f"
             : selected
-            ? "#3f50b5"
-            : "black"
+            ? selectedEdgeColor || "#3f50b5"
+            : edgeColor || "black"
         }
         strokeWidth={fontSize / 4}
         lineCap="round"
@@ -112,14 +111,12 @@ function Edge({
         radius={fontSize / 4}
         fill={
           beingDragged
-            ? "#f0f0f0"
+            ? draggingEdgeColor || "#f0f0f0"
             : currentErrorLocation &&
               currentErrorLocation.edge &&
               currentErrorLocation.edgeId === id
-            ? "#ff2f2f"
-            : selected
-            ? "#3f50b5"
-            : "black"
+            ? errorColor || "#ff2f2f"
+            : edgeChildConnectorColor || "#00c0c3"
         }
         stroke="black"
         strokeWidth={1}
@@ -143,14 +140,12 @@ function Edge({
         radius={fontSize / 4}
         fill={
           beingDragged
-            ? "#f0f0f0"
+            ? draggingEdgeColor || "#f0f0f0"
             : currentErrorLocation &&
               currentErrorLocation.edge &&
               currentErrorLocation.edgeId === id
-            ? "#ff2f2f"
-            : selected
-            ? "#3f50b5"
-            : "black"
+            ? errorColor || "#ff2f2f"
+            : edgeParentConnectorColor || "#c33100"
         }
         stroke="black"
         strokeWidth={1}

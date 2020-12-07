@@ -20,6 +20,24 @@ function App() {
       height={stageHeight}
       fontSize={24}
       fontFamily="Ubuntu Mono, Courier"
+      errorColor="#ff2f2f"
+      nodeColor="#208020"
+      selectedNodeColor="#3f50b5"
+      finalNodeColor="#208080"
+      rootConnectorColor="black"
+      nodeConnectorColor="black"
+      nodeHoleColor="#104010"
+      nodeTagColor="#3f50b5"
+      nodeTextColor="white"
+      nodeDeleteButtonColor="red"
+      edgeColor="black"
+      edgeChildConnectorColor="#00c0c3"
+      edgeParentConnectorColor="#c33100"
+      selectedEdgeColor="#3f50b5"
+      draggingEdgeColor="#f0f0f0"
+      dragEdgeColor="black"
+      dragEdgeChildConnectorColor="#00c0c3"
+      dragEdgeParentConnectorColor="#c33100"
       toolbarButtons={{
         drawerButton: true,
         reset: true,

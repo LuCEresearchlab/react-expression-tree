@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Konva from "konva";
 import { Rect, Text, Group, Circle, Star, Label, Tag } from "react-konva";
 import {
   computePiecesPositions,
+  edgeByChildNode,
   edgeByParentPiece,
   nodeById,
 } from "../utils.js";
@@ -27,6 +27,7 @@ function Node({
   stageHeight,
   isSelectedRoot,
   nodeWidth,
+  nodeHeight,
   stageRef,
   transformerRef,
   edges,
@@ -49,22 +50,28 @@ function Node({
   onNodeSelect,
   fontSize,
   fontFamily,
+  xPad,
+  yPad,
+  holeWidth,
+  textHeight,
+  errorColor,
+  nodeColor,
+  selectedNodeColor,
+  finalNodeColor,
+  rootConnectorColor,
+  nodeConnectorColor,
+  nodeHoleColor,
+  nodeTagColor,
+  nodeTextColor,
+  nodeDeleteButtonColor,
+  edgeChildConnectorColor,
+  edgeParentConnectorColor,
 }) {
   // keep track
   // to prevent onMoveNode() notifications
   // when we don't drag the node itself but drag from a connector
   const [draggingNode, setDraggingNode] = useState(false);
 
-  const xPad = fontSize / 2;
-  const yPad = fontSize / 2;
-  const oText = new Konva.Text({
-    text: "o",
-    fontFamily: fontFamily,
-    fontSize: fontSize,
-  });
-  const holeWidth = oText.getTextWidth();
-  const textHeight = oText.fontSize();
-  const nodeHeight = 2 * yPad + textHeight;
   const piecesPos = computePiecesPositions(
     pieces,
     connectorPlaceholder,
@@ -256,12 +263,12 @@ function Node({
           currentErrorLocation &&
           currentErrorLocation.node &&
           currentErrorLocation.nodeId === id
-            ? "#ff2f2f"
+            ? errorColor || "#ff2f2f"
             : isSelected
-            ? "#3f50b5"
+            ? selectedNodeColor || "#3f50b5"
             : isFinal
-            ? "#208080"
-            : "#208020"
+            ? finalNodeColor || "#208080"
+            : nodeColor || "#208020"
         }
         stroke="black"
         strokeWidth={isSelected ? 2 : 1}
@@ -274,7 +281,7 @@ function Node({
       <Text
         x={3}
         y={3}
-        fill="white"
+        fill={nodeTextColor || "white"}
         fontFamily={fontFamily}
         fontSize={fontSize * 0.4}
         text={id}
@@ -291,8 +298,12 @@ function Node({
             currentErrorLocation &&
             currentErrorLocation.nodeConnector &&
             currentErrorLocation.nodeId === id
-              ? "#ff2f2f"
-              : "#3f50b5"
+              ? errorColor || "#ff2f2f"
+              : isSelected
+              ? selectedNodeColor || "#3f50b5"
+              : edgeByChildNode(id, edges).length > 0
+              ? edgeChildConnectorColor || "#802020"
+              : rootConnectorColor || "#3f50b5"
           }
           stroke="black"
           strokeWidth={2}
@@ -319,9 +330,13 @@ function Node({
             currentErrorLocation &&
             currentErrorLocation.nodeConnector &&
             currentErrorLocation.nodeId === id
-              ? "#ff2f2f"
-              : "black"
+              ? errorColor || "#ff2f2f"
+              : edgeByChildNode(id, edges).length > 0
+              ? edgeChildConnectorColor || "#802020"
+              : nodeConnectorColor || "black"
           }
+          stroke="black"
+          strokeWidth={1}
           draggable={!fullDisabled}
           onDragStart={!fullDisabled && handleNodeConnectorDragStart}
           onDragMove={() => {}}
@@ -349,8 +364,8 @@ function Node({
                 currentErrorLocation.pieceConnector &&
                 currentErrorLocation.nodeId === id &&
                 currentErrorLocation.pieceId === i
-                  ? "#ff2f2f"
-                  : "#104010"
+                  ? errorColor || "#ff2f2f"
+                  : nodeHoleColor || "#104010"
               }
               stroke="black"
               strokeWidth={1}
@@ -380,7 +395,9 @@ function Node({
               onDragMove={e => {}}
               onDragEnd={e => {}}
               radius={fontSize / 4}
-              fill="black"
+              fill={edgeParentConnectorColor || "#c33100"}
+              stroke="black"
+              strokeWidth={1}
               onMouseOver={
                 !fullDisabled &&
                 (e => {
@@ -396,7 +413,7 @@ function Node({
             key={"TextPiece-" + i}
             x={xPad + piecesPos[i]}
             y={yPad}
-            fill="white"
+            fill={nodeTextColor || "white"}
             fontFamily={fontFamily}
             fontSize={fontSize}
             text={p}
@@ -407,7 +424,7 @@ function Node({
         <Text
           x={nodeWidth - xPad}
           y={3}
-          fill="white"
+          fill={nodeTextColor || "white"}
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
           text="X"
@@ -418,7 +435,7 @@ function Node({
               if (!draggingSelectionRect) {
                 e.cancelBubble = true;
                 document.body.style.cursor = "pointer";
-                e.target.fill("red");
+                e.target.fill(nodeDeleteButtonColor || "red");
                 e.target.draw();
               }
             })
@@ -426,7 +443,7 @@ function Node({
           onMouseLeave={e => {
             if (!draggingSelectionRect) {
               e.cancelBubble = true;
-              e.target.attrs.fill = "white";
+              e.target.attrs.fill = nodeTextColor || "white";
               e.target.draw();
             }
           }}
@@ -434,7 +451,7 @@ function Node({
       )}
       <Label x={nodeWidth / 2} y={-fontSize / 4}>
         <Tag
-          fill="#3f50b5"
+          fill={nodeTagColor || "#3f50b5"}
           stroke="black"
           strokeWidth={type !== "" || value !== "" ? 1 : 0}
           pointerDirection="down"
@@ -443,7 +460,7 @@ function Node({
           cornerRadius={3}
         />
         <Text
-          fill="white"
+          fill={nodeTextColor || "white"}
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
           text={type + (type !== "" && value !== "" ? ": " : "") + value}
