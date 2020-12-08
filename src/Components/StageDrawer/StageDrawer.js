@@ -421,24 +421,36 @@ function StageDrawer({
   };
 
   const handleCenteringClick = () => {
-    var nodesCenters = [];
-    var averageCenterX = 0;
-    var averageCenterY = 0;
+    var minX = null;
+    var maxX = null;
+    var minY = null;
+    var maxY = null;
     nodes.forEach(node => {
-      nodesCenters.push({
-        x: node.x + node.width / 2,
-        y: node.y + yPad + textHeight / 2,
-      });
+      if (minX === null) {
+        minX = node.x;
+        maxX = node.x + node.width;
+        minY = node.y;
+        maxY = node.y + 2 * yPad + textHeight;
+      } else {
+        if (node.x < minX) {
+          minX = node.x;
+        }
+        if (node.x + node.width > maxX) {
+          maxX = node.x + node.width;
+        }
+        if (node.y < minY) {
+          minY = node.y;
+        }
+        if (node.y + 2 * yPad + textHeight > maxY) {
+          maxY = node.y + 2 * yPad + textHeight;
+        }
+      }
     });
-    nodesCenters.forEach(nodeCenter => {
-      averageCenterX += nodeCenter.x;
-      averageCenterY += nodeCenter.y;
-    });
-    averageCenterX /= nodesCenters.length;
-    averageCenterY /= nodesCenters.length;
+    const avgX = (minX + maxX) / 2;
+    const avgY = (minY + maxY) / 2;
     stageRef.current.position({
-      x: averageCenterX - stageRef.current.attrs.width / 2,
-      y: averageCenterY - (stageRef.current.attrs.height - 60) / 2,
+      x: avgX,
+      y: avgY,
     });
     stageRef.current.draw();
   };

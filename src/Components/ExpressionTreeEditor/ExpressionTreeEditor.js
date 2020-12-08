@@ -7,6 +7,8 @@ import Edge from "../Edge.js";
 import DragEdge from "../DragEdge.js";
 import StageDrawer from "../StageDrawer";
 import { Stage, Layer, Rect, Transformer } from "react-konva";
+import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
+
 import {
   edgeByChildNode,
   computePiecesPositions,
@@ -96,6 +98,8 @@ function ExpressionTreeEditor({
   dragEdgeColor,
   dragEdgeChildConnectorColor,
   dragEdgeParentConnectorColor,
+  toolbarPrimaryColor,
+  toolbarSecondaryColor,
 }) {
   // Get access to DOM node corresponding to <Stage>
   // because we need to get key events from the DOM
@@ -106,6 +110,15 @@ function ExpressionTreeEditor({
   const transformerRef = useRef();
 
   const dispatch = useDispatch();
+
+  const theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: toolbarPrimaryColor || "#3f51b5",
+      },
+      secondary: { main: toolbarSecondaryColor || "#f50057" },
+    },
+  });
 
   const xPad = fontSize / 2;
   const yPad = fontSize / 2;
@@ -822,255 +835,257 @@ function ExpressionTreeEditor({
   };
 
   return (
-    <div
-      id="editorContainer"
-      style={{
-        position: "relative",
-        border: "2px solid #3f50b5",
-        borderRadius: "5px",
-      }}
-    >
-      <StageDrawer
-        connectorPlaceholder={connectorPlaceholder}
-        templateNodes={templateNodes}
-        stageRef={stageRef}
-        transformerRef={transformerRef}
-        setIsSelectedRectVisible={setIsSelectedRectVisible}
-        initialState={initialState}
-        nodeTypes={nodeTypes}
-        selectedEdgeRef={selectedEdgeRef}
-        setSelectedEdgeRef={setSelectedEdgeRef}
-        reportedErrors={reportedErrors}
-        toolbarButtons={toolbarButtons}
-        drawerFields={drawerFields}
-        fullDisabled={fullDisabled}
-        setCurrentErrorLocation={setCurrentErrorLocation}
-        onNodePiecesChange={onNodePiecesChange}
-        onNodeTypeChange={onNodeTypeChange}
-        onNodeValueChange={onNodeValueChange}
-        onValidate={onValidate}
-        fontSize={fontSize}
-        fontFamily={fontFamily}
-        yPad={yPad}
-        textHeight={textHeight}
-      />
-      <Stage
-        ref={stageRef}
-        width={width}
-        height={height}
-        onMouseMove={!fullDisabled && handleStageMouseMove}
-        onMouseUp={!fullDisabled && handleStageMouseUp}
-        onClick={!fullDisabled && handleStageClick}
-        style={{ cursor: addingNode && "crosshair" }}
-        draggable={!pressingMeta && !fullDisabled}
-        onMouseDown={!fullDisabled && handleStageMouseDown}
-        onDragStart={
-          !fullDisabled &&
-          (e => {
-            document.body.style.cursor = "grabbing";
-          })
-        }
-        onDragMove={!fullDisabled && (e => handleStageDragMove(e))}
-        onDragEnd={
-          !fullDisabled &&
-          (e => {
-            document.body.style.cursor = "move";
-          })
-        }
-        onWheel={!fullDisabled && handleStageWheel}
-        onMouseOver={
-          !fullDisabled &&
-          (e => {
-            document.body.style.cursor = "move";
-          })
-        }
-        onMouseLeave={
-          !fullDisabled &&
-          (e => {
-            document.body.style.cursor = "default";
-          })
-        }
+    <MuiThemeProvider theme={theme}>
+      <div
+        id="editorContainer"
+        style={{
+          position: "relative",
+          border: "2px solid #3f50b5",
+          borderRadius: "5px",
+        }}
       >
-        <Layer>
-          {edges.map((edge, i) => (
-            <Edge
-              key={"Edge-" + edge.id}
-              id={edge.id}
-              beingDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
-              parentPieceX={
-                computePiecesPositions(
-                  nodeById(edge.parentNodeId, nodes).pieces,
-                  connectorPlaceholder,
-                  fontSize,
-                  fontFamily
-                )[edge.parentPieceId]
-              }
-              childWidth={nodeById(edge.childNodeId, nodes).width}
-              parentX={nodePositionById(edge.parentNodeId, nodes).x}
-              parentY={nodePositionById(edge.parentNodeId, nodes).y}
-              childX={nodePositionById(edge.childNodeId, nodes).x}
-              childY={nodePositionById(edge.childNodeId, nodes).y}
-              onEdgeClick={e => handleEdgeClick(e, edge.id)}
-              onNodeConnectorDragStart={handleNodeConnectorDragStart}
-              onPieceConnectorDragStart={handlePieceConnectorDragStart}
-              selected={selectedEdge && selectedEdge.id === edge.id}
-              parentNodeId={edge.parentNodeId}
-              parentPieceId={edge.parentPieceId}
-              childNodeId={edge.childNodeId}
-              selectedEdgeRef={selectedEdgeRef}
-              setSelectedEdgeRef={setSelectedEdgeRef}
-              clearEdgeSelection={clearEdgeSelection}
-              draggingSelectionRect={draggingSelectionRect}
-              fullDisabled={fullDisabled}
-              currentErrorLocation={currentErrorLocation}
-              fontSize={fontSize}
-              fontFamily={fontFamily}
-              xPad={xPad}
-              yPad={yPad}
-              holeWidth={holeWidth}
-              textHeight={textHeight}
-              errorColor={errorColor}
-              edgeColor={edgeColor}
-              edgeChildConnectorColor={edgeChildConnectorColor}
-              edgeParentConnectorColor={edgeParentConnectorColor}
-              selectedEdgeColor={selectedEdgeColor}
-              draggingEdgeColor={draggingEdgeColor}
-            />
-          ))}
-          {nodes.map((node, i) => (
-            <Node
-              id={node.id}
-              key={"Node-" + node.id}
-              stageRef={stageRef}
-              transformerRef={transformerRef}
-              edges={edges}
-              nodes={nodes}
-              connectorPlaceholder={connectorPlaceholder}
-              x={nodePositionById(node.id, nodes).x}
-              y={nodePositionById(node.id, nodes).y}
-              nodeWidth={node.width}
-              nodeHeight={nodeHeight}
-              pieces={node.pieces}
-              isSelected={selectedNode && selectedNode.id === node.id}
-              isSelectedRoot={
-                selectedRootNode && selectedRootNode.id === node.id
-              }
-              type={node.type}
-              value={node.value}
-              stageWidth={width}
-              stageHeight={height}
-              moveNodeTo={moveNodeTo}
-              moveNodeToEnd={moveNodeToEnd}
-              selectNode={selectNode}
-              clearNodeSelection={clearNodeSelection}
-              clearEdgeSelection={clearEdgeSelection}
-              removeNode={removeNode}
-              onNodeClick={e => handleNodeClick(e, node.id)}
-              onNodeDblClick={() => handleNodeDblClick(node.id)}
-              onNodeConnectorDragStart={handleNodeConnectorDragStart}
-              onPieceConnectorDragStart={handlePieceConnectorDragStart}
-              selectedEdgeRef={selectedEdgeRef}
-              setSelectedEdgeRef={setSelectedEdgeRef}
-              editValueChange={editValueChange}
-              typeValueChange={typeValueChange}
-              nodeValueChange={nodeValueChange}
-              isFinal={node.isFinal}
-              pressingMeta={pressingMeta}
-              draggingSelectionRect={draggingSelectionRect}
-              drawerFields={drawerFields}
-              fullDisabled={fullDisabled}
-              currentErrorLocation={currentErrorLocation}
-              onNodeDelete={onNodeDelete}
-              onNodeSelect={onNodeSelect}
-              fontSize={fontSize}
-              fontFamily={fontFamily}
-              xPad={xPad}
-              yPad={yPad}
-              holeWidth={holeWidth}
-              textHeight={textHeight}
-              errorColor={errorColor}
-              nodeColor={nodeColor}
-              selectedNodeColor={selectedNodeColor}
-              finalNodeColor={finalNodeColor}
-              rootConnectorColor={rootConnectorColor}
-              nodeConnectorColor={nodeConnectorColor}
-              nodeHoleColor={nodeHoleColor}
-              nodeTagColor={nodeTagColor}
-              nodeTextColor={nodeTextColor}
-              nodeDeleteButtonColor={nodeDeleteButtonColor}
-              edgeChildConnectorColor={edgeChildConnectorColor}
-              edgeParentConnectorColor={edgeParentConnectorColor}
-            />
-          ))}
-          <Rect
-            ref={selectionRectRef}
-            fill="rgba(0,0,255,0.2)"
-            x={Math.min(selectionRectStartPos.x, selectionRectEndPos.x)}
-            y={Math.min(selectionRectStartPos.y, selectionRectEndPos.y)}
-            width={Math.abs(selectionRectEndPos.x - selectionRectStartPos.x)}
-            height={Math.abs(selectionRectEndPos.y - selectionRectStartPos.y)}
-            visible={isSelectingRectVisible}
-          ></Rect>
-          <Transformer
-            ref={transformerRef}
-            rotateEnabled={false}
-            resizeEnabled={false}
-          />
-          <Rect
-            ref={selectedRectRef}
-            fill="rgba(0,0,255,0)"
-            x={
-              transformerRef.current &&
-              stageRef.current &&
-              (transformerRef.current.getClientRect().x -
-                stageRef.current.absolutePosition().x) /
-                stageRef.current.scale().x
-            }
-            y={
-              transformerRef.current &&
-              stageRef.current &&
-              (transformerRef.current.getClientRect().y -
-                stageRef.current.absolutePosition().y) /
-                stageRef.current.scale().y
-            }
-            width={
-              transformerRef.current &&
-              transformerRef.current.getClientRect().width /
-                stageRef.current.scale().x
-            }
-            height={
-              transformerRef.current &&
-              transformerRef.current.getClientRect().height /
-                stageRef.current.scale().y
-            }
-            visible={isSelectedRectVisible}
-            draggable
-            onMouseEnter={() => {
-              document.body.style.cursor = "grab";
-            }}
-            onDragStart={() => {
+        <StageDrawer
+          connectorPlaceholder={connectorPlaceholder}
+          templateNodes={templateNodes}
+          stageRef={stageRef}
+          transformerRef={transformerRef}
+          setIsSelectedRectVisible={setIsSelectedRectVisible}
+          initialState={initialState}
+          nodeTypes={nodeTypes}
+          selectedEdgeRef={selectedEdgeRef}
+          setSelectedEdgeRef={setSelectedEdgeRef}
+          reportedErrors={reportedErrors}
+          toolbarButtons={toolbarButtons}
+          drawerFields={drawerFields}
+          fullDisabled={fullDisabled}
+          setCurrentErrorLocation={setCurrentErrorLocation}
+          onNodePiecesChange={onNodePiecesChange}
+          onNodeTypeChange={onNodeTypeChange}
+          onNodeValueChange={onNodeValueChange}
+          onValidate={onValidate}
+          fontSize={fontSize}
+          fontFamily={fontFamily}
+          yPad={yPad}
+          textHeight={textHeight}
+        />
+        <Stage
+          ref={stageRef}
+          width={width}
+          height={height}
+          onMouseMove={!fullDisabled && handleStageMouseMove}
+          onMouseUp={!fullDisabled && handleStageMouseUp}
+          onClick={!fullDisabled && handleStageClick}
+          style={{ cursor: addingNode && "crosshair" }}
+          draggable={!pressingMeta && !fullDisabled}
+          onMouseDown={!fullDisabled && handleStageMouseDown}
+          onDragStart={
+            !fullDisabled &&
+            (e => {
               document.body.style.cursor = "grabbing";
-            }}
-            onDragMove={handleSelectedDragMove}
-            onDragEnd={handleSelectedDragEnd}
-            onMouseDown={handleStageMouseDown}
-          ></Rect>
-          {dragEdge && (
-            <DragEdge
-              key="DragEdge"
-              parentX={dragEdge.parentX}
-              parentY={dragEdge.parentY}
-              childX={dragEdge.childX}
-              childY={dragEdge.childY}
-              fontSize={fontSize}
-              dragEdgeColor={dragEdgeColor}
-              dragEdgeChildConnectorColor={dragEdgeChildConnectorColor}
-              dragEdgeParentConnectorColor={dragEdgeParentConnectorColor}
+            })
+          }
+          onDragMove={!fullDisabled && (e => handleStageDragMove(e))}
+          onDragEnd={
+            !fullDisabled &&
+            (e => {
+              document.body.style.cursor = "move";
+            })
+          }
+          onWheel={!fullDisabled && handleStageWheel}
+          onMouseOver={
+            !fullDisabled &&
+            (e => {
+              document.body.style.cursor = "move";
+            })
+          }
+          onMouseLeave={
+            !fullDisabled &&
+            (e => {
+              document.body.style.cursor = "default";
+            })
+          }
+        >
+          <Layer>
+            {edges.map((edge, i) => (
+              <Edge
+                key={"Edge-" + edge.id}
+                id={edge.id}
+                beingDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
+                parentPieceX={
+                  computePiecesPositions(
+                    nodeById(edge.parentNodeId, nodes).pieces,
+                    connectorPlaceholder,
+                    fontSize,
+                    fontFamily
+                  )[edge.parentPieceId]
+                }
+                childWidth={nodeById(edge.childNodeId, nodes).width}
+                parentX={nodePositionById(edge.parentNodeId, nodes).x}
+                parentY={nodePositionById(edge.parentNodeId, nodes).y}
+                childX={nodePositionById(edge.childNodeId, nodes).x}
+                childY={nodePositionById(edge.childNodeId, nodes).y}
+                onEdgeClick={e => handleEdgeClick(e, edge.id)}
+                onNodeConnectorDragStart={handleNodeConnectorDragStart}
+                onPieceConnectorDragStart={handlePieceConnectorDragStart}
+                selected={selectedEdge && selectedEdge.id === edge.id}
+                parentNodeId={edge.parentNodeId}
+                parentPieceId={edge.parentPieceId}
+                childNodeId={edge.childNodeId}
+                selectedEdgeRef={selectedEdgeRef}
+                setSelectedEdgeRef={setSelectedEdgeRef}
+                clearEdgeSelection={clearEdgeSelection}
+                draggingSelectionRect={draggingSelectionRect}
+                fullDisabled={fullDisabled}
+                currentErrorLocation={currentErrorLocation}
+                fontSize={fontSize}
+                fontFamily={fontFamily}
+                xPad={xPad}
+                yPad={yPad}
+                holeWidth={holeWidth}
+                textHeight={textHeight}
+                errorColor={errorColor}
+                edgeColor={edgeColor}
+                edgeChildConnectorColor={edgeChildConnectorColor}
+                edgeParentConnectorColor={edgeParentConnectorColor}
+                selectedEdgeColor={selectedEdgeColor}
+                draggingEdgeColor={draggingEdgeColor}
+              />
+            ))}
+            {nodes.map((node, i) => (
+              <Node
+                id={node.id}
+                key={"Node-" + node.id}
+                stageRef={stageRef}
+                transformerRef={transformerRef}
+                edges={edges}
+                nodes={nodes}
+                connectorPlaceholder={connectorPlaceholder}
+                x={nodePositionById(node.id, nodes).x}
+                y={nodePositionById(node.id, nodes).y}
+                nodeWidth={node.width}
+                nodeHeight={nodeHeight}
+                pieces={node.pieces}
+                isSelected={selectedNode && selectedNode.id === node.id}
+                isSelectedRoot={
+                  selectedRootNode && selectedRootNode.id === node.id
+                }
+                type={node.type}
+                value={node.value}
+                stageWidth={width}
+                stageHeight={height}
+                moveNodeTo={moveNodeTo}
+                moveNodeToEnd={moveNodeToEnd}
+                selectNode={selectNode}
+                clearNodeSelection={clearNodeSelection}
+                clearEdgeSelection={clearEdgeSelection}
+                removeNode={removeNode}
+                onNodeClick={e => handleNodeClick(e, node.id)}
+                onNodeDblClick={() => handleNodeDblClick(node.id)}
+                onNodeConnectorDragStart={handleNodeConnectorDragStart}
+                onPieceConnectorDragStart={handlePieceConnectorDragStart}
+                selectedEdgeRef={selectedEdgeRef}
+                setSelectedEdgeRef={setSelectedEdgeRef}
+                editValueChange={editValueChange}
+                typeValueChange={typeValueChange}
+                nodeValueChange={nodeValueChange}
+                isFinal={node.isFinal}
+                pressingMeta={pressingMeta}
+                draggingSelectionRect={draggingSelectionRect}
+                drawerFields={drawerFields}
+                fullDisabled={fullDisabled}
+                currentErrorLocation={currentErrorLocation}
+                onNodeDelete={onNodeDelete}
+                onNodeSelect={onNodeSelect}
+                fontSize={fontSize}
+                fontFamily={fontFamily}
+                xPad={xPad}
+                yPad={yPad}
+                holeWidth={holeWidth}
+                textHeight={textHeight}
+                errorColor={errorColor}
+                nodeColor={nodeColor}
+                selectedNodeColor={selectedNodeColor}
+                finalNodeColor={finalNodeColor}
+                rootConnectorColor={rootConnectorColor}
+                nodeConnectorColor={nodeConnectorColor}
+                nodeHoleColor={nodeHoleColor}
+                nodeTagColor={nodeTagColor}
+                nodeTextColor={nodeTextColor}
+                nodeDeleteButtonColor={nodeDeleteButtonColor}
+                edgeChildConnectorColor={edgeChildConnectorColor}
+                edgeParentConnectorColor={edgeParentConnectorColor}
+              />
+            ))}
+            <Rect
+              ref={selectionRectRef}
+              fill="rgba(0,0,255,0.2)"
+              x={Math.min(selectionRectStartPos.x, selectionRectEndPos.x)}
+              y={Math.min(selectionRectStartPos.y, selectionRectEndPos.y)}
+              width={Math.abs(selectionRectEndPos.x - selectionRectStartPos.x)}
+              height={Math.abs(selectionRectEndPos.y - selectionRectStartPos.y)}
+              visible={isSelectingRectVisible}
+            ></Rect>
+            <Transformer
+              ref={transformerRef}
+              rotateEnabled={false}
+              resizeEnabled={false}
             />
-          )}
-        </Layer>
-      </Stage>
-    </div>
+            <Rect
+              ref={selectedRectRef}
+              fill="rgba(0,0,255,0)"
+              x={
+                transformerRef.current &&
+                stageRef.current &&
+                (transformerRef.current.getClientRect().x -
+                  stageRef.current.absolutePosition().x) /
+                  stageRef.current.scale().x
+              }
+              y={
+                transformerRef.current &&
+                stageRef.current &&
+                (transformerRef.current.getClientRect().y -
+                  stageRef.current.absolutePosition().y) /
+                  stageRef.current.scale().y
+              }
+              width={
+                transformerRef.current &&
+                transformerRef.current.getClientRect().width /
+                  stageRef.current.scale().x
+              }
+              height={
+                transformerRef.current &&
+                transformerRef.current.getClientRect().height /
+                  stageRef.current.scale().y
+              }
+              visible={isSelectedRectVisible}
+              draggable
+              onMouseEnter={() => {
+                document.body.style.cursor = "grab";
+              }}
+              onDragStart={() => {
+                document.body.style.cursor = "grabbing";
+              }}
+              onDragMove={handleSelectedDragMove}
+              onDragEnd={handleSelectedDragEnd}
+              onMouseDown={handleStageMouseDown}
+            ></Rect>
+            {dragEdge && (
+              <DragEdge
+                key="DragEdge"
+                parentX={dragEdge.parentX}
+                parentY={dragEdge.parentY}
+                childX={dragEdge.childX}
+                childY={dragEdge.childY}
+                fontSize={fontSize}
+                dragEdgeColor={dragEdgeColor}
+                dragEdgeChildConnectorColor={dragEdgeChildConnectorColor}
+                dragEdgeParentConnectorColor={dragEdgeParentConnectorColor}
+              />
+            )}
+          </Layer>
+        </Stage>
+      </div>
+    </MuiThemeProvider>
   );
 }
 
