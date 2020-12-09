@@ -105,6 +105,7 @@ function ExpressionTreeEditor({
   // because we need to get key events from the DOM
   // (Konva doesn't provide key events).
   const stageRef = useRef();
+  const layerRef = useRef();
   const selectionRectRef = useRef();
   const selectedRectRef = useRef();
   const transformerRef = useRef();
@@ -655,7 +656,7 @@ function ExpressionTreeEditor({
         setSelectedEdgeRef(null);
         clearEdgeSelection();
       }
-      if (!selectedNode) {
+      if (!selectedNode || selectedNode.id !== selectingNode.id) {
         selectNode({ selectedNode: selectingNode, onNodeSelect: onNodeSelect });
         if (drawerFields.editField) {
           if (!selectingNode.isFinal) {
@@ -667,24 +668,6 @@ function ExpressionTreeEditor({
           typeValueChange({ typeValue: selectingNode.type });
           document.getElementById("valueField").value = selectingNode.value;
           nodeValueChange({ nodeValue: selectingNode.value });
-        }
-      } else {
-        if (selectedNode.id !== selectingNode.id) {
-          selectNode({
-            selectedNode: selectingNode,
-            onNodeSelect: onNodeSelect,
-          });
-          if (drawerFields.editField) {
-            if (!selectingNode.isFinal) {
-              document.getElementById(
-                "editField"
-              ).value = selectingNode.pieces.join("");
-              editValueChange({ editValue: selectingNode.pieces });
-            }
-            typeValueChange({ typeValue: selectingNode.type });
-            document.getElementById("valueField").value = selectingNode.value;
-            nodeValueChange({ nodeValue: selectingNode.value });
-          }
         }
       }
     }
@@ -848,6 +831,7 @@ function ExpressionTreeEditor({
           connectorPlaceholder={connectorPlaceholder}
           templateNodes={templateNodes}
           stageRef={stageRef}
+          layerRef={layerRef}
           transformerRef={transformerRef}
           setIsSelectedRectVisible={setIsSelectedRectVisible}
           initialState={initialState}
@@ -905,7 +889,7 @@ function ExpressionTreeEditor({
             })
           }
         >
-          <Layer>
+          <Layer ref={layerRef}>
             {edges.map((edge, i) => (
               <Edge
                 key={"Edge-" + edge.id}
@@ -975,7 +959,6 @@ function ExpressionTreeEditor({
                 stageHeight={height}
                 moveNodeTo={moveNodeTo}
                 moveNodeToEnd={moveNodeToEnd}
-                selectNode={selectNode}
                 clearNodeSelection={clearNodeSelection}
                 clearEdgeSelection={clearEdgeSelection}
                 removeNode={removeNode}
@@ -985,13 +968,10 @@ function ExpressionTreeEditor({
                 onPieceConnectorDragStart={handlePieceConnectorDragStart}
                 selectedEdgeRef={selectedEdgeRef}
                 setSelectedEdgeRef={setSelectedEdgeRef}
-                editValueChange={editValueChange}
-                typeValueChange={typeValueChange}
                 nodeValueChange={nodeValueChange}
                 isFinal={node.isFinal}
                 pressingMeta={pressingMeta}
                 draggingSelectionRect={draggingSelectionRect}
-                drawerFields={drawerFields}
                 fullDisabled={fullDisabled}
                 currentErrorLocation={currentErrorLocation}
                 onNodeDelete={onNodeDelete}
@@ -1016,6 +996,19 @@ function ExpressionTreeEditor({
                 edgeParentConnectorColor={edgeParentConnectorColor}
               />
             ))}
+            {dragEdge && (
+              <DragEdge
+                key="DragEdge"
+                parentX={dragEdge.parentX}
+                parentY={dragEdge.parentY}
+                childX={dragEdge.childX}
+                childY={dragEdge.childY}
+                fontSize={fontSize}
+                dragEdgeColor={dragEdgeColor}
+                dragEdgeChildConnectorColor={dragEdgeChildConnectorColor}
+                dragEdgeParentConnectorColor={dragEdgeParentConnectorColor}
+              />
+            )}
             <Rect
               ref={selectionRectRef}
               fill="rgba(0,0,255,0.2)"
@@ -1024,11 +1017,6 @@ function ExpressionTreeEditor({
               width={Math.abs(selectionRectEndPos.x - selectionRectStartPos.x)}
               height={Math.abs(selectionRectEndPos.y - selectionRectStartPos.y)}
               visible={isSelectingRectVisible}
-            ></Rect>
-            <Transformer
-              ref={transformerRef}
-              rotateEnabled={false}
-              resizeEnabled={false}
             />
             <Rect
               ref={selectedRectRef}
@@ -1068,20 +1056,13 @@ function ExpressionTreeEditor({
               onDragMove={handleSelectedDragMove}
               onDragEnd={handleSelectedDragEnd}
               onMouseDown={handleStageMouseDown}
-            ></Rect>
-            {dragEdge && (
-              <DragEdge
-                key="DragEdge"
-                parentX={dragEdge.parentX}
-                parentY={dragEdge.parentY}
-                childX={dragEdge.childX}
-                childY={dragEdge.childY}
-                fontSize={fontSize}
-                dragEdgeColor={dragEdgeColor}
-                dragEdgeChildConnectorColor={dragEdgeChildConnectorColor}
-                dragEdgeParentConnectorColor={dragEdgeParentConnectorColor}
-              />
-            )}
+            />
+            <Transformer
+              ref={transformerRef}
+              rotateEnabled={false}
+              resizeEnabled={false}
+              visible={isSelectedRectVisible}
+            />
           </Layer>
         </Stage>
       </div>

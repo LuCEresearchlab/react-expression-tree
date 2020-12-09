@@ -4,7 +4,6 @@ import {
   computePiecesPositions,
   edgeByChildNode,
   edgeByParentPiece,
-  nodeById,
 } from "../utils.js";
 
 function Node({
@@ -16,7 +15,6 @@ function Node({
   isSelected,
   moveNodeTo,
   moveNodeToEnd,
-  selectNode,
   removeNode,
   clearEdgeSelection,
   onNodeConnectorDragStart,
@@ -36,14 +34,10 @@ function Node({
   value,
   selectedEdgeRef,
   setSelectedEdgeRef,
-  editValueChange,
-  typeValueChange,
-  nodeValueChange,
   clearNodeSelection,
   isFinal,
   pressingMeta,
   draggingSelectionRect,
-  drawerFields,
   fullDisabled,
   currentErrorLocation,
   onNodeDelete,
@@ -84,25 +78,10 @@ function Node({
       transformerRef.current.nodes([]);
       e.currentTarget.moveToTop();
       setDraggingNode(true);
-      const selectingNode = nodeById(id, nodes);
-      if (!isSelected) {
-        selectNode({ selectedNode: selectingNode, onNodeSelect: onNodeSelect });
-        if (drawerFields.editField) {
-          if (!selectingNode.isFinal) {
-            document.getElementById(
-              "editField"
-            ).value = selectingNode.pieces.join("");
-            editValueChange({ editValue: selectingNode.pieces });
-          }
-          typeValueChange({ typeValue: selectingNode.type });
-          document.getElementById("valueField").value = selectingNode.value;
-          nodeValueChange({ nodeValue: selectingNode.value });
-        }
-        if (selectedEdgeRef) {
-          selectedEdgeRef.moveToBottom();
-          setSelectedEdgeRef(null);
-          clearEdgeSelection();
-        }
+      if (selectedEdgeRef) {
+        selectedEdgeRef.moveToBottom();
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
       }
     } else {
       e.target.stopDrag();
@@ -273,10 +252,12 @@ function Node({
         stroke="black"
         strokeWidth={isSelected ? 2 : 1}
         cornerRadius={5}
+        hitStrokeWidth={0}
         shadowEnabled={isSelected ? true : false}
         shadowColor="black"
         shadowOffset={{ x: 3, y: 3 }}
         shadowBlur={3}
+        shadowForStrokeEnabled={false}
       />
       <Text
         x={3}
@@ -285,6 +266,7 @@ function Node({
         fontFamily={fontFamily}
         fontSize={fontSize * 0.4}
         text={id}
+        listening={false}
       />
       {isSelectedRoot ? (
         <Star
@@ -417,6 +399,7 @@ function Node({
             fontFamily={fontFamily}
             fontSize={fontSize}
             text={p}
+            listening={false}
           />
         )
       )}

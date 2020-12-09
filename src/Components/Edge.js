@@ -95,6 +95,10 @@ function Edge({
         lineCap="round"
         lineJoin="round"
         hitStrokeWidth={10}
+        shadowEnabled={selected ? true : false}
+        shadowColor="black"
+        shadowOffset={{ x: 3, y: 3 }}
+        shadowBlur={3}
         onMouseOver={
           !fullDisabled &&
           (e => {
@@ -120,6 +124,11 @@ function Edge({
         }
         stroke="black"
         strokeWidth={1}
+        shadowEnabled={selected ? true : false}
+        shadowColor="black"
+        shadowOffset={{ x: 2, y: 2 }}
+        shadowBlur={3}
+        shadowForStrokeEnabled={false}
         draggable
         onDragStart={!fullDisabled && handleNodeConnectorDragStart}
         onDragMove={() => {}}
@@ -149,6 +158,11 @@ function Edge({
         }
         stroke="black"
         strokeWidth={1}
+        shadowEnabled={selected ? true : false}
+        shadowColor="black"
+        shadowOffset={{ x: 2, y: 2 }}
+        shadowBlur={3}
+        shadowForStrokeEnabled={false}
         draggable
         onDragStart={!fullDisabled && handlePieceConnectorDragStart}
         onDragMove={e => {}}

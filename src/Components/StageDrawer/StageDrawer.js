@@ -194,6 +194,7 @@ function StageDrawer({
   selectedRootNode,
   templateNodes,
   stageRef,
+  layerRef,
   transformerRef,
   setIsSelectedRectVisible,
   initialState,
@@ -421,36 +422,21 @@ function StageDrawer({
   };
 
   const handleCenteringClick = () => {
-    var minX = null;
-    var maxX = null;
-    var minY = null;
-    var maxY = null;
-    nodes.forEach(node => {
-      if (minX === null) {
-        minX = node.x;
-        maxX = node.x + node.width;
-        minY = node.y;
-        maxY = node.y + 2 * yPad + textHeight;
-      } else {
-        if (node.x < minX) {
-          minX = node.x;
-        }
-        if (node.x + node.width > maxX) {
-          maxX = node.x + node.width;
-        }
-        if (node.y < minY) {
-          minY = node.y;
-        }
-        if (node.y + 2 * yPad + textHeight > maxY) {
-          maxY = node.y + 2 * yPad + textHeight;
-        }
-      }
+    const padding = 100;
+
+    const box = layerRef.current.getClientRect({
+      relativeTo: stageRef.current,
     });
-    const avgX = (minX + maxX) / 2;
-    const avgY = (minY + maxY) / 2;
-    stageRef.current.position({
-      x: avgX,
-      y: avgY,
+    const scale = Math.min(
+      stageRef.current.width() / (box.width + padding * 2),
+      stageRef.current.height() / (box.height + padding * 2)
+    );
+
+    stageRef.current.setAttrs({
+      x: -box.x * scale + padding * scale,
+      y: -box.y * scale + padding * scale,
+      scaleX: scale,
+      scaleY: scale,
     });
     stageRef.current.draw();
   };
@@ -783,6 +769,39 @@ function StageDrawer({
             </span>
           </Tooltip>
         )}
+        {toolbarButtons.zoomOut && !fullDisabled && (
+          <Tooltip title="Zoom-out" placement="bottom">
+            <IconButton
+              onClick={handleZoomOutClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <ZoomOutRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.zoomIn && !fullDisabled && (
+          <Tooltip title="Zoom-in" placement="bottom">
+            <IconButton
+              onClick={handleZoomInClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <ZoomInRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.zoomToFit && !fullDisabled && (
+          <Tooltip title="Zoom to fit nodes" placement="bottom">
+            <IconButton
+              onClick={handleCenteringClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              <AspectRatioRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
         {toolbarButtons.reorder && !fullDisabled && (
           <Tooltip title="Reorder nodes" placement="bottom">
             <IconButton
@@ -845,39 +864,6 @@ function StageDrawer({
               className={classes.toolbarButton}
             >
               <PhotoCameraRoundedIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-        {toolbarButtons.zoomIn && !fullDisabled && (
-          <Tooltip title="Zoom-in" placement="bottom">
-            <IconButton
-              onClick={handleZoomInClick}
-              color="primary"
-              className={classes.toolbarButton}
-            >
-              <ZoomInRoundedIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-        {toolbarButtons.zoomOut && !fullDisabled && (
-          <Tooltip title="Zoom-out" placement="bottom">
-            <IconButton
-              onClick={handleZoomOutClick}
-              color="primary"
-              className={classes.toolbarButton}
-            >
-              <ZoomOutRoundedIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-        {toolbarButtons.info && !fullDisabled && (
-          <Tooltip title="Center and fit nodes" placement="bottom">
-            <IconButton
-              onClick={handleCenteringClick}
-              color="primary"
-              className={classes.toolbarButton}
-            >
-              <AspectRatioRoundedIcon />
             </IconButton>
           </Tooltip>
         )}
@@ -993,8 +979,8 @@ function StageDrawer({
             </li>
             <br />
             <li>
-              <b>Edge deletion: </b>Select an edge and press the <i>delete</i>
-              button or drag and drop the node to an invalid location.
+              <b>Edge deletion: </b>Select an edge and press the <i>delete</i>{" "}
+              button or drag and drop the edge connector to an invalid location.
             </li>
           </ul>
         </DialogContent>

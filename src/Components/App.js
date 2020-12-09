@@ -53,6 +53,7 @@ function App() {
         zoomIn: true,
         zoomOut: true,
         info: true,
+        zoomToFit: true,
       }}
       drawerFields={{ addField: true, editField: true }}
       fullDisabled={false}
