@@ -666,7 +666,9 @@ function ExpressionTreeEditor({
             editValueChange({ editValue: selectingNode.pieces });
           }
           typeValueChange({ typeValue: selectingNode.type });
-          document.getElementById("valueField").value = selectingNode.value;
+          if (document.getElementById("valueField")) {
+            document.getElementById("valueField").value = selectingNode.value;
+          }
           nodeValueChange({ nodeValue: selectingNode.value });
         }
       }

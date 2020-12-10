@@ -262,11 +262,32 @@ function StageDrawer({
   };
 
   const handleTypeChange = value => {
+    nodeValueChange({ nodeValue: "" });
+    nodeValueEdit({
+      value: "",
+      selectedNodeId: selectedNode.id,
+      onNodeValueChange: onNodeValueChange,
+    });
+    if (document.getElementById("valueField")) {
+      document.getElementById("valueField").value = "";
+    }
     typeValueChange({ typeValue: value });
     nodeTypeEdit({
       type: value,
       selectedNodeId: selectedNode.id,
       onNodeTypeChange: onNodeTypeChange,
+      onNodeValueChange: onNodeValueChange,
+    });
+  };
+
+  const handleValueChange = value => {
+    if (document.getElementById("valueField")) {
+      document.getElementById("valueField").value = value;
+    }
+    nodeValueChange({ nodeValue: value });
+    nodeValueEdit({
+      value: value,
+      selectedNodeId: selectedNode.id,
       onNodeValueChange: onNodeValueChange,
     });
   };
@@ -1372,68 +1393,123 @@ function StageDrawer({
                     >
                       Clear node type
                     </Button>
-                    {nodeTypes.map(type => (
+                    {nodeTypes.map(nodeType => (
                       <FormControlLabel
-                        key={type}
-                        value={type}
+                        key={nodeType.type}
+                        value={nodeType.type}
                         control={<Radio color="primary" />}
-                        label={type}
+                        label={nodeType.type}
                         className={classes.typeButton}
                       />
                     ))}
                   </RadioGroup>
                 </div>
-                <div className={classes.drawerField}>
-                  <TextField
-                    key={selectedNode.id}
-                    id="valueField"
-                    variant="outlined"
-                    type="search"
-                    fullWidth
-                    size="medium"
-                    placeholder={"ex: 1234567890"}
-                    margin="dense"
-                    label="Insert the node's value"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    onChange={e =>
-                      nodeValueChange({ nodeValue: e.target.value })
-                    }
-                    onKeyPress={e => {
-                      if (
-                        e.key === "Enter" &&
-                        nodeValue !== selectedNode.value
-                      ) {
-                        nodeValueEdit({
-                          value: nodeValue,
-                          selectedNodeId: selectedNode.id,
-                          onNodeValueChange: onNodeValueChange,
-                        });
-                      }
-                    }}
-                  ></TextField>
-                  <div>
-                    <Tooltip title={"Update node value"} placement="top">
-                      <span>
-                        <IconButton
-                          size="medium"
-                          onClick={() =>
+                {typeValue &&
+                  nodeTypes.find(nodeType => nodeType.type === typeValue)
+                    .any && (
+                    <div className={classes.drawerField}>
+                      <TextField
+                        key={selectedNode.id}
+                        id="valueField"
+                        variant="outlined"
+                        type="search"
+                        fullWidth
+                        size="medium"
+                        placeholder={"ex: 1234567890"}
+                        margin="dense"
+                        label="Insert the node's value"
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        onChange={e =>
+                          nodeValueChange({ nodeValue: e.target.value })
+                        }
+                        onKeyPress={e => {
+                          if (
+                            e.key === "Enter" &&
+                            nodeValue !== selectedNode.value
+                          ) {
                             nodeValueEdit({
                               value: nodeValue,
                               selectedNodeId: selectedNode.id,
                               onNodeValueChange: onNodeValueChange,
-                            })
+                            });
                           }
-                          disabled={nodeValue === selectedNode.value}
+                        }}
+                      ></TextField>
+                      <div>
+                        <Tooltip title={"Update node value"} placement="top">
+                          <span>
+                            <IconButton
+                              size="medium"
+                              onClick={() =>
+                                nodeValueEdit({
+                                  value: nodeValue,
+                                  selectedNodeId: selectedNode.id,
+                                  onNodeValueChange: onNodeValueChange,
+                                })
+                              }
+                              disabled={
+                                nodeValue === selectedNode.value ||
+                                (nodeTypes.find(
+                                  nodeType => nodeType.type === typeValue
+                                ).fixedValues &&
+                                  nodeTypes
+                                    .find(
+                                      nodeType => nodeType.type === typeValue
+                                    )
+                                    .fixedValues.find(
+                                      fixedValue => fixedValue === nodeValue
+                                    ))
+                              }
+                              color="primary"
+                            >
+                              <UpdateRoundedIcon />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  )}
+                {typeValue &&
+                  nodeTypes.find(nodeType => nodeType.type === typeValue)
+                    .fixedValues &&
+                  nodeTypes.find(nodeType => nodeType.type === typeValue)
+                    .fixedValues.length > 0 && (
+                    <div className={classes.typeField}>
+                      <FormLabel>
+                        Select the node value from the list:
+                      </FormLabel>
+                      <RadioGroup
+                        value={nodeValue}
+                        onChange={e => handleValueChange(e.target.value)}
+                        row
+                        className={classes.typeButtonContainer}
+                      >
+                        <Button
+                          variant="text"
+                          size="small"
+                          onClick={() => handleValueChange("")}
+                          disabled={nodeValue === ""}
                           color="primary"
+                          startIcon={<ClearRoundedIcon />}
                         >
-                          <UpdateRoundedIcon />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </div>
-                </div>
+                          Clear node value
+                        </Button>
+                        {nodeTypes
+                          .find(nodeType => nodeType.type === typeValue)
+                          .fixedValues.map(fixedValue => (
+                            <FormControlLabel
+                              key={fixedValue}
+                              value={fixedValue}
+                              control={<Radio color="primary" />}
+                              label={fixedValue}
+                              className={classes.typeButton}
+                            />
+                          ))}
+                      </RadioGroup>
+                    </div>
+                  )}
               </>
             ) : (
               <Typography className={classes.editText}>

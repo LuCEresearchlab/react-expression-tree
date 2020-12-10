@@ -363,7 +363,7 @@ const treeEditorReducer = (state = initialState, action) => {
         ? [action.payload.reorderStartingX - state.selectedRootNode.width / 2]
         : [];
       var levelIndex = 0;
-      var currentY = action.payload.textHeight * 3;
+      var currentY = action.payload.textHeight * 4;
       if (state.selectedRootNode) {
         [newNodes, currentLevelX] = orderWalk(
           state.selectedRootNode,
@@ -397,7 +397,7 @@ const treeEditorReducer = (state = initialState, action) => {
               ...node,
               x: tmpX,
               y:
-                action.payload.textHeight * 3 +
+                action.payload.textHeight * 4 +
                 (currentLevelX.length +
                   Math.floor(unconnectedCount / nodesPerRow)) *
                   (action.payload.textHeight * 4),

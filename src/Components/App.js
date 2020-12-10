@@ -82,15 +82,22 @@ function App() {
         "-{{}}",
         "{{}}+{{}}",
       ]}
-      nodeTypes={["String", "Number", "Boolean", "Object", "undefined", "null"]}
-      // nodeTypes={[
-      //   "String",
-      // { type: "Number", any: true, fixedValues: ["14", '"15"', "16"] },
-      //   "Boolean",
-      //   "Object",
-      //   "undefined",
-      //   "null",
-      // ]}
+      nodeTypes={[
+        {
+          type: "String",
+          any: true,
+          fixedValues: ['"Hello"', '"World"', '"!"', '" "', '"Hello World!"'],
+        },
+        { type: "Number", any: true },
+        { type: "Boolean", any: false, fixedValues: ["true", "false"] },
+        {
+          type: "Object",
+          any: true,
+          fixedValues: [],
+        },
+        { type: "Undefined", any: false, fixedValues: ["undefined"] },
+        { type: "Null", fixedValues: ["null"] },
+      ]}
       initialState={{
         initialNodes: [
           { pieces: ["19"], x: 320, y: 60, type: "", value: "", isFinal: true },
