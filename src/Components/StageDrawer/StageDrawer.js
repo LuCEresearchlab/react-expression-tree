@@ -1460,7 +1460,7 @@ function StageDrawer({
                                     )
                                     .fixedValues.find(
                                       fixedValue => fixedValue === nodeValue
-                                    ))
+                                    ) !== undefined)
                               }
                               color="primary"
                             >
@@ -1490,7 +1490,17 @@ function StageDrawer({
                           variant="text"
                           size="small"
                           onClick={() => handleValueChange("")}
-                          disabled={nodeValue === ""}
+                          disabled={
+                            nodeValue === "" ||
+                            (nodeTypes.find(
+                              nodeType => nodeType.type === typeValue
+                            ).fixedValues &&
+                              nodeTypes
+                                .find(nodeType => nodeType.type === typeValue)
+                                .fixedValues.find(
+                                  fixedValue => fixedValue === nodeValue
+                                ) === undefined)
+                          }
                           color="primary"
                           startIcon={<ClearRoundedIcon />}
                         >
