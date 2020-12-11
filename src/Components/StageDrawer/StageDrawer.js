@@ -233,7 +233,6 @@ function StageDrawer({
   const [isValidOpen, setIsValidOpen] = useState(false);
   const [isInvalidOpen, setIsInvalidOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const handleAddChange = value => {
     if (addingNode) {
@@ -726,11 +725,10 @@ function StageDrawer({
     }
   };
 
-  const handleFullClick = () => {
-    setIsFullScreen(!isFullScreen);
-    isFullScreen
-      ? document.exitFullscreen()
-      : document.documentElement.requestFullscreen();
+  const handleFullScreenClick = () => {
+    document.fullscreenElement === null
+      ? document.documentElement.requestFullscreen()
+      : document.exitFullscreen();
   };
 
   return (
@@ -898,17 +896,24 @@ function StageDrawer({
             </IconButton>
           </Tooltip>
         )}
-        {toolbarButtons.screenshot && !fullDisabled && (
-          <Tooltip title="Full screen" placement="bottom">
+        {toolbarButtons.fullScreen && !fullDisabled && (
+          <Tooltip
+            title={
+              document.fullscreenElement === null
+                ? "Enter full screen"
+                : "Exit full screen"
+            }
+            placement="bottom"
+          >
             <IconButton
-              onClick={handleFullClick}
+              onClick={handleFullScreenClick}
               color="primary"
               className={classes.toolbarButton}
             >
-              {isFullScreen ? (
-                <FullscreenExitRoundedIcon />
-              ) : (
+              {document.fullscreenElement === null ? (
                 <FullscreenRoundedIcon />
+              ) : (
+                <FullscreenExitRoundedIcon />
               )}
             </IconButton>
           </Tooltip>
