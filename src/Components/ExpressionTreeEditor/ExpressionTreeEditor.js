@@ -341,6 +341,9 @@ function ExpressionTreeEditor({
   const handleStageMouseMove = e => {
     e.cancelBubble = true;
     if (dragEdge) {
+      const currentDragEdge = stageRef.current.find("#dragEdge")[0];
+      console.log(stageRef.current.find("#dragEdge"));
+      currentDragEdge.moveToTop();
       document.body.style.cursor = "grabbing";
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();

@@ -23,6 +23,8 @@ import PhotoCameraRoundedIcon from "@material-ui/icons/PhotoCameraRounded";
 import ZoomOutRoundedIcon from "@material-ui/icons/ZoomOutRounded";
 import ZoomInRoundedIcon from "@material-ui/icons/ZoomInRounded";
 import AspectRatioRoundedIcon from "@material-ui/icons/AspectRatioRounded";
+import FullscreenExitRoundedIcon from "@material-ui/icons/FullscreenExitRounded";
+import FullscreenRoundedIcon from "@material-ui/icons/FullscreenRounded";
 import {
   Drawer,
   IconButton,
@@ -231,6 +233,7 @@ function StageDrawer({
   const [isValidOpen, setIsValidOpen] = useState(false);
   const [isInvalidOpen, setIsInvalidOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const handleAddChange = value => {
     if (addingNode) {
@@ -723,6 +726,13 @@ function StageDrawer({
     }
   };
 
+  const handleFullClick = () => {
+    setIsFullScreen(!isFullScreen);
+    isFullScreen
+      ? document.exitFullscreen()
+      : document.documentElement.requestFullscreen();
+  };
+
   return (
     <>
       <div className={classes.toolbar}>
@@ -885,6 +895,21 @@ function StageDrawer({
               className={classes.toolbarButton}
             >
               <PhotoCameraRoundedIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {toolbarButtons.screenshot && !fullDisabled && (
+          <Tooltip title="Full screen" placement="bottom">
+            <IconButton
+              onClick={handleFullClick}
+              color="primary"
+              className={classes.toolbarButton}
+            >
+              {isFullScreen ? (
+                <FullscreenExitRoundedIcon />
+              ) : (
+                <FullscreenRoundedIcon />
+              )}
             </IconButton>
           </Tooltip>
         )}
