@@ -1064,6 +1064,20 @@ function ExpressionTreeEditor({
               rotateEnabled={false}
               resizeEnabled={false}
               visible={isSelectedRectVisible}
+              x={
+                transformerRef.current &&
+                stageRef.current &&
+                (transformerRef.current.getClientRect().x -
+                  stageRef.current.absolutePosition().x) /
+                  stageRef.current.scale().x
+              }
+              y={
+                transformerRef.current &&
+                stageRef.current &&
+                (transformerRef.current.getClientRect().y -
+                  stageRef.current.absolutePosition().y) /
+                  stageRef.current.scale().y
+              }
             />
           </Layer>
         </Stage>
