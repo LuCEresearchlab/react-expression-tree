@@ -1,5 +1,5 @@
 import React from "react";
-import { Line, Circle, Group } from "react-konva";
+import { Line, Circle } from "react-konva";
 
 function DragEdge({
   childX,
@@ -12,7 +12,7 @@ function DragEdge({
   dragEdgeParentConnectorColor,
 }) {
   return (
-    <Group id="dragEdge">
+    <>
       <Line
         points={[childX, childY, parentX, parentY]}
         stroke={dragEdgeColor || "black"}
@@ -36,7 +36,7 @@ function DragEdge({
         stroke="black"
         strokeWidth={1}
       />
-    </Group>
+    </>
   );
 }
 
