@@ -217,10 +217,15 @@ function Node({
       y={y}
       draggable={!fullDisabled}
       onClick={!fullDisabled && handleNodeClick}
+      onTap={!fullDisabled && handleNodeClick}
       onDblClick={!fullDisabled && onNodeDblClick}
+      onDblTap={!fullDisabled && onNodeDblClick}
       onDragStart={!fullDisabled && (e => handleDragStart(e))}
+      onTouchStart={!fullDisabled && (e => handleDragStart(e))}
       onDragMove={!fullDisabled && handleDragMove}
+      onTouchMove={!fullDisabled && handleDragMove}
       onDragEnd={!fullDisabled && handleDragEnd}
+      onTouchEnd={!fullDisabled && handleDragEnd}
       dragBoundFunc={pos => checkDragBound(pos)}
       onMouseOver={
         !fullDisabled &&
@@ -291,6 +296,7 @@ function Node({
           strokeWidth={2}
           draggable={!fullDisabled}
           onDragStart={!fullDisabled && handleNodeConnectorDragStart}
+          onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
           onDragMove={() => {}}
           onDragEnd={() => {}}
           onMouseOver={
@@ -321,6 +327,7 @@ function Node({
           strokeWidth={1}
           draggable={!fullDisabled}
           onDragStart={!fullDisabled && handleNodeConnectorDragStart}
+          onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
           onDragMove={() => {}}
           onDragEnd={() => {}}
           onMouseOver={
@@ -356,6 +363,9 @@ function Node({
               onDragStart={
                 !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
               }
+              onTouchStart={
+                !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
+              }
               onDragMove={() => {}}
               onDragEnd={() => {}}
               onMouseOver={
@@ -372,6 +382,9 @@ function Node({
               y={yPad + textHeight / 2}
               draggable={!fullDisabled}
               onDragStart={
+                !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
+              }
+              onTouchStart={
                 !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
               }
               onDragMove={e => {}}
@@ -412,6 +425,7 @@ function Node({
           fontSize={fontSize / 2}
           text="X"
           onClick={e => !fullDisabled && handleRemoveClick(e)}
+          onTap={e => !fullDisabled && handleRemoveClick(e)}
           onMouseOver={
             !fullDisabled &&
             (e => {

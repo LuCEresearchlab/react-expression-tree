@@ -71,7 +71,12 @@ function Edge({
   };
 
   return (
-    <Group id={id} name="Edge" onClick={!fullDisabled && onEdgeClick}>
+    <Group
+      id={id}
+      name="Edge"
+      onClick={!fullDisabled && onEdgeClick}
+      onTap={fullDisabled && onEdgeClick}
+    >
       <Line
         key={"Edge-Line-" + id}
         points={[
@@ -131,6 +136,7 @@ function Edge({
         shadowForStrokeEnabled={false}
         draggable
         onDragStart={!fullDisabled && handleNodeConnectorDragStart}
+        onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
         onDragMove={() => {}}
         onDragEnd={() => {}}
         onMouseOver={
@@ -165,6 +171,7 @@ function Edge({
         shadowForStrokeEnabled={false}
         draggable
         onDragStart={!fullDisabled && handlePieceConnectorDragStart}
+        onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
         onDragMove={e => {}}
         onDragEnd={e => {}}
         onMouseOver={

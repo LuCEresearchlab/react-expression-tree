@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { ActionCreators } from "redux-undo";
+import fscreen from "fscreen";
 import { makeStyles } from "@material-ui/core/styles";
 import AddRoundedIcon from "@material-ui/icons/Add";
 import UpdateRoundedIcon from "@material-ui/icons/UpdateRounded";
@@ -726,9 +727,9 @@ function StageDrawer({
   };
 
   const handleFullScreenClick = () => {
-    document.fullscreenElement === null
-      ? document.documentElement.requestFullscreen()
-      : document.exitFullscreen();
+    !fscreen.fullscreenElement
+      ? fscreen.requestFullscreen(document.documentElement)
+      : fscreen.exitFullscreen();
   };
 
   return (
@@ -896,28 +897,30 @@ function StageDrawer({
             </IconButton>
           </Tooltip>
         )}
-        {toolbarButtons.fullScreen && !fullDisabled && (
-          <Tooltip
-            title={
-              document.fullscreenElement === null
-                ? "Enter full screen"
-                : "Exit full screen"
-            }
-            placement="bottom"
-          >
-            <IconButton
-              onClick={handleFullScreenClick}
-              color="primary"
-              className={classes.toolbarButton}
+        {toolbarButtons.fullScreen &&
+          fscreen.fullscreenEnabled &&
+          !fullDisabled && (
+            <Tooltip
+              title={
+                !fscreen.fullscreenElement
+                  ? "Enter full screen"
+                  : "Exit full screen"
+              }
+              placement="bottom"
             >
-              {document.fullscreenElement === null ? (
-                <FullscreenRoundedIcon />
-              ) : (
-                <FullscreenExitRoundedIcon />
-              )}
-            </IconButton>
-          </Tooltip>
-        )}
+              <IconButton
+                onClick={handleFullScreenClick}
+                color="primary"
+                className={classes.toolbarButton}
+              >
+                {!fscreen.fullscreenElement ? (
+                  <FullscreenRoundedIcon />
+                ) : (
+                  <FullscreenExitRoundedIcon />
+                )}
+              </IconButton>
+            </Tooltip>
+          )}
       </div>
       <Dialog
         open={isResetWarnOpen}
@@ -1345,8 +1348,6 @@ function StageDrawer({
                     Describe the node's pieces in the textfield below. Holes are
                     represented by the special {connectorPlaceholder} character
                     combination. Final nodes can't be modified or removed.
-                    Select the node's out-coming type from the list below and
-                    insert the node's out-coming value in the last textfield.
                   </Typography>
                 </Popover>
               </div>
@@ -1479,19 +1480,7 @@ function StageDrawer({
                                   onNodeValueChange: onNodeValueChange,
                                 })
                               }
-                              disabled={
-                                nodeValue === selectedNode.value ||
-                                (nodeTypes.find(
-                                  nodeType => nodeType.type === typeValue
-                                ).fixedValues &&
-                                  nodeTypes
-                                    .find(
-                                      nodeType => nodeType.type === typeValue
-                                    )
-                                    .fixedValues.find(
-                                      fixedValue => fixedValue === nodeValue
-                                    ) !== undefined)
-                              }
+                              disabled={nodeValue === selectedNode.value}
                               color="primary"
                             >
                               <UpdateRoundedIcon />

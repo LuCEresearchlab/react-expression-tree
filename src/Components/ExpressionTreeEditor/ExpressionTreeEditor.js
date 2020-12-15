@@ -859,8 +859,11 @@ function ExpressionTreeEditor({
           width={width}
           height={height}
           onMouseMove={!fullDisabled && handleStageMouseMove}
+          onTouchMove={!fullDisabled && handleStageMouseMove}
           onMouseUp={!fullDisabled && handleStageMouseUp}
+          onTouchEnd={!fullDisabled && handleStageMouseUp}
           onClick={!fullDisabled && handleStageClick}
+          onTouchStart={!fullDisabled && handleStageClick}
           style={{ cursor: addingNode && "crosshair" }}
           draggable={!pressingMeta && !fullDisabled}
           onMouseDown={!fullDisabled && handleStageMouseDown}
