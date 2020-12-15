@@ -12,6 +12,7 @@ function DragEdge({
   dragEdgeParentConnectorColor,
 }) {
   return (
+    // DragEdge is composed of a Line and two Circle ends components
     <>
       <Line
         points={[childX, childY, parentX, parentY]}

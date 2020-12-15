@@ -60,13 +60,13 @@ function App() {
       fullDisabled={false}
       allowedErrors={{
         loop: true,
-        multiEdgeOnPieceConnector: true,
+        multiEdgeOnHoleConnector: true,
         multiEdgeOnNodeConnector: true,
       }}
       reportedErrors={{
         structureErrors: {
           loop: true,
-          multiEdgeOnPieceConnector: true,
+          multiEdgeOnHoleConnector: true,
           multiEdgeOnNodeConnector: true,
         },
         completenessErrors: {
@@ -119,7 +119,7 @@ function App() {
           },
           {
             pieces: ["3"],
-            x: 430,
+            x: 410,
             y: 90,
             type: "",
             value: "",

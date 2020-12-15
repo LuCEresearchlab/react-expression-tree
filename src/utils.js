@@ -1,6 +1,8 @@
 import Konva from "konva";
 
 // Utility Functions
+
+// Get node having the node's id
 export function nodeById(nodeId, nodes) {
   if (nodeId === undefined || nodeId === null) {
     throw new Error("Illegal nodeId", nodeId);
@@ -12,6 +14,7 @@ export function nodeById(nodeId, nodes) {
   return node;
 }
 
+// Get node position having the node's id
 export function nodePositionById(nodeId, nodes) {
   if (nodeId === undefined || nodeId === null) {
     throw new Error("Illegal nodeId", nodeId);
@@ -23,6 +26,7 @@ export function nodePositionById(nodeId, nodes) {
   return { x: node.x, y: node.y };
 }
 
+// Get edge having the edge's id
 export function edgeById(edgeId, edges) {
   if (edgeId === undefined || edgeId === null) {
     throw new Error("Illegal edgeId", edgeId);
@@ -34,10 +38,12 @@ export function edgeById(edgeId, edges) {
   return edge;
 }
 
+// Get edge having the edge's child node id
 export function edgeByChildNode(childNodeId, edges) {
   return edges.filter(edge => edge.childNodeId === childNodeId);
 }
 
+// Get edge having the edge's parent node id
 export function edgeByParentPiece(parentNodeId, parentPieceId, edges) {
   return edges.filter(
     edge =>
@@ -45,6 +51,7 @@ export function edgeByParentPiece(parentNodeId, parentPieceId, edges) {
   );
 }
 
+// Compute the edge's child position having the child node id
 export const computeEdgeChildPos = (childNodeId, nodes) => {
   const node = nodeById(childNodeId, nodes);
   return {
@@ -53,6 +60,7 @@ export const computeEdgeChildPos = (childNodeId, nodes) => {
   };
 };
 
+// Compute the edge's parent position having the parent node and the parent piece ids,
 export const computeEdgeParentPos = (
   parentNodeId,
   parentPieceX,
@@ -76,10 +84,12 @@ export const computeEdgeParentPos = (
   };
 };
 
+// Compute the distance between two points in 2D space
 export const distance = (x1, y1, x2, y2) => {
   return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 };
 
+// Compute the closest child notd given an (x, y) point coordinate
 export const closestChildId = (x, y, nodes, fontSize, fontFamily) => {
   const oText = new Konva.Text({
     text: "o",
@@ -100,6 +110,7 @@ export const closestChildId = (x, y, nodes, fontSize, fontFamily) => {
   return closestNodeId;
 };
 
+// Compute the closest parent piece given an (x, y) point coordinate
 export const closestParentPiece = (
   x,
   y,
@@ -147,6 +158,7 @@ export const closestParentPiece = (
   return closestPiece;
 };
 
+// Compute all the node's pieces widths
 export function computePiecesWidths(
   pieces,
   connectorPlaceholder,
@@ -173,6 +185,7 @@ export function computePiecesWidths(
   });
 }
 
+// Compute all the node's pieces positions
 export function computePiecesPositions(
   pieces,
   connectorPlaceholder,
@@ -195,6 +208,7 @@ export function computePiecesPositions(
   return xes;
 }
 
+// Compute the node width
 export function computeNodeWidth(
   pieces,
   connectorPlaceholder,
@@ -216,6 +230,7 @@ export function computeNodeWidth(
   return width + 2 * xPad;
 }
 
+// Parse the nodes's pieces from a textfield string into the pieces array
 export function parsePieces(value, connectorPlaceholder) {
   const values = value.split(connectorPlaceholder);
   var pieces = [];

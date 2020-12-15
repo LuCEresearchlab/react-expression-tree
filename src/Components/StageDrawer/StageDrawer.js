@@ -58,8 +58,10 @@ import {
   parsePieces,
 } from "../../utils.js";
 
+// Width of the side drawer
 const drawerWidth = 300;
 
+// Top bar and side drawer styles
 const useStyles = makeStyles(theme => ({
   drawer: {
     width: drawerWidth,
@@ -222,6 +224,7 @@ function StageDrawer({
   const classes = useStyles();
   const dispatch = useDispatch();
 
+  // State hooks
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [addAnchorEl, setAddAnchorEl] = useState(null);
@@ -235,6 +238,7 @@ function StageDrawer({
   const [isInvalidOpen, setIsInvalidOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
+  // Handle adding node value change event
   const handleAddChange = value => {
     if (addingNode) {
       clearAdding();
@@ -244,11 +248,13 @@ function StageDrawer({
     addValueChange({ addValue: addValue });
   };
 
+  // Handle editing node value change event
   const handleEditChange = value => {
     const editValue = parsePieces(value, connectorPlaceholder);
     editValueChange({ editValue: editValue });
   };
 
+  // Handle editing node value update
   const handleNodeEdit = () => {
     const nodeWidth = computeNodeWidth(
       editValue,
@@ -264,6 +270,7 @@ function StageDrawer({
     });
   };
 
+  // Handle editing node type change
   const handleTypeChange = value => {
     nodeValueChange({ nodeValue: "" });
     nodeValueEdit({
@@ -283,6 +290,7 @@ function StageDrawer({
     });
   };
 
+  // Handle editing node value change
   const handleValueChange = value => {
     if (document.getElementById("valueField")) {
       document.getElementById("valueField").value = value;
@@ -295,6 +303,8 @@ function StageDrawer({
     });
   };
 
+  // Handle state download, serializing the current editor state,
+  // only nodes, edges, selected root node, stage position and stage scale are serialized
   const handleStateDownload = () => {
     if (selectedNode) {
       clearNodeSelection();
@@ -323,11 +333,12 @@ function StageDrawer({
     downloadElement.remove();
   };
 
+  // Handle state upload of a previously downloaded state,
   const handleStateUpload = () => {
     var uploadElement = document.getElementById("stateUploadButton");
     uploadElement.click();
   };
-
+  // Handle file change on upload element
   const handleFileChange = e => {
     const file = e.target.files[0];
     e.target.value = "";
@@ -368,6 +379,9 @@ function StageDrawer({
     fr.readAsText(file);
   };
 
+  // Handle action undo button click, only unfiltered actions can be undone,
+  // the list of filtered and grouped actions is located in the
+  // ../store/reducers/treeEditorReducer.js file
   const handleUndo = () => {
     dispatch(ActionCreators.undo());
     if (selectedEdgeRef) {
@@ -379,6 +393,9 @@ function StageDrawer({
     transformerRef.current.nodes([]);
   };
 
+  // Handle action redo button click, only unfiltered actions can be redone,
+  // the list of filtered and grouped actions is located in the
+  // ../store/reducers/treeEditorReducer.js file
   const handleRedo = () => {
     dispatch(ActionCreators.redo());
     if (selectedEdgeRef) {
@@ -390,6 +407,7 @@ function StageDrawer({
     transformerRef.current.nodes([]);
   };
 
+  // Handle stage reset button click, setting the editor state back to the initial state
   const handleReset = () => {
     setIsResetWarnOpen(false);
     stageReset({
@@ -421,6 +439,8 @@ function StageDrawer({
     dispatch(ActionCreators.clearHistory());
   };
 
+  // Handle node template click, setting the adding node textfield value
+  // to the selected template value
   const handleTemplateClick = (value, id) => {
     if (addingNode) {
       clearAdding();
@@ -431,6 +451,9 @@ function StageDrawer({
     addValueChange({ addValue: addValue });
   };
 
+  // Handle nodes reordering button click.
+  // If a root node is selected, all its child nodes will be reordered as a tree,
+  // otherwise the nodes will be reordered in a compact rectangle
   const handleReorderClick = () => {
     stageRef.current.position({ x: 0, y: 0 });
     stageRef.current.scale({ x: 1, y: 1 });
@@ -445,6 +468,11 @@ function StageDrawer({
     });
   };
 
+  // Handle zoom to fit and centering button click.
+  // The stage scale will be adapted to the ratio between
+  // the nodes bounding rectangle and the stage size,
+  // then the stage will be repositioned,
+  // in order to have all the nodes inside the viewport
   const handleCenteringClick = () => {
     const padding = 100;
 
@@ -465,9 +493,14 @@ function StageDrawer({
     stageRef.current.draw();
   };
 
+  // In order tree walk starting from a root node, checking at each step
+  // if there is an error to be detected (set with the reportedErrors prop).
+  // Returns an array of detected errors used to display the errors alerts,
+  // containing the error type, the actual error, and the error location.
   function orderWalk(node, visitedNodes, visitedBranch, errors) {
     visitedNodes.push(node.id);
     visitedBranch.push(node.id);
+    // Missing node type error
     if (node.type === "") {
       const location = "Node ID: " + node.id;
       reportedErrors &&
@@ -480,6 +513,7 @@ function StageDrawer({
           currentErrorLocation: { node: true, nodeId: node.id },
         });
     }
+    // Missing node value error
     if (node.value === "") {
       const location = "Node ID: " + node.id;
       reportedErrors &&
@@ -497,15 +531,16 @@ function StageDrawer({
       if (piece === connectorPlaceholder) {
         connectorNum++;
         const childEdges = edgeByParentPiece(node.id, i, edges);
+        // Multiple edge on single hole connector error
         if (childEdges.length > 1) {
           const location =
             "Node ID: " + node.id + ", connector number: " + connectorNum;
           reportedErrors &&
             reportedErrors.structureErrors &&
-            reportedErrors.structureErrors.multiEdgeOnNodeConnector &&
+            reportedErrors.structureErrors.multiEdgeOnHoleConnector &&
             errors.push({
               type: "Structure error",
-              problem: "Multiple edge on single piece connector",
+              problem: "Multiple edge on single hole connector",
               location: location,
               currentErrorLocation: {
                 pieceConnector: true,
@@ -513,6 +548,7 @@ function StageDrawer({
                 pieceId: i,
               },
             });
+          // Empty connector error
         } else if (childEdges.length === 0) {
           const location =
             "Node ID: " + node.id + ", connector number: " + connectorNum;
@@ -533,6 +569,7 @@ function StageDrawer({
         childEdges.forEach(edge => {
           const childNode = nodeById(edge.childNodeId, nodes);
           var foundError = false;
+          // Multiple edge on single node connector error
           if (visitedNodes.find(e => e === childNode.id) !== undefined) {
             const location = "Node ID: " + childNode.id;
             reportedErrors &&
@@ -554,6 +591,7 @@ function StageDrawer({
               });
             foundError = true;
           }
+          // Loop error
           if (visitedBranch.find(e => e === childNode.id) !== undefined) {
             const location =
               " From node ID: " +
@@ -590,6 +628,7 @@ function StageDrawer({
     return [errors, visitedBranch];
   }
 
+  // Handle tree validation button click, displaying the resulting validation alerts
   const handleTreeValidation = () => {
     var visitedNodes = [];
     var visitedBranch = [];
@@ -601,6 +640,7 @@ function StageDrawer({
       errors
     );
     onValidate && onValidate(nodes, edges, errors);
+    // There are errors
     if (errors.length > 0) {
       setValidationErrors(errors);
       setCurrentError(0);
@@ -636,11 +676,14 @@ function StageDrawer({
         setSelectedEdgeRef(currentEdge);
       }
       setIsInvalidOpen(true);
+      // There are no errors
     } else {
       setIsValidOpen(true);
     }
   };
 
+  // Handle editor screenshot button click,
+  // downloading the image of the current visible stage portion
   const handleImageClick = () => {
     var downloadElement = document.createElement("a");
     downloadElement.href = stageRef.current.toDataURL({ pixelRatio: 2 });
@@ -650,6 +693,7 @@ function StageDrawer({
     downloadElement.remove();
   };
 
+  // Handle zoom in button click, zooming in the stage relative to its center
   const handleZoomInClick = () => {
     const currentScale = stageRef.current.scale();
     stageRef.current.scale({
@@ -659,6 +703,7 @@ function StageDrawer({
     stageRef.current.draw();
   };
 
+  // Handle zoom out button click, zooming out the stage relative to its center
   const handleZoomOutClick = () => {
     const currentScale = stageRef.current.scale();
     stageRef.current.scale({
@@ -668,6 +713,7 @@ function StageDrawer({
     stageRef.current.draw();
   };
 
+  // Handle previous validation error button click, changing to the previous error, if there is one
   const handlePreviousErrorClick = () => {
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
@@ -697,6 +743,7 @@ function StageDrawer({
     }
   };
 
+  // Handle next validation error button click, changing to the next error, if there is one
   const handleNextErrorClick = () => {
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
@@ -726,6 +773,8 @@ function StageDrawer({
     }
   };
 
+  // Handle enter/exit fullscreen button click,
+  // using fscreen library to support different browsers fullscreen elements
   const handleFullScreenClick = () => {
     !fscreen.fullscreenElement
       ? fscreen.requestFullscreen(document.documentElement)
@@ -735,6 +784,7 @@ function StageDrawer({
   return (
     <>
       <div className={classes.toolbar}>
+        {/* Top bar buttons */}
         {toolbarButtons.drawerButton && !fullDisabled && (
           <Tooltip
             title={isDrawerOpen ? "Close drawer" : "Open drawer"}
@@ -922,6 +972,7 @@ function StageDrawer({
             </Tooltip>
           )}
       </div>
+      {/* Editor reset warning dialog */}
       <Dialog
         open={isResetWarnOpen}
         onClose={() => setIsResetWarnOpen(false)}
@@ -930,6 +981,7 @@ function StageDrawer({
             handleReset();
           }
         }}
+        // props required to display the dialog relative to editor container and not relative to viewport
         style={{ position: "absolute" }}
         BackdropProps={{ style: { position: "absolute" } }}
         container={document.getElementById("editorContainer")}
@@ -966,6 +1018,7 @@ function StageDrawer({
           </Button>
         </DialogActions>
       </Dialog>
+      {/* Editor info dialog */}
       <Dialog
         open={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
@@ -974,6 +1027,7 @@ function StageDrawer({
             setIsInfoOpen(false);
           }
         }}
+        // props required to display the dialog relative to editor container and not relative to viewport
         style={{ position: "absolute" }}
         BackdropProps={{ style: { position: "absolute" } }}
         container={document.getElementById("editorContainer")}
@@ -1049,7 +1103,9 @@ function StageDrawer({
           </Button>
         </DialogActions>
       </Dialog>
+      {/* Adding node info alert */}
       <Snackbar
+        // prop required to display the alert relative to editor container and not relative to viewport
         style={{ position: "absolute" }}
         open={addingNode}
         onClose={(e, reason) => {
@@ -1063,7 +1119,9 @@ function StageDrawer({
           Freely position the node on the stage
         </Alert>
       </Snackbar>
+      {/* Tree validation errors alert */}
       <Snackbar
+        // prop required to display the alert relative to editor container and not relative to viewport
         style={{ position: "absolute" }}
         open={isInvalidOpen}
         onClose={(e, reason) => {
@@ -1163,6 +1221,7 @@ function StageDrawer({
           </Typography>
         </Alert>
       </Snackbar>
+      {/* Tree validation valid alert */}
       <Snackbar
         style={{ position: "absolute" }}
         open={isValidOpen}
@@ -1192,11 +1251,13 @@ function StageDrawer({
           The selected tree is valid.
         </Alert>
       </Snackbar>
+      {/* Side Drawer */}
       <Drawer
         className={classes.drawer}
         variant="persistent"
         anchor="left"
         open={isDrawerOpen}
+        // props required to display the side drawer relative to editor container and not relative to viewport
         PaperProps={{ style: { position: "relative" } }}
         BackdropProps={{ style: { position: "relative" } }}
         ModalProps={{
@@ -1206,6 +1267,7 @@ function StageDrawer({
           },
         }}
       >
+        {/* Adding node side drawer field */}
         {drawerFields.addField && !fullDisabled && (
           <div>
             <Divider />
@@ -1282,6 +1344,7 @@ function StageDrawer({
                 </Tooltip>
               </div>
             </div>
+            {/* Template nodes accordion */}
             {templateNodes && templateNodes.length > 0 && (
               <div>
                 <AccordionActions
@@ -1322,6 +1385,7 @@ function StageDrawer({
         {(drawerFields.addField || drawerFields.editField) && !fullDisabled && (
           <Divider />
         )}
+        {/* Editing node side drawer field */}
         {drawerFields.editField && !fullDisabled && (
           <div>
             <div className={classes.drawerInfo}>
@@ -1406,6 +1470,7 @@ function StageDrawer({
                     </div>
                   </div>
                 )}
+                {/* Node type editing field */}
                 <div className={classes.typeField}>
                   <FormLabel>Select the node type from the list:</FormLabel>
                   <RadioGroup
@@ -1490,6 +1555,7 @@ function StageDrawer({
                       </div>
                     </div>
                   )}
+                {/* Node value editing field */}
                 {typeValue &&
                   nodeTypes.find(nodeType => nodeType.type === typeValue)
                     .fixedValues &&

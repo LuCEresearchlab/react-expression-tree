@@ -61,11 +61,11 @@ function Node({
   edgeChildConnectorColor,
   edgeParentConnectorColor,
 }) {
-  // keep track
-  // to prevent onMoveNode() notifications
-  // when we don't drag the node itself but drag from a connector
+  // State hook to keep track when we are dragging a node
+  // and not from a node/hole connector
   const [draggingNode, setDraggingNode] = useState(false);
 
+  // Compute the positions of each node piece
   const piecesPos = computePiecesPositions(
     pieces,
     connectorPlaceholder,
@@ -73,6 +73,8 @@ function Node({
     fontFamily
   );
 
+  // Handle drag start event of a node, if a meta key is not being pressed,
+  // set up the state for node drag move event, otherwise stop the node drag
   const handleDragStart = e => {
     if (!pressingMeta) {
       transformerRef.current.nodes([]);
@@ -88,6 +90,7 @@ function Node({
     }
   };
 
+  // Handle node drag move events, updating the node position to the event coordinates
   const handleDragMove = e => {
     e.cancelBubble = true;
     if (draggingNode) {
@@ -98,6 +101,8 @@ function Node({
     }
   };
 
+  // Handle node drag move events, updating the node position to the final event coordinates
+  // (different action to be able to filter all the previous moving actions to allow undo/redo working)
   const handleDragEnd = e => {
     e.cancelBubble = true;
     document.body.style.cursor = "pointer";
@@ -110,6 +115,7 @@ function Node({
     setDraggingNode(false);
   };
 
+  // Handle node click event, selecting the target node if a meta key is not being pressed
   const handleNodeClick = e => {
     if (!pressingMeta) {
       e.cancelBubble = true;
@@ -118,9 +124,13 @@ function Node({
     }
   };
 
+  // Handle drag start event from a node connector,
+  // starting drag event from the node connector if a meta key is not being pressed,
+  // otherwise stop the node connector drag
   const handleNodeConnectorDragStart = e => {
     if (!pressingMeta) {
-      e.cancelBubble = true; // prevent onDragStart of Group
+      // prevent onDragStart of Group
+      e.cancelBubble = true;
       transformerRef.current.nodes([]);
       if (selectedEdgeRef) {
         selectedEdgeRef.moveToBottom();
@@ -142,9 +152,13 @@ function Node({
     }
   };
 
-  const handlePieceConnectorDragStart = (e, nodeId) => {
+  // Handle drag start event from a hole connector,
+  // starting drag event from the hole connector if a meta key is not being pressed,
+  // otherwise stop the hole connector drag
+  const handleHoleConnectorDragStart = (e, nodeId) => {
     if (!pressingMeta) {
-      e.cancelBubble = true; // prevent onDragStart of Group
+      // prevent onDragStart of Group
+      e.cancelBubble = true;
       transformerRef.current.nodes([]);
       if (selectedEdgeRef) {
         selectedEdgeRef.moveToBottom();
@@ -173,6 +187,7 @@ function Node({
     }
   };
 
+  // Check the stage bounds to prevent manually dragging nodes outside the viewport
   const checkDragBound = pos => {
     const stageScale = stageRef.current.scale();
     var newX = pos.x;
@@ -193,6 +208,7 @@ function Node({
     };
   };
 
+  // Handle node remove click
   const handleRemoveClick = e => {
     e.cancelBubble = true;
     transformerRef.current.nodes([]);
@@ -210,6 +226,9 @@ function Node({
   };
 
   return (
+    // A Node is a Group consisting in a Rect, an id Text, an "X" node deleting Text,
+    // a Circle/Star node connector, zero or more Rect hole connectors (+ Circle if hole if already occupied),
+    // one or more text pieces, and Label containing the node's selected type and value
     <Group
       key={"Node-" + id}
       id={id}
@@ -361,10 +380,10 @@ function Node({
               cornerRadius={3}
               draggable={!fullDisabled}
               onDragStart={
-                !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
+                !fullDisabled && (e => handleHoleConnectorDragStart(e, id))
               }
               onTouchStart={
-                !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
+                !fullDisabled && (e => handleHoleConnectorDragStart(e, id))
               }
               onDragMove={() => {}}
               onDragEnd={() => {}}
@@ -382,10 +401,10 @@ function Node({
               y={yPad + textHeight / 2}
               draggable={!fullDisabled}
               onDragStart={
-                !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
+                !fullDisabled && (e => handleHoleConnectorDragStart(e, id))
               }
               onTouchStart={
-                !fullDisabled && (e => handlePieceConnectorDragStart(e, id))
+                !fullDisabled && (e => handleHoleConnectorDragStart(e, id))
               }
               onDragMove={e => {}}
               onDragEnd={e => {}}

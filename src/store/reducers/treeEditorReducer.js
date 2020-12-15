@@ -11,18 +11,22 @@ const initialState = {
 };
 
 const treeEditorReducer = (state = initialState, action) => {
+  // Function that computes the last occupied node id
   function maxNodeId() {
     return state.nodes
       .map(n => n.id)
       .reduce((id1, id2) => Math.max(id1, id2), 0);
   }
 
+  // Function that computes the last occupied edge id
   function maxEdgeId() {
     return state.edges
       .map(e => e.id)
       .reduce((id1, id2) => Math.max(id1, id2), 0);
   }
 
+  // Ordered tree walk function used to traverse the tree starting at the selected root node,
+  // in order to reorder the child nodes connected to the root node in a tree shape
   function orderWalk(
     node,
     connectorPlaceholder,
@@ -70,6 +74,7 @@ const treeEditorReducer = (state = initialState, action) => {
   }
 
   switch (action.type) {
+    // Add the new node to the array of nodes
     case "addNode":
       const addingNodeId = maxNodeId() + 1;
       const addingNode = {
@@ -89,6 +94,10 @@ const treeEditorReducer = (state = initialState, action) => {
       };
 
     case "removeNode":
+      // Remove the selected node from the array of nodes,
+      // remove all the edges connected to the removing node,
+      // if the removing node is the selected root node,
+      // clear the root node selection
       action.payload.onNodeDelete &&
         action.payload.onNodeDelete(action.payload.nodeId);
       return {
@@ -107,6 +116,7 @@ const treeEditorReducer = (state = initialState, action) => {
       };
 
     case "selectNode":
+      // Select the selecting node
       action.payload.onNodeSelect &&
         action.payload.onNodeSelect(action.payload.selectedNode);
       return {
@@ -115,12 +125,28 @@ const treeEditorReducer = (state = initialState, action) => {
       };
 
     case "clearNodeSelection":
+      // Clear the node selection
       return {
         ...state,
         selectedNode: null,
       };
 
+    // Select the selecting root node
+    case "selectRootNode":
+      return {
+        ...state,
+        selectedRootNode: action.payload.selectedRootNode,
+      };
+
+    // Clear the root node selection
+    case "clearRootSelection":
+      return {
+        ...state,
+        selectedRootNode: null,
+      };
+
     case "moveNodeTo":
+      // Move the selected node to the event coordinates
       return {
         ...state,
         nodes: state.nodes.map(node =>
@@ -134,6 +160,9 @@ const treeEditorReducer = (state = initialState, action) => {
         ),
       };
 
+    // Move the selected node to the final event coordinates,
+    // (different action to be able to filter all the previous
+    // moving actions to allow undo/redo working)
     case "moveNodeToEnd":
       return {
         ...state,
@@ -148,6 +177,7 @@ const treeEditorReducer = (state = initialState, action) => {
         ),
       };
 
+    // Add the new edge to the array of edges
     case "addEdge":
       const addingEdgeId = maxEdgeId() + 1;
       const addingEdge = { ...action.payload.edge, id: addingEdgeId };
@@ -157,6 +187,7 @@ const treeEditorReducer = (state = initialState, action) => {
         edges: [...state.edges, addingEdge],
       };
 
+    // Remove the selected edge from the array of edges
     case "removeEdge":
       action.payload.onEdgeDelete &&
         action.payload.onEdgeDelete(action.payload.edgeId);
@@ -165,6 +196,7 @@ const treeEditorReducer = (state = initialState, action) => {
         edges: state.edges.filter(edge => edge.id !== action.payload.edgeId),
       };
 
+    // Update the selected edge to the new node/hole connector
     case "updateEdge":
       action.payload.onEdgeUpdate &&
         action.payload.onEdgeUpdate(action.payload.newEdge);
@@ -176,12 +208,37 @@ const treeEditorReducer = (state = initialState, action) => {
         ],
       };
 
+    // Select the selecting edge
+    case "selectEdge":
+      action.payload.onEdgeSelect &&
+        action.payload.onEdgeSelect(action.payload.selectedEdge);
+      return {
+        ...state,
+        selectedEdge: action.payload.selectedEdge,
+      };
+
+    // Clear the edge selection
+    case "clearEdgeSelection":
+      return {
+        ...state,
+        selectedEdge: null,
+      };
+
+    // Set up the DragEdge
     case "setDragEdge":
       return {
         ...state,
         dragEdge: action.payload.dragEdge,
       };
 
+    // Clear the DragEdge
+    case "clearDragEdge":
+      return {
+        ...state,
+        dragEdge: null,
+      };
+
+    // Update the DragEdge hole end to the event coordinates
     case "moveDragEdgeParentEndTo":
       return {
         ...state,
@@ -192,6 +249,7 @@ const treeEditorReducer = (state = initialState, action) => {
         },
       };
 
+    // Update the DragEdge node end to the event coordinates
     case "moveDragEdgeChildEndTo":
       return {
         ...state,
@@ -202,12 +260,8 @@ const treeEditorReducer = (state = initialState, action) => {
         },
       };
 
-    case "clearDragEdge":
-      return {
-        ...state,
-        dragEdge: null,
-      };
-
+    // Edit the selected node pieces, remove all the edges
+    // that are connected to a hole connector of the selected node
     case "editNode":
       action.payload.onNodePiecesChange &&
         action.payload.onNodePiecesChange(action.payload.pieces);
@@ -232,20 +286,8 @@ const treeEditorReducer = (state = initialState, action) => {
         },
       };
 
-    case "selectEdge":
-      action.payload.onEdgeSelect &&
-        action.payload.onEdgeSelect(action.payload.selectedEdge);
-      return {
-        ...state,
-        selectedEdge: action.payload.selectedEdge,
-      };
-
-    case "clearEdgeSelection":
-      return {
-        ...state,
-        selectedEdge: null,
-      };
-
+    // Edit the selected node type, if the selected node is the selected root node,
+    // update the selected root node type too
     case "nodeTypeEdit":
       action.payload.onNodeTypeChange &&
         action.payload.onNodeTypeChange(action.payload.type);
@@ -269,6 +311,9 @@ const treeEditorReducer = (state = initialState, action) => {
             ? { ...state.selectedRootNode, type: action.payload.type }
             : state.selectedRootNode,
       };
+
+    // Edit the selected node value, if the selected node is the selected root node,
+    // update the selected root node value too
     case "nodeValueEdit":
       action.payload.onNodeValueChange &&
         action.payload.onNodeValueChange(action.payload.value);
@@ -292,6 +337,8 @@ const treeEditorReducer = (state = initialState, action) => {
             ? { ...state.selectedRootNode, value: action.payload.value }
             : state.selectedRootNode,
       };
+
+    // Reset the editor state to the initial state
     case "stageReset":
       action.payload.initialNodes.map((node, i) => {
         node.width = computeNodeWidth(
@@ -313,6 +360,8 @@ const treeEditorReducer = (state = initialState, action) => {
         selectedEdge: null,
         selectedRootNode: null,
       };
+
+    // Set the editor state to a previously downloaded editor state
     case "uploadState":
       return {
         ...state,
@@ -323,16 +372,8 @@ const treeEditorReducer = (state = initialState, action) => {
         dragEdge: null,
         selectedRootNode: action.payload.selectedRootNode,
       };
-    case "selectRootNode":
-      return {
-        ...state,
-        selectedRootNode: action.payload.selectedRootNode,
-      };
-    case "clearRootSelection":
-      return {
-        ...state,
-        selectedRootNode: null,
-      };
+
+    // Set the editor state to the initial state passed using the initialState prop
     case "setInitialState":
       action.payload.initialNodes.map((node, i) => {
         node.width = computeNodeWidth(
@@ -350,6 +391,10 @@ const treeEditorReducer = (state = initialState, action) => {
         nodes: action.payload.initialNodes,
         edges: action.payload.initialEdges,
       };
+
+    // Reorder the nodes as a tree using the selected root node
+    // as starting node for the orderWalk function,
+    // all the other nodes will be reordered as a compact rectangle
     case "reorderNodes":
       const nodesPerRow = action.payload.isDrawerOpen ? 8 : 10;
       const initialX = action.payload.isDrawerOpen
@@ -406,6 +451,7 @@ const treeEditorReducer = (state = initialState, action) => {
         }),
       };
 
+    // Move the multiple nodes selection to the event coordinates
     case "moveSelectedNodesTo":
       return {
         ...state,
@@ -425,6 +471,9 @@ const treeEditorReducer = (state = initialState, action) => {
         }),
       };
 
+    // Move the multiple nodes selection to the final event coordinates,
+    // (different action to be able to filter all the previous
+    // moving actions to allow undo/redo working)
     case "moveSelectedNodesToEnd":
       return {
         ...state,
@@ -449,7 +498,9 @@ const treeEditorReducer = (state = initialState, action) => {
   }
 };
 
+// Set up actions filtering and grouping for undo/redo features
 const undoableTreeEditorReducer = undoable(treeEditorReducer, {
+  // Filtered actions (these don't count in the undo/redo history)
   filter: function filterActions(action) {
     return (
       action.type !== "clearNodeSelection" &&
@@ -471,6 +522,8 @@ const undoableTreeEditorReducer = undoable(treeEditorReducer, {
       action.type !== "moveSelectedNodesTo"
     );
   },
+  // Grouped actions (multiple following actions of the same type
+  // will result as a single undo/redo action)
   groupBy: groupByActionTypes("reorderNodes"),
 });
 

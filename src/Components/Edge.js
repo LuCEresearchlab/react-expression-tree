@@ -36,8 +36,10 @@ function Edge({
   selectedEdgeColor,
   draggingEdgeColor,
 }) {
+  // Handle drag start event on edge's node connector end
   const handleNodeConnectorDragStart = e => {
-    e.cancelBubble = true; // prevent onDragStart of Group
+    // prevent onDragStart of Group
+    e.cancelBubble = true;
     document.body.style.cursor = "grabbing";
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
@@ -50,15 +52,16 @@ function Edge({
     onNodeConnectorDragStart(childNodeId, e.target.x(), e.target.y());
   };
 
-  const handlePieceConnectorDragStart = e => {
-    e.cancelBubble = true; // prevent onDragStart of Group
+  // Handle drag start event on edge's hole connector end
+  const handleHoleConnectorDragStart = e => {
+    // prevent onDragStart of Group
+    e.cancelBubble = true;
     document.body.style.cursor = "grabbing";
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
       clearEdgeSelection();
     }
-    // const pos = e.target.absolutePosition();
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
@@ -71,6 +74,7 @@ function Edge({
   };
 
   return (
+    // Edge is a Group composed of a Line and two Circle ends components
     <Group
       id={id}
       name="Edge"
@@ -170,7 +174,7 @@ function Edge({
         shadowBlur={3}
         shadowForStrokeEnabled={false}
         draggable
-        onDragStart={!fullDisabled && handlePieceConnectorDragStart}
+        onDragStart={!fullDisabled && handleHoleConnectorDragStart}
         onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
         onDragMove={e => {}}
         onDragEnd={e => {}}
