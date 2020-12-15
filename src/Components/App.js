@@ -119,8 +119,8 @@ function App() {
           },
           {
             pieces: ["3"],
-            x: 320,
-            y: 180,
+            x: 430,
+            y: 90,
             type: "",
             value: "",
             isFinal: true,

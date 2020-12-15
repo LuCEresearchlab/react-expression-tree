@@ -412,7 +412,6 @@ function ExpressionTreeEditor({
                 childNodeId: originalEdge.childNodeId,
                 parentNodeId: parentPiece.parentNodeId,
                 parentPieceId: parentPiece.parentPieceId,
-                type: "",
               };
               // eslint-disable-next-line no-unused-vars
               const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
@@ -429,6 +428,10 @@ function ExpressionTreeEditor({
                   newEdge: newEdge,
                   onEdgeUpdate: onEdgeUpdate,
                 });
+                stageRef.current
+                  .find(".Edge")
+                  .toArray()
+                  .map(edge => edge.moveToBottom());
               }
             }
           } else if (!parentPiece) {
@@ -458,7 +461,6 @@ function ExpressionTreeEditor({
                 childNodeId: dragEdge.childNodeId,
                 parentNodeId: parentPiece.parentNodeId,
                 parentPieceId: parentPiece.parentPieceId,
-                type: "",
               };
               clearDragEdge();
               // eslint-disable-next-line no-unused-vars
@@ -472,6 +474,10 @@ function ExpressionTreeEditor({
                 !creatingLoop
               ) {
                 addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
+                stageRef.current
+                  .find(".Edge")
+                  .toArray()
+                  .map(edge => edge.moveToBottom());
               }
             }
           } else {
@@ -509,7 +515,6 @@ function ExpressionTreeEditor({
                 parentNodeId: originalEdge.parentNodeId,
                 parentPieceId: originalEdge.parentPieceId,
                 childNodeId: childNodeId,
-                type: "",
               };
               // eslint-disable-next-line no-unused-vars
               const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
@@ -526,6 +531,10 @@ function ExpressionTreeEditor({
                   newEdge: newEdge,
                   onEdgeUpdate: onEdgeUpdate,
                 });
+                stageRef.current
+                  .find(".Edge")
+                  .toArray()
+                  .map(edge => edge.moveToBottom());
               }
             }
           } else if (!childNodeId) {
@@ -548,7 +557,6 @@ function ExpressionTreeEditor({
                 parentNodeId: dragEdge.parentNodeId,
                 parentPieceId: dragEdge.parentPieceId,
                 childNodeId: childNodeId,
-                type: "",
               };
               clearDragEdge();
               // eslint-disable-next-line no-unused-vars
@@ -562,6 +570,10 @@ function ExpressionTreeEditor({
                 !creatingLoop
               ) {
                 addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
+                stageRef.current
+                  .find(".Edge")
+                  .toArray()
+                  .map(edge => edge.moveToBottom());
               }
             }
           } else {
