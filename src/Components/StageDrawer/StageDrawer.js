@@ -372,6 +372,10 @@ function StageDrawer({
         });
         transformerRef.current.nodes([]);
         setIsSelectedRectVisible(false);
+        stageRef.current
+          .find(".Edge")
+          .toArray()
+          .map(edge => edge.moveToBottom());
         dispatch(ActionCreators.clearHistory());
       } catch (e) {
         alert("Invalid JSON file.");

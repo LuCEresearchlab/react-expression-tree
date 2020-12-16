@@ -38,7 +38,7 @@ function App() {
       dragEdgeColor="black"
       dragEdgeChildConnectorColor="#00c0c3"
       dragEdgeParentConnectorColor="#c33100"
-      selectionRectColor="rgba(002550.2)"
+      selectionRectColor="rgba(0, 0, 255, 0.2)"
       toolbarPrimaryColor="#3f51b5"
       toolbarSecondaryColor="#f50057"
       toolbarButtons={{
@@ -79,7 +79,7 @@ function App() {
       connectorPlaceholder="{{}}"
       templateNodes={[
         "{{}}?{{}}:{{}}",
-        "[{{}}]",
+        "{{}}[{{}}]",
         "{{}}.{{}}",
         "{{}}.length",
         "-{{}}",
@@ -96,7 +96,7 @@ function App() {
         {
           type: "String",
           any: true,
-          fixedValues: ['"Hello"', '"World"', '"!"', '" "', '"Hello World!"'],
+          fixedValues: ['"Hello"', '"World!"', '" "', '"Hello World!"'],
         },
         { type: "Number", any: true },
         { type: "Boolean", any: false, fixedValues: ["true", "false"] },
@@ -106,7 +106,7 @@ function App() {
           fixedValues: [],
         },
         { type: "Undefined", any: false, fixedValues: ["undefined"] },
-        { type: "Null", fixedValues: ["null"] },
+        { type: "Null", any: false, fixedValues: ["null"] },
       ]}
       initialState={{
         initialNodes: [
@@ -119,8 +119,16 @@ function App() {
             isFinal: true,
           },
           {
-            pieces: ["3"],
+            pieces: ["1"],
             x: 410,
+            y: 90,
+            type: "",
+            value: "",
+            isFinal: true,
+          },
+          {
+            pieces: ["3"],
+            x: 460,
             y: 90,
             type: "",
             value: "",
