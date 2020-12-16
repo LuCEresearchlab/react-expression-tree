@@ -87,19 +87,18 @@ const treeEditorReducer = (state = initialState, action) => {
         value: action.payload.value,
         isFinal: action.payload.isFinal,
       };
-      action.payload.onNodeAdd && action.payload.onNodeAdd(addingNode);
+      action.payload.onNodeAdd(addingNode);
       return {
         ...state,
         nodes: [...state.nodes, addingNode],
       };
 
+    // Remove the selected node from the array of nodes,
+    // remove all the edges connected to the removing node,
+    // if the removing node is the selected root node,
+    // clear the root node selection
     case "removeNode":
-      // Remove the selected node from the array of nodes,
-      // remove all the edges connected to the removing node,
-      // if the removing node is the selected root node,
-      // clear the root node selection
-      action.payload.onNodeDelete &&
-        action.payload.onNodeDelete(action.payload.nodeId);
+      action.payload.onNodeDelete(action.payload.nodeId);
       return {
         ...state,
         nodes: state.nodes.filter(node => node.id !== action.payload.nodeId),
@@ -115,17 +114,16 @@ const treeEditorReducer = (state = initialState, action) => {
             : state.selectedRootNode,
       };
 
+    // Select the selecting node
     case "selectNode":
-      // Select the selecting node
-      action.payload.onNodeSelect &&
-        action.payload.onNodeSelect(action.payload.selectedNode);
+      action.payload.onNodeSelect(action.payload.selectedNode);
       return {
         ...state,
         selectedNode: action.payload.selectedNode,
       };
 
+    // Clear the node selection
     case "clearNodeSelection":
-      // Clear the node selection
       return {
         ...state,
         selectedNode: null,
@@ -145,8 +143,8 @@ const treeEditorReducer = (state = initialState, action) => {
         selectedRootNode: null,
       };
 
+    // Move the selected node to the event coordinates
     case "moveNodeTo":
-      // Move the selected node to the event coordinates
       return {
         ...state,
         nodes: state.nodes.map(node =>
@@ -164,6 +162,10 @@ const treeEditorReducer = (state = initialState, action) => {
     // (different action to be able to filter all the previous
     // moving actions to allow undo/redo working)
     case "moveNodeToEnd":
+      action.payload.onNodeMove(action.payload.nodeId, {
+        x: action.payload.x,
+        y: action.payload.y,
+      });
       return {
         ...state,
         nodes: state.nodes.map(node =>
@@ -181,7 +183,7 @@ const treeEditorReducer = (state = initialState, action) => {
     case "addEdge":
       const addingEdgeId = maxEdgeId() + 1;
       const addingEdge = { ...action.payload.edge, id: addingEdgeId };
-      action.payload.onEdgeAdd && action.payload.onEdgeAdd(addingEdge);
+      action.payload.onEdgeAdd(addingEdge);
       return {
         ...state,
         edges: [...state.edges, addingEdge],
@@ -189,8 +191,7 @@ const treeEditorReducer = (state = initialState, action) => {
 
     // Remove the selected edge from the array of edges
     case "removeEdge":
-      action.payload.onEdgeDelete &&
-        action.payload.onEdgeDelete(action.payload.edgeId);
+      action.payload.onEdgeDelete(action.payload.edgeId);
       return {
         ...state,
         edges: state.edges.filter(edge => edge.id !== action.payload.edgeId),
@@ -198,8 +199,7 @@ const treeEditorReducer = (state = initialState, action) => {
 
     // Update the selected edge to the new node/hole connector
     case "updateEdge":
-      action.payload.onEdgeUpdate &&
-        action.payload.onEdgeUpdate(action.payload.newEdge);
+      action.payload.onEdgeUpdate(action.payload.newEdge);
       return {
         ...state,
         edges: [
@@ -210,8 +210,7 @@ const treeEditorReducer = (state = initialState, action) => {
 
     // Select the selecting edge
     case "selectEdge":
-      action.payload.onEdgeSelect &&
-        action.payload.onEdgeSelect(action.payload.selectedEdge);
+      action.payload.onEdgeSelect(action.payload.selectedEdge);
       return {
         ...state,
         selectedEdge: action.payload.selectedEdge,
@@ -263,8 +262,7 @@ const treeEditorReducer = (state = initialState, action) => {
     // Edit the selected node pieces, remove all the edges
     // that are connected to a hole connector of the selected node
     case "editNode":
-      action.payload.onNodePiecesChange &&
-        action.payload.onNodePiecesChange(action.payload.pieces);
+      action.payload.onNodePiecesChange(action.payload.pieces);
       return {
         ...state,
         nodes: state.nodes.map(node =>
@@ -289,8 +287,7 @@ const treeEditorReducer = (state = initialState, action) => {
     // Edit the selected node type, if the selected node is the selected root node,
     // update the selected root node type too
     case "nodeTypeEdit":
-      action.payload.onNodeTypeChange &&
-        action.payload.onNodeTypeChange(action.payload.type);
+      action.payload.onNodeTypeChange(action.payload.type);
       return {
         ...state,
         nodes: state.nodes.map(node =>
@@ -315,8 +312,7 @@ const treeEditorReducer = (state = initialState, action) => {
     // Edit the selected node value, if the selected node is the selected root node,
     // update the selected root node value too
     case "nodeValueEdit":
-      action.payload.onNodeValueChange &&
-        action.payload.onNodeValueChange(action.payload.value);
+      action.payload.onNodeValueChange(action.payload.value);
       return {
         ...state,
         nodes: state.nodes.map(node =>

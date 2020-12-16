@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { ActionCreators } from "redux-undo";
 import fscreen from "fscreen";
@@ -171,47 +172,21 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function StageDrawer({
-  connectorPlaceholder,
-  selectedNode,
-  editNode,
-  addingNode,
-  addingNodeClick,
-  addValueChange,
-  editValueChange,
-  typeValueChange,
-  nodeValueChange,
-  clearAdding,
-  clearEdgeSelection,
-  clearNodeSelection,
-  isAddEmpty,
-  isEditEmpty,
-  editValue,
-  typeValue,
-  nodeTypeEdit,
-  nodeValue,
-  nodeValueEdit,
-  stageReset,
-  nodes,
-  edges,
-  uploadState,
-  canUndo,
-  canRedo,
-  selectedRootNode,
-  templateNodes,
   stageRef,
   layerRef,
   transformerRef,
-  setIsSelectedRectVisible,
-  initialState,
-  reorderNodes,
-  nodeTypes,
   selectedEdgeRef,
   setSelectedEdgeRef,
-  reportedErrors,
+  setIsSelectedRectVisible,
+  setCurrentErrorLocation,
+  initialState,
   toolbarButtons,
   drawerFields,
   fullDisabled,
-  setCurrentErrorLocation,
+  connectorPlaceholder,
+  templateNodes,
+  nodeTypes,
+  reportedErrors,
   onNodePiecesChange,
   onNodeTypeChange,
   onNodeValueChange,
@@ -220,6 +195,32 @@ function StageDrawer({
   fontFamily,
   yPad,
   textHeight,
+  nodes,
+  edges,
+  canUndo,
+  canRedo,
+  stageReset,
+  reorderNodes,
+  uploadState,
+  addingNode,
+  isAddEmpty,
+  addingNodeClick,
+  clearAdding,
+  addValueChange,
+  editValue,
+  isEditEmpty,
+  editValueChange,
+  editNode,
+  typeValue,
+  typeValueChange,
+  nodeTypeEdit,
+  nodeValue,
+  nodeValueChange,
+  nodeValueEdit,
+  selectedNode,
+  clearNodeSelection,
+  selectedRootNode,
+  clearEdgeSelection,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -503,8 +504,7 @@ function StageDrawer({
     // Missing node type error
     if (node.type === "") {
       const location = "Node ID: " + node.id;
-      reportedErrors &&
-        reportedErrors.completenessErrors &&
+      reportedErrors.completenessErrors &&
         reportedErrors.completenessErrors.missingNodeType &&
         errors.push({
           type: "Completeness error",
@@ -516,8 +516,7 @@ function StageDrawer({
     // Missing node value error
     if (node.value === "") {
       const location = "Node ID: " + node.id;
-      reportedErrors &&
-        reportedErrors.completenessErrors &&
+      reportedErrors.completenessErrors &&
         reportedErrors.completenessErrors.missingNodeValue &&
         errors.push({
           type: "Completeness error",
@@ -535,8 +534,7 @@ function StageDrawer({
         if (childEdges.length > 1) {
           const location =
             "Node ID: " + node.id + ", connector number: " + connectorNum;
-          reportedErrors &&
-            reportedErrors.structureErrors &&
+          reportedErrors.structureErrors &&
             reportedErrors.structureErrors.multiEdgeOnHoleConnector &&
             errors.push({
               type: "Structure error",
@@ -552,8 +550,7 @@ function StageDrawer({
         } else if (childEdges.length === 0) {
           const location =
             "Node ID: " + node.id + ", connector number: " + connectorNum;
-          reportedErrors &&
-            reportedErrors.completenessErrors &&
+          reportedErrors.completenessErrors &&
             reportedErrors.completenessErrors.emptyPieceConnector &&
             errors.push({
               type: "Completeness error",
@@ -572,8 +569,7 @@ function StageDrawer({
           // Multiple edge on single node connector error
           if (visitedNodes.find(e => e === childNode.id) !== undefined) {
             const location = "Node ID: " + childNode.id;
-            reportedErrors &&
-              reportedErrors.structureErrors &&
+            reportedErrors.structureErrors &&
               reportedErrors.structureErrors.multiEdgeOnNodeConnector &&
               errors.find(
                 error =>
@@ -600,8 +596,7 @@ function StageDrawer({
               node.id +
               ", connector number: " +
               connectorNum;
-            reportedErrors &&
-              reportedErrors.structureErrors &&
+            reportedErrors.structureErrors &&
               reportedErrors.structureErrors.loop &&
               errors.push({
                 type: "Structure error",
@@ -639,7 +634,7 @@ function StageDrawer({
       visitedBranch,
       errors
     );
-    onValidate && onValidate(nodes, edges, errors);
+    onValidate(nodes, edges, errors);
     // There are errors
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -791,9 +786,9 @@ function StageDrawer({
             placement="bottom"
           >
             <IconButton
-              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
             >
               {isDrawerOpen ? <ChevronLeftRoundedIcon /> : <MenuRoundedIcon />}
             </IconButton>
@@ -802,9 +797,9 @@ function StageDrawer({
         {toolbarButtons.info && !fullDisabled && (
           <Tooltip title="Editor info" placement="bottom">
             <IconButton
-              onClick={() => setIsInfoOpen(true)}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={() => setIsInfoOpen(true)}
             >
               <InfoOutlinedIcon />
             </IconButton>
@@ -813,9 +808,9 @@ function StageDrawer({
         {toolbarButtons.reset && !fullDisabled && (
           <Tooltip title={"Reset state"} placement="bottom">
             <IconButton
-              onClick={() => setIsResetWarnOpen(true)}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={() => setIsResetWarnOpen(true)}
             >
               <NoteAddRoundedIcon />
             </IconButton>
@@ -825,10 +820,10 @@ function StageDrawer({
           <Tooltip title={"Undo action"} placement="bottom">
             <span>
               <IconButton
-                onClick={handleUndo}
+                className={classes.toolbarButton}
                 color="primary"
                 disabled={!canUndo}
-                className={classes.toolbarButton}
+                onClick={handleUndo}
               >
                 <UndoRoundedIcon />
               </IconButton>
@@ -839,10 +834,10 @@ function StageDrawer({
           <Tooltip title={"Redo action"} placement="bottom">
             <span>
               <IconButton
-                onClick={handleRedo}
+                className={classes.toolbarButton}
                 color="primary"
                 disabled={!canRedo}
-                className={classes.toolbarButton}
+                onClick={handleRedo}
               >
                 <RedoRoundedIcon />
               </IconButton>
@@ -852,9 +847,9 @@ function StageDrawer({
         {toolbarButtons.zoomOut && !fullDisabled && (
           <Tooltip title="Zoom-out" placement="bottom">
             <IconButton
-              onClick={handleZoomOutClick}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={handleZoomOutClick}
             >
               <ZoomOutRoundedIcon />
             </IconButton>
@@ -863,9 +858,9 @@ function StageDrawer({
         {toolbarButtons.zoomIn && !fullDisabled && (
           <Tooltip title="Zoom-in" placement="bottom">
             <IconButton
-              onClick={handleZoomInClick}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={handleZoomInClick}
             >
               <ZoomInRoundedIcon />
             </IconButton>
@@ -874,9 +869,9 @@ function StageDrawer({
         {toolbarButtons.zoomToFit && !fullDisabled && (
           <Tooltip title="Zoom to fit nodes" placement="bottom">
             <IconButton
-              onClick={handleCenteringClick}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={handleCenteringClick}
             >
               <AspectRatioRoundedIcon />
             </IconButton>
@@ -885,9 +880,9 @@ function StageDrawer({
         {toolbarButtons.reorder && !fullDisabled && (
           <Tooltip title="Reorder nodes" placement="bottom">
             <IconButton
-              onClick={handleReorderClick}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={handleReorderClick}
             >
               <ViewModuleRoundedIcon />
             </IconButton>
@@ -897,10 +892,10 @@ function StageDrawer({
           <Tooltip title="Validate tree" placement="bottom">
             <span>
               <IconButton
-                onClick={handleTreeValidation}
-                color="primary"
                 className={classes.toolbarButton}
+                color="primary"
                 disabled={!selectedRootNode}
+                onClick={handleTreeValidation}
               >
                 <CheckRoundedIcon />
               </IconButton>
@@ -910,9 +905,9 @@ function StageDrawer({
         {toolbarButtons.download && !fullDisabled && (
           <Tooltip title={"Download state"} placement="bottom">
             <IconButton
-              onClick={handleStateDownload}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={handleStateDownload}
             >
               <GetAppRoundedIcon />
             </IconButton>
@@ -921,9 +916,9 @@ function StageDrawer({
         {toolbarButtons.upload && !fullDisabled && (
           <Tooltip title={"Upload state"} placement="bottom">
             <IconButton
-              onClick={handleStateUpload}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={handleStateUpload}
             >
               <PublishRoundedIcon />
             </IconButton>
@@ -939,9 +934,9 @@ function StageDrawer({
         {toolbarButtons.screenshot && !fullDisabled && (
           <Tooltip title="Save state image" placement="bottom">
             <IconButton
-              onClick={handleImageClick}
-              color="primary"
               className={classes.toolbarButton}
+              color="primary"
+              onClick={handleImageClick}
             >
               <PhotoCameraRoundedIcon />
             </IconButton>
@@ -959,9 +954,9 @@ function StageDrawer({
               placement="bottom"
             >
               <IconButton
-                onClick={handleFullScreenClick}
-                color="primary"
                 className={classes.toolbarButton}
+                color="primary"
+                onClick={handleFullScreenClick}
               >
                 {!fscreen.fullscreenElement ? (
                   <FullscreenRoundedIcon />
@@ -974,19 +969,19 @@ function StageDrawer({
       </div>
       {/* Editor reset warning dialog */}
       <Dialog
-        open={isResetWarnOpen}
-        onClose={() => setIsResetWarnOpen(false)}
-        onKeyPress={e => {
-          if (e.key === "Enter") {
-            handleReset();
-          }
-        }}
         // props required to display the dialog relative to editor container and not relative to viewport
         style={{ position: "absolute" }}
         BackdropProps={{ style: { position: "absolute" } }}
         container={document.getElementById("editorContainer")}
         PaperProps={{
           style: { border: "2px solid #3f50b5", borderRadius: "5px" },
+        }}
+        open={isResetWarnOpen}
+        onClose={() => setIsResetWarnOpen(false)}
+        onKeyPress={e => {
+          if (e.key === "Enter") {
+            handleReset();
+          }
         }}
       >
         <DialogTitle>
@@ -1001,18 +996,18 @@ function StageDrawer({
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setIsResetWarnOpen(false)}
             variant="contained"
             color="primary"
             endIcon={<CloseRoundedIcon />}
+            onClick={() => setIsResetWarnOpen(false)}
           >
             Cancel
           </Button>
           <Button
-            onClick={handleReset}
             variant="contained"
             color="primary"
             endIcon={<CheckRoundedIcon />}
+            onClick={handleReset}
           >
             Confirm
           </Button>
@@ -1020,13 +1015,6 @@ function StageDrawer({
       </Dialog>
       {/* Editor info dialog */}
       <Dialog
-        open={isInfoOpen}
-        onClose={() => setIsInfoOpen(false)}
-        onKeyPress={e => {
-          if (e.key === "Enter") {
-            setIsInfoOpen(false);
-          }
-        }}
         // props required to display the dialog relative to editor container and not relative to viewport
         style={{ position: "absolute" }}
         BackdropProps={{ style: { position: "absolute" } }}
@@ -1034,9 +1022,16 @@ function StageDrawer({
         PaperProps={{
           style: { border: "2px solid #3f50b5", borderRadius: "5px" },
         }}
+        open={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+        onKeyPress={e => {
+          if (e.key === "Enter") {
+            setIsInfoOpen(false);
+          }
+        }}
       >
         <DialogTitle>{"Expression Tree Editor Usage Infos"}</DialogTitle>
-        <DialogContent dividers className={classes.infoContent}>
+        <DialogContent className={classes.infoContent} dividers>
           <ul>
             <li>
               <b>Stage scroll: </b>Zoom in/out the editor stage.
@@ -1094,10 +1089,10 @@ function StageDrawer({
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setIsInfoOpen(false)}
             variant="contained"
             color="primary"
             endIcon={<CloseRoundedIcon />}
+            onClick={() => setIsInfoOpen(false)}
           >
             Close
           </Button>
@@ -1107,13 +1102,13 @@ function StageDrawer({
       <Snackbar
         // prop required to display the alert relative to editor container and not relative to viewport
         style={{ position: "absolute" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         open={addingNode}
         onClose={(e, reason) => {
           if (reason !== "clickaway") {
             addingNodeClick();
           }
         }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <Alert severity="info" variant="standard">
           Freely position the node on the stage
@@ -1123,6 +1118,7 @@ function StageDrawer({
       <Snackbar
         // prop required to display the alert relative to editor container and not relative to viewport
         style={{ position: "absolute" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         open={isInvalidOpen}
         onClose={(e, reason) => {
           if (reason === "clickaway") {
@@ -1134,11 +1130,10 @@ function StageDrawer({
             }
           }
         }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <Alert
-          severity="error"
           variant="standard"
+          severity="error"
           action={
             <>
               {validationErrors.length > 1 && (
@@ -1148,8 +1143,8 @@ function StageDrawer({
                       <IconButton
                         size="medium"
                         color="inherit"
-                        onClick={handlePreviousErrorClick}
                         disabled={currentError === 0}
+                        onClick={handlePreviousErrorClick}
                       >
                         <ArrowBackRoundedIcon />
                       </IconButton>
@@ -1160,8 +1155,8 @@ function StageDrawer({
                       <IconButton
                         size="medium"
                         color="inherit"
-                        onClick={handleNextErrorClick}
                         disabled={currentError === validationErrors.length - 1}
+                        onClick={handleNextErrorClick}
                       >
                         <ArrowForwardRoundedIcon />
                       </IconButton>
@@ -1171,6 +1166,8 @@ function StageDrawer({
               )}
               <Tooltip title={"Close alert"} placement="top">
                 <IconButton
+                  size="medium"
+                  color="inherit"
                   onClick={() => {
                     setIsInvalidOpen(false);
                     setCurrentErrorLocation({});
@@ -1179,8 +1176,6 @@ function StageDrawer({
                       setSelectedEdgeRef(null);
                     }
                   }}
-                  size="medium"
-                  color="inherit"
                 >
                   <ClearRoundedIcon />
                 </IconButton>
@@ -1224,23 +1219,23 @@ function StageDrawer({
       {/* Tree validation valid alert */}
       <Snackbar
         style={{ position: "absolute" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         open={isValidOpen}
         onClose={(e, reason) => {
           if (reason === "clickaway") {
             setIsValidOpen(false);
           }
         }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <Alert
-          severity="success"
           variant="standard"
+          severity="success"
           action={
             <Tooltip title={"Close alert"} placement="top">
               <IconButton
-                onClick={() => setIsValidOpen(false)}
                 size="medium"
                 color="inherit"
+                onClick={() => setIsValidOpen(false)}
               >
                 <ClearRoundedIcon />
               </IconButton>
@@ -1254,9 +1249,6 @@ function StageDrawer({
       {/* Side Drawer */}
       <Drawer
         className={classes.drawer}
-        variant="persistent"
-        anchor="left"
-        open={isDrawerOpen}
         // props required to display the side drawer relative to editor container and not relative to viewport
         PaperProps={{ style: { position: "relative" } }}
         BackdropProps={{ style: { position: "relative" } }}
@@ -1266,6 +1258,9 @@ function StageDrawer({
             position: "absolute",
           },
         }}
+        variant="persistent"
+        anchor="left"
+        open={isDrawerOpen}
       >
         {/* Adding node side drawer field */}
         {drawerFields.addField && !fullDisabled && (
@@ -1276,16 +1271,16 @@ function StageDrawer({
               <div>
                 <IconButton
                   size="small"
-                  onClick={e => setAddAnchorEl(e.target)}
                   color="primary"
+                  onClick={e => setAddAnchorEl(e.target)}
                 >
                   <InfoOutlinedIcon />
                 </IconButton>
                 <Popover
                   className={classes.infoPopover}
-                  open={isAddInfoOpen}
                   anchorEl={addAnchorEl}
                   anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  open={isAddInfoOpen}
                   onClose={() => setAddAnchorEl(null)}
                 >
                   <Typography
@@ -1334,9 +1329,9 @@ function StageDrawer({
                   <span>
                     <IconButton
                       size="medium"
-                      onClick={() => addingNodeClick()}
-                      disabled={isAddEmpty}
                       color={addingNode ? "secondary" : "primary"}
+                      disabled={isAddEmpty}
+                      onClick={() => addingNodeClick()}
                     >
                       <AddRoundedIcon />
                     </IconButton>
@@ -1345,7 +1340,7 @@ function StageDrawer({
               </div>
             </div>
             {/* Template nodes accordion */}
-            {templateNodes && templateNodes.length > 0 && (
+            {templateNodes.length > 0 && (
               <div>
                 <AccordionActions
                   disableSpacing
@@ -1362,13 +1357,13 @@ function StageDrawer({
                       {templateNodes.map((e, i) => (
                         <AccordionDetails key={"template-" + i}>
                           <Typography
-                            variant="h6"
                             id={i}
                             className={
                               selectedTemplate === i
                                 ? classes.selectedTemplateElement
                                 : classes.templateElement
                             }
+                            variant="h6"
                             onClick={() => handleTemplateClick(e, i)}
                           >
                             {e}
@@ -1393,16 +1388,16 @@ function StageDrawer({
               <div>
                 <IconButton
                   size="small"
-                  onClick={e => setEditAnchorEl(e.target)}
                   color="primary"
+                  onClick={e => setEditAnchorEl(e.target)}
                 >
                   <InfoOutlinedIcon />
                 </IconButton>
                 <Popover
                   className={classes.infoPopover}
-                  open={isEditInfoOpen}
                   anchorEl={editAnchorEl}
                   anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  open={isEditInfoOpen}
                   onClose={() => setEditAnchorEl(null)}
                 >
                   <Typography
@@ -1455,13 +1450,13 @@ function StageDrawer({
                         <span>
                           <IconButton
                             size="medium"
-                            onClick={() => handleNodeEdit()}
+                            color="primary"
                             disabled={
                               isEditEmpty ||
                               editValue.join("") ===
                                 selectedNode.pieces.join("")
                             }
-                            color="primary"
+                            onClick={() => handleNodeEdit()}
                           >
                             <UpdateRoundedIcon />
                           </IconButton>
@@ -1482,20 +1477,20 @@ function StageDrawer({
                     <Button
                       variant="text"
                       size="small"
-                      onClick={() => handleTypeChange("")}
-                      disabled={typeValue === ""}
                       color="primary"
+                      disabled={typeValue === ""}
                       startIcon={<ClearRoundedIcon />}
+                      onClick={() => handleTypeChange("")}
                     >
                       Clear node type
                     </Button>
                     {nodeTypes.map(nodeType => (
                       <FormControlLabel
                         key={nodeType.type}
+                        className={classes.typeButton}
                         value={nodeType.type}
                         control={<Radio color="primary" />}
                         label={nodeType.type}
-                        className={classes.typeButton}
                       />
                     ))}
                   </RadioGroup>
@@ -1538,6 +1533,8 @@ function StageDrawer({
                           <span>
                             <IconButton
                               size="medium"
+                              color="primary"
+                              disabled={nodeValue === selectedNode.value}
                               onClick={() =>
                                 nodeValueEdit({
                                   value: nodeValue,
@@ -1545,8 +1542,6 @@ function StageDrawer({
                                   onNodeValueChange: onNodeValueChange,
                                 })
                               }
-                              disabled={nodeValue === selectedNode.value}
-                              color="primary"
                             >
                               <UpdateRoundedIcon />
                             </IconButton>
@@ -1566,15 +1561,15 @@ function StageDrawer({
                         Select the node value from the list:
                       </FormLabel>
                       <RadioGroup
+                        className={classes.typeButtonContainer}
+                        row
                         value={nodeValue}
                         onChange={e => handleValueChange(e.target.value)}
-                        row
-                        className={classes.typeButtonContainer}
                       >
                         <Button
                           variant="text"
                           size="small"
-                          onClick={() => handleValueChange("")}
+                          color="primary"
                           disabled={
                             nodeValue === "" ||
                             (nodeTypes.find(
@@ -1586,8 +1581,8 @@ function StageDrawer({
                                   fixedValue => fixedValue === nodeValue
                                 ) === undefined)
                           }
-                          color="primary"
                           startIcon={<ClearRoundedIcon />}
+                          onClick={() => handleValueChange("")}
                         >
                           Clear node value
                         </Button>
@@ -1596,10 +1591,10 @@ function StageDrawer({
                           .fixedValues.map(fixedValue => (
                             <FormControlLabel
                               key={fixedValue}
-                              value={fixedValue}
-                              control={<Radio color="primary" />}
-                              label={fixedValue}
                               className={classes.typeButton}
+                              value={fixedValue}
+                              label={fixedValue}
+                              control={<Radio color="primary" />}
                             />
                           ))}
                       </RadioGroup>
@@ -1618,5 +1613,86 @@ function StageDrawer({
     </>
   );
 }
+
+StageDrawer.propTypes = {
+  stageRef: PropTypes.object,
+  layerRef: PropTypes.object,
+  transformerRef: PropTypes.object,
+  selectedEdgeRef: PropTypes.object,
+  setSelectedEdgeRef: PropTypes.func,
+  setIsSelectedRectVisible: PropTypes.func,
+  setCurrentErrorLocation: PropTypes.func,
+  initialState: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.object)),
+  toolbarButtons: PropTypes.objectOf(PropTypes.bool),
+  drawerFields: PropTypes.objectOf(PropTypes.bool),
+  fullDisabled: PropTypes.bool,
+  connectorPlaceholder: PropTypes.string,
+  templateNodes: PropTypes.arrayOf(PropTypes.string),
+  nodeTypes: PropTypes.arrayOf(
+    PropTypes.shape({
+      type: PropTypes.string,
+      any: PropTypes.bool,
+      fixedValues: PropTypes.arrayOf(PropTypes.string),
+    })
+  ),
+  reportedErrors: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
+  onNodePiecesChange: PropTypes.func,
+  onNodeTypeChange: PropTypes.func,
+  onNodeValueChange: PropTypes.func,
+  onValidate: PropTypes.func,
+  fontSize: PropTypes.number,
+  fontFamily: PropTypes.string,
+  yPad: PropTypes.number,
+  textHeight: PropTypes.number,
+  nodes: PropTypes.arrayOf(
+    PropTypes.shape({
+      pieces: PropTypes.arrayOf(PropTypes.string),
+      x: PropTypes.number,
+      y: PropTypes.number,
+      type: PropTypes.string,
+      value: PropTypes.string,
+      isFinal: PropTypes.bool,
+    })
+  ),
+  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
+  canUndo: PropTypes.bool,
+  canRedo: PropTypes.bool,
+  stageReset: PropTypes.func,
+  reorderNodes: PropTypes.func,
+  uploadState: PropTypes.func,
+  addingNode: PropTypes.bool,
+  isAddEmpty: PropTypes.bool,
+  addingNodeClick: PropTypes.func,
+  clearAdding: PropTypes.func,
+  addValueChange: PropTypes.func,
+  editValue: PropTypes.arrayOf(PropTypes.string),
+  isEditEmpty: PropTypes.bool,
+  editValueChange: PropTypes.func,
+  editNode: PropTypes.func,
+  typeValue: PropTypes.string,
+  typeValueChange: PropTypes.func,
+  nodeTypeEdit: PropTypes.func,
+  nodeValue: PropTypes.string,
+  nodeValueChange: PropTypes.func,
+  nodeValueEdit: PropTypes.func,
+  selectedNode: PropTypes.shape({
+    pieces: PropTypes.arrayOf(PropTypes.string),
+    x: PropTypes.number,
+    y: PropTypes.number,
+    type: PropTypes.string,
+    value: PropTypes.string,
+    isFinal: PropTypes.bool,
+  }),
+  clearNodeSelection: PropTypes.func,
+  selectedRootNode: PropTypes.shape({
+    pieces: PropTypes.arrayOf(PropTypes.string),
+    x: PropTypes.number,
+    y: PropTypes.number,
+    type: PropTypes.string,
+    value: PropTypes.string,
+    isFinal: PropTypes.bool,
+  }),
+  clearEdgeSelection: PropTypes.func,
+};
 
 export default StageDrawer;

@@ -1,5 +1,6 @@
 import Konva from "konva";
 import React, { useEffect, useRef, useState } from "react";
+import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { ActionCreators } from "redux-undo";
 import Node from "../Node.js";
@@ -28,58 +29,6 @@ function ExpressionTreeEditor({
   height,
   fontSize,
   fontFamily,
-  connectorPlaceholder,
-  templateNodes,
-  nodes,
-  edges,
-  dragEdge,
-  removeNode,
-  moveNodeTo,
-  moveNodeToEnd,
-  setDragEdge,
-  moveDragEdgeParentEndTo,
-  moveDragEdgeChildEndTo,
-  removeEdge,
-  addEdge,
-  updateEdge,
-  clearDragEdge,
-  clearNodeSelection,
-  addNode,
-  selectNode,
-  selectedNode,
-  addingNode,
-  addValue,
-  editValueChange,
-  typeValueChange,
-  nodeValueChange,
-  clearAdding,
-  selectEdge,
-  clearEdgeSelection,
-  selectedEdge,
-  selectRootNode,
-  selectedRootNode,
-  clearRootSelection,
-  initialState,
-  setInitialState,
-  nodeTypes,
-  allowedErrors,
-  reportedErrors,
-  moveSelectedNodesTo,
-  moveSelectedNodesToEnd,
-  toolbarButtons,
-  drawerFields,
-  fullDisabled,
-  onNodeAdd,
-  onNodeDelete,
-  onNodeSelect,
-  onNodePiecesChange,
-  onNodeTypeChange,
-  onNodeValueChange,
-  onEdgeAdd,
-  onEdgeDelete,
-  onEdgeUpdate,
-  onEdgeSelect,
-  onValidate,
   errorColor,
   nodeColor,
   selectedNodeColor,
@@ -98,8 +47,62 @@ function ExpressionTreeEditor({
   dragEdgeColor,
   dragEdgeChildConnectorColor,
   dragEdgeParentConnectorColor,
+  selectionRectColor,
   toolbarPrimaryColor,
   toolbarSecondaryColor,
+  toolbarButtons,
+  drawerFields,
+  fullDisabled,
+  allowedErrors,
+  reportedErrors,
+  connectorPlaceholder,
+  templateNodes,
+  nodeTypes,
+  initialState,
+  setInitialState,
+  onNodeAdd,
+  onNodeDelete,
+  onNodeSelect,
+  onNodeMove,
+  onNodePiecesChange,
+  onNodeTypeChange,
+  onNodeValueChange,
+  onEdgeAdd,
+  onEdgeDelete,
+  onEdgeUpdate,
+  onEdgeSelect,
+  onValidate,
+  nodes,
+  edges,
+  dragEdge,
+  selectedNode,
+  selectedRootNode,
+  selectedEdge,
+  addNode,
+  removeNode,
+  selectNode,
+  clearNodeSelection,
+  selectRootNode,
+  clearRootSelection,
+  moveNodeTo,
+  moveNodeToEnd,
+  moveSelectedNodesTo,
+  moveSelectedNodesToEnd,
+  addEdge,
+  removeEdge,
+  updateEdge,
+  selectEdge,
+  clearEdgeSelection,
+  setDragEdge,
+  clearDragEdge,
+  moveDragEdgeChildEndTo,
+  moveDragEdgeParentEndTo,
+  addingNode,
+  clearAdding,
+  addValue,
+  editValueChange,
+  typeValueChange,
+  nodeValueChange,
 }) {
   // Refs
   const stageRef = useRef();
@@ -114,9 +117,9 @@ function ExpressionTreeEditor({
   const theme = createMuiTheme({
     palette: {
       primary: {
-        main: toolbarPrimaryColor || "#3f51b5",
+        main: toolbarPrimaryColor,
       },
-      secondary: { main: toolbarSecondaryColor || "#f50057" },
+      secondary: { main: toolbarSecondaryColor },
     },
   });
 
@@ -151,16 +154,15 @@ function ExpressionTreeEditor({
   // Effects
   // Initial state setting effect running only on first render
   useEffect(() => {
-    initialState &&
-      dispatch(
-        setInitialState({
-          initialNodes: initialState.initialNodes,
-          initialEdges: initialState.initialEdges,
-          connectorPlaceholder: connectorPlaceholder,
-          fontSize: fontSize,
-          fontFamily: fontFamily,
-        })
-      );
+    dispatch(
+      setInitialState({
+        initialNodes: initialState.initialNodes,
+        initialEdges: initialState.initialEdges,
+        connectorPlaceholder: connectorPlaceholder,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+      })
+    );
     dispatch(ActionCreators.clearHistory());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -418,7 +420,6 @@ function ExpressionTreeEditor({
             // check if we are allowing multiple edges on the same connector
             if (
               (foundEdges.length > 0 &&
-                allowedErrors &&
                 allowedErrors.multiEdgeOnHoleConnector) ||
               foundEdges.length === 0
             ) {
@@ -441,10 +442,7 @@ function ExpressionTreeEditor({
               // Check if the new edge is creating a loop,
               // if the new edge is not creating a loop,
               // or if we are allowing loops to be created, complete the edge update
-              if (
-                (allowedErrors && allowedErrors.loop && creatingLoop) ||
-                !creatingLoop
-              ) {
+              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
                 updateEdge({
                   edgeId: originalEdge.id,
                   newEdge: newEdge,
@@ -480,7 +478,6 @@ function ExpressionTreeEditor({
             // check if we are allowing multiple edges on the same connector
             if (
               (foundEdges.length > 0 &&
-                allowedErrors &&
                 allowedErrors.multiEdgeOnHoleConnector) ||
               foundEdges.length === 0
             ) {
@@ -500,10 +497,7 @@ function ExpressionTreeEditor({
               // Check if the new edge is creating a loop,
               // if the new edge is not creating a loop,
               // or if we are allowing loops to be created, complete the edge adding
-              if (
-                (allowedErrors && allowedErrors.loop && creatingLoop) ||
-                !creatingLoop
-              ) {
+              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
                 addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
                 stageRef.current
                   .find(".Edge")
@@ -540,7 +534,6 @@ function ExpressionTreeEditor({
             // check if we are allowing multiple edges on the same connector
             if (
               (foundEdges.length > 0 &&
-                allowedErrors &&
                 allowedErrors.multiEdgeOnNodeConnector) ||
               foundEdges.length === 0
             ) {
@@ -563,10 +556,7 @@ function ExpressionTreeEditor({
               // Check if the new edge is creating a loop,
               // if the new edge is not creating a loop,
               // or if we are allowing loops to be created, complete the edge update
-              if (
-                (allowedErrors && allowedErrors.loop && creatingLoop) ||
-                !creatingLoop
-              ) {
+              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
                 updateEdge({
                   edgeId: dragEdge.originalEdgeId,
                   newEdge: newEdge,
@@ -595,7 +585,6 @@ function ExpressionTreeEditor({
             // check if we are allowing multiple edges on the same connector
             if (
               (foundEdges.length > 0 &&
-                allowedErrors &&
                 allowedErrors.multiEdgeOnNodeConnector) ||
               foundEdges.length === 0
             ) {
@@ -615,10 +604,7 @@ function ExpressionTreeEditor({
               // Check if the new edge is creating a loop,
               // if the new edge is not creating a loop,
               // or if we are allowing loops to be created, complete the edge adding
-              if (
-                (allowedErrors && allowedErrors.loop && creatingLoop) ||
-                !creatingLoop
-              ) {
+              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
                 addEdge({ edge: newEdge, onEdgeAdd: onEdgeAdd });
                 stageRef.current
                   .find(".Edge")
@@ -919,42 +905,42 @@ function ExpressionTreeEditor({
       >
         {/* Top and side bar component */}
         <StageDrawer
-          connectorPlaceholder={connectorPlaceholder}
-          templateNodes={templateNodes}
           stageRef={stageRef}
           layerRef={layerRef}
           transformerRef={transformerRef}
-          setIsSelectedRectVisible={setIsSelectedRectVisible}
-          initialState={initialState}
-          nodeTypes={nodeTypes}
           selectedEdgeRef={selectedEdgeRef}
           setSelectedEdgeRef={setSelectedEdgeRef}
-          reportedErrors={reportedErrors}
+          setIsSelectedRectVisible={setIsSelectedRectVisible}
+          setCurrentErrorLocation={setCurrentErrorLocation}
+          initialState={initialState}
+          fontSize={fontSize}
+          fontFamily={fontFamily}
+          textHeight={textHeight}
+          yPad={yPad}
           toolbarButtons={toolbarButtons}
           drawerFields={drawerFields}
           fullDisabled={fullDisabled}
-          setCurrentErrorLocation={setCurrentErrorLocation}
+          connectorPlaceholder={connectorPlaceholder}
+          templateNodes={templateNodes}
+          nodeTypes={nodeTypes}
+          reportedErrors={reportedErrors}
           onNodePiecesChange={onNodePiecesChange}
           onNodeTypeChange={onNodeTypeChange}
           onNodeValueChange={onNodeValueChange}
           onValidate={onValidate}
-          fontSize={fontSize}
-          fontFamily={fontFamily}
-          yPad={yPad}
-          textHeight={textHeight}
         />
         {/* Stage component containing the layer component*/}
         <Stage
           ref={stageRef}
           width={width}
           height={height}
+          style={{ cursor: addingNode && "crosshair" }}
           onMouseMove={!fullDisabled && handleStageMouseMove}
           onTouchMove={!fullDisabled && handleStageMouseMove}
           onMouseUp={!fullDisabled && handleStageMouseUp}
           onTouchEnd={!fullDisabled && handleStageMouseUp}
           onClick={!fullDisabled && handleStageClick}
           onTouchStart={!fullDisabled && handleStageClick}
-          style={{ cursor: addingNode && "crosshair" }}
           draggable={!pressingMeta && !fullDisabled}
           onMouseDown={!fullDisabled && handleStageMouseDown}
           onDragStart={
@@ -991,7 +977,12 @@ function ExpressionTreeEditor({
               <Edge
                 key={"Edge-" + edge.id}
                 id={edge.id}
+                parentNodeId={edge.parentNodeId}
+                parentPieceId={edge.parentPieceId}
+                childNodeId={edge.childNodeId}
                 beingDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
+                selected={selectedEdge && selectedEdge.id === edge.id}
+                clearEdgeSelection={clearEdgeSelection}
                 parentPieceX={
                   computePiecesPositions(
                     nodeById(edge.parentNodeId, nodes).pieces,
@@ -1000,24 +991,11 @@ function ExpressionTreeEditor({
                     fontFamily
                   )[edge.parentPieceId]
                 }
-                childWidth={nodeById(edge.childNodeId, nodes).width}
                 parentX={nodePositionById(edge.parentNodeId, nodes).x}
                 parentY={nodePositionById(edge.parentNodeId, nodes).y}
                 childX={nodePositionById(edge.childNodeId, nodes).x}
                 childY={nodePositionById(edge.childNodeId, nodes).y}
-                onEdgeClick={e => handleEdgeClick(e, edge.id)}
-                onNodeConnectorDragStart={handleNodeConnectorDragStart}
-                onPieceConnectorDragStart={handleHoleConnectorDragStart}
-                selected={selectedEdge && selectedEdge.id === edge.id}
-                parentNodeId={edge.parentNodeId}
-                parentPieceId={edge.parentPieceId}
-                childNodeId={edge.childNodeId}
-                selectedEdgeRef={selectedEdgeRef}
-                setSelectedEdgeRef={setSelectedEdgeRef}
-                clearEdgeSelection={clearEdgeSelection}
-                draggingSelectionRect={draggingSelectionRect}
-                fullDisabled={fullDisabled}
-                currentErrorLocation={currentErrorLocation}
+                childWidth={nodeById(edge.childNodeId, nodes).width}
                 fontSize={fontSize}
                 fontFamily={fontFamily}
                 xPad={xPad}
@@ -1030,50 +1008,44 @@ function ExpressionTreeEditor({
                 edgeParentConnectorColor={edgeParentConnectorColor}
                 selectedEdgeColor={selectedEdgeColor}
                 draggingEdgeColor={draggingEdgeColor}
+                fullDisabled={fullDisabled}
+                selectedEdgeRef={selectedEdgeRef}
+                setSelectedEdgeRef={setSelectedEdgeRef}
+                draggingSelectionRect={draggingSelectionRect}
+                currentErrorLocation={currentErrorLocation}
+                onEdgeClick={e => handleEdgeClick(e, edge.id)}
+                onNodeConnectorDragStart={handleNodeConnectorDragStart}
+                onHoleConnectorDragStart={handleHoleConnectorDragStart}
               />
             ))}
             {/* Map all the state nodes */}
             {nodes.map((node, i) => (
               <Node
-                id={node.id}
                 key={"Node-" + node.id}
+                id={node.id}
                 stageRef={stageRef}
                 transformerRef={transformerRef}
-                edges={edges}
-                nodes={nodes}
-                connectorPlaceholder={connectorPlaceholder}
+                selectedEdgeRef={selectedEdgeRef}
+                setSelectedEdgeRef={setSelectedEdgeRef}
+                draggingSelectionRect={draggingSelectionRect}
+                pressingMeta={pressingMeta}
+                currentErrorLocation={currentErrorLocation}
+                pieces={node.pieces}
                 x={nodePositionById(node.id, nodes).x}
                 y={nodePositionById(node.id, nodes).y}
                 nodeWidth={node.width}
                 nodeHeight={nodeHeight}
-                pieces={node.pieces}
                 isSelected={selectedNode && selectedNode.id === node.id}
                 isSelectedRoot={
                   selectedRootNode && selectedRootNode.id === node.id
                 }
                 type={node.type}
                 value={node.value}
+                isFinal={node.isFinal}
+                nodes={nodes}
+                edges={edges}
                 stageWidth={width}
                 stageHeight={height}
-                moveNodeTo={moveNodeTo}
-                moveNodeToEnd={moveNodeToEnd}
-                clearNodeSelection={clearNodeSelection}
-                clearEdgeSelection={clearEdgeSelection}
-                removeNode={removeNode}
-                onNodeClick={e => handleNodeClick(e, node.id)}
-                onNodeDblClick={() => handleNodeDblClick(node.id)}
-                onNodeConnectorDragStart={handleNodeConnectorDragStart}
-                onPieceConnectorDragStart={handleHoleConnectorDragStart}
-                selectedEdgeRef={selectedEdgeRef}
-                setSelectedEdgeRef={setSelectedEdgeRef}
-                nodeValueChange={nodeValueChange}
-                isFinal={node.isFinal}
-                pressingMeta={pressingMeta}
-                draggingSelectionRect={draggingSelectionRect}
-                fullDisabled={fullDisabled}
-                currentErrorLocation={currentErrorLocation}
-                onNodeDelete={onNodeDelete}
-                onNodeSelect={onNodeSelect}
                 fontSize={fontSize}
                 fontFamily={fontFamily}
                 xPad={xPad}
@@ -1092,22 +1064,36 @@ function ExpressionTreeEditor({
                 nodeDeleteButtonColor={nodeDeleteButtonColor}
                 edgeChildConnectorColor={edgeChildConnectorColor}
                 edgeParentConnectorColor={edgeParentConnectorColor}
+                connectorPlaceholder={connectorPlaceholder}
+                fullDisabled={fullDisabled}
+                onNodeDelete={onNodeDelete}
+                onNodeSelect={onNodeSelect}
+                onNodeMove={onNodeMove}
+                moveNodeTo={moveNodeTo}
+                moveNodeToEnd={moveNodeToEnd}
+                removeNode={removeNode}
+                clearNodeSelection={clearNodeSelection}
+                clearEdgeSelection={clearEdgeSelection}
+                nodeValueChange={nodeValueChange}
+                onNodeClick={e => handleNodeClick(e, node.id)}
+                onNodeDblClick={() => handleNodeDblClick(node.id)}
+                onNodeConnectorDragStart={handleNodeConnectorDragStart}
+                onHoleConnectorDragStart={handleHoleConnectorDragStart}
               />
             ))}
             {/* Multiple selection rectangle component */}
             <Rect
               ref={selectionRectRef}
-              fill="rgba(0,0,255,0.2)"
               x={Math.min(selectionRectStartPos.x, selectionRectEndPos.x)}
               y={Math.min(selectionRectStartPos.y, selectionRectEndPos.y)}
               width={Math.abs(selectionRectEndPos.x - selectionRectStartPos.x)}
               height={Math.abs(selectionRectEndPos.y - selectionRectStartPos.y)}
+              fill={selectionRectColor}
               visible={isSelectingRectVisible}
             />
             {/* Multiple selected rectangle component */}
             <Rect
               ref={selectedRectRef}
-              fill="rgba(0,0,255,0)"
               x={
                 transformerRef.current &&
                 stageRef.current &&
@@ -1132,6 +1118,7 @@ function ExpressionTreeEditor({
                 transformerRef.current.getClientRect().height /
                   stageRef.current.scale().y
               }
+              fill="rgba(255, 255, 255, 0)"
               visible={isSelectedRectVisible}
               draggable
               onMouseEnter={() => {
@@ -1147,9 +1134,6 @@ function ExpressionTreeEditor({
             {/* Transformer component attached to the multiple selected nodes */}
             <Transformer
               ref={transformerRef}
-              rotateEnabled={false}
-              resizeEnabled={false}
-              visible={isSelectedRectVisible}
               x={
                 transformerRef.current &&
                 stageRef.current &&
@@ -1164,6 +1148,9 @@ function ExpressionTreeEditor({
                   stageRef.current.absolutePosition().y) /
                   stageRef.current.scale().y
               }
+              rotateEnabled={false}
+              resizeEnabled={false}
+              visible={isSelectedRectVisible}
             />
             {/* DragEdge component */}
             {dragEdge && (
@@ -1185,5 +1172,234 @@ function ExpressionTreeEditor({
     </MuiThemeProvider>
   );
 }
+
+ExpressionTreeEditor.propTypes = {
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  fontSize: PropTypes.number,
+  fontFamily: PropTypes.string,
+  errorColor: PropTypes.string,
+  nodeColor: PropTypes.string,
+  selectedNodeColor: PropTypes.string,
+  finalNodeColor: PropTypes.string,
+  rootConnectorColor: PropTypes.string,
+  nodeConnectorColor: PropTypes.string,
+  nodeHoleColor: PropTypes.string,
+  nodeTagColor: PropTypes.string,
+  nodeTextColor: PropTypes.string,
+  nodeDeleteButtonColor: PropTypes.string,
+  edgeColor: PropTypes.string,
+  edgeChildConnectorColor: PropTypes.string,
+  edgeParentConnectorColor: PropTypes.string,
+  selectedEdgeColor: PropTypes.string,
+  draggingEdgeColor: PropTypes.string,
+  dragEdgeColor: PropTypes.string,
+  dragEdgeChildConnectorColor: PropTypes.string,
+  dragEdgeParentConnectorColor: PropTypes.string,
+  selectionRectColor: PropTypes.string,
+  toolbarPrimaryColor: PropTypes.string,
+  toolbarSecondaryColor: PropTypes.string,
+  connectorPlaceholder: PropTypes.string,
+  fullDisabled: PropTypes.bool,
+  toolbarButtons: PropTypes.objectOf(PropTypes.bool),
+  drawerFields: PropTypes.objectOf(PropTypes.bool),
+  templateNodes: PropTypes.arrayOf(PropTypes.string),
+  nodeTypes: PropTypes.arrayOf(
+    PropTypes.shape({
+      type: PropTypes.string.isRequired,
+      any: PropTypes.bool,
+      fixedValues: PropTypes.arrayOf(PropTypes.string),
+    })
+  ),
+  allowedErrors: PropTypes.objectOf(PropTypes.bool),
+  reportedErrors: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
+  initialState: PropTypes.shape({
+    initialNodes: PropTypes.arrayOf(PropTypes.object).isRequired,
+    initialEdges: PropTypes.arrayOf(PropTypes.object).isRequired,
+  }),
+  onNodeAdd: PropTypes.func,
+  onNodeDelete: PropTypes.func,
+  onNodeSelect: PropTypes.func,
+  onNodePiecesChange: PropTypes.func,
+  onNodeTypeChange: PropTypes.func,
+  onNodeValueChange: PropTypes.func,
+  onEdgeAdd: PropTypes.func,
+  onEdgeDelete: PropTypes.func,
+  onEdgeUpdate: PropTypes.func,
+  onEdgeSelect: PropTypes.func,
+  onValidate: PropTypes.func,
+  nodes: PropTypes.arrayOf(
+    PropTypes.shape({
+      pieces: PropTypes.arrayOf(PropTypes.string),
+      x: PropTypes.number,
+      y: PropTypes.number,
+      type: PropTypes.string,
+      value: PropTypes.string,
+      isFinal: PropTypes.bool,
+    })
+  ),
+  selectedNode: PropTypes.shape({
+    pieces: PropTypes.arrayOf(PropTypes.string),
+    x: PropTypes.number,
+    y: PropTypes.number,
+    type: PropTypes.string,
+    value: PropTypes.string,
+    isFinal: PropTypes.bool,
+  }),
+  selectedRootNode: PropTypes.shape({
+    pieces: PropTypes.arrayOf(PropTypes.string),
+    x: PropTypes.number,
+    y: PropTypes.number,
+    type: PropTypes.string,
+    value: PropTypes.string,
+    isFinal: PropTypes.bool,
+  }),
+  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
+  selectedEdge: PropTypes.objectOf(PropTypes.number),
+  dragEdge: PropTypes.shape({
+    originalEdgeId: PropTypes.number,
+    updateParent: PropTypes.bool,
+    parentNodeId: PropTypes.number,
+    parentPieceId: PropTypes.number,
+    parentX: PropTypes.number,
+    parentY: PropTypes.number,
+    childX: PropTypes.number,
+    childY: PropTypes.number,
+  }),
+  setInitialState: PropTypes.func,
+  addNode: PropTypes.func,
+  removeNode: PropTypes.func,
+  selectNode: PropTypes.func,
+  clearNodeSelection: PropTypes.func,
+  selectRootNode: PropTypes.func,
+  clearRootSelection: PropTypes.func,
+  moveNodeTo: PropTypes.func,
+  moveNodeToEnd: PropTypes.func,
+  moveSelectedNodesTo: PropTypes.func,
+  moveSelectedNodesToEnd: PropTypes.func,
+  addEdge: PropTypes.func,
+  removeEdge: PropTypes.func,
+  updateEdge: PropTypes.func,
+  selectEdge: PropTypes.func,
+  clearEdgeSelection: PropTypes.func,
+  setDragEdge: PropTypes.func,
+  clearDragEdge: PropTypes.func,
+  moveDragEdgeParentEndTo: PropTypes.func,
+  moveDragEdgeChildEndTo: PropTypes.func,
+  addValue: PropTypes.arrayOf(PropTypes.string),
+  addingNode: PropTypes.bool,
+  clearAdding: PropTypes.func,
+  editValueChange: PropTypes.func,
+  typeValueChange: PropTypes.func,
+  nodeValueChange: PropTypes.func,
+};
+
+ExpressionTreeEditor.defaultProps = {
+  fontSize: 24,
+  fontFamily: "Ubuntu Mono, Courier",
+  connectorPlaceholder: "{{}}",
+  errorColor: "#ff2f2f",
+  nodeColor: "#208020",
+  selectedNodeColor: "#3f51b5",
+  finalNodeColor: "#208080",
+  rootConnectorColor: "black",
+  nodeConnectorColor: "black",
+  nodeHoleColor: "#104010",
+  nodeTagColor: "#3f51b5",
+  nodeTextColor: "white",
+  nodeDeleteButtonColor: "red",
+  edgeColor: "black",
+  edgeChildConnectorColor: "#00c0c3",
+  edgeParentConnectorColor: "#c33100",
+  selectedEdgeColor: "#3f51b5",
+  draggingEdgeColor: "#f0f0f0",
+  dragEdgeColor: "black",
+  dragEdgeChildConnectorColor: "#00c0c3",
+  dragEdgeParentConnectorColor: "#c33100",
+  selectionRectColor: "rgba(0,0,255,0.2)",
+  toolbarPrimaryColor: "#3f51b5",
+  toolbarSecondaryColor: "#f50057",
+  templateNodes: [],
+  initialState: { initialNodes: [], initialEdges: [] },
+  nodeTypes: [
+    { type: "String", any: true, fixedValues: [] },
+    { type: "Number", any: true, fixedValues: [] },
+    { type: "Boolean", any: false, fixedValues: ["true", "false"] },
+    { type: "Object", any: true, fixedValues: [] },
+    { type: "Undefined", any: false, fixedValues: ["undefined"] },
+    { type: "Null", any: false, fixedValues: ["null"] },
+  ],
+  allowedErrors: {
+    loop: true,
+    multiEdgeOnHoleConnector: true,
+    multiEdgeOnNodeConnector: true,
+  },
+  reportedErrors: {
+    structureErrors: {
+      loop: true,
+      multiEdgeOnHoleConnector: true,
+      multiEdgeOnNodeConnector: true,
+    },
+    completenessErrors: {
+      emptyPieceConnector: true,
+      missingNodeType: true,
+      missingNodeValue: true,
+    },
+  },
+  toolbarButtons: {
+    drawerButton: true,
+    reset: true,
+    undo: true,
+    redo: true,
+    reorder: true,
+    validate: true,
+    download: true,
+    upload: true,
+    screenshot: true,
+    zoomIn: true,
+    zoomOut: true,
+    info: true,
+    zoomToFit: true,
+    fullScreen: true,
+  },
+  drawerFields: { addField: true, editField: true },
+  fullDisabled: false,
+  onNodeAdd: function (node) {
+    console.log("onNodeAdd", node);
+  },
+  onNodeDelete: function (nodeId) {
+    console.log("onNodeDelete", nodeId);
+  },
+  onNodeSelect: function (node) {
+    console.log("onNodeSelect", node);
+  },
+  onNodeMove: function (nodeId, position) {
+    console.log("onNodeMove", nodeId, position);
+  },
+  onNodePiecesChange: function (nodePieces) {
+    console.log("onNodePiecesChange", nodePieces);
+  },
+  onNodeTypeChange: function (nodeType) {
+    console.log("onNodeTypeChange", nodeType);
+  },
+  onNodeValueChange: function (nodeValue) {
+    console.log("onNodeValueChange", nodeValue);
+  },
+  onEdgeAdd: function (edge) {
+    console.log("onEdgeAdd", edge);
+  },
+  onEdgeDelete: function (edgeId) {
+    console.log("onEdgeDelete", edgeId);
+  },
+  onEdgeUpdate: function (edge) {
+    console.log("onEdgeUpdate", edge);
+  },
+  onEdgeSelect: function (edge) {
+    console.log("onEdgeSelect", edge);
+  },
+  onValidate: function (nodes, edges, errors) {
+    console.log("onValidate", nodes, edges, errors);
+  },
+};
 
 export default ExpressionTreeEditor;

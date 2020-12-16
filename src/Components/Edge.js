@@ -1,28 +1,21 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Line, Circle, Group } from "react-konva";
 
 function Edge({
   id,
-  childWidth,
+  parentNodeId,
+  parentPieceId,
   parentPieceX,
   parentX,
   parentY,
+  childNodeId,
+  childWidth,
   childX,
   childY,
-  beingDragged,
-  onEdgeClick,
-  onNodeConnectorDragStart,
-  onPieceConnectorDragStart,
   selected,
-  parentNodeId,
-  parentPieceId,
-  childNodeId,
-  selectedEdgeRef,
-  setSelectedEdgeRef,
-  clearEdgeSelection,
-  draggingSelectionRect,
+  beingDragged,
   fullDisabled,
-  currentErrorLocation,
   fontSize,
   fontFamily,
   xPad,
@@ -35,6 +28,14 @@ function Edge({
   edgeParentConnectorColor,
   selectedEdgeColor,
   draggingEdgeColor,
+  selectedEdgeRef,
+  setSelectedEdgeRef,
+  draggingSelectionRect,
+  clearEdgeSelection,
+  currentErrorLocation,
+  onEdgeClick,
+  onNodeConnectorDragStart,
+  onHoleConnectorDragStart,
 }) {
   // Handle drag start event on edge's node connector end
   const handleNodeConnectorDragStart = e => {
@@ -65,7 +66,7 @@ function Edge({
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
-    onPieceConnectorDragStart(
+    onHoleConnectorDragStart(
       parentNodeId,
       parentPieceId,
       e.target.parent.x() + e.target.x() + holeWidth / 2,
@@ -91,14 +92,14 @@ function Edge({
         ]}
         stroke={
           beingDragged
-            ? draggingEdgeColor || "#f0f0f0"
+            ? draggingEdgeColor
             : currentErrorLocation &&
               currentErrorLocation.edge &&
               currentErrorLocation.edgeId === id
-            ? errorColor || "#ff2f2f"
+            ? errorColor
             : selected
-            ? selectedEdgeColor || "#3f50b5"
-            : edgeColor || "black"
+            ? selectedEdgeColor
+            : edgeColor
         }
         strokeWidth={fontSize / 4}
         lineCap="round"
@@ -124,12 +125,12 @@ function Edge({
         radius={fontSize / 4}
         fill={
           beingDragged
-            ? draggingEdgeColor || "#f0f0f0"
+            ? draggingEdgeColor
             : currentErrorLocation &&
               currentErrorLocation.edge &&
               currentErrorLocation.edgeId === id
-            ? errorColor || "#ff2f2f"
-            : edgeChildConnectorColor || "#00c0c3"
+            ? errorColor
+            : edgeChildConnectorColor
         }
         stroke="black"
         strokeWidth={1}
@@ -159,12 +160,12 @@ function Edge({
         radius={fontSize / 4}
         fill={
           beingDragged
-            ? draggingEdgeColor || "#f0f0f0"
+            ? draggingEdgeColor
             : currentErrorLocation &&
               currentErrorLocation.edge &&
               currentErrorLocation.edgeId === id
-            ? errorColor || "#ff2f2f"
-            : edgeParentConnectorColor || "#c33100"
+            ? errorColor
+            : edgeParentConnectorColor
         }
         stroke="black"
         strokeWidth={1}
@@ -191,5 +192,41 @@ function Edge({
     </Group>
   );
 }
+
+Edge.propTypes = {
+  id: PropTypes.number,
+  parentNodeId: PropTypes.number,
+  parentPieceId: PropTypes.number,
+  parentPieceX: PropTypes.number,
+  parentX: PropTypes.number,
+  parentY: PropTypes.number,
+  childNodeId: PropTypes.number,
+  childWidth: PropTypes.number,
+  childX: PropTypes.number,
+  childY: PropTypes.number,
+  selected: PropTypes.bool,
+  beingDragged: PropTypes.bool,
+  fullDisabled: PropTypes.bool,
+  fontSize: PropTypes.number,
+  fontFamily: PropTypes.string,
+  xPad: PropTypes.number,
+  yPad: PropTypes.number,
+  holeWidth: PropTypes.number,
+  textHeight: PropTypes.number,
+  errorColor: PropTypes.string,
+  edgeColor: PropTypes.string,
+  edgeChildConnectorColor: PropTypes.string,
+  edgeParentConnectorColor: PropTypes.string,
+  selectedEdgeColor: PropTypes.string,
+  draggingEdgeColor: PropTypes.string,
+  selectedEdgeRef: PropTypes.object,
+  setSelectedEdgeRef: PropTypes.func,
+  draggingSelectionRect: PropTypes.bool,
+  clearEdgeSelection: PropTypes.func,
+  currentErrorLocation: PropTypes.object,
+  onEdgeClick: PropTypes.func,
+  onNodeConnectorDragStart: PropTypes.func,
+  onHoleConnectorDragStart: PropTypes.func,
+};
 
 export default Edge;

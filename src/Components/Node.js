@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { Rect, Text, Group, Circle, Star, Label, Tag } from "react-konva";
 import {
   computePiecesPositions,
@@ -7,41 +8,28 @@ import {
 } from "../utils.js";
 
 function Node({
-  connectorPlaceholder,
   id,
   pieces,
   x,
   y,
-  isSelected,
-  moveNodeTo,
-  moveNodeToEnd,
-  removeNode,
-  clearEdgeSelection,
-  onNodeConnectorDragStart,
-  onPieceConnectorDragStart,
-  onNodeClick,
-  onNodeDblClick,
-  stageWidth,
-  stageHeight,
-  isSelectedRoot,
   nodeWidth,
   nodeHeight,
-  stageRef,
-  transformerRef,
-  edges,
-  nodes,
   type,
   value,
+  isFinal,
+  isSelected,
+  isSelectedRoot,
+  nodes,
+  edges,
+  transformerRef,
   selectedEdgeRef,
   setSelectedEdgeRef,
-  clearNodeSelection,
-  isFinal,
-  pressingMeta,
   draggingSelectionRect,
-  fullDisabled,
   currentErrorLocation,
-  onNodeDelete,
-  onNodeSelect,
+  stageRef,
+  stageWidth,
+  stageHeight,
+  pressingMeta,
   fontSize,
   fontFamily,
   xPad,
@@ -60,6 +48,20 @@ function Node({
   nodeDeleteButtonColor,
   edgeChildConnectorColor,
   edgeParentConnectorColor,
+  connectorPlaceholder,
+  fullDisabled,
+  removeNode,
+  onNodeDelete,
+  onNodeSelect,
+  clearNodeSelection,
+  moveNodeTo,
+  moveNodeToEnd,
+  onNodeMove,
+  onNodeClick,
+  onNodeDblClick,
+  onNodeConnectorDragStart,
+  onHoleConnectorDragStart,
+  clearEdgeSelection,
 }) {
   // State hook to keep track when we are dragging a node
   // and not from a node/hole connector
@@ -110,7 +112,7 @@ function Node({
       const id = e.target.id();
       const x = e.target.x();
       const y = e.target.y();
-      moveNodeToEnd({ nodeId: id, x: x, y: y });
+      moveNodeToEnd({ nodeId: id, x: x, y: y, onNodeMove: onNodeMove });
     }
     setDraggingNode(false);
   };
@@ -170,7 +172,7 @@ function Node({
       // we don't want the connector to be moved
       e.target.stopDrag();
       // but we want to initiate the moving around of the connection
-      onPieceConnectorDragStart(
+      onHoleConnectorDragStart(
         nodeId,
         pieceId,
         e.target.parent.parent.x() +
@@ -266,12 +268,12 @@ function Node({
           currentErrorLocation &&
           currentErrorLocation.node &&
           currentErrorLocation.nodeId === id
-            ? errorColor || "#ff2f2f"
+            ? errorColor
             : isSelected
-            ? selectedNodeColor || "#3f50b5"
+            ? selectedNodeColor
             : isFinal
-            ? finalNodeColor || "#208080"
-            : nodeColor || "#208020"
+            ? finalNodeColor
+            : nodeColor
         }
         stroke="black"
         strokeWidth={isSelected ? 2 : 1}
@@ -286,7 +288,7 @@ function Node({
       <Text
         x={3}
         y={3}
-        fill={nodeTextColor || "white"}
+        fill={nodeTextColor}
         fontFamily={fontFamily}
         fontSize={fontSize * 0.4}
         text={id}
@@ -304,12 +306,12 @@ function Node({
             currentErrorLocation &&
             currentErrorLocation.nodeConnector &&
             currentErrorLocation.nodeId === id
-              ? errorColor || "#ff2f2f"
+              ? errorColor
               : isSelected
-              ? selectedNodeColor || "#3f50b5"
+              ? selectedNodeColor
               : edgeByChildNode(id, edges).length > 0
-              ? edgeChildConnectorColor || "#802020"
-              : rootConnectorColor || "#3f50b5"
+              ? edgeChildConnectorColor
+              : rootConnectorColor
           }
           stroke="black"
           strokeWidth={2}
@@ -337,10 +339,10 @@ function Node({
             currentErrorLocation &&
             currentErrorLocation.nodeConnector &&
             currentErrorLocation.nodeId === id
-              ? errorColor || "#ff2f2f"
+              ? errorColor
               : edgeByChildNode(id, edges).length > 0
-              ? edgeChildConnectorColor || "#802020"
-              : nodeConnectorColor || "black"
+              ? edgeChildConnectorColor
+              : nodeConnectorColor
           }
           stroke="black"
           strokeWidth={1}
@@ -372,8 +374,8 @@ function Node({
                 currentErrorLocation.pieceConnector &&
                 currentErrorLocation.nodeId === id &&
                 currentErrorLocation.pieceId === i
-                  ? errorColor || "#ff2f2f"
-                  : nodeHoleColor || "#104010"
+                  ? errorColor
+                  : nodeHoleColor
               }
               stroke="black"
               strokeWidth={1}
@@ -409,7 +411,7 @@ function Node({
               onDragMove={e => {}}
               onDragEnd={e => {}}
               radius={fontSize / 4}
-              fill={edgeParentConnectorColor || "#c33100"}
+              fill={edgeParentConnectorColor}
               stroke="black"
               strokeWidth={1}
               onMouseOver={
@@ -427,7 +429,7 @@ function Node({
             key={"TextPiece-" + i}
             x={xPad + piecesPos[i]}
             y={yPad}
-            fill={nodeTextColor || "white"}
+            fill={nodeTextColor}
             fontFamily={fontFamily}
             fontSize={fontSize}
             text={p}
@@ -439,7 +441,7 @@ function Node({
         <Text
           x={nodeWidth - xPad}
           y={3}
-          fill={nodeTextColor || "white"}
+          fill={nodeTextColor}
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
           text="X"
@@ -451,7 +453,7 @@ function Node({
               if (!draggingSelectionRect) {
                 e.cancelBubble = true;
                 document.body.style.cursor = "pointer";
-                e.target.fill(nodeDeleteButtonColor || "red");
+                e.target.attrs.fill = nodeDeleteButtonColor;
                 e.target.draw();
               }
             })
@@ -459,7 +461,7 @@ function Node({
           onMouseLeave={e => {
             if (!draggingSelectionRect) {
               e.cancelBubble = true;
-              e.target.attrs.fill = nodeTextColor || "white";
+              e.target.attrs.fill = nodeTextColor;
               e.target.draw();
             }
           }}
@@ -467,7 +469,7 @@ function Node({
       )}
       <Label x={nodeWidth / 2} y={-fontSize / 4}>
         <Tag
-          fill={nodeTagColor || "#3f50b5"}
+          fill={nodeTagColor}
           stroke="black"
           strokeWidth={type !== "" || value !== "" ? 1 : 0}
           pointerDirection="down"
@@ -476,7 +478,7 @@ function Node({
           cornerRadius={3}
         />
         <Text
-          fill={nodeTextColor || "white"}
+          fill={nodeTextColor}
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
           text={type + (type !== "" && value !== "" ? ": " : "") + value}
@@ -486,5 +488,71 @@ function Node({
     </Group>
   );
 }
+
+Node.propTypes = {
+  id: PropTypes.number,
+  pieces: PropTypes.arrayOf(PropTypes.string),
+  x: PropTypes.number,
+  y: PropTypes.number,
+  nodeWidth: PropTypes.number,
+  nodeHeight: PropTypes.number,
+  type: PropTypes.string,
+  value: PropTypes.string,
+  isFinal: PropTypes.bool,
+  isSelected: PropTypes.bool,
+  isSelectedRoot: PropTypes.bool,
+  nodes: PropTypes.arrayOf(
+    PropTypes.shape({
+      pieces: PropTypes.arrayOf(PropTypes.string),
+      x: PropTypes.number,
+      y: PropTypes.number,
+      type: PropTypes.string,
+      value: PropTypes.string,
+      isFinal: PropTypes.bool,
+    })
+  ),
+  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
+  transformerRef: PropTypes.object,
+  selectedEdgeRef: PropTypes.object,
+  setSelectedEdgeRef: PropTypes.func,
+  draggingSelectionRect: PropTypes.bool,
+  currentErrorLocation: PropTypes.object,
+  stageRef: PropTypes.object,
+  stageWidth: PropTypes.number,
+  stageHeight: PropTypes.number,
+  pressingMeta: PropTypes.bool,
+  fontSize: PropTypes.number,
+  fontFamily: PropTypes.string,
+  xPad: PropTypes.number,
+  yPad: PropTypes.number,
+  holeWidth: PropTypes.number,
+  textHeight: PropTypes.number,
+  errorColor: PropTypes.string,
+  nodeColor: PropTypes.string,
+  selectedNodeColor: PropTypes.string,
+  finalNodeColor: PropTypes.string,
+  rootConnectorColor: PropTypes.string,
+  nodeConnectorColor: PropTypes.string,
+  nodeHoleColor: PropTypes.string,
+  nodeTagColor: PropTypes.string,
+  nodeTextColor: PropTypes.string,
+  nodeDeleteButtonColor: PropTypes.string,
+  edgeChildConnectorColor: PropTypes.string,
+  edgeParentConnectorColor: PropTypes.string,
+  connectorPlaceholder: PropTypes.string,
+  fullDisabled: PropTypes.bool,
+  removeNode: PropTypes.func,
+  onNodeDelete: PropTypes.func,
+  onNodeSelect: PropTypes.func,
+  clearNodeSelection: PropTypes.func,
+  moveNodeTo: PropTypes.func,
+  moveNodeToEnd: PropTypes.func,
+  onNodeMove: PropTypes.func,
+  onNodeClick: PropTypes.func,
+  onNodeDblClick: PropTypes.func,
+  onNodeConnectorDragStart: PropTypes.func,
+  onHoleConnectorDragStart: PropTypes.func,
+  clearEdgeSelection: PropTypes.func,
+};
 
 export default Node;
