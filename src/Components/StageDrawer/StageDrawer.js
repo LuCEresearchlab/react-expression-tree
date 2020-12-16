@@ -777,7 +777,7 @@ function StageDrawer({
   // using fscreen library to support different browsers fullscreen elements
   const handleFullScreenClick = () => {
     !fscreen.fullscreenElement
-      ? fscreen.requestFullscreen(document.documentElement)
+      ? fscreen.requestFullscreen(document.getElementById("editorContainer"))
       : fscreen.exitFullscreen();
   };
 

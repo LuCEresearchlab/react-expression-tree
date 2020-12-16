@@ -914,6 +914,7 @@ function ExpressionTreeEditor({
           position: "relative",
           border: "2px solid #3f50b5",
           borderRadius: "5px",
+          backgroundColor: "white",
         }}
       >
         {/* Top and side bar component */}
