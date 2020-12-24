@@ -1070,6 +1070,11 @@ function StageDrawer({
             </li>
             <br />
             <li>
+              <b>Tree validation: </b>Select a root node to activate the
+              validation button for the tree starting at the selected root node.
+            </li>
+            <br />
+            <li>
               <b>Node deletion: </b>Select a node and press the <i>delete</i>{" "}
               button or click on the node's <i>x</i> button.
             </li>

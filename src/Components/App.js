@@ -108,6 +108,8 @@ function App() {
         { type: "Undefined", any: false, fixedValues: ["undefined"] },
         { type: "Null", any: false, fixedValues: ["null"] },
       ]}
+      // TODO
+      // nodeAny={true}
       initialState={{
         initialNodes: [
           {
