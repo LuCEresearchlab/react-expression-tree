@@ -110,6 +110,7 @@ module.exports = {
     usedExports: true,
     minimizer: [new TerserPlugin()],
 
+    runtimeChunk: 'multiple',
     splitChunks: {
       cacheGroups: {
         vendors: {
