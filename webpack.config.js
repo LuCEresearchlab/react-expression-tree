@@ -41,7 +41,7 @@ module.exports = {
 
   output: {
     filename: 'index.js',
-    library: 'WorkerSandbox',
+    library: 'ExpressionTreeViewer',
     libraryTarget: 'umd',
     publicPath: '/dist/',
     umdNamedDefine: true,
