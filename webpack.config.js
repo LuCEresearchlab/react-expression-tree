@@ -44,6 +44,7 @@ module.exports = {
     library: 'ExpressionTreeViewer',
     libraryTarget: 'umd',
     publicPath: '/dist/',
+    globalObject: 'this',
     umdNamedDefine: true,
   },
 
