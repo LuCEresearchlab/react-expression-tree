@@ -6,7 +6,7 @@ import { ActionCreators } from 'redux-undo';
 import {
   Stage, Layer, Rect, Transformer,
 } from 'react-konva';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+// import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import Node from './Node';
 import Edge from './Edge';
 import DragEdge from './DragEdge';
@@ -116,14 +116,14 @@ function ExpressionTreeEditor({
   const dispatch = useDispatch();
 
   // Set the theme primary and secondary colors according to the recived props
-  const theme = createMuiTheme({
-    palette: {
-      primary: {
-        main: toolbarPrimaryColor,
-      },
-      secondary: { main: toolbarSecondaryColor },
-    },
-  });
+  // const theme = createMuiTheme({
+  //   palette: {
+  //     primary: {
+  //       main: toolbarPrimaryColor,
+  //     },
+  //     secondary: { main: toolbarSecondaryColor },
+  //   },
+  // });
 
   // Layout utils
   const xPad = fontSize / 2;
@@ -892,7 +892,8 @@ function ExpressionTreeEditor({
 
   return (
     // Provide the theme to all the child elements
-    <ThemeProvider theme={theme}>
+    <>
+      {/* <ThemeProvider theme={theme}> */}
       {/* Editor container element, necessary for the modals and alerts
       to appear relative to the container and not relative to the viewport */}
       <div
@@ -1170,7 +1171,8 @@ function ExpressionTreeEditor({
           </Layer>
         </Stage>
       </div>
-    </ThemeProvider>
+      {/* </ThemeProvider> */}
+    </>
   );
 }
 

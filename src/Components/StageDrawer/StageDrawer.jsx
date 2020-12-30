@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { ActionCreators } from 'redux-undo';
 import fscreen from 'fscreen';
-import { makeStyles } from '@material-ui/core/styles';
+// import { makeStyles } from '@material-ui/core/styles';
 
 import {
   AddRounded,
@@ -67,113 +67,113 @@ import {
 const drawerWidth = 300;
 
 // Top bar and side drawer styles
-const useStyles = makeStyles((theme) => ({
-  drawer: {
-    width: drawerWidth,
-    position: 'absolute',
-    top: '50px',
-    maxHeight: '92%',
-    overflowY: 'scroll',
-    marginLeft: '1px',
-  },
-  toolbar: {
-    zIndex: '1',
-    position: 'absolute',
-    margin: '1px 0 0 1px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  toolbarButton: {
-    backgroundColor: '#fff',
-    '&:hover': {
-      backgroundColor: '#f5f5f5',
-    },
-    '&:disabled': {
-      backgroundColor: '#fff',
-    },
-  },
-  drawerInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    margin: '10px 0 0 10px',
-  },
-  drawerField: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0 0 10px 10px',
-  },
-  editText: {
-    margin: '10px 0 10px 10px',
-  },
-  infoPopover: {
-    marginLeft: '5px',
-  },
-  infoPopoverText: {
-    border: '2px solid',
-    borderRadius: '4px',
-    borderColor: theme.palette.primary.main,
-    padding: '3px 6px 3px 6px',
-    maxWidth: '500px',
-  },
-  accordionContainer: {
-    display: 'block',
-    padding: 0,
-    margin: '0 10px 10px 10px',
-  },
-  templateElement: {
-    color: 'white',
-    backgroundColor: '#208020',
-    border: 'solid 1px black',
-    borderRadius: '5px',
-    padding: '3px 10px 7px 10px',
-    fontFamily: 'Ubuntu Mono, Courier',
-    fontSize: '22px',
-    '&:hover': {
-      cursor: 'pointer',
-    },
-    marginBottom: '-10px',
-  },
-  selectedTemplateElement: {
-    color: 'white',
-    backgroundColor: '#3f50b5',
-    border: 'solid 2px black',
-    borderRadius: '5px',
-    padding: '3px 10px 7px 10px',
-    fontFamily: 'Ubuntu Mono, Courier',
-    fontSize: '22px',
-    '&:hover': {
-      cursor: 'pointer',
-    },
-    marginBottom: '-10px',
-    boxShadow: '3px 3px 3px black',
-  },
-  templateContainer: {
-    maxHeight: '200px',
-    overflowY: 'scroll',
-  },
-  typeField: {
-    margin: '10px 10px 10px 10px',
-  },
-  typeButtonContainer: {
-    maxHeight: '150px',
-    overflowY: 'scroll',
-    borderRadius: '3px',
-    marginTop: '10px',
-    paddingTop: '10px',
-    padding: '5px 20px 5px 20px',
-    boxShadow: '0 0 1px 1px #ddd',
-  },
-  typeButton: {
-    marginRight: '30px',
-  },
-  infoContent: {
-    maxHeight: '300px',
-    overflowY: 'scroll',
-  },
-}));
+// const useStyles = makeStyles((theme) => ({
+//   drawer: {
+//     width: drawerWidth,
+//     position: 'absolute',
+//     top: '50px',
+//     maxHeight: '92%',
+//     overflowY: 'scroll',
+//     marginLeft: '1px',
+//   },
+//   toolbar: {
+//     zIndex: '1',
+//     position: 'absolute',
+//     margin: '1px 0 0 1px',
+//     display: 'flex',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+//   toolbarButton: {
+//     backgroundColor: '#fff',
+//     '&:hover': {
+//       backgroundColor: '#f5f5f5',
+//     },
+//     '&:disabled': {
+//       backgroundColor: '#fff',
+//     },
+//   },
+//   drawerInfo: {
+//     display: 'flex',
+//     alignItems: 'center',
+//     justifyContent: 'flex-start',
+//     margin: '10px 0 0 10px',
+//   },
+//   drawerField: {
+//     display: 'flex',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     margin: '0 0 10px 10px',
+//   },
+//   editText: {
+//     margin: '10px 0 10px 10px',
+//   },
+//   infoPopover: {
+//     marginLeft: '5px',
+//   },
+//   infoPopoverText: {
+//     border: '2px solid',
+//     borderRadius: '4px',
+//     borderColor: theme.palette.primary.main,
+//     padding: '3px 6px 3px 6px',
+//     maxWidth: '500px',
+//   },
+//   accordionContainer: {
+//     display: 'block',
+//     padding: 0,
+//     margin: '0 10px 10px 10px',
+//   },
+//   templateElement: {
+//     color: 'white',
+//     backgroundColor: '#208020',
+//     border: 'solid 1px black',
+//     borderRadius: '5px',
+//     padding: '3px 10px 7px 10px',
+//     fontFamily: 'Ubuntu Mono, Courier',
+//     fontSize: '22px',
+//     '&:hover': {
+//       cursor: 'pointer',
+//     },
+//     marginBottom: '-10px',
+//   },
+//   selectedTemplateElement: {
+//     color: 'white',
+//     backgroundColor: '#3f50b5',
+//     border: 'solid 2px black',
+//     borderRadius: '5px',
+//     padding: '3px 10px 7px 10px',
+//     fontFamily: 'Ubuntu Mono, Courier',
+//     fontSize: '22px',
+//     '&:hover': {
+//       cursor: 'pointer',
+//     },
+//     marginBottom: '-10px',
+//     boxShadow: '3px 3px 3px black',
+//   },
+//   templateContainer: {
+//     maxHeight: '200px',
+//     overflowY: 'scroll',
+//   },
+//   typeField: {
+//     margin: '10px 10px 10px 10px',
+//   },
+//   typeButtonContainer: {
+//     maxHeight: '150px',
+//     overflowY: 'scroll',
+//     borderRadius: '3px',
+//     marginTop: '10px',
+//     paddingTop: '10px',
+//     padding: '5px 20px 5px 20px',
+//     boxShadow: '0 0 1px 1px #ddd',
+//   },
+//   typeButton: {
+//     marginRight: '30px',
+//   },
+//   infoContent: {
+//     maxHeight: '300px',
+//     overflowY: 'scroll',
+//   },
+// }));
 
 function StageDrawer({
   stageRef,
@@ -226,7 +226,7 @@ function StageDrawer({
   selectedRootNode,
   clearEdgeSelection,
 }) {
-  const classes = useStyles();
+  const classes = {};
   const dispatch = useDispatch();
 
   // State hooks
