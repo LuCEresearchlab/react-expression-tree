@@ -217,14 +217,24 @@ function ExpressionTreeEditor({
         setPressingMeta(false);
       }
     };
+    const focusListener = function () {
+      document.body.style.cursor = 'move';
+      setIsSelectingRectVisible(false);
+      setDraggingSelectionRect(false);
+      setPressingMeta(false);
+    };
     // Add the event listeners only if the fullDisabled prop is not true
     if (!fullDisabled) {
       stage.container().addEventListener('keydown', keyDownListener);
       stage.container().addEventListener('keyup', keyUpListener);
+      stage.container().addEventListener('focus', focusListener);
+      stage.container().addEventListener('blur', focusListener);
     }
     return () => {
       stage.container().removeEventListener('keydown', keyDownListener);
       stage.container().removeEventListener('keyup', keyUpListener);
+      stage.container().removeEventListener('focus', focusListener);
+      stage.container().removeEventListener('blur', focusListener);
     };
   }, [
     addingNode,
