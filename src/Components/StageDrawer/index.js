@@ -2,8 +2,6 @@ import { connect } from 'react-redux';
 import StageDrawer from './StageDrawer';
 import * as actions from '../store/actions';
 
-console.log(actions)
-
 const mapStateToProps = (state) => ({
   selectedNode: state.editor.present.selectedNode,
   addingNode: state.drawer.addingNode,
