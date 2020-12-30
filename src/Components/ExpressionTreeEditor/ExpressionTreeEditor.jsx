@@ -116,14 +116,14 @@ function ExpressionTreeEditor({
   const dispatch = useDispatch();
 
   // Set the theme primary and secondary colors according to the recived props
-  const theme = createMuiTheme({
-    palette: {
-      primary: {
-        main: toolbarPrimaryColor,
-      },
-      secondary: { main: toolbarSecondaryColor },
-    },
-  });
+  // const theme = createMuiTheme({
+  //   palette: {
+  //     primary: {
+  //       main: toolbarPrimaryColor,
+  //     },
+  //     secondary: { main: toolbarSecondaryColor },
+  //   },
+  // });
 
   // Layout utils
   const xPad = fontSize / 2;
@@ -892,7 +892,8 @@ function ExpressionTreeEditor({
 
   return (
     // Provide the theme to all the child elements
-    <MuiThemeProvider theme={theme}>
+    <>
+    {/* <MuiThemeProvider theme={theme}> */}
       {/* Editor container element, necessary for the modals and alerts
       to appear relative to the container and not relative to the viewport */}
       <div
@@ -1170,7 +1171,8 @@ function ExpressionTreeEditor({
           </Layer>
         </Stage>
       </div>
-    </MuiThemeProvider>
+    {/* </MuiThemeProvider> */}
+    </>
   );
 }
 
