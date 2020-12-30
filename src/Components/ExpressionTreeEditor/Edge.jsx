@@ -1,6 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Line, Circle, Group } from "react-konva";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Line, Circle, Group } from 'react-konva';
 
 function Edge({
   id,
@@ -38,10 +38,10 @@ function Edge({
   onHoleConnectorDragStart,
 }) {
   // Handle drag start event on edge's node connector end
-  const handleNodeConnectorDragStart = e => {
+  const handleNodeConnectorDragStart = (e) => {
     // prevent onDragStart of Group
     e.cancelBubble = true;
-    document.body.style.cursor = "grabbing";
+    document.body.style.cursor = 'grabbing';
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
@@ -54,10 +54,10 @@ function Edge({
   };
 
   // Handle drag start event on edge's hole connector end
-  const handleHoleConnectorDragStart = e => {
+  const handleHoleConnectorDragStart = (e) => {
     // prevent onDragStart of Group
     e.cancelBubble = true;
-    document.body.style.cursor = "grabbing";
+    document.body.style.cursor = 'grabbing';
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
@@ -70,7 +70,7 @@ function Edge({
       parentNodeId,
       parentPieceId,
       e.target.parent.x() + e.target.x() + holeWidth / 2,
-      e.target.parent.y() + e.target.y() + holeWidth * 0.75
+      e.target.parent.y() + e.target.y() + holeWidth * 0.75,
     );
   };
 
@@ -83,7 +83,7 @@ function Edge({
       onTap={fullDisabled && onEdgeClick}
     >
       <Line
-        key={"Edge-Line-" + id}
+        key={`Edge-Line-${id}`}
         points={[
           childX + childWidth / 2,
           childY,
@@ -93,28 +93,28 @@ function Edge({
         stroke={
           beingDragged
             ? draggingEdgeColor
-            : currentErrorLocation &&
-              currentErrorLocation.edge &&
-              currentErrorLocation.edgeId === id
-            ? errorColor
-            : selected
-            ? selectedEdgeColor
-            : edgeColor
+            : currentErrorLocation
+              && currentErrorLocation.edge
+              && currentErrorLocation.edgeId === id
+              ? errorColor
+              : selected
+                ? selectedEdgeColor
+                : edgeColor
         }
         strokeWidth={fontSize / 4}
         lineCap="round"
         lineJoin="round"
         hitStrokeWidth={10}
-        shadowEnabled={selected ? true : false}
+        shadowEnabled={!!selected}
         shadowColor="black"
         shadowOffset={{ x: 3, y: 3 }}
         shadowBlur={3}
         onMouseOver={
-          !fullDisabled &&
-          (e => {
+          !fullDisabled
+          && ((e) => {
             e.cancelBubble = true;
             if (!draggingSelectionRect) {
-              document.body.style.cursor = "pointer";
+              document.body.style.cursor = 'pointer';
             }
           })
         }
@@ -126,15 +126,15 @@ function Edge({
         fill={
           beingDragged
             ? draggingEdgeColor
-            : currentErrorLocation &&
-              currentErrorLocation.edge &&
-              currentErrorLocation.edgeId === id
-            ? errorColor
-            : edgeChildConnectorColor
+            : currentErrorLocation
+              && currentErrorLocation.edge
+              && currentErrorLocation.edgeId === id
+              ? errorColor
+              : edgeChildConnectorColor
         }
         stroke="black"
         strokeWidth={1}
-        shadowEnabled={selected ? true : false}
+        shadowEnabled={!!selected}
         shadowColor="black"
         shadowOffset={{ x: 2, y: 2 }}
         shadowBlur={3}
@@ -145,11 +145,11 @@ function Edge({
         onDragMove={() => {}}
         onDragEnd={() => {}}
         onMouseOver={
-          !fullDisabled &&
-          (e => {
+          !fullDisabled
+          && ((e) => {
             e.cancelBubble = true;
             if (!draggingSelectionRect) {
-              document.body.style.cursor = "grab";
+              document.body.style.cursor = 'grab';
             }
           })
         }
@@ -161,15 +161,15 @@ function Edge({
         fill={
           beingDragged
             ? draggingEdgeColor
-            : currentErrorLocation &&
-              currentErrorLocation.edge &&
-              currentErrorLocation.edgeId === id
-            ? errorColor
-            : edgeParentConnectorColor
+            : currentErrorLocation
+              && currentErrorLocation.edge
+              && currentErrorLocation.edgeId === id
+              ? errorColor
+              : edgeParentConnectorColor
         }
         stroke="black"
         strokeWidth={1}
-        shadowEnabled={selected ? true : false}
+        shadowEnabled={!!selected}
         shadowColor="black"
         shadowOffset={{ x: 2, y: 2 }}
         shadowBlur={3}
@@ -177,14 +177,14 @@ function Edge({
         draggable
         onDragStart={!fullDisabled && handleHoleConnectorDragStart}
         onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
-        onDragMove={e => {}}
-        onDragEnd={e => {}}
+        onDragMove={(e) => {}}
+        onDragEnd={(e) => {}}
         onMouseOver={
-          !fullDisabled &&
-          (e => {
+          !fullDisabled
+          && ((e) => {
             e.cancelBubble = true;
             if (!draggingSelectionRect) {
-              document.body.style.cursor = "grab";
+              document.body.style.cursor = 'grab';
             }
           })
         }

@@ -1,8 +1,10 @@
-import { connect } from "react-redux";
-import StageDrawer from "./StageDrawer";
-import * as actions from "../../store/actions";
+import { connect } from 'react-redux';
+import StageDrawer from './StageDrawer';
+import * as actions from '../store/actions';
 
-const mapStateToProps = state => ({
+console.log(actions)
+
+const mapStateToProps = (state) => ({
   selectedNode: state.editor.present.selectedNode,
   addingNode: state.drawer.addingNode,
   isAddEmpty: state.drawer.addValue.length < 1,

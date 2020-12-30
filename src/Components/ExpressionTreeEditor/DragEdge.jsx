@@ -1,6 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Line, Circle } from "react-konva";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Line, Circle } from 'react-konva';
 
 function DragEdge({
   childX,

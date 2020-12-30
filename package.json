@@ -1,7 +1,29 @@
 {
   "name": "react-expression-tree",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.0.1",
+  "description": "TODO",
+  "author": {
+    "name": "Tiziano Marsetti",
+    "email": "tiziano.marsetti@usi.ch"
+  },
+  "contributors": [
+    {
+      "name": "Andrea Gallidabino",
+      "email": "andrea.gallidabino@usi.ch"
+    },
+    {
+      "name": "Tiziano Marsetti",
+      "email": "tiziano.marsetti@usi.ch"
+    }
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=8",
+    "npm": ">=5"
+  },
   "dependencies": {
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
@@ -12,33 +34,96 @@
     "@testing-library/user-event": "^7.1.2",
     "fscreen": "^1.1.0",
     "konva": "^7.2.1",
+    "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-konva": "^16.13.0-6",
     "react-redux": "^7.2.2",
     "react-scripts": "^4.0.1",
+    "redux": "^4.0.5",
     "redux-undo": "^1.0.1"
   },
+  "peerDependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.5",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.11.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@rollup/plugin-url": "^5.0.1",
+    "@svgr/rollup": "^5.4.0",
+    "@testing-library/dom": "^7.22.3",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^10.4.9",
+    "@testing-library/user-event": "^12.1.1",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.3.0",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-named-asset-import": "^0.3.6",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "babel-preset-react-app": "^9.1.2",
+    "classnames": "^2.2.6",
+    "cross-env": "^7.0.2",
+    "css-loader": "^4.2.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.3",
+    "eslint": "^7.15.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-flowtype": "^5.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^23.20.0",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-watch": "^7.0.0",
+    "gh-pages": "^3.1.0",
+    "jasmine-expect": "^4.0.3",
+    "mini-css-extract-plugin": "^0.11.0",
+    "node-sass": "^4.14.1",
+    "npm-run-all": "^4.1.5",
+    "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "react": "^16.13.1",
+    "react-app-polyfill": "^1.0.6",
+    "react-dom": "^16.13.1",
+    "react-styleguidist": "^11.0.8",
+    "react-test-renderer": "^16.13.1",
+    "resolve-url-loader": "^3.1.2",
+    "sass-loader": "^9.0.3",
+    "source-map-loader": "^1.0.2",
+    "style-loader": "^1.2.1",
+    "terser-webpack-plugin": "^4.1.0",
+    "webpack": "^4.44.1",
+    "webpack-bundle-analyzer": "^4.3.0",
+    "webpack-cli": "^4.2.0",
+    "worker-loader": "^3.0.6"
+  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "demo": "npm install && npm run build && node demo.js"
+    "start": "NODE_ENV=development BABEL_ENV=development styleguidist server --open",
+    "styleguide:build": "NODE_ENV=production BABEL_ENV=production styleguidist build",
+    "build": "NODE_ENV=production BABEL_ENV=production webpack --mode=production"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+  "keywords": [
+    "react",
+    "sandbox"
+  ],
+  "babel": {
+    "presets": [
+      [
+        "react-app"
+      ]
     ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+    "plugins": [
+      "@babel/plugin-proposal-object-rest-spread",
+      "@babel/plugin-proposal-optional-chaining",
+      "@babel/plugin-syntax-dynamic-import",
+      "@babel/plugin-proposal-class-properties",
+      "transform-react-remove-prop-types"
     ]
   }
 }

@@ -1,32 +1,36 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
-import { ActionCreators } from "redux-undo";
-import fscreen from "fscreen";
-import { makeStyles } from "@material-ui/core/styles";
-import AddRoundedIcon from "@material-ui/icons/Add";
-import UpdateRoundedIcon from "@material-ui/icons/UpdateRounded";
-import ChevronLeftRoundedIcon from "@material-ui/icons/ChevronLeftRounded";
-import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
-import MenuRoundedIcon from "@material-ui/icons/Menu";
-import GetAppRoundedIcon from "@material-ui/icons/GetApp";
-import PublishRoundedIcon from "@material-ui/icons/Publish";
-import UndoRoundedIcon from "@material-ui/icons/UndoRounded";
-import RedoRoundedIcon from "@material-ui/icons/RedoRounded";
-import NoteAddRoundedIcon from "@material-ui/icons/NoteAddRounded";
-import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
-import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import ViewModuleRoundedIcon from "@material-ui/icons/ViewModuleRounded";
-import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded";
-import ArrowForwardRoundedIcon from "@material-ui/icons/ArrowForwardRounded";
-import ClearRoundedIcon from "@material-ui/icons/ClearRounded";
-import PhotoCameraRoundedIcon from "@material-ui/icons/PhotoCameraRounded";
-import ZoomOutRoundedIcon from "@material-ui/icons/ZoomOutRounded";
-import ZoomInRoundedIcon from "@material-ui/icons/ZoomInRounded";
-import AspectRatioRoundedIcon from "@material-ui/icons/AspectRatioRounded";
-import FullscreenExitRoundedIcon from "@material-ui/icons/FullscreenExitRounded";
-import FullscreenRoundedIcon from "@material-ui/icons/FullscreenRounded";
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { ActionCreators } from 'redux-undo';
+import fscreen from 'fscreen';
+import { makeStyles } from '@material-ui/core/styles';
+
+import {
+  AddRounded,
+  ArrowBackRounded,
+  ArrowForwardRounded,
+  AspectRatioRounded,
+  CheckRounded,
+  ChevronLeftRounded,
+  ClearRounded,
+  CloseRounded,
+  FullscreenExitRounded,
+  FullscreenRounded,
+  GetAppRounded,
+  ExpandMore,
+  InfoOutlined,
+  MenuRounded,
+  NoteAddRounded,
+  PhotoCameraRounded,
+  PublishRounded,
+  RedoRounded,
+  UndoRounded,
+  UpdateRounded,
+  ViewModuleRounded,
+  ZoomInRounded,
+  ZoomOutRounded,
+} from '@material-ui/icons';
+
 import {
   Drawer,
   IconButton,
@@ -50,124 +54,124 @@ import {
   DialogContentText,
   DialogTitle,
   Snackbar,
-} from "@material-ui/core";
-import { Alert, AlertTitle } from "@material-ui/lab";
+} from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import {
   computeNodeWidth,
   edgeByParentPiece,
   nodeById,
   parsePieces,
-} from "../../utils.js";
+} from '../utils';
 
 // Width of the side drawer
 const drawerWidth = 300;
 
 // Top bar and side drawer styles
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   drawer: {
     width: drawerWidth,
-    position: "absolute",
-    top: "50px",
-    maxHeight: "92%",
-    overflowY: "scroll",
-    marginLeft: "1px",
+    position: 'absolute',
+    top: '50px',
+    maxHeight: '92%',
+    overflowY: 'scroll',
+    marginLeft: '1px',
   },
   toolbar: {
-    zIndex: "1",
-    position: "absolute",
-    margin: "1px 0 0 1px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    zIndex: '1',
+    position: 'absolute',
+    margin: '1px 0 0 1px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   toolbarButton: {
-    backgroundColor: "#fff",
-    "&:hover": {
-      backgroundColor: "#f5f5f5",
+    backgroundColor: '#fff',
+    '&:hover': {
+      backgroundColor: '#f5f5f5',
     },
-    "&:disabled": {
-      backgroundColor: "#fff",
+    '&:disabled': {
+      backgroundColor: '#fff',
     },
   },
   drawerInfo: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    margin: "10px 0 0 10px",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    margin: '10px 0 0 10px',
   },
   drawerField: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 0 10px 10px",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 0 10px 10px',
   },
   editText: {
-    margin: "10px 0 10px 10px",
+    margin: '10px 0 10px 10px',
   },
   infoPopover: {
-    marginLeft: "5px",
+    marginLeft: '5px',
   },
   infoPopoverText: {
-    border: "2px solid",
-    borderRadius: "4px",
+    border: '2px solid',
+    borderRadius: '4px',
     borderColor: theme.palette.primary.main,
-    padding: "3px 6px 3px 6px",
-    maxWidth: "500px",
+    padding: '3px 6px 3px 6px',
+    maxWidth: '500px',
   },
   accordionContainer: {
-    display: "block",
+    display: 'block',
     padding: 0,
-    margin: "0 10px 10px 10px",
+    margin: '0 10px 10px 10px',
   },
   templateElement: {
-    color: "white",
-    backgroundColor: "#208020",
-    border: "solid 1px black",
-    borderRadius: "5px",
-    padding: "3px 10px 7px 10px",
-    fontFamily: "Ubuntu Mono, Courier",
-    fontSize: "22px",
-    "&:hover": {
-      cursor: "pointer",
+    color: 'white',
+    backgroundColor: '#208020',
+    border: 'solid 1px black',
+    borderRadius: '5px',
+    padding: '3px 10px 7px 10px',
+    fontFamily: 'Ubuntu Mono, Courier',
+    fontSize: '22px',
+    '&:hover': {
+      cursor: 'pointer',
     },
-    marginBottom: "-10px",
+    marginBottom: '-10px',
   },
   selectedTemplateElement: {
-    color: "white",
-    backgroundColor: "#3f50b5",
-    border: "solid 2px black",
-    borderRadius: "5px",
-    padding: "3px 10px 7px 10px",
-    fontFamily: "Ubuntu Mono, Courier",
-    fontSize: "22px",
-    "&:hover": {
-      cursor: "pointer",
+    color: 'white',
+    backgroundColor: '#3f50b5',
+    border: 'solid 2px black',
+    borderRadius: '5px',
+    padding: '3px 10px 7px 10px',
+    fontFamily: 'Ubuntu Mono, Courier',
+    fontSize: '22px',
+    '&:hover': {
+      cursor: 'pointer',
     },
-    marginBottom: "-10px",
-    boxShadow: "3px 3px 3px black",
+    marginBottom: '-10px',
+    boxShadow: '3px 3px 3px black',
   },
   templateContainer: {
-    maxHeight: "200px",
-    overflowY: "scroll",
+    maxHeight: '200px',
+    overflowY: 'scroll',
   },
   typeField: {
-    margin: "10px 10px 10px 10px",
+    margin: '10px 10px 10px 10px',
   },
   typeButtonContainer: {
-    maxHeight: "150px",
-    overflowY: "scroll",
-    borderRadius: "3px",
-    marginTop: "10px",
-    paddingTop: "10px",
-    padding: "5px 20px 5px 20px",
-    boxShadow: "0 0 1px 1px #ddd",
+    maxHeight: '150px',
+    overflowY: 'scroll',
+    borderRadius: '3px',
+    marginTop: '10px',
+    paddingTop: '10px',
+    padding: '5px 20px 5px 20px',
+    boxShadow: '0 0 1px 1px #ddd',
   },
   typeButton: {
-    marginRight: "30px",
+    marginRight: '30px',
   },
   infoContent: {
-    maxHeight: "300px",
-    overflowY: "scroll",
+    maxHeight: '300px',
+    overflowY: 'scroll',
   },
 }));
 
@@ -240,19 +244,19 @@ function StageDrawer({
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   // Handle adding node value change event
-  const handleAddChange = value => {
+  const handleAddChange = (value) => {
     if (addingNode) {
       clearAdding();
     }
     setSelectedTemplate(null);
     const addValue = parsePieces(value, connectorPlaceholder);
-    addValueChange({ addValue: addValue });
+    addValueChange({ addValue });
   };
 
   // Handle editing node value change event
-  const handleEditChange = value => {
+  const handleEditChange = (value) => {
     const editValue = parsePieces(value, connectorPlaceholder);
-    editValueChange({ editValue: editValue });
+    editValueChange({ editValue });
   };
 
   // Handle editing node value update
@@ -261,46 +265,46 @@ function StageDrawer({
       editValue,
       connectorPlaceholder,
       fontSize,
-      fontFamily
+      fontFamily,
     );
     editNode({
       pieces: editValue,
       width: nodeWidth,
       selectedNodeId: selectedNode.id,
-      onNodePiecesChange: onNodePiecesChange,
+      onNodePiecesChange,
     });
   };
 
   // Handle editing node type change
-  const handleTypeChange = value => {
-    nodeValueChange({ nodeValue: "" });
+  const handleTypeChange = (value) => {
+    nodeValueChange({ nodeValue: '' });
     nodeValueEdit({
-      value: "",
+      value: '',
       selectedNodeId: selectedNode.id,
-      onNodeValueChange: onNodeValueChange,
+      onNodeValueChange,
     });
-    if (document.getElementById("valueField")) {
-      document.getElementById("valueField").value = "";
+    if (document.getElementById('valueField')) {
+      document.getElementById('valueField').value = '';
     }
     typeValueChange({ typeValue: value });
     nodeTypeEdit({
       type: value,
       selectedNodeId: selectedNode.id,
-      onNodeTypeChange: onNodeTypeChange,
-      onNodeValueChange: onNodeValueChange,
+      onNodeTypeChange,
+      onNodeValueChange,
     });
   };
 
   // Handle editing node value change
-  const handleValueChange = value => {
-    if (document.getElementById("valueField")) {
-      document.getElementById("valueField").value = value;
+  const handleValueChange = (value) => {
+    if (document.getElementById('valueField')) {
+      document.getElementById('valueField').value = value;
     }
     nodeValueChange({ nodeValue: value });
     nodeValueEdit({
-      value: value,
+      value,
       selectedNodeId: selectedNode.id,
-      onNodeValueChange: onNodeValueChange,
+      onNodeValueChange,
     });
   };
 
@@ -323,12 +327,11 @@ function StageDrawer({
       stagePos,
       stageScale,
     };
-    const stateData =
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(currentState, null, 4));
-    var downloadElement = document.createElement("a");
+    const stateData = `data:text/json;charset=utf-8,${
+      encodeURIComponent(JSON.stringify(currentState, null, 4))}`;
+    const downloadElement = document.createElement('a');
     downloadElement.href = stateData;
-    downloadElement.download = "expression_editor_state.json";
+    downloadElement.download = 'expression_editor_state.json';
     document.body.appendChild(downloadElement);
     downloadElement.click();
     downloadElement.remove();
@@ -336,15 +339,15 @@ function StageDrawer({
 
   // Handle state upload of a previously downloaded state,
   const handleStateUpload = () => {
-    var uploadElement = document.getElementById("stateUploadButton");
+    const uploadElement = document.getElementById('stateUploadButton');
     uploadElement.click();
   };
   // Handle file change on upload element
-  const handleFileChange = e => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
-    e.target.value = "";
+    e.target.value = '';
     const fr = new FileReader();
-    fr.onload = e => {
+    fr.onload = (e) => {
       try {
         const state = JSON.parse(e.target.result);
         uploadState({
@@ -358,12 +361,12 @@ function StageDrawer({
         }
         clearAdding();
         if (drawerFields.addField) {
-          document.getElementById("addField").value = "";
+          document.getElementById('addField').value = '';
         }
         addValueChange({ addValue: [] });
         editValueChange({ editValue: [] });
-        typeValueChange({ typeValue: "" });
-        nodeValueChange({ nodeValue: "" });
+        typeValueChange({ typeValue: '' });
+        nodeValueChange({ nodeValue: '' });
         setSelectedTemplate(null);
         stageRef.current.position({ x: state.stagePos.x, y: state.stagePos.y });
         stageRef.current.scale({
@@ -373,12 +376,12 @@ function StageDrawer({
         transformerRef.current.nodes([]);
         setIsSelectedRectVisible(false);
         stageRef.current
-          .find(".Edge")
+          .find('.Edge')
           .toArray()
-          .map(edge => edge.moveToBottom());
+          .map((edge) => edge.moveToBottom());
         dispatch(ActionCreators.clearHistory());
       } catch (e) {
-        alert("Invalid JSON file.");
+        alert('Invalid JSON file.');
       }
     };
     fr.readAsText(file);
@@ -418,9 +421,9 @@ function StageDrawer({
     stageReset({
       initialNodes: initialState.initialNodes,
       initialEdges: initialState.initialEdges,
-      connectorPlaceholder: connectorPlaceholder,
-      fontSize: fontSize,
-      fontFamily: fontFamily,
+      connectorPlaceholder,
+      fontSize,
+      fontFamily,
     });
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
@@ -432,12 +435,12 @@ function StageDrawer({
     transformerRef.current.nodes([]);
     clearAdding();
     if (drawerFields.addField) {
-      document.getElementById("addField").value = "";
+      document.getElementById('addField').value = '';
     }
     addValueChange({ addValue: [] });
     editValueChange({ editValue: [] });
-    typeValueChange({ typeValue: "" });
-    nodeValueChange({ nodeValue: "" });
+    typeValueChange({ typeValue: '' });
+    nodeValueChange({ nodeValue: '' });
     setSelectedTemplate(null);
     transformerRef.current.nodes([]);
     setIsSelectedRectVisible(false);
@@ -451,9 +454,9 @@ function StageDrawer({
       clearAdding();
     }
     setSelectedTemplate(id);
-    document.getElementById("addField").value = value;
+    document.getElementById('addField').value = value;
     const addValue = parsePieces(value, connectorPlaceholder);
-    addValueChange({ addValue: addValue });
+    addValueChange({ addValue });
   };
 
   // Handle nodes reordering button click.
@@ -463,13 +466,13 @@ function StageDrawer({
     stageRef.current.position({ x: 0, y: 0 });
     stageRef.current.scale({ x: 1, y: 1 });
     reorderNodes({
-      connectorPlaceholder: connectorPlaceholder,
+      connectorPlaceholder,
       reorderStartingX: isDrawerOpen
         ? drawerWidth + (stageRef.current.attrs.width - drawerWidth) / 2
         : stageRef.current.attrs.width / 2,
-      isDrawerOpen: isDrawerOpen,
-      drawerWidth: drawerWidth,
-      textHeight: textHeight,
+      isDrawerOpen,
+      drawerWidth,
+      textHeight,
     });
   };
 
@@ -486,7 +489,7 @@ function StageDrawer({
     });
     const scale = Math.min(
       stageRef.current.width() / (box.width + padding * 2),
-      stageRef.current.height() / (box.height + padding * 2)
+      stageRef.current.height() / (box.height + padding * 2),
     );
 
     stageRef.current.setAttrs({
@@ -506,44 +509,43 @@ function StageDrawer({
     visitedNodes.push(node.id);
     visitedBranch.push(node.id);
     // Missing node type error
-    if (node.type === "") {
-      const location = "Node ID: " + node.id;
-      reportedErrors.completenessErrors &&
-        reportedErrors.completenessErrors.missingNodeType &&
-        errors.push({
-          type: "Completeness error",
-          problem: "Missing node type",
-          location: location,
+    if (node.type === '') {
+      const location = `Node ID: ${node.id}`;
+      reportedErrors.completenessErrors
+        && reportedErrors.completenessErrors.missingNodeType
+        && errors.push({
+          type: 'Completeness error',
+          problem: 'Missing node type',
+          location,
           currentErrorLocation: { node: true, nodeId: node.id },
         });
     }
     // Missing node value error
-    if (node.value === "") {
-      const location = "Node ID: " + node.id;
-      reportedErrors.completenessErrors &&
-        reportedErrors.completenessErrors.missingNodeValue &&
-        errors.push({
-          type: "Completeness error",
-          problem: "Missing node value",
-          location: location,
+    if (node.value === '') {
+      const location = `Node ID: ${node.id}`;
+      reportedErrors.completenessErrors
+        && reportedErrors.completenessErrors.missingNodeValue
+        && errors.push({
+          type: 'Completeness error',
+          problem: 'Missing node value',
+          location,
           currentErrorLocation: { node: true, nodeId: node.id },
         });
     }
-    var connectorNum = 0;
+    let connectorNum = 0;
     node.pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
         connectorNum++;
         const childEdges = edgeByParentPiece(node.id, i, edges);
         // Multiple edge on single hole connector error
         if (childEdges.length > 1) {
-          const location =
-            "Node ID: " + node.id + ", connector number: " + connectorNum;
-          reportedErrors.structureErrors &&
-            reportedErrors.structureErrors.multiEdgeOnHoleConnector &&
-            errors.push({
-              type: "Structure error",
-              problem: "Multiple edge on single hole connector",
-              location: location,
+          const location = `Node ID: ${node.id}, connector number: ${connectorNum}`;
+          reportedErrors.structureErrors
+            && reportedErrors.structureErrors.multiEdgeOnHoleConnector
+            && errors.push({
+              type: 'Structure error',
+              problem: 'Multiple edge on single hole connector',
+              location,
               currentErrorLocation: {
                 pieceConnector: true,
                 nodeId: node.id,
@@ -552,14 +554,13 @@ function StageDrawer({
             });
           // Empty connector error
         } else if (childEdges.length === 0) {
-          const location =
-            "Node ID: " + node.id + ", connector number: " + connectorNum;
-          reportedErrors.completenessErrors &&
-            reportedErrors.completenessErrors.emptyPieceConnector &&
-            errors.push({
-              type: "Completeness error",
-              problem: "Empty connector",
-              location: location,
+          const location = `Node ID: ${node.id}, connector number: ${connectorNum}`;
+          reportedErrors.completenessErrors
+            && reportedErrors.completenessErrors.emptyPieceConnector
+            && errors.push({
+              type: 'Completeness error',
+              problem: 'Empty connector',
+              location,
               currentErrorLocation: {
                 pieceConnector: true,
                 nodeId: node.id,
@@ -567,23 +568,22 @@ function StageDrawer({
               },
             });
         }
-        childEdges.forEach(edge => {
+        childEdges.forEach((edge) => {
           const childNode = nodeById(edge.childNodeId, nodes);
-          var foundError = false;
+          let foundError = false;
           // Multiple edge on single node connector error
-          if (visitedNodes.find(e => e === childNode.id) !== undefined) {
-            const location = "Node ID: " + childNode.id;
-            reportedErrors.structureErrors &&
-              reportedErrors.structureErrors.multiEdgeOnNodeConnector &&
-              errors.find(
-                error =>
-                  error.problem === "Multiple edge on single node connector" &&
-                  error.location === location
-              ) === undefined &&
-              errors.push({
-                type: "Structure error",
-                problem: "Multiple edge on single node connector",
-                location: location,
+          if (visitedNodes.find((e) => e === childNode.id) !== undefined) {
+            const location = `Node ID: ${childNode.id}`;
+            reportedErrors.structureErrors
+              && reportedErrors.structureErrors.multiEdgeOnNodeConnector
+              && errors.find(
+                (error) => error.problem === 'Multiple edge on single node connector'
+                  && error.location === location,
+              ) === undefined
+              && errors.push({
+                type: 'Structure error',
+                problem: 'Multiple edge on single node connector',
+                location,
                 currentErrorLocation: {
                   nodeConnector: true,
                   nodeId: childNode.id,
@@ -592,34 +592,32 @@ function StageDrawer({
             foundError = true;
           }
           // Loop error
-          if (visitedBranch.find(e => e === childNode.id) !== undefined) {
-            const location =
-              " From node ID: " +
-              childNode.id +
-              ", to nodeID: " +
-              node.id +
-              ", connector number: " +
-              connectorNum;
-            reportedErrors.structureErrors &&
-              reportedErrors.structureErrors.loop &&
-              errors.push({
-                type: "Structure error",
-                problem: "Loop detected",
-                location: location,
+          if (visitedBranch.find((e) => e === childNode.id) !== undefined) {
+            const location = ` From node ID: ${
+              childNode.id
+            }, to nodeID: ${
+              node.id
+            }, connector number: ${
+              connectorNum}`;
+            reportedErrors.structureErrors
+              && reportedErrors.structureErrors.loop
+              && errors.push({
+                type: 'Structure error',
+                problem: 'Loop detected',
+                location,
                 currentErrorLocation: { edge: true, edgeId: edge.id },
               });
             foundError = true;
           }
           if (foundError) {
             return [errors, visitedBranch];
-          } else {
-            [errors, visitedBranch] = orderWalk(
-              childNode,
-              visitedNodes,
-              visitedBranch,
-              errors
-            );
           }
+          [errors, visitedBranch] = orderWalk(
+            childNode,
+            visitedNodes,
+            visitedBranch,
+            errors,
+          );
         });
       }
     });
@@ -629,14 +627,14 @@ function StageDrawer({
 
   // Handle tree validation button click, displaying the resulting validation alerts
   const handleTreeValidation = () => {
-    var visitedNodes = [];
-    var visitedBranch = [];
-    var errors = [];
+    const visitedNodes = [];
+    let visitedBranch = [];
+    let errors = [];
     [errors, visitedBranch] = orderWalk(
       selectedRootNode,
       visitedNodes,
       visitedBranch,
-      errors
+      errors,
     );
     onValidate(nodes, edges, errors);
     // There are errors
@@ -653,23 +651,23 @@ function StageDrawer({
         clearEdgeSelection();
       }
       if (
-        errors[0].currentErrorLocation.node ||
-        errors[0].currentErrorLocation.pieceConnector ||
-        errors[0].currentErrorLocation.nodeConnector
+        errors[0].currentErrorLocation.node
+        || errors[0].currentErrorLocation.pieceConnector
+        || errors[0].currentErrorLocation.nodeConnector
       ) {
         const currentNode = stageRef.current
-          .find(".Node")
+          .find('.Node')
           .toArray()
           .find(
-            node => node.attrs.id === errors[0].currentErrorLocation.nodeId
+            (node) => node.attrs.id === errors[0].currentErrorLocation.nodeId,
           );
         currentNode.parent.moveToTop();
       } else if (errors[0].currentErrorLocation.edge) {
         const currentEdge = stageRef.current
-          .find(".Edge")
+          .find('.Edge')
           .toArray()
           .find(
-            edge => edge.attrs.id === errors[0].currentErrorLocation.edgeId
+            (edge) => edge.attrs.id === errors[0].currentErrorLocation.edgeId,
           );
         currentEdge.moveToTop();
         setSelectedEdgeRef(currentEdge);
@@ -684,9 +682,9 @@ function StageDrawer({
   // Handle editor screenshot button click,
   // downloading the image of the current visible stage portion
   const handleImageClick = () => {
-    var downloadElement = document.createElement("a");
+    const downloadElement = document.createElement('a');
     downloadElement.href = stageRef.current.toDataURL({ pixelRatio: 2 });
-    downloadElement.download = "expression_editor_image.png";
+    downloadElement.download = 'expression_editor_image.png';
     document.body.appendChild(downloadElement);
     downloadElement.click();
     downloadElement.remove();
@@ -719,24 +717,23 @@ function StageDrawer({
       setSelectedEdgeRef(null);
     }
     setCurrentError(currentError - 1);
-    const currentErrorLocation =
-      validationErrors[currentError - 1].currentErrorLocation;
+    const { currentErrorLocation } = validationErrors[currentError - 1];
     setCurrentErrorLocation(currentErrorLocation);
     if (
-      currentErrorLocation.node ||
-      currentErrorLocation.pieceConnector ||
-      currentErrorLocation.nodeConnector
+      currentErrorLocation.node
+      || currentErrorLocation.pieceConnector
+      || currentErrorLocation.nodeConnector
     ) {
       const currentNode = stageRef.current
-        .find(".Node")
+        .find('.Node')
         .toArray()
-        .find(node => node.attrs.id === currentErrorLocation.nodeId);
+        .find((node) => node.attrs.id === currentErrorLocation.nodeId);
       currentNode.parent.moveToTop();
     } else if (currentErrorLocation.edge) {
       const currentEdge = stageRef.current
-        .find(".Edge")
+        .find('.Edge')
         .toArray()
-        .find(edge => edge.attrs.id === currentErrorLocation.edgeId);
+        .find((edge) => edge.attrs.id === currentErrorLocation.edgeId);
       currentEdge.moveToTop();
       setSelectedEdgeRef(currentEdge);
     }
@@ -749,24 +746,23 @@ function StageDrawer({
       setSelectedEdgeRef(null);
     }
     setCurrentError(currentError + 1);
-    const currentErrorLocation =
-      validationErrors[currentError + 1].currentErrorLocation;
+    const { currentErrorLocation } = validationErrors[currentError + 1];
     setCurrentErrorLocation(currentErrorLocation);
     if (
-      currentErrorLocation.node ||
-      currentErrorLocation.pieceConnector ||
-      currentErrorLocation.nodeConnector
+      currentErrorLocation.node
+      || currentErrorLocation.pieceConnector
+      || currentErrorLocation.nodeConnector
     ) {
       const currentNode = stageRef.current
-        .find(".Node")
+        .find('.Node')
         .toArray()
-        .find(node => node.attrs.id === currentErrorLocation.nodeId);
+        .find((node) => node.attrs.id === currentErrorLocation.nodeId);
       currentNode.parent.moveToTop();
     } else if (currentErrorLocation.edge) {
       const currentEdge = stageRef.current
-        .find(".Edge")
+        .find('.Edge')
         .toArray()
-        .find(edge => edge.attrs.id === currentErrorLocation.edgeId);
+        .find((edge) => edge.attrs.id === currentErrorLocation.edgeId);
       currentEdge.moveToTop();
       setSelectedEdgeRef(currentEdge);
     }
@@ -776,7 +772,7 @@ function StageDrawer({
   // using fscreen library to support different browsers fullscreen elements
   const handleFullScreenClick = () => {
     !fscreen.fullscreenElement
-      ? fscreen.requestFullscreen(document.getElementById("editorContainer"))
+      ? fscreen.requestFullscreen(document.getElementById('editorContainer'))
       : fscreen.exitFullscreen();
   };
 
@@ -786,7 +782,7 @@ function StageDrawer({
         {/* Top bar buttons */}
         {toolbarButtons.drawerButton && !fullDisabled && (
           <Tooltip
-            title={isDrawerOpen ? "Close drawer" : "Open drawer"}
+            title={isDrawerOpen ? 'Close drawer' : 'Open drawer'}
             placement="bottom"
           >
             <IconButton
@@ -794,7 +790,7 @@ function StageDrawer({
               color="primary"
               onClick={() => setIsDrawerOpen(!isDrawerOpen)}
             >
-              {isDrawerOpen ? <ChevronLeftRoundedIcon /> : <MenuRoundedIcon />}
+              {isDrawerOpen ? <ChevronLeftRounded /> : <MenuRounded />}
             </IconButton>
           </Tooltip>
         )}
@@ -805,23 +801,23 @@ function StageDrawer({
               color="primary"
               onClick={() => setIsInfoOpen(true)}
             >
-              <InfoOutlinedIcon />
+              <InfoOutlined />
             </IconButton>
           </Tooltip>
         )}
         {toolbarButtons.reset && !fullDisabled && (
-          <Tooltip title={"Reset state"} placement="bottom">
+          <Tooltip title="Reset state" placement="bottom">
             <IconButton
               className={classes.toolbarButton}
               color="primary"
               onClick={() => setIsResetWarnOpen(true)}
             >
-              <NoteAddRoundedIcon />
+              <NoteAddRounded />
             </IconButton>
           </Tooltip>
         )}
         {toolbarButtons.undo && !fullDisabled && (
-          <Tooltip title={"Undo action"} placement="bottom">
+          <Tooltip title="Undo action" placement="bottom">
             <span>
               <IconButton
                 className={classes.toolbarButton}
@@ -829,13 +825,13 @@ function StageDrawer({
                 disabled={!canUndo}
                 onClick={handleUndo}
               >
-                <UndoRoundedIcon />
+                <UndoRounded />
               </IconButton>
             </span>
           </Tooltip>
         )}
         {toolbarButtons.redo && !fullDisabled && (
-          <Tooltip title={"Redo action"} placement="bottom">
+          <Tooltip title="Redo action" placement="bottom">
             <span>
               <IconButton
                 className={classes.toolbarButton}
@@ -843,7 +839,7 @@ function StageDrawer({
                 disabled={!canRedo}
                 onClick={handleRedo}
               >
-                <RedoRoundedIcon />
+                <RedoRounded />
               </IconButton>
             </span>
           </Tooltip>
@@ -855,7 +851,7 @@ function StageDrawer({
               color="primary"
               onClick={handleZoomOutClick}
             >
-              <ZoomOutRoundedIcon />
+              <ZoomOutRounded />
             </IconButton>
           </Tooltip>
         )}
@@ -866,7 +862,7 @@ function StageDrawer({
               color="primary"
               onClick={handleZoomInClick}
             >
-              <ZoomInRoundedIcon />
+              <ZoomInRounded />
             </IconButton>
           </Tooltip>
         )}
@@ -877,7 +873,7 @@ function StageDrawer({
               color="primary"
               onClick={handleCenteringClick}
             >
-              <AspectRatioRoundedIcon />
+              <AspectRatioRounded />
             </IconButton>
           </Tooltip>
         )}
@@ -888,7 +884,7 @@ function StageDrawer({
               color="primary"
               onClick={handleReorderClick}
             >
-              <ViewModuleRoundedIcon />
+              <ViewModuleRounded />
             </IconButton>
           </Tooltip>
         )}
@@ -901,39 +897,39 @@ function StageDrawer({
                 disabled={!selectedRootNode}
                 onClick={handleTreeValidation}
               >
-                <CheckRoundedIcon />
+                <CheckRounded />
               </IconButton>
             </span>
           </Tooltip>
         )}
         {toolbarButtons.download && !fullDisabled && (
-          <Tooltip title={"Download state"} placement="bottom">
+          <Tooltip title="Download state" placement="bottom">
             <IconButton
               className={classes.toolbarButton}
               color="primary"
               onClick={handleStateDownload}
             >
-              <GetAppRoundedIcon />
+              <GetAppRounded />
             </IconButton>
           </Tooltip>
         )}
         {toolbarButtons.upload && !fullDisabled && (
-          <Tooltip title={"Upload state"} placement="bottom">
+          <Tooltip title="Upload state" placement="bottom">
             <IconButton
               className={classes.toolbarButton}
               color="primary"
               onClick={handleStateUpload}
             >
-              <PublishRoundedIcon />
+              <PublishRounded />
             </IconButton>
           </Tooltip>
         )}
         <input
-          id={"stateUploadButton"}
-          style={{ display: "none" }}
+          id="stateUploadButton"
+          style={{ display: 'none' }}
           type="file"
           accept=".json"
-          onChange={e => handleFileChange(e)}
+          onChange={(e) => handleFileChange(e)}
         />
         {toolbarButtons.screenshot && !fullDisabled && (
           <Tooltip title="Save state image" placement="bottom">
@@ -942,18 +938,18 @@ function StageDrawer({
               color="primary"
               onClick={handleImageClick}
             >
-              <PhotoCameraRoundedIcon />
+              <PhotoCameraRounded />
             </IconButton>
           </Tooltip>
         )}
-        {toolbarButtons.fullScreen &&
-          fscreen.fullscreenEnabled &&
-          !fullDisabled && (
+        {toolbarButtons.fullScreen
+          && fscreen.fullscreenEnabled
+          && !fullDisabled && (
             <Tooltip
               title={
                 !fscreen.fullscreenElement
-                  ? "Enter full screen"
-                  : "Exit full screen"
+                  ? 'Enter full screen'
+                  : 'Exit full screen'
               }
               placement="bottom"
             >
@@ -963,33 +959,33 @@ function StageDrawer({
                 onClick={handleFullScreenClick}
               >
                 {!fscreen.fullscreenElement ? (
-                  <FullscreenRoundedIcon />
+                  <FullscreenRounded />
                 ) : (
-                  <FullscreenExitRoundedIcon />
+                  <FullscreenExitRounded />
                 )}
               </IconButton>
             </Tooltip>
-          )}
+        )}
       </div>
       {/* Editor reset warning dialog */}
       <Dialog
         // props required to display the dialog relative to editor container and not relative to viewport
-        style={{ position: "absolute" }}
-        BackdropProps={{ style: { position: "absolute" } }}
-        container={document.getElementById("editorContainer")}
+        style={{ position: 'absolute' }}
+        BackdropProps={{ style: { position: 'absolute' } }}
+        container={document.getElementById('editorContainer')}
         PaperProps={{
-          style: { border: "2px solid #3f50b5", borderRadius: "5px" },
+          style: { border: '2px solid #3f50b5', borderRadius: '5px' },
         }}
         open={isResetWarnOpen}
         onClose={() => setIsResetWarnOpen(false)}
-        onKeyPress={e => {
-          if (e.key === "Enter") {
+        onKeyPress={(e) => {
+          if (e.key === 'Enter') {
             handleReset();
           }
         }}
       >
         <DialogTitle>
-          {"Are you sure you want to reset the editor state?"}
+          Are you sure you want to reset the editor state?
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -1002,7 +998,7 @@ function StageDrawer({
           <Button
             variant="contained"
             color="primary"
-            endIcon={<CloseRoundedIcon />}
+            endIcon={<CloseRounded />}
             onClick={() => setIsResetWarnOpen(false)}
           >
             Cancel
@@ -1010,7 +1006,7 @@ function StageDrawer({
           <Button
             variant="contained"
             color="primary"
-            endIcon={<CheckRoundedIcon />}
+            endIcon={<CheckRounded />}
             onClick={handleReset}
           >
             Confirm
@@ -1020,73 +1016,92 @@ function StageDrawer({
       {/* Editor info dialog */}
       <Dialog
         // props required to display the dialog relative to editor container and not relative to viewport
-        style={{ position: "absolute" }}
-        BackdropProps={{ style: { position: "absolute" } }}
-        container={document.getElementById("editorContainer")}
+        style={{ position: 'absolute' }}
+        BackdropProps={{ style: { position: 'absolute' } }}
+        container={document.getElementById('editorContainer')}
         PaperProps={{
-          style: { border: "2px solid #3f50b5", borderRadius: "5px" },
+          style: { border: '2px solid #3f50b5', borderRadius: '5px' },
         }}
         open={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
-        onKeyPress={e => {
-          if (e.key === "Enter") {
+        onKeyPress={(e) => {
+          if (e.key === 'Enter') {
             setIsInfoOpen(false);
           }
         }}
       >
-        <DialogTitle>{"Expression Tree Editor Usage Infos"}</DialogTitle>
+        <DialogTitle>Expression Tree Editor Usage Infos</DialogTitle>
         <DialogContent className={classes.infoContent} dividers>
           <ul>
             <li>
-              <b>Stage scroll: </b>Zoom in/out the editor stage.
+              <b>Stage scroll: </b>
+              Zoom in/out the editor stage.
             </li>
             <br />
             <li>
-              <b>Stage drag: </b>Move the editor stage.
+              <b>Stage drag: </b>
+              Move the editor stage.
             </li>
             <br />
             <li>
-              <b>Shift/Command + stage drag: </b>Drag a selection rectangle to
+              <b>Shift/Command + stage drag: </b>
+              Drag a selection rectangle to
               create a multiple nodes draggable selection.
             </li>
             <br />
             <li>
-              <b>Node click: </b>Select a node.
+              <b>Node click: </b>
+              Select a node.
             </li>
             <br />
             <li>
-              <b>Node drag: </b>Move a node.
+              <b>Node drag: </b>
+              Move a node.
             </li>
             <br />
             <li>
-              <b>Node double click: </b>Select/Deselect a root node to
+              <b>Node double click: </b>
+              Select/Deselect a root node to
               activate/deactivate the tree validation button.
             </li>
             <br />
             <li>
-              <b>Nodes reordering: </b>If a root node is selected, all its
+              <b>Nodes reordering: </b>
+              If a root node is selected, all its
               children nodes will be reordered as a tree, the remaining nodes
               will be reordered as compact rows.
             </li>
             <br />
             <li>
-              <b>Node deletion: </b>Select a node and press the <i>delete</i>{" "}
-              button or click on the node's <i>x</i> button.
+              <b>Node deletion: </b>
+              Select a node and press the
+              <i>delete</i>
+              {' '}
+              button or click on the node's
+              {' '}
+              <i>x</i>
+              {' '}
+              button.
             </li>
             <br />
             <li>
-              <b>Node connector/hole drag: </b>Start dragging an edge from the
+              <b>Node connector/hole drag: </b>
+              Start dragging an edge from the
               node connector/hole, if an edge is already connected to the
               connector/hole, it will be updated, otherwise a new edge will be
               created.
             </li>
             <br />
             <li>
-              <b>Edge click: </b>Select an edge.
+              <b>Edge click: </b>
+              Select an edge.
             </li>
             <br />
             <li>
-              <b>Edge deletion: </b>Select an edge and press the <i>delete</i>{" "}
+              <b>Edge deletion: </b>
+              Select an edge and press the
+              <i>delete</i>
+              {' '}
               button or drag and drop the edge connector to an invalid location.
             </li>
           </ul>
@@ -1095,7 +1110,7 @@ function StageDrawer({
           <Button
             variant="contained"
             color="primary"
-            endIcon={<CloseRoundedIcon />}
+            endIcon={<CloseRounded />}
             onClick={() => setIsInfoOpen(false)}
           >
             Close
@@ -1105,11 +1120,11 @@ function StageDrawer({
       {/* Adding node info alert */}
       <Snackbar
         // prop required to display the alert relative to editor container and not relative to viewport
-        style={{ position: "absolute" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        style={{ position: 'absolute' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         open={addingNode}
         onClose={(e, reason) => {
-          if (reason !== "clickaway") {
+          if (reason !== 'clickaway') {
             addingNodeClick();
           }
         }}
@@ -1121,11 +1136,11 @@ function StageDrawer({
       {/* Tree validation errors alert */}
       <Snackbar
         // prop required to display the alert relative to editor container and not relative to viewport
-        style={{ position: "absolute" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        style={{ position: 'absolute' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         open={isInvalidOpen}
         onClose={(e, reason) => {
-          if (reason === "clickaway") {
+          if (reason === 'clickaway') {
             setIsInvalidOpen(false);
             setCurrentErrorLocation({});
             if (selectedEdgeRef) {
@@ -1138,11 +1153,11 @@ function StageDrawer({
         <Alert
           variant="standard"
           severity="error"
-          action={
+          action={(
             <>
               {validationErrors.length > 1 && (
                 <>
-                  <Tooltip title={"Previous Error"} placement="top">
+                  <Tooltip title="Previous Error" placement="top">
                     <span>
                       <IconButton
                         size="medium"
@@ -1150,11 +1165,11 @@ function StageDrawer({
                         disabled={currentError === 0}
                         onClick={handlePreviousErrorClick}
                       >
-                        <ArrowBackRoundedIcon />
+                        <ArrowBackRounded />
                       </IconButton>
                     </span>
                   </Tooltip>
-                  <Tooltip title={"Next Error"} placement="top">
+                  <Tooltip title="Next Error" placement="top">
                     <span>
                       <IconButton
                         size="medium"
@@ -1162,13 +1177,13 @@ function StageDrawer({
                         disabled={currentError === validationErrors.length - 1}
                         onClick={handleNextErrorClick}
                       >
-                        <ArrowForwardRoundedIcon />
+                        <ArrowForwardRounded />
                       </IconButton>
                     </span>
                   </Tooltip>
                 </>
               )}
-              <Tooltip title={"Close alert"} placement="top">
+              <Tooltip title="Close alert" placement="top">
                 <IconButton
                   size="medium"
                   color="inherit"
@@ -1181,52 +1196,59 @@ function StageDrawer({
                     }
                   }}
                 >
-                  <ClearRoundedIcon />
+                  <ClearRounded />
                 </IconButton>
               </Tooltip>
             </>
-          }
+          )}
         >
           <AlertTitle>
-            Invalid Tree ({validationErrors.length} error
-            {validationErrors.length > 1 && "s"})
+            Invalid Tree (
+            {validationErrors.length}
+            {' '}
+            error
+            {validationErrors.length > 1 && 's'}
+            )
           </AlertTitle>
           <Typography variant="body2" paragraph>
-            <b>Error #{currentError + 1}</b>
+            <b>
+              Error #
+              {currentError + 1}
+            </b>
           </Typography>
 
           <Typography variant="body2">
             <b>Error type: </b>
           </Typography>
           <Typography variant="body2" paragraph>
-            {validationErrors[currentError] &&
-              validationErrors[currentError].type}
+            {validationErrors[currentError]
+              && validationErrors[currentError].type}
           </Typography>
 
           <Typography variant="body2">
             <b>Error description: </b>
           </Typography>
           <Typography variant="body2" paragraph>
-            {validationErrors[currentError] &&
-              validationErrors[currentError].problem}
+            {validationErrors[currentError]
+              && validationErrors[currentError].problem}
           </Typography>
 
           <Typography variant="body2">
             <b>Error location: </b>
           </Typography>
           <Typography variant="body2">
-            {validationErrors[currentError] &&
-              validationErrors[currentError].location}
+            {validationErrors[currentError]
+              && validationErrors[currentError].location}
           </Typography>
         </Alert>
       </Snackbar>
       {/* Tree validation valid alert */}
       <Snackbar
-        style={{ position: "absolute" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        style={{ position: 'absolute' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         open={isValidOpen}
         onClose={(e, reason) => {
-          if (reason === "clickaway") {
+          if (reason === 'clickaway') {
             setIsValidOpen(false);
           }
         }}
@@ -1234,17 +1256,17 @@ function StageDrawer({
         <Alert
           variant="standard"
           severity="success"
-          action={
-            <Tooltip title={"Close alert"} placement="top">
+          action={(
+            <Tooltip title="Close alert" placement="top">
               <IconButton
                 size="medium"
                 color="inherit"
                 onClick={() => setIsValidOpen(false)}
               >
-                <ClearRoundedIcon />
+                <ClearRounded />
               </IconButton>
             </Tooltip>
-          }
+          )}
         >
           <AlertTitle>Valid Tree (0 errors)</AlertTitle>
           The selected tree is valid.
@@ -1254,12 +1276,12 @@ function StageDrawer({
       <Drawer
         className={classes.drawer}
         // props required to display the side drawer relative to editor container and not relative to viewport
-        PaperProps={{ style: { position: "relative" } }}
-        BackdropProps={{ style: { position: "relative" } }}
+        PaperProps={{ style: { position: 'relative' } }}
+        BackdropProps={{ style: { position: 'relative' } }}
         ModalProps={{
-          container: document.getElementById("editorContainer"),
+          container: document.getElementById('editorContainer'),
           style: {
-            position: "absolute",
+            position: 'absolute',
           },
         }}
         variant="persistent"
@@ -1276,14 +1298,14 @@ function StageDrawer({
                 <IconButton
                   size="small"
                   color="primary"
-                  onClick={e => setAddAnchorEl(e.target)}
+                  onClick={(e) => setAddAnchorEl(e.target)}
                 >
-                  <InfoOutlinedIcon />
+                  <InfoOutlined />
                 </IconButton>
                 <Popover
                   className={classes.infoPopover}
                   anchorEl={addAnchorEl}
-                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                   open={isAddInfoOpen}
                   onClose={() => setAddAnchorEl(null)}
                 >
@@ -1292,7 +1314,11 @@ function StageDrawer({
                     variant="body2"
                   >
                     Describe the node's pieces in the textfield below. Holes are
-                    represented by the special {connectorPlaceholder} character
+                    represented by the special
+                    {' '}
+                    {connectorPlaceholder}
+                    {' '}
+                    character
                     combination. Alternatively you can choose a template node
                     from the list below.
                   </Typography>
@@ -1311,33 +1337,33 @@ function StageDrawer({
                   shrink: true,
                 }}
                 placeholder={
-                  "ex: " +
-                  connectorPlaceholder +
-                  ".append(" +
-                  connectorPlaceholder +
-                  ")"
+                  `ex: ${
+                    connectorPlaceholder
+                  }.append(${
+                    connectorPlaceholder
+                  })`
                 }
                 margin="dense"
-                onChange={e => handleAddChange(e.target.value)}
-                onKeyPress={e => {
-                  if (e.key === "Enter" && e.target.value !== "") {
+                onChange={(e) => handleAddChange(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && e.target.value !== '') {
                     addingNodeClick();
                   }
                 }}
-              ></TextField>
+              />
               <div>
                 <Tooltip
-                  title={addingNode ? "Clear adding" : "Add node"}
+                  title={addingNode ? 'Clear adding' : 'Add node'}
                   placement="top"
                 >
                   <span>
                     <IconButton
                       size="medium"
-                      color={addingNode ? "secondary" : "primary"}
+                      color={addingNode ? 'secondary' : 'primary'}
                       disabled={isAddEmpty}
                       onClick={() => addingNodeClick()}
                     >
-                      <AddRoundedIcon />
+                      <AddRounded />
                     </IconButton>
                   </span>
                 </Tooltip>
@@ -1351,7 +1377,7 @@ function StageDrawer({
                   classes={{ root: classes.accordionContainer }}
                 >
                   <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <AccordionSummary expandIcon={<ExpandMore />}>
                       <Typography variant="body1">
                         Or select a template node:
                       </Typography>
@@ -1359,7 +1385,7 @@ function StageDrawer({
                     <Divider />
                     <div className={classes.templateContainer}>
                       {templateNodes.map((e, i) => (
-                        <AccordionDetails key={"template-" + i}>
+                        <AccordionDetails key={`template-${i}`}>
                           <Typography
                             id={i}
                             className={
@@ -1393,14 +1419,14 @@ function StageDrawer({
                 <IconButton
                   size="small"
                   color="primary"
-                  onClick={e => setEditAnchorEl(e.target)}
+                  onClick={(e) => setEditAnchorEl(e.target)}
                 >
-                  <InfoOutlinedIcon />
+                  <InfoOutlined />
                 </IconButton>
                 <Popover
                   className={classes.infoPopover}
                   anchorEl={editAnchorEl}
-                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                   open={isEditInfoOpen}
                   onClose={() => setEditAnchorEl(null)}
                 >
@@ -1409,7 +1435,11 @@ function StageDrawer({
                     variant="body2"
                   >
                     Describe the node's pieces in the textfield below. Holes are
-                    represented by the special {connectorPlaceholder} character
+                    represented by the special
+                    {' '}
+                    {connectorPlaceholder}
+                    {' '}
+                    character
                     combination. Final nodes can't be modified or removed.
                   </Typography>
                 </Popover>
@@ -1431,38 +1461,38 @@ function StageDrawer({
                         shrink: true,
                       }}
                       placeholder={
-                        "ex: " +
-                        connectorPlaceholder +
-                        ".append(" +
-                        connectorPlaceholder +
-                        ")"
+                        `ex: ${
+                          connectorPlaceholder
+                        }.append(${
+                          connectorPlaceholder
+                        })`
                       }
                       margin="dense"
-                      onChange={e => handleEditChange(e.target.value)}
-                      onKeyPress={e => {
+                      onChange={(e) => handleEditChange(e.target.value)}
+                      onKeyPress={(e) => {
                         if (
-                          e.key === "Enter" &&
-                          editValue.length !== 0 &&
-                          editValue.join("") !== selectedNode.pieces.join("")
+                          e.key === 'Enter'
+                          && editValue.length !== 0
+                          && editValue.join('') !== selectedNode.pieces.join('')
                         ) {
                           handleNodeEdit();
                         }
                       }}
-                    ></TextField>
+                    />
                     <div>
-                      <Tooltip title={"Update node pieces"} placement="top">
+                      <Tooltip title="Update node pieces" placement="top">
                         <span>
                           <IconButton
                             size="medium"
                             color="primary"
                             disabled={
-                              isEditEmpty ||
-                              editValue.join("") ===
-                                selectedNode.pieces.join("")
+                              isEditEmpty
+                              || editValue.join('')
+                                === selectedNode.pieces.join('')
                             }
                             onClick={() => handleNodeEdit()}
                           >
-                            <UpdateRoundedIcon />
+                            <UpdateRounded />
                           </IconButton>
                         </span>
                       </Tooltip>
@@ -1474,7 +1504,7 @@ function StageDrawer({
                   <FormLabel>Select the node type from the list:</FormLabel>
                   <RadioGroup
                     value={typeValue}
-                    onChange={e => handleTypeChange(e.target.value)}
+                    onChange={(e) => handleTypeChange(e.target.value)}
                     row
                     className={classes.typeButtonContainer}
                   >
@@ -1482,13 +1512,13 @@ function StageDrawer({
                       variant="text"
                       size="small"
                       color="primary"
-                      disabled={typeValue === ""}
-                      startIcon={<ClearRoundedIcon />}
-                      onClick={() => handleTypeChange("")}
+                      disabled={typeValue === ''}
+                      startIcon={<ClearRounded />}
+                      onClick={() => handleTypeChange('')}
                     >
                       Clear node type
                     </Button>
-                    {nodeTypes.map(nodeType => (
+                    {nodeTypes.map((nodeType) => (
                       <FormControlLabel
                         key={nodeType.type}
                         className={classes.typeButton}
@@ -1499,8 +1529,8 @@ function StageDrawer({
                     ))}
                   </RadioGroup>
                 </div>
-                {typeValue &&
-                  nodeTypes.find(nodeType => nodeType.type === typeValue)
+                {typeValue
+                  && nodeTypes.find((nodeType) => nodeType.type === typeValue)
                     .any && (
                     <div className={classes.drawerField}>
                       <TextField
@@ -1510,55 +1540,51 @@ function StageDrawer({
                         type="search"
                         fullWidth
                         size="medium"
-                        placeholder={"ex: 1234567890"}
+                        placeholder="ex: 1234567890"
                         margin="dense"
                         label="Insert the node's value"
                         InputLabelProps={{
                           shrink: true,
                         }}
-                        onChange={e =>
-                          nodeValueChange({ nodeValue: e.target.value })
-                        }
-                        onKeyPress={e => {
+                        onChange={(e) => nodeValueChange({ nodeValue: e.target.value })}
+                        onKeyPress={(e) => {
                           if (
-                            e.key === "Enter" &&
-                            nodeValue !== selectedNode.value
+                            e.key === 'Enter'
+                            && nodeValue !== selectedNode.value
                           ) {
                             nodeValueEdit({
                               value: nodeValue,
                               selectedNodeId: selectedNode.id,
-                              onNodeValueChange: onNodeValueChange,
+                              onNodeValueChange,
                             });
                           }
                         }}
-                      ></TextField>
+                      />
                       <div>
-                        <Tooltip title={"Update node value"} placement="top">
+                        <Tooltip title="Update node value" placement="top">
                           <span>
                             <IconButton
                               size="medium"
                               color="primary"
                               disabled={nodeValue === selectedNode.value}
-                              onClick={() =>
-                                nodeValueEdit({
-                                  value: nodeValue,
-                                  selectedNodeId: selectedNode.id,
-                                  onNodeValueChange: onNodeValueChange,
-                                })
-                              }
+                              onClick={() => nodeValueEdit({
+                                value: nodeValue,
+                                selectedNodeId: selectedNode.id,
+                                onNodeValueChange,
+                              })}
                             >
-                              <UpdateRoundedIcon />
+                              <UpdateRounded />
                             </IconButton>
                           </span>
                         </Tooltip>
                       </div>
                     </div>
-                  )}
+                )}
                 {/* Node value editing field */}
-                {typeValue &&
-                  nodeTypes.find(nodeType => nodeType.type === typeValue)
-                    .fixedValues &&
-                  nodeTypes.find(nodeType => nodeType.type === typeValue)
+                {typeValue
+                  && nodeTypes.find((nodeType) => nodeType.type === typeValue)
+                    .fixedValues
+                  && nodeTypes.find((nodeType) => nodeType.type === typeValue)
                     .fixedValues.length > 0 && (
                     <div className={classes.typeField}>
                       <FormLabel>
@@ -1568,31 +1594,31 @@ function StageDrawer({
                         className={classes.typeButtonContainer}
                         row
                         value={nodeValue}
-                        onChange={e => handleValueChange(e.target.value)}
+                        onChange={(e) => handleValueChange(e.target.value)}
                       >
                         <Button
                           variant="text"
                           size="small"
                           color="primary"
                           disabled={
-                            nodeValue === "" ||
-                            (nodeTypes.find(
-                              nodeType => nodeType.type === typeValue
-                            ).fixedValues &&
-                              nodeTypes
-                                .find(nodeType => nodeType.type === typeValue)
+                            nodeValue === ''
+                            || (nodeTypes.find(
+                              (nodeType) => nodeType.type === typeValue,
+                            ).fixedValues
+                              && nodeTypes
+                                .find((nodeType) => nodeType.type === typeValue)
                                 .fixedValues.find(
-                                  fixedValue => fixedValue === nodeValue
+                                  (fixedValue) => fixedValue === nodeValue,
                                 ) === undefined)
                           }
-                          startIcon={<ClearRoundedIcon />}
-                          onClick={() => handleValueChange("")}
+                          startIcon={<ClearRounded />}
+                          onClick={() => handleValueChange('')}
                         >
                           Clear node value
                         </Button>
                         {nodeTypes
-                          .find(nodeType => nodeType.type === typeValue)
-                          .fixedValues.map(fixedValue => (
+                          .find((nodeType) => nodeType.type === typeValue)
+                          .fixedValues.map((fixedValue) => (
                             <FormControlLabel
                               key={fixedValue}
                               className={classes.typeButton}
@@ -1603,7 +1629,7 @@ function StageDrawer({
                           ))}
                       </RadioGroup>
                     </div>
-                  )}
+                )}
               </>
             ) : (
               <Typography className={classes.editText}>
@@ -1637,7 +1663,7 @@ StageDrawer.propTypes = {
       type: PropTypes.string,
       any: PropTypes.bool,
       fixedValues: PropTypes.arrayOf(PropTypes.string),
-    })
+    }),
   ),
   reportedErrors: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
   onNodePiecesChange: PropTypes.func,
@@ -1656,7 +1682,7 @@ StageDrawer.propTypes = {
       type: PropTypes.string,
       value: PropTypes.string,
       isFinal: PropTypes.bool,
-    })
+    }),
   ),
   edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
   canUndo: PropTypes.bool,
