@@ -7,6 +7,12 @@ import reducer from '../store/reducers';
 
 export const store = createStore(reducer);
 
+/**
+ * This component is needed only because we are using REDUX,
+ * we do not need to wrap ExpressionTreeEditor otherwise.
+ *
+ * @param  {...any} props
+ */
 export default function ExpressionTreeViewer(...props) {
   return (
     <Provider store={store}>
