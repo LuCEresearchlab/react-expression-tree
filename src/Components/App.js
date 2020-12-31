@@ -139,42 +139,42 @@ function App() {
         ],
         initialEdges: [],
       }}
-      onNodeAdd={function (node) {
-        console.log("onNodeAdd", node);
-      }}
-      onNodeDelete={function (nodeId) {
-        console.log("onNodeDelete", nodeId);
-      }}
-      onNodeSelect={function (node) {
-        console.log("onNodeSelect", node);
-      }}
-      onNodeMove={function (nodeId, position) {
-        console.log("onNodeMove", nodeId, position);
-      }}
-      onNodePiecesChange={function (nodePieces) {
-        console.log("onNodePiecesChange", nodePieces);
-      }}
-      onNodeTypeChange={function (nodeType) {
-        console.log("onNodeTypeChange", nodeType);
-      }}
-      onNodeValueChange={function (nodeValue) {
-        console.log("onNodeValueChange", nodeValue);
-      }}
-      onEdgeAdd={function (edge) {
-        console.log("onEdgeAdd", edge);
-      }}
-      onEdgeDelete={function (edgeId) {
-        console.log("onEdgeDelete", edgeId);
-      }}
-      onEdgeUpdate={function (edge) {
-        console.log("onEdgeUpdate", edge);
-      }}
-      onEdgeSelect={function (edge) {
-        console.log("onEdgeSelect", edge);
-      }}
-      onValidate={function (nodes, edges, errors) {
-        console.log("onValidate", nodes, edges, errors);
-      }}
+      // onNodeAdd={function (node) {
+      //   console.log("onNodeAdd", node);
+      // }}
+      // onNodeDelete={function (nodeId) {
+      //   console.log("onNodeDelete", nodeId);
+      // }}
+      // onNodeSelect={function (node) {
+      //   console.log("onNodeSelect", node);
+      // }}
+      // onNodeMove={function (nodeId, position) {
+      //   console.log("onNodeMove", nodeId, position);
+      // }}
+      // onNodePiecesChange={function (nodePieces) {
+      //   console.log("onNodePiecesChange", nodePieces);
+      // }}
+      // onNodeTypeChange={function (nodeType) {
+      //   console.log("onNodeTypeChange", nodeType);
+      // }}
+      // onNodeValueChange={function (nodeValue) {
+      //   console.log("onNodeValueChange", nodeValue);
+      // }}
+      // onEdgeAdd={function (edge) {
+      //   console.log("onEdgeAdd", edge);
+      // }}
+      // onEdgeDelete={function (edgeId) {
+      //   console.log("onEdgeDelete", edgeId);
+      // }}
+      // onEdgeUpdate={function (edge) {
+      //   console.log("onEdgeUpdate", edge);
+      // }}
+      // onEdgeSelect={function (edge) {
+      //   console.log("onEdgeSelect", edge);
+      // }}
+      // onValidate={function (nodes, edges, errors) {
+      //   console.log("onValidate", nodes, edges, errors);
+      // }}
     />
     //     <div style={{ height: "100px" }}>sdfadsfdas</div>
     //   </div>
