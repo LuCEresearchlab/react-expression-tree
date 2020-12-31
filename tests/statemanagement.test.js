@@ -1,11 +1,13 @@
+/* eslint-disable no-undef */
 import {
   nodeById,
   edgeById,
   edgeByChildNode,
   edgeByParentPiece,
   nodePositionById,
-} from './utils';
-import reducer from './store/reducers';
+} from '../src/components/utils';
+
+import reducer from '../src/components/store/reducers';
 
 let state = {
   editor: {

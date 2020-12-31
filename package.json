@@ -31,7 +31,6 @@
     "prop-types": "^15.7.2",
     "react-konva": "^17.0.1-3",
     "react-redux": "^7.2.2",
-    "react-scripts": "^4.0.1",
     "redux": "^4.0.5",
     "redux-undo": "^1.0.1"
   },
@@ -104,6 +103,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=development BABEL_ENV=development styleguidist server --open",
+    "test": "jest",
     "styleguide:build": "NODE_ENV=production BABEL_ENV=production styleguidist build",
     "build": "NODE_ENV=production BABEL_ENV=production webpack --mode=production"
   },
