@@ -1,16 +1,28 @@
 import Konva from 'konva';
-import React, { useEffect, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
-import { ActionCreators } from 'redux-undo';
 import {
   Stage, Layer, Rect, Transformer,
 } from 'react-konva';
+
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useReducer,
+  useState,
+} from 'react';
+import PropTypes from 'prop-types';
+
+// import { useDispatch } from 'react-redux';
+// import { ActionCreators } from 'redux-undo';
+
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import Node from './Node';
 import Edge from './Edge';
 import DragEdge from './DragEdge';
-import StageDrawer from '../StageDrawer';
+import StageDrawer from '../StageDrawer/StageDrawer';
+
+import reducer from '../store/reducers';
+import reducerInitialState from '../store/initialState';
 
 import {
   edgeByChildNode,
@@ -61,7 +73,6 @@ function ExpressionTreeEditor({
   templateNodes,
   nodeTypes,
   initialState,
-  setInitialState,
   onNodeAdd,
   onNodeDelete,
   onNodeSelect,
@@ -74,37 +85,6 @@ function ExpressionTreeEditor({
   onEdgeUpdate,
   onEdgeSelect,
   onValidate,
-  nodes,
-  edges,
-  dragEdge,
-  selectedNode,
-  selectedRootNode,
-  selectedEdge,
-  addNode,
-  removeNode,
-  selectNode,
-  clearNodeSelection,
-  selectRootNode,
-  clearRootSelection,
-  moveNodeTo,
-  moveNodeToEnd,
-  moveSelectedNodesTo,
-  moveSelectedNodesToEnd,
-  addEdge,
-  removeEdge,
-  updateEdge,
-  selectEdge,
-  clearEdgeSelection,
-  setDragEdge,
-  clearDragEdge,
-  moveDragEdgeChildEndTo,
-  moveDragEdgeParentEndTo,
-  addingNode,
-  clearAdding,
-  addValue,
-  editValueChange,
-  typeValueChange,
-  nodeValueChange,
 }) {
   // Refs
   const stageRef = useRef();
@@ -113,7 +93,149 @@ function ExpressionTreeEditor({
   const selectedRectRef = useRef();
   const transformerRef = useRef();
 
-  const dispatch = useDispatch();
+  const [store, dispatch] = useReducer(reducer, reducerInitialState);
+  const {
+    nodes,
+    edges,
+    dragEdge,
+    selectedNode,
+    addingNode,
+    selectedRootNode,
+    selectedEdge,
+    addValue,
+    editValue,
+    typeValue,
+    nodeValue,
+  } = store;
+
+  const removeNode = useCallback((payload) => {
+    dispatch({ type: 'removeNode', payload });
+  }, [dispatch]);
+
+  const moveNodeTo = useCallback((payload) => {
+    dispatch({ type: 'moveNodeTo', payload });
+  }, [dispatch]);
+
+  const moveNodeToEnd = useCallback((payload) => {
+    dispatch({ type: 'moveNodeToEnd', payload });
+  }, [dispatch]);
+
+  const setDragEdge = useCallback((payload) => {
+    dispatch({ type: 'setDragEdge', payload });
+  }, [dispatch]);
+
+  const moveDragEdgeParentEndTo = useCallback((payload) => {
+    dispatch({ type: 'moveDragEdgeParentEndTo', payload });
+  }, [dispatch]);
+
+  const moveDragEdgeChildEndTo = useCallback((payload) => {
+    dispatch({ type: 'moveDragEdgeChildEndTo', payload });
+  }, [dispatch]);
+
+  const removeEdge = useCallback((payload) => {
+    dispatch({ type: 'removeEdge', payload });
+  }, [dispatch]);
+
+  const addEdge = useCallback((payload) => {
+    dispatch({ type: 'addEdge', payload });
+  }, [dispatch]);
+
+  const updateEdge = useCallback((payload) => {
+    dispatch({ type: 'updateEdge', payload });
+  }, [dispatch]);
+
+  const clearDragEdge = useCallback(() => {
+    dispatch({ type: 'clearDragEdge' });
+  }, [dispatch]);
+
+  const clearNodeSelection = useCallback(() => {
+    dispatch({ type: 'clearNodeSelection' });
+  }, [dispatch]);
+
+  const addNode = useCallback((payload) => {
+    dispatch({ type: 'addNode', payload });
+  }, [dispatch]);
+
+  const selectNode = useCallback((payload) => {
+    dispatch({ type: 'selectNode', payload });
+  }, [dispatch]);
+
+  const clearAdding = useCallback(() => {
+    dispatch({ type: 'clearAdding' });
+  }, [dispatch]);
+
+  const editValueChange = useCallback((payload) => {
+    dispatch({ type: 'editValueChange', payload });
+  }, [dispatch]);
+
+  const typeValueChange = useCallback((payload) => {
+    dispatch({ type: 'typeValueChange', payload });
+  }, [dispatch]);
+
+  const nodeValueChange = useCallback((payload) => {
+    dispatch({ type: 'nodeValueChange', payload });
+  }, [dispatch]);
+
+  const selectEdge = useCallback((payload) => {
+    dispatch({ type: 'selectEdge', payload });
+  }, [dispatch]);
+
+  const clearEdgeSelection = useCallback(() => {
+    dispatch({ type: 'clearEdgeSelection' });
+  }, [dispatch]);
+
+  const selectRootNode = useCallback((payload) => {
+    dispatch({ type: 'selectRootNode', payload });
+  }, [dispatch]);
+
+  const clearRootSelection = useCallback(() => {
+    dispatch({ type: 'clearRootSelection' });
+  }, [dispatch]);
+
+  const setInitialState = useCallback((payload) => {
+    dispatch({ type: 'setInitialState', payload });
+  }, [dispatch]);
+
+  const moveSelectedNodesTo = useCallback((payload) => {
+    dispatch({ type: 'moveSelectedNodesTo', payload });
+  }, [dispatch]);
+
+  const moveSelectedNodesToEnd = useCallback((payload) => {
+    dispatch({ type: 'moveSelectedNodesToEnd', payload });
+  }, [dispatch]);
+
+  // Drawer
+  const editNode = useCallback((payload) => {
+    dispatch({ type: 'editNode', payload });
+  }, [dispatch]);
+
+  const addingNodeClick = useCallback(() => {
+    dispatch({ type: 'addingNodeClick' });
+  }, [dispatch]);
+
+  const addValueChange = useCallback((payload) => {
+    dispatch({ type: 'addValueChange', payload });
+  }, [dispatch]);
+
+  const nodeTypeEdit = useCallback((payload) => {
+    dispatch({ type: 'nodeTypeEdit', payload });
+  }, [dispatch]);
+
+  const nodeValueEdit = useCallback((payload) => {
+    dispatch({ type: 'nodeValueEdit', payload });
+  }, [dispatch]);
+
+  const stageReset = useCallback((payload) => {
+    dispatch({ type: 'stageReset', payload });
+  }, [dispatch]);
+
+  const uploadState = useCallback((payload) => {
+    dispatch({ type: 'uploadState', payload });
+  }, [dispatch]);
+
+  const reorderNodes = useCallback((payload) => {
+    dispatch({ type: 'reorderNodes', payload });
+  }, [dispatch]);
 
   // Set the theme primary and secondary colors according to the recived props
   const theme = createMuiTheme({
@@ -156,17 +278,14 @@ function ExpressionTreeEditor({
   // Effects
   // Initial state setting effect running only on first render
   useEffect(() => {
-    dispatch(
-      setInitialState({
-        initialNodes: initialState.initialNodes,
-        initialEdges: initialState.initialEdges,
-        connectorPlaceholder,
-        fontSize,
-        fontFamily,
-      }),
-    );
-    dispatch(ActionCreators.clearHistory());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setInitialState({
+      initialNodes: initialState.initialNodes,
+      initialEdges: initialState.initialEdges,
+      connectorPlaceholder,
+      fontSize,
+      fontFamily,
+    });
+    // dispatch(ActionCreators.clearHistory());
   }, []);
 
   // Key events effect
@@ -929,6 +1048,32 @@ function ExpressionTreeEditor({
           onNodeTypeChange={onNodeTypeChange}
           onNodeValueChange={onNodeValueChange}
           onValidate={onValidate}
+          selectedNode={selectedNode}
+          editValue={editValue}
+          addingNode={addingNode}
+          typeValue={typeValue}
+          nodes={nodes}
+          selectedRootNode={selectedRootNode}
+          nodeValue={nodeValue}
+          edges={edges}
+          editNode={editNode}
+          addingNodeClick={addingNodeClick}
+          addValueChange={addValueChange}
+          nodeTypeEdit={nodeTypeEdit}
+          nodeValueEdit={nodeValueEdit}
+          stageReset={stageReset}
+          uploadState={uploadState}
+          reorderNodes={reorderNodes}
+          nodeValueChange={nodeValueChange}
+          typeValueChange={typeValueChange}
+          // TODO: undo / redo
+          // edges: state.editor.present.edges,
+          // nodes: state.editor.present.nodes,
+          // selectedRootNode: state.editor.present.selectedRootNode,
+          // isAddEmpty: state.drawer.addValue.length < 1,
+          // isEditEmpty: state.drawer.editValue.length < 1,
+          // canUndo: state.editor.past.length > 0,
+          // canRedo: state.editor.future.length > 0,
         />
         {/* Stage component containing the layer component */}
         <Stage
@@ -1267,32 +1412,8 @@ ExpressionTreeEditor.propTypes = {
     childX: PropTypes.number,
     childY: PropTypes.number,
   }),
-  setInitialState: PropTypes.func,
-  addNode: PropTypes.func,
-  removeNode: PropTypes.func,
-  selectNode: PropTypes.func,
-  clearNodeSelection: PropTypes.func,
-  selectRootNode: PropTypes.func,
-  clearRootSelection: PropTypes.func,
-  moveNodeTo: PropTypes.func,
-  moveNodeToEnd: PropTypes.func,
-  moveSelectedNodesTo: PropTypes.func,
-  moveSelectedNodesToEnd: PropTypes.func,
-  addEdge: PropTypes.func,
-  removeEdge: PropTypes.func,
-  updateEdge: PropTypes.func,
-  selectEdge: PropTypes.func,
-  clearEdgeSelection: PropTypes.func,
-  setDragEdge: PropTypes.func,
-  clearDragEdge: PropTypes.func,
-  moveDragEdgeParentEndTo: PropTypes.func,
-  moveDragEdgeChildEndTo: PropTypes.func,
   addValue: PropTypes.arrayOf(PropTypes.string),
   addingNode: PropTypes.bool,
-  clearAdding: PropTypes.func,
-  editValueChange: PropTypes.func,
-  typeValueChange: PropTypes.func,
-  nodeValueChange: PropTypes.func,
 };
 
 ExpressionTreeEditor.defaultProps = {

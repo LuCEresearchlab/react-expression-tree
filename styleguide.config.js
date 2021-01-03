@@ -5,6 +5,12 @@ const webpackConfig = require('./webpack.config.js');
 module.exports = {
   title: `${pkg.name} v${pkg.version}`,
   components: 'src/components/**/*.jsx',
+  ignore: [
+    '**/components/**/DragEdge.jsx',
+    '**/components/**/Edge.jsx',
+    '**/components/**/Node.jsx',
+    '**/components/**/StageDrawer.jsx',
+  ],
   showSidebar: true,
   usageMode: 'expand',
   // skipComponentsWithoutExample: true,

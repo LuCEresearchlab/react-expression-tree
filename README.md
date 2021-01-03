@@ -1,7 +1,7 @@
 Example:
 
 ```
-  <ExpressionTreeViewer 
+  <ExpressionTreeEditor 
   width={1000}
   height={700}
   allowedErrors={{

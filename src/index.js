@@ -1,2 +1,2 @@
 // eslint-disable-next-line import/prefer-default-export
-export { default as ExpressionTreeViewer } from './components/ExpressionTreeViewer/ExpressionTreeViewer';
+export { default as ExpressionTreeEditor } from './components/ExpressionTreeEditor/ExpressionTreeEditor';

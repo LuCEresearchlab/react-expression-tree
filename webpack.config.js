@@ -41,7 +41,7 @@ module.exports = {
 
   output: {
     filename: 'index.js',
-    library: 'ExpressionTreeViewer',
+    library: 'ExpressionTreeEditor',
     libraryTarget: 'umd',
     publicPath: '/dist/',
     globalObject: 'this',

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
-import { ActionCreators } from 'redux-undo';
 import fscreen from 'fscreen';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -227,7 +225,6 @@ function StageDrawer({
   clearEdgeSelection,
 }) {
   const classes = useStyles();
-  const dispatch = useDispatch();
 
   // State hooks
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
@@ -379,7 +376,7 @@ function StageDrawer({
           .find('.Edge')
           .toArray()
           .map((edge) => edge.moveToBottom());
-        dispatch(ActionCreators.clearHistory());
+        // dispatch(ActionCreators.clearHistory());
       } catch (e) {
         alert('Invalid JSON file.');
       }
