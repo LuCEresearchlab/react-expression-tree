@@ -439,7 +439,7 @@ function Node({
           listening={false}
         />
       )))}
-      {!isFinal && (
+      {!isFinal && !fullDisabled && (
         <Text
           x={nodeWidth - xPad}
           y={3}
@@ -447,18 +447,17 @@ function Node({
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
           text="X"
-          onClick={(e) => !fullDisabled && handleRemoveClick(e)}
-          onTap={(e) => !fullDisabled && handleRemoveClick(e)}
+          onClick={handleRemoveClick}
+          onTap={handleRemoveClick}
           onMouseOver={
-            !fullDisabled
-            && ((e) => {
+            (e) => {
               if (!draggingSelectionRect) {
                 e.cancelBubble = true;
                 document.body.style.cursor = 'pointer';
                 e.target.attrs.fill = nodeDeleteButtonColor;
                 e.target.draw();
               }
-            })
+            }
           }
           onMouseLeave={(e) => {
             if (!draggingSelectionRect) {
