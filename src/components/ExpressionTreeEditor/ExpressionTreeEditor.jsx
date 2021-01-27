@@ -288,88 +288,56 @@ function ExpressionTreeEditor({
     // dispatch(ActionCreators.clearHistory());
   }, []);
 
-  // Key events effect
-  useEffect(() => {
-    // Request focus, so we can respond to key events
-    const stage = stageRef.current;
-    stage.container().tabIndex = 1;
-    stage.container().focus();
-    // Register (and later unregister) keydown and keyup listeners
-    const keyDownListener = function (e) {
-      if (e.key === 'Backspace' || e.key === 'Delete') {
-        if (selectedNode && !selectedNode.isFinal) {
-          clearNodeSelection();
-          removeNode({ nodeId: selectedNode.id, onNodeDelete });
-        } else if (selectedEdge) {
-          setSelectedEdgeRef(null);
-          clearEdgeSelection();
-          removeEdge({ edgeId: selectedEdge.id, onEdgeDelete });
-        }
-      } else if (e.key === 'Escape') {
-        if (addingNode) {
-          clearAdding();
-        } else if (selectedNode) {
-          clearNodeSelection();
-        } else if (selectedEdge) {
-          selectedEdgeRef.moveToBottom();
-          setSelectedEdgeRef(null);
-          clearEdgeSelection();
-        }
-      } else if (e.key === 'Meta' || e.key === 'Shift') {
-        document.body.style.cursor = 'grab';
-        setPressingMeta(true);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      if (selectedNode && !selectedNode.isFinal) {
+        clearNodeSelection();
+        removeNode({ nodeId: selectedNode.id, onNodeDelete });
+      } else if (selectedEdge) {
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
+        removeEdge({ edgeId: selectedEdge.id, onEdgeDelete });
       }
-    };
-    const keyUpListener = function (e) {
-      if (e.key === 'Meta' || e.key === 'Shift') {
-        document.body.style.cursor = 'move';
-        setIsSelectingRectVisible(false);
-        setDraggingSelectionRect(false);
-        const allNodes = stageRef.current.find('.Node').toArray();
-        const box = selectionRectRef.current.getClientRect();
-        const intersectingNodes = allNodes.filter((node) => Konva.Util.haveIntersection(box, node.getClientRect()));
-        intersectingNodes.map((intersectingNode) => intersectingNode.parent.moveToTop());
-        selectedRectRef.current.moveToTop();
-        transformerRef.current.nodes(intersectingNodes);
-        setIsSelectedRectVisible(true);
-        selectedRectRef.current.moveToTop();
-        setPressingMeta(false);
+    } else if (e.key === 'Escape') {
+      if (addingNode) {
+        clearAdding();
+      } else if (selectedNode) {
+        clearNodeSelection();
+      } else if (selectedEdge) {
+        selectedEdgeRef.moveToBottom();
+        setSelectedEdgeRef(null);
+        clearEdgeSelection();
       }
-    };
-    const focusListener = function () {
+    } else if (e.key === 'Meta' || e.key === 'Shift') {
+      document.body.style.cursor = 'grab';
+      setPressingMeta(true);
+    }
+  };
+
+  const handleKeyUp = (e) => {
+    if (e.key === 'Meta' || e.key === 'Shift') {
       document.body.style.cursor = 'move';
       setIsSelectingRectVisible(false);
       setDraggingSelectionRect(false);
+      const allNodes = stageRef.current.find('.Node').toArray();
+      const box = selectionRectRef.current.getClientRect();
+      const intersectingNodes = allNodes.filter((node) => Konva.Util.haveIntersection(box, node.getClientRect()));
+      intersectingNodes.map((intersectingNode) => intersectingNode.parent.moveToTop());
+      selectedRectRef.current.moveToTop();
+      transformerRef.current.nodes(intersectingNodes);
+      setIsSelectedRectVisible(true);
+      selectedRectRef.current.moveToTop();
       setPressingMeta(false);
-    };
-    // Add the event listeners only if the fullDisabled prop is not true
-    if (!fullDisabled) {
-      stage.container().addEventListener('keydown', keyDownListener);
-      stage.container().addEventListener('keyup', keyUpListener);
-      stage.container().addEventListener('focus', focusListener);
-      stage.container().addEventListener('blur', focusListener);
     }
-    return () => {
-      stage.container().removeEventListener('keydown', keyDownListener);
-      stage.container().removeEventListener('keyup', keyUpListener);
-      stage.container().removeEventListener('focus', focusListener);
-      stage.container().removeEventListener('blur', focusListener);
-    };
-  }, [
-    addingNode,
-    clearAdding,
-    clearEdgeSelection,
-    clearNodeSelection,
-    fullDisabled,
-    onEdgeDelete,
-    onNodeDelete,
-    removeEdge,
-    removeNode,
-    selectedEdge,
-    selectedEdgeRef,
-    selectedNode,
-    setInitialState,
-  ]);
+  };
+
+  // TODO Can this be removed?
+  // const onFocus = () => {
+  //   document.body.style.cursor = 'move';
+  //   setIsSelectingRectVisible(false);
+  //   setDraggingSelectionRect(false);
+  //   setPressingMeta(false);
+  // };
 
   // Check if the edge that is going to be added/updated is going to create a loop
   // in the tree, by checking if we get to an already visited node on the walking branch
@@ -1015,6 +983,7 @@ function ExpressionTreeEditor({
       {/* Editor container element, necessary for the modals and alerts
       to appear relative to the container and not relative to the viewport */}
       <div
+        role="tab"
         id="editorContainer"
         style={{
           position: 'relative',
@@ -1022,6 +991,9 @@ function ExpressionTreeEditor({
           borderRadius: '5px',
           backgroundColor: 'white',
         }}
+        tabIndex={0}
+        onKeyDown={!fullDisabled && handleKeyDown}
+        onKeyUp={!fullDisabled && handleKeyUp}
       >
         {/* Top and side bar component */}
         <StageDrawer
