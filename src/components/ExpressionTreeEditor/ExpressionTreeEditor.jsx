@@ -289,45 +289,49 @@ function ExpressionTreeEditor({
   }, []);
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Backspace' || e.key === 'Delete') {
-      if (selectedNode && !selectedNode.isFinal) {
-        clearNodeSelection();
-        removeNode({ nodeId: selectedNode.id, onNodeDelete });
-      } else if (selectedEdge) {
-        setSelectedEdgeRef(null);
-        clearEdgeSelection();
-        removeEdge({ edgeId: selectedEdge.id, onEdgeDelete });
+    if (e.currentTarget === e.target) {
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        if (selectedNode && !selectedNode.isFinal) {
+          clearNodeSelection();
+          removeNode({ nodeId: selectedNode.id, onNodeDelete });
+        } else if (selectedEdge) {
+          setSelectedEdgeRef(null);
+          clearEdgeSelection();
+          removeEdge({ edgeId: selectedEdge.id, onEdgeDelete });
+        }
+      } else if (e.key === 'Escape') {
+        if (addingNode) {
+          clearAdding();
+        } else if (selectedNode) {
+          clearNodeSelection();
+        } else if (selectedEdge) {
+          selectedEdgeRef.moveToBottom();
+          setSelectedEdgeRef(null);
+          clearEdgeSelection();
+        }
+      } else if (e.key === 'Meta' || e.key === 'Shift') {
+        document.body.style.cursor = 'grab';
+        setPressingMeta(true);
       }
-    } else if (e.key === 'Escape') {
-      if (addingNode) {
-        clearAdding();
-      } else if (selectedNode) {
-        clearNodeSelection();
-      } else if (selectedEdge) {
-        selectedEdgeRef.moveToBottom();
-        setSelectedEdgeRef(null);
-        clearEdgeSelection();
-      }
-    } else if (e.key === 'Meta' || e.key === 'Shift') {
-      document.body.style.cursor = 'grab';
-      setPressingMeta(true);
     }
   };
 
   const handleKeyUp = (e) => {
-    if (e.key === 'Meta' || e.key === 'Shift') {
-      document.body.style.cursor = 'move';
-      setIsSelectingRectVisible(false);
-      setDraggingSelectionRect(false);
-      const allNodes = stageRef.current.find('.Node').toArray();
-      const box = selectionRectRef.current.getClientRect();
-      const intersectingNodes = allNodes.filter((node) => Konva.Util.haveIntersection(box, node.getClientRect()));
-      intersectingNodes.map((intersectingNode) => intersectingNode.parent.moveToTop());
-      selectedRectRef.current.moveToTop();
-      transformerRef.current.nodes(intersectingNodes);
-      setIsSelectedRectVisible(true);
-      selectedRectRef.current.moveToTop();
-      setPressingMeta(false);
+    if (e.currentTarget === e.target) {
+      if (e.key === 'Meta' || e.key === 'Shift') {
+        document.body.style.cursor = 'move';
+        setIsSelectingRectVisible(false);
+        setDraggingSelectionRect(false);
+        const allNodes = stageRef.current.find('.Node').toArray();
+        const box = selectionRectRef.current.getClientRect();
+        const intersectingNodes = allNodes.filter((node) => Konva.Util.haveIntersection(box, node.getClientRect()));
+        intersectingNodes.map((intersectingNode) => intersectingNode.parent.moveToTop());
+        selectedRectRef.current.moveToTop();
+        transformerRef.current.nodes(intersectingNodes);
+        setIsSelectedRectVisible(true);
+        selectedRectRef.current.moveToTop();
+        setPressingMeta(false);
+      }
     }
   };
 
