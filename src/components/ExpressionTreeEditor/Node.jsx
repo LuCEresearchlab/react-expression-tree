@@ -289,15 +289,6 @@ function Node({
         shadowBlur={3}
         shadowForStrokeEnabled={false}
       />
-      <Text
-        x={3}
-        y={3}
-        fill={nodeTextColor}
-        fontFamily={fontFamily}
-        fontSize={fontSize * 0.4}
-        text={id}
-        listening={false}
-      />
       {isSelectedRoot ? (
         <Star
           id={id}
