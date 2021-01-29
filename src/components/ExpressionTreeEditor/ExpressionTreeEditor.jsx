@@ -1040,6 +1040,7 @@ function ExpressionTreeEditor({
           stageReset={stageReset}
           uploadState={uploadState}
           reorderNodes={reorderNodes}
+          editValueChange={editValueChange}
           nodeValueChange={nodeValueChange}
           typeValueChange={typeValueChange}
           // TODO: undo / redo
