@@ -7,34 +7,32 @@ function DragEdge({
   childY,
   parentX,
   parentY,
-  fontSize,
-  dragEdgeColor,
-  dragEdgeChildConnectorColor,
-  dragEdgeParentConnectorColor,
+  // Style
+  style,
 }) {
   return (
     // DragEdge is composed of a Line and two Circle ends components
     <>
       <Line
         points={[childX, childY, parentX, parentY]}
-        stroke={dragEdgeColor}
-        strokeWidth={fontSize / 4}
+        stroke={style.edge.dragColor}
+        strokeWidth={style.fontSize / 4}
         lineCap="round"
         lineJoin="round"
       />
       <Circle
         x={childX}
         y={childY}
-        radius={fontSize / 4}
-        fill={dragEdgeChildConnectorColor}
+        radius={style.fontSize / 4}
+        fill={style.edge.connector.childColor}
         stroke="black"
         strokeWidth={1}
       />
       <Circle
         x={parentX}
         y={parentY}
-        radius={fontSize / 4}
-        fill={dragEdgeParentConnectorColor}
+        radius={style.fontSize / 4}
+        fill={style.edge.connector.parentColor}
         stroke="black"
         strokeWidth={1}
       />
@@ -47,10 +45,19 @@ DragEdge.propTypes = {
   childY: PropTypes.number,
   parentX: PropTypes.number,
   parentY: PropTypes.number,
-  fontSize: PropTypes.number,
-  dragEdgeColor: PropTypes.string,
-  dragEdgeChildConnectorColor: PropTypes.string,
-  dragEdgeParentConnectorColor: PropTypes.string,
+  // Style
+  style: PropTypes.exact({
+    fontSize: PropTypes.number,
+    edge: PropTypes.exact({
+      dragColor: PropTypes.string,
+      connector: PropTypes.exact({
+        childColor: PropTypes.string,
+        parentColor: PropTypes.string,
+      }),
+    }),
+  }).isRequired,
 };
+
+DragEdge.defaultProps = {};
 
 export default DragEdge;

@@ -88,7 +88,7 @@ export default {
       value,
       isFinal,
     };
-    onNodeAdd(addingNode);
+    if (onNodeAdd) onNodeAdd(addingNode);
     return {
       ...state,
       nodes: [...state.nodes, addingNode],
@@ -105,7 +105,7 @@ export default {
       onNodeDelete,
     } = payload;
 
-    onNodeDelete(nodeId);
+    if (onNodeDelete) onNodeDelete(nodeId);
     return {
       ...state,
       nodes: state.nodes.filter((node) => node.id !== nodeId),
@@ -128,7 +128,7 @@ export default {
       onNodeSelect,
     } = payload;
 
-    onNodeSelect(selectedNode);
+    if (onNodeSelect) onNodeSelect(selectedNode);
     return {
       ...state,
       selectedNode,
@@ -192,7 +192,7 @@ export default {
       onNodeMove,
     } = payload;
 
-    onNodeMove(nodeId, {
+    if (onNodeMove) onNodeMove(nodeId, {
       x,
       y,
     });
@@ -217,7 +217,7 @@ export default {
 
     const addingEdgeId = maxEdgeId(state) + 1;
     const addingEdge = { ...edge, id: addingEdgeId };
-    onEdgeAdd(addingEdge);
+    if (onEdgeAdd) onEdgeAdd(addingEdge);
     return {
       ...state,
       edges: [...state.edges, addingEdge],
@@ -231,7 +231,7 @@ export default {
       onEdgeDelete,
     } = payload;
 
-    onEdgeDelete(edgeId);
+    if (onEdgeDelete) onEdgeDelete(edgeId);
     return {
       ...state,
       edges: state.edges.filter((edge) => edge.id !== edgeId),
@@ -246,7 +246,7 @@ export default {
       onEdgeUpdate,
     } = payload;
 
-    onEdgeUpdate(newEdge);
+    if (onEdgeUpdate) onEdgeUpdate(newEdge);
     return {
       ...state,
       edges: [
@@ -263,7 +263,7 @@ export default {
       onEdgeSelect,
     } = payload;
 
-    onEdgeSelect(selectedEdge);
+    if (onEdgeSelect) onEdgeSelect(selectedEdge);
     return {
       ...state,
       selectedEdge,
@@ -340,7 +340,7 @@ export default {
       onNodePiecesChange,
     } = payload;
 
-    onNodePiecesChange(pieces);
+    if (onNodePiecesChange) onNodePiecesChange(pieces);
     return {
       ...state,
       nodes: state.nodes.map((node) => (node.id === selectedNodeId
@@ -370,7 +370,7 @@ export default {
       onNodeTypeChange,
     } = payload;
 
-    onNodeTypeChange(type);
+    if (onNodeTypeChange) onNodeTypeChange(type);
     return {
       ...state,
       nodes: state.nodes.map((node) => (node.id === selectedNodeId
@@ -400,7 +400,7 @@ export default {
       onNodeValueChange,
     } = payload;
 
-    onNodeValueChange(value);
+    if (onNodeValueChange) onNodeValueChange(value);
     return {
       ...state,
       nodes: state.nodes.map((node) => (node.id === selectedNodeId

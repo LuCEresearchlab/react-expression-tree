@@ -1,8 +1,7 @@
 Example:
 
 ```
-  <ExpressionTreeEditor 
-  width={1000}
+  <ExpressionTreeEditor
   height={700}
   allowedErrors={{
     loop: true,

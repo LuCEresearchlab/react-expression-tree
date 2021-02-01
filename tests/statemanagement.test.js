@@ -10,21 +10,18 @@ import {
 import reducer from '../src/components/store/reducers';
 
 let state = {
-  editor: {
-    nodes: [],
-    edges: [],
-    dragEdge: null,
-    selectedNode: null,
-    selectedEdge: null,
-    selectedRootNode: null,
-  },
-  drawer: {
-    addingNode: false,
-    addValue: [],
-    editValue: [],
-    typeValue: '',
-    nodeValue: '',
-  },
+  nodes: [],
+  edges: [],
+  dragEdge: null,
+  selectedNode: null,
+  selectedEdge: null,
+  selectedRootNode: null,
+
+  addingNode: false,
+  addValue: [],
+  editValue: [],
+  typeValue: '',
+  nodeValue: '',
 };
 
 describe('lookup functions', () => {
@@ -139,7 +136,7 @@ describe('editor reducer', () => {
         onNodeAdd: () => {},
       },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1,
         pieces,
@@ -162,7 +159,7 @@ describe('editor reducer', () => {
         onNodeAdd: () => {},
       },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1, pieces, x: 10, y: 20, type: '', value: '', isFinal: false,
       },
@@ -182,7 +179,7 @@ describe('editor reducer', () => {
         onNodeAdd: () => {},
       },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1, pieces, x: 10, y: 20, type: '', value: '', isFinal: false,
       },
@@ -205,7 +202,7 @@ describe('editor reducer', () => {
         onNodeAdd: () => {},
       },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1, pieces, x: 10, y: 20, type: '', value: '', isFinal: false,
       },
@@ -238,7 +235,7 @@ describe('editor reducer', () => {
         onNodeValueChange: () => {},
       },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -288,7 +285,7 @@ describe('editor reducer', () => {
       type: 'addEdge',
       payload: { edge: edge1, onEdgeAdd: () => {} },
     });
-    expect(state.editor.present.edges).toEqual([{ id: 1, ...edge1 }]);
+    expect(state.edges).toEqual([{ id: 1, ...edge1 }]);
     const edge2 = {
       childNodeId: 3,
       parentNodeId: 2,
@@ -298,7 +295,7 @@ describe('editor reducer', () => {
       type: 'addEdge',
       payload: { edge: edge2, onEdgeAdd: () => {} },
     });
-    expect(state.editor.present.edges).toEqual([
+    expect(state.edges).toEqual([
       { id: 1, ...edge1 },
       { id: 2, ...edge2 },
     ]);
@@ -311,7 +308,7 @@ describe('editor reducer', () => {
       type: 'addEdge',
       payload: { edge: edge3, onEdgeAdd: () => {} },
     });
-    expect(state.editor.present.edges).toEqual([
+    expect(state.edges).toEqual([
       { id: 1, ...edge1 },
       { id: 2, ...edge2 },
       { id: 3, ...edge3 },
@@ -329,7 +326,7 @@ describe('editor reducer', () => {
       type: 'updateEdge',
       payload: { edgeId: 3, newEdge: newEdge3, onEdgeUpdate: () => {} },
     });
-    expect(state.editor.present.edges).toEqual([
+    expect(state.edges).toEqual([
       {
         id: 1, childNodeId: 2, parentNodeId: 1, parentPieceId: 1,
       },
@@ -347,24 +344,24 @@ describe('editor reducer', () => {
       type: 'selectNode',
       payload: { selectedNode: { id: 2 }, onNodeSelect: () => {} },
     });
-    expect(state.editor.present.selectedNode.id).toEqual(2);
+    expect(state.selectedNode.id).toEqual(2);
     state = reducer(state, {
       type: 'clearNodeSelection',
     });
-    expect(state.editor.present.selectedNode).toEqual(null);
+    expect(state.selectedNode).toEqual(null);
   });
 
   it('should handle selectRootNode, clearRootSelection', () => {
-    const selectedRootNode = nodeById(1, state.editor.present.nodes);
+    const selectedRootNode = nodeById(1, state.nodes);
     state = reducer(state, {
       type: 'selectRootNode',
       payload: { selectedRootNode },
     });
-    expect(state.editor.present.selectedRootNode).toEqual(selectedRootNode);
+    expect(state.selectedRootNode).toEqual(selectedRootNode);
     state = reducer(state, {
       type: 'clearRootSelection',
     });
-    expect(state.editor.present.selectedRootNode).toEqual(null);
+    expect(state.selectedRootNode).toEqual(null);
   });
 
   it('should handle selectEdge, clearEdgeSelection', () => {
@@ -372,11 +369,11 @@ describe('editor reducer', () => {
       type: 'selectEdge',
       payload: { selectedEdge: { id: 1 }, onEdgeSelect: () => {} },
     });
-    expect(state.editor.present.selectedEdge.id).toEqual(1);
+    expect(state.selectedEdge.id).toEqual(1);
     state = reducer(state, {
       type: 'clearEdgeSelection',
     });
-    expect(state.editor.present.selectedEdge).toEqual(null);
+    expect(state.selectedEdge).toEqual(null);
   });
 
   it('should handle moveNodeTo', () => {
@@ -384,7 +381,7 @@ describe('editor reducer', () => {
       type: 'moveNodeTo',
       payload: { nodeId: 3, x: 30, y: 40 },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -426,7 +423,7 @@ describe('editor reducer', () => {
       type: 'moveNodeTo',
       payload: { nodeId: 1, x: 40, y: 30 },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -480,9 +477,9 @@ describe('editor reducer', () => {
       type: 'setDragEdge',
       payload: { dragEdge: dragEdge1 },
     });
-    expect(state.editor.present.dragEdge).toEqual({ ...dragEdge1 });
+    expect(state.dragEdge).toEqual({ ...dragEdge1 });
     state = reducer(state, { type: 'clearDragEdge' });
-    expect(state.editor.present.dragEdge).toEqual(null);
+    expect(state.dragEdge).toEqual(null);
     const dragEdge2 = {
       originalEdgeId: 3,
       updateParent: false,
@@ -497,7 +494,7 @@ describe('editor reducer', () => {
       type: 'setDragEdge',
       payload: { dragEdge: dragEdge2 },
     });
-    expect(state.editor.present.dragEdge).toEqual({ ...dragEdge2 });
+    expect(state.dragEdge).toEqual({ ...dragEdge2 });
   });
 
   it('should handle moveDragEdgeParentEndTo', () => {
@@ -505,14 +502,14 @@ describe('editor reducer', () => {
       type: 'moveDragEdgeParentEndTo',
       payload: { x: 10, y: 20 },
     });
-    expect(state.editor.present.dragEdge.parentX).toEqual(10);
-    expect(state.editor.present.dragEdge.parentY).toEqual(20);
+    expect(state.dragEdge.parentX).toEqual(10);
+    expect(state.dragEdge.parentY).toEqual(20);
     state = reducer(state, {
       type: 'moveDragEdgeParentEndTo',
       payload: { x: 100, y: 200 },
     });
-    expect(state.editor.present.dragEdge.parentX).toEqual(100);
-    expect(state.editor.present.dragEdge.parentY).toEqual(200);
+    expect(state.dragEdge.parentX).toEqual(100);
+    expect(state.dragEdge.parentY).toEqual(200);
   });
 
   it('should handle moveDragEdgeChildEndTo', () => {
@@ -520,14 +517,14 @@ describe('editor reducer', () => {
       type: 'moveDragEdgeChildEndTo',
       payload: { x: 10, y: 20 },
     });
-    expect(state.editor.present.dragEdge.childX).toEqual(10);
-    expect(state.editor.present.dragEdge.childY).toEqual(20);
+    expect(state.dragEdge.childX).toEqual(10);
+    expect(state.dragEdge.childY).toEqual(20);
     state = reducer(state, {
       type: 'moveDragEdgeChildEndTo',
       payload: { x: 100, y: 200 },
     });
-    expect(state.editor.present.dragEdge.childX).toEqual(100);
-    expect(state.editor.present.dragEdge.childY).toEqual(200);
+    expect(state.dragEdge.childX).toEqual(100);
+    expect(state.dragEdge.childY).toEqual(200);
   });
 
   it('should handle removeEdge', () => {
@@ -535,7 +532,7 @@ describe('editor reducer', () => {
       type: 'removeEdge',
       payload: { edgeId: 3, onEdgeDelete: () => {} },
     });
-    expect(state.editor.present.edges).toEqual([
+    expect(state.edges).toEqual([
       {
         id: 1, childNodeId: 2, parentNodeId: 1, parentPieceId: 1,
       },
@@ -554,7 +551,7 @@ describe('editor reducer', () => {
         onNodePiecesChange: () => {},
       },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -592,7 +589,7 @@ describe('editor reducer', () => {
         isFinal: true,
       },
     ]);
-    expect(state.editor.present.edges).toEqual([
+    expect(state.edges).toEqual([
       {
         id: 1, childNodeId: 2, parentNodeId: 1, parentPieceId: 1,
       },
@@ -604,7 +601,7 @@ describe('editor reducer', () => {
       type: 'removeNode',
       payload: { nodeId: 2, onNodeDelete: () => {} },
     });
-    expect(state.editor.present.nodes).toEqual([
+    expect(state.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -633,7 +630,7 @@ describe('editor reducer', () => {
         isFinal: true,
       },
     ]);
-    expect(state.editor.present.edges).toEqual([]);
+    expect(state.edges).toEqual([]);
   });
 
   it('should handle stageReset', () => {
@@ -641,13 +638,18 @@ describe('editor reducer', () => {
       type: 'stageReset',
       payload: { initialNodes: [], initialEdges: [] },
     });
-    expect(state.editor.present).toEqual({
+    expect(state).toEqual({
       nodes: [],
       edges: [],
       dragEdge: null,
       selectedNode: null,
       selectedEdge: null,
       selectedRootNode: null,
+      addingNode: false,
+      addValue: [],
+      editValue: [],
+      typeValue: '',
+      nodeValue: '',
     });
   });
 });
@@ -657,19 +659,19 @@ describe('drawer reducer', () => {
     state = reducer(state, {
       type: 'addingNodeClick',
     });
-    expect(state.drawer.addingNode).toEqual(true);
+    expect(state.addingNode).toEqual(true);
     state = reducer(state, {
       type: 'addingNodeClick',
     });
-    expect(state.drawer.addingNode).toEqual(false);
+    expect(state.addingNode).toEqual(false);
     state = reducer(state, {
       type: 'addingNodeClick',
     });
-    expect(state.drawer.addingNode).toEqual(true);
+    expect(state.addingNode).toEqual(true);
     state = reducer(state, {
       type: 'clearAdding',
     });
-    expect(state.drawer.addingNode).toEqual(false);
+    expect(state.addingNode).toEqual(false);
   });
 
   it('should handle addValueChange', () => {
@@ -677,7 +679,7 @@ describe('drawer reducer', () => {
       type: 'addValueChange',
       payload: { addValue: ['a', '{{}}', 'b'] },
     });
-    expect(state.drawer.addValue).toEqual(['a', '{{}}', 'b']);
+    expect(state.addValue).toEqual(['a', '{{}}', 'b']);
   });
 
   it('should handle editValueChange', () => {
@@ -685,7 +687,7 @@ describe('drawer reducer', () => {
       type: 'editValueChange',
       payload: { editValue: ['a', '{{}}', 'c'] },
     });
-    expect(state.drawer.editValue).toEqual(['a', '{{}}', 'c']);
+    expect(state.editValue).toEqual(['a', '{{}}', 'c']);
   });
 
   it('should handle typeValueChange', () => {
@@ -693,7 +695,7 @@ describe('drawer reducer', () => {
       type: 'typeValueChange',
       payload: { typeValue: 'String' },
     });
-    expect(state.drawer.typeValue).toEqual('String');
+    expect(state.typeValue).toEqual('String');
   });
 
   it('should handle nodeValueChange', () => {
@@ -701,6 +703,6 @@ describe('drawer reducer', () => {
       type: 'nodeValueChange',
       payload: { nodeValue: '"Hello World!' },
     });
-    expect(state.drawer.nodeValue).toEqual('"Hello World!');
+    expect(state.nodeValue).toEqual('"Hello World!');
   });
 });
