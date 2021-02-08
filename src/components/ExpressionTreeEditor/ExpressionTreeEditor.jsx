@@ -9,6 +9,7 @@ import React, {
   useRef,
   useReducer,
   useState,
+  useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 
@@ -221,12 +222,12 @@ function ExpressionTreeEditor({
   }, [dispatch]);
 
   // Set the theme primary and secondary colors according to the recived props
-  const theme = createMuiTheme({
+  const theme = useMemo(() => createMuiTheme({
     palette: {
       primary: { main: style.toolbar.primaryColor },
       secondary: { main: style.toolbar.secondaryColor },
     },
-  });
+  }), [style]);
 
   // Layout utils
   const oText = new Konva.Text({
