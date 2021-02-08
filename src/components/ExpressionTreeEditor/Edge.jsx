@@ -4,32 +4,30 @@ import { Line, Circle, Group } from 'react-konva';
 
 function Edge({
   id,
+  childX,
+  childY,
+  childNodeId,
+  childWidth,
+  parentX,
+  parentY,
   parentNodeId,
   parentPieceId,
   parentPieceX,
-  parentX,
-  parentY,
-  childNodeId,
-  childWidth,
-  childX,
-  childY,
-  selected,
-  beingDragged,
-  fullDisabled,
-  xPad,
-  yPad,
-  holeWidth,
-  textHeight,
+  isDragged,
+  isFullDisabled,
+  isDraggingSelectionRect,
+  isSelected,
   selectedEdgeRef,
   setSelectedEdgeRef,
-  draggingSelectionRect,
   clearEdgeSelection,
   currentErrorLocation,
-  // Event Listeners
+  textHeight,
+  placeholderWidth,
+  nodePaddingX,
+  nodePaddingY,
   onEdgeClick,
   onNodeConnectorDragStart,
-  onHoleConnectorDragStart,
-  // Style
+  onPlaceholderConnectorDragStart,
   style,
 }) {
   // Handle drag start event on edge's node connector end
@@ -48,8 +46,8 @@ function Edge({
     onNodeConnectorDragStart(childNodeId, e.target.x(), e.target.y());
   };
 
-  // Handle drag start event on edge's hole connector end
-  const handleHoleConnectorDragStart = (e) => {
+  // Handle drag start event on edge's placeholder connector end
+  const handlePlaceholderConnectorDragStart = (e) => {
     // prevent onDragStart of Group
     e.cancelBubble = true;
     document.body.style.cursor = 'grabbing';
@@ -61,54 +59,59 @@ function Edge({
     // we don't want the connector to be moved
     e.target.stopDrag();
     // but we want to initiate the moving around of the connection
-    onHoleConnectorDragStart(
+    onPlaceholderConnectorDragStart(
       parentNodeId,
       parentPieceId,
-      e.target.parent.x() + e.target.x() + holeWidth / 2,
-      e.target.parent.y() + e.target.y() + holeWidth * 0.75,
+      e.target.parent.x() + e.target.x() + placeholderWidth / 2,
+      e.target.parent.y() + e.target.y() + placeholderWidth * 0.75,
     );
   };
 
+  /**
+   *
+   * Compute color given a style object
+   *
+   * @param {Object} stl
+   */
+  const computeColor = (stl) => {
+    if (isDragged) {
+      return stl.draggingColor;
+    }
+    if (currentErrorLocation
+      && currentErrorLocation.edge
+      && currentErrorLocation.edgeId === id) {
+      return stl.errorColor;
+    }
+    if (isSelected) {
+      return stl.selectedColor;
+    }
+    return stl.color;
+  };
+
   return (
-    // Edge is a Group composed of a Line and two Circle ends components
+    // Edge is a Group composed of a Line and two Circles
     <Group
       id={id}
       name="Edge"
-      onClick={!fullDisabled && onEdgeClick}
-      onTap={fullDisabled && onEdgeClick}
+      onClick={!isFullDisabled && onEdgeClick}
+      onTap={isFullDisabled && onEdgeClick}
     >
       <Line
         key={`Edge-Line-${id}`}
         points={[
           childX + childWidth / 2,
           childY,
-          parentX + xPad + parentPieceX + holeWidth / 2,
-          parentY + yPad + textHeight / 2,
+          parentX + nodePaddingX + parentPieceX + placeholderWidth / 2,
+          parentY + nodePaddingY + textHeight / 2,
         ]}
-        stroke={
-          beingDragged
-            ? style.edge.draggingColor
-            : currentErrorLocation
-              && currentErrorLocation.edge
-              && currentErrorLocation.edgeId === id
-              ? style.edge.errorColor
-              : selected
-                ? style.edge.selectedColor
-                : style.edge.color
-        }
-        strokeWidth={style.fontSize / 4}
-        lineCap="round"
-        lineJoin="round"
+        stroke={computeColor(style)}
+        strokeWidth={style.strokeSize}
         hitStrokeWidth={10}
-        shadowEnabled={!!selected}
-        shadowColor="black"
-        shadowOffset={{ x: 3, y: 3 }}
-        shadowBlur={3}
         onMouseOver={
-          !fullDisabled
+          !isFullDisabled
           && ((e) => {
             e.cancelBubble = true;
-            if (!draggingSelectionRect) {
+            if (!isDraggingSelectionRect) {
               document.body.style.cursor = 'pointer';
             }
           })
@@ -117,115 +120,108 @@ function Edge({
       <Circle
         x={childX + childWidth / 2}
         y={childY}
-        radius={style.fontSize / 4}
-        fill={
-          beingDragged
-            ? style.edge.draggingColor
-            : currentErrorLocation
-              && currentErrorLocation.edge
-              && currentErrorLocation.edgeId === id
-              ? style.edge.errorColor
-              : style.edge.connector.childColor
-        }
-        stroke="black"
-        strokeWidth={1}
-        shadowEnabled={!!selected}
-        shadowColor="black"
-        shadowOffset={{ x: 2, y: 2 }}
-        shadowBlur={3}
-        shadowForStrokeEnabled={false}
+        radius={style.connector.child.radiusSize}
+        fill={computeColor(style.connector.child)}
+        stroke={style.connector.child.strokeColor}
+        strokeWidth={style.connector.child.strokeSize}
         draggable
-        onDragStart={!fullDisabled && handleNodeConnectorDragStart}
-        onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
+        onDragStart={!isFullDisabled && handleNodeConnectorDragStart}
+        onTouchStart={!isFullDisabled && handleNodeConnectorDragStart}
+        onMouseOver={
+          !isFullDisabled
+          && ((e) => {
+            e.cancelBubble = true;
+            if (!isDraggingSelectionRect) {
+              document.body.style.cursor = 'grab';
+            }
+          })
+        }
         onDragMove={() => {}}
         onDragEnd={() => {}}
-        onMouseOver={
-          !fullDisabled
-          && ((e) => {
-            e.cancelBubble = true;
-            if (!draggingSelectionRect) {
-              document.body.style.cursor = 'grab';
-            }
-          })
-        }
       />
       <Circle
-        x={parentX + xPad + parentPieceX + holeWidth / 2}
-        y={parentY + yPad + textHeight / 2}
-        radius={style.fontSize / 4}
-        fill={
-          beingDragged
-            ? style.edge.draggingColor
-            : currentErrorLocation
-              && currentErrorLocation.edge
-              && currentErrorLocation.edgeId === id
-              ? style.edge.errorColor
-              : style.edge.connector.parentColor
-        }
-        stroke="black"
-        strokeWidth={1}
-        shadowEnabled={!!selected}
-        shadowColor="black"
-        shadowOffset={{ x: 2, y: 2 }}
-        shadowBlur={3}
-        shadowForStrokeEnabled={false}
+        x={parentX + nodePaddingX + parentPieceX + placeholderWidth / 2}
+        y={parentY + nodePaddingY + textHeight / 2}
+        radius={style.connector.parent.radiusSize}
+        fill={computeColor(style.connector.parent)}
+        stroke={style.connector.parent.strokeColor}
+        strokeWidth={style.connector.parent.strokeSize}
         draggable
-        onDragStart={!fullDisabled && handleHoleConnectorDragStart}
-        onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
-        onDragMove={(e) => {}}
-        onDragEnd={(e) => {}}
+        onDragStart={!isFullDisabled && handlePlaceholderConnectorDragStart}
+        onTouchStart={!isFullDisabled && handleNodeConnectorDragStart}
         onMouseOver={
-          !fullDisabled
+          !isFullDisabled
           && ((e) => {
             e.cancelBubble = true;
-            if (!draggingSelectionRect) {
+            if (!isDraggingSelectionRect) {
               document.body.style.cursor = 'grab';
             }
           })
         }
+        onDragMove={() => {}}
+        onDragEnd={() => {}}
       />
     </Group>
   );
 }
 
 Edge.propTypes = {
-  id: PropTypes.number,
-  parentNodeId: PropTypes.number,
-  parentPieceId: PropTypes.number,
-  parentPieceX: PropTypes.number,
-  parentX: PropTypes.number,
-  parentY: PropTypes.number,
-  childNodeId: PropTypes.number,
-  childWidth: PropTypes.number,
-  childX: PropTypes.number,
-  childY: PropTypes.number,
-  selected: PropTypes.bool,
-  beingDragged: PropTypes.bool,
-  fullDisabled: PropTypes.bool,
-  xPad: PropTypes.number,
-  yPad: PropTypes.number,
-  holeWidth: PropTypes.number,
-  textHeight: PropTypes.number,
-  selectedEdgeRef: PropTypes.object,
-  setSelectedEdgeRef: PropTypes.func,
-  draggingSelectionRect: PropTypes.bool,
-  clearEdgeSelection: PropTypes.func,
-  currentErrorLocation: PropTypes.object,
-  // Event Listeners
+  id: PropTypes.number.isRequired,
+  childX: PropTypes.number.isRequired,
+  childY: PropTypes.number.isRequired,
+  childNodeId: PropTypes.number.isRequired,
+  childWidth: PropTypes.number.isRequired,
+  parentX: PropTypes.number.isRequired,
+  parentY: PropTypes.number.isRequired,
+  parentNodeId: PropTypes.number.isRequired,
+  parentPieceId: PropTypes.number.isRequired,
+  parentPieceX: PropTypes.number.isRequired,
+  isDragged: PropTypes.bool.isRequired,
+  isFullDisabled: PropTypes.bool.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  isDraggingSelectionRect: PropTypes.bool.isRequired,
+  selectedEdgeRef: PropTypes.shape({
+    moveToBottom: PropTypes.func,
+  }).isRequired,
+  setSelectedEdgeRef: PropTypes.func.isRequired,
+  clearEdgeSelection: PropTypes.func.isRequired,
+  currentErrorLocation: PropTypes.shape({
+    edge: PropTypes.string,
+    edgeId: PropTypes.string,
+  }).isRequired,
+  textHeight: PropTypes.number.isRequired,
+  placeholderWidth: PropTypes.number.isRequired,
+  nodePaddingX: PropTypes.number.isRequired,
+  nodePaddingY: PropTypes.number.isRequired,
   onEdgeClick: PropTypes.func,
   onNodeConnectorDragStart: PropTypes.func,
-  onHoleConnectorDragStart: PropTypes.func,
-  // Style
+  onPlaceholderConnectorDragStart: PropTypes.func,
   style: PropTypes.exact({
-    fontSize: PropTypes.number,
-    edge: PropTypes.exact({
-      color: PropTypes.string,
-      errorColor: PropTypes.string,
-      childConnectorColor: PropTypes.string,
-      parentConnectorColor: PropTypes.string,
-      selectedColor: PropTypes.string,
-      dragColor: PropTypes.string,
-      draggingColor: PropTypes.string,
+    strokeSize: PropTypes.number,
+    color: PropTypes.string,
+    errorColor: PropTypes.string,
+    childConnectorColor: PropTypes.string,
+    parentConnectorColor: PropTypes.string,
+    selectedColor: PropTypes.string,
+    draggingColor: PropTypes.string,
+    connector: PropTypes.exact({
+      child: PropTypes.exact({
+        radiusSize: PropTypes.number,
+        color: PropTypes.string,
+        emptyColor: PropTypes.string,
+        draggingColor: PropTypes.string,
+        errorColor: PropTypes.string,
+        strokeSize: PropTypes.number,
+        strokeColor: PropTypes.string,
+      }),
+      parent: PropTypes.exact({
+        radiusSize: PropTypes.number,
+        color: PropTypes.string,
+        draggingColor: PropTypes.string,
+        errorColor: PropTypes.string,
+        strokeSize: PropTypes.number,
+        strokeColor: PropTypes.string,
+      }),
     }),
   }).isRequired,
 };
@@ -233,7 +229,7 @@ Edge.propTypes = {
 Edge.defaultProps = {
   onEdgeClick: null,
   onNodeConnectorDragStart: null,
-  onHoleConnectorDragStart: null,
+  onPlaceholderConnectorDragStart: null,
 };
 
 export default Edge;

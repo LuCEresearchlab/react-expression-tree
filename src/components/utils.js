@@ -128,7 +128,7 @@ export const closestParentPiece = (
     const { pieces } = nodeById(node.id, nodes);
     pieces.forEach((piece, i) => {
       if (piece === connectorPlaceholder) {
-        const pieceX = computePiecesPositions(
+        const pieceX = computeLabelPiecesPositions(
           pieces,
           connectorPlaceholder,
           fontSize,
@@ -182,7 +182,7 @@ export function computePiecesWidths(
 }
 
 // Compute all the node's pieces positions
-export function computePiecesPositions(
+export function computeLabelPiecesPositions(
   pieces,
   connectorPlaceholder,
   fontSize,

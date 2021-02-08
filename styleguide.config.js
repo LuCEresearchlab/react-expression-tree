@@ -9,6 +9,8 @@ module.exports = {
     '**/components/**/DragEdge.jsx',
     '**/components/**/Edge.jsx',
     '**/components/**/Node.jsx',
+    '**/components/**/NodeLabel.jsx',
+    '**/components/**/TopConnector.jsx',
     '**/components/**/StageDrawer.jsx',
   ],
   showSidebar: true,

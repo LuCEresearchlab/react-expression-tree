@@ -195,7 +195,6 @@ function StageDrawer({
   onValidate,
   fontSize,
   fontFamily,
-  yPad,
   textHeight,
   nodes,
   edges,
@@ -1674,7 +1673,6 @@ StageDrawer.propTypes = {
   onValidate: PropTypes.func,
   fontSize: PropTypes.number,
   fontFamily: PropTypes.string,
-  yPad: PropTypes.number,
   textHeight: PropTypes.number,
   nodes: PropTypes.arrayOf(
     PropTypes.shape({
@@ -1725,6 +1723,10 @@ StageDrawer.propTypes = {
     isFinal: PropTypes.bool,
   }),
   clearEdgeSelection: PropTypes.func,
+};
+
+StageDrawer.defaultProps = {
+
 };
 
 export default StageDrawer;

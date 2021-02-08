@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Rect, Text, Group, Circle, Star, Label, Tag,
+  Group,
+  Label,
+  Rect,
+  Tag,
+  Text,
 } from 'react-konva';
+
 import {
-  computePiecesPositions,
-  edgeByChildNode,
-  edgeByParentPiece,
+  computeLabelPiecesPositions,
 } from '../utils';
+
+import NodeLabel from './NodeLabel';
+import TopConnector from './TopConnector';
 
 function Node({
   id,
-  pieces,
-  x,
-  y,
+  labelPieces,
+  positionX,
+  positionY,
+
   nodeWidth,
   nodeHeight,
   type,
@@ -31,45 +38,53 @@ function Node({
   stageRef,
   stageWidth,
   stageHeight,
-  pressingMeta,
-  xPad,
-  yPad,
-  holeWidth,
+  isPressingMetaOrShift,
   textHeight,
   connectorPlaceholder,
-  fullDisabled,
+  isFullDisabled,
   removeNode,
   clearNodeSelection,
   moveNodeTo,
   moveNodeToEnd,
   clearEdgeSelection,
+
+  placeholderWidth,
   // Event Listeners
   onNodeMove,
-  onNodeSelect,
   onNodeDelete,
   onNodeClick,
   onNodeDblClick,
   onNodeConnectorDragStart,
-  onHoleConnectorDragStart,
+  onPlaceholderConnectorDragStart,
   // Style
-  style,
+  fontSize,
+  fontFamily,
+  nodeStyle,
+  connectorStyle,
 }) {
   // State hook to keep track when we are dragging a node
-  // and not from a node/hole connector
+  // and not from a node/placeholder connector
   const [draggingNode, setDraggingNode] = useState(false);
+  const [labelPiecesPosition, setLabelPiecesPosition] = useState(
+    new Array(labelPieces.length).fill(0),
+  );
 
   // Compute the positions of each node piece
-  const piecesPos = computePiecesPositions(
-    pieces,
-    connectorPlaceholder,
-    style.fontSize,
-    style.fontFamily,
-  );
+  useEffect(() => {
+    setLabelPiecesPosition(computeLabelPiecesPositions(
+      labelPieces,
+      connectorPlaceholder,
+      fontSize,
+      fontFamily,
+    ));
+  }, [labelPieces, connectorPlaceholder, fontSize, fontFamily]);
+
+  const { paddingX, paddingY } = nodeStyle;
 
   // Handle drag start event of a node, if a meta key is not being pressed,
   // set up the state for node drag move event, otherwise stop the node drag
   const handleDragStart = (e) => {
-    if (!pressingMeta) {
+    if (!isPressingMetaOrShift) {
       transformerRef.current.nodes([]);
       e.currentTarget.moveToTop();
       setDraggingNode(true);
@@ -87,7 +102,6 @@ function Node({
   const handleDragMove = (e) => {
     e.cancelBubble = true;
     if (draggingNode) {
-      const id = e.target.id();
       const x = e.target.x();
       const y = e.target.y();
       moveNodeTo({ nodeId: id, x, y });
@@ -100,7 +114,6 @@ function Node({
     e.cancelBubble = true;
     document.body.style.cursor = 'pointer';
     if (draggingNode) {
-      const id = e.target.id();
       const x = e.target.x();
       const y = e.target.y();
       moveNodeToEnd({
@@ -112,46 +125,18 @@ function Node({
 
   // Handle node click event, selecting the target node if a meta key is not being pressed
   const handleNodeClick = (e) => {
-    if (!pressingMeta) {
+    if (!isPressingMetaOrShift) {
       e.cancelBubble = true;
       transformerRef.current.nodes([]);
       onNodeClick(e);
     }
   };
 
-  // Handle drag start event from a node connector,
-  // starting drag event from the node connector if a meta key is not being pressed,
-  // otherwise stop the node connector drag
-  const handleNodeConnectorDragStart = (e) => {
-    if (!pressingMeta) {
-      // prevent onDragStart of Group
-      e.cancelBubble = true;
-      transformerRef.current.nodes([]);
-      if (selectedEdgeRef) {
-        selectedEdgeRef.moveToBottom();
-        setSelectedEdgeRef(null);
-        clearEdgeSelection();
-      }
-      document.body.style.cursor = 'grabbing';
-      const nodeId = e.target.id();
-      // we don't want the connector to be moved
-      e.target.stopDrag();
-      // but we want to initiate the moving around of the connection
-      onNodeConnectorDragStart(
-        nodeId,
-        e.target.parent.x() + e.target.x(),
-        e.target.parent.y() + e.target.y(),
-      );
-    } else {
-      e.target.stopDrag();
-    }
-  };
-
-  // Handle drag start event from a hole connector,
-  // starting drag event from the hole connector if a meta key is not being pressed,
-  // otherwise stop the hole connector drag
-  const handleHoleConnectorDragStart = (e, nodeId) => {
-    if (!pressingMeta) {
+  // Handle drag start event from a placeholder connector,
+  // starting drag event from the placeholder connector if a meta key is not being pressed,
+  // otherwise stop the placeholder connector drag
+  const handlePlaceholderConnectorDragStart = (e, nodeId) => {
+    if (!isPressingMetaOrShift) {
       // prevent onDragStart of Group
       e.cancelBubble = true;
       transformerRef.current.nodes([]);
@@ -162,20 +147,24 @@ function Node({
       }
       document.body.style.cursor = 'grabbing';
       const pieceId = e.target.id();
+
       // we don't want the connector to be moved
       e.target.stopDrag();
       // but we want to initiate the moving around of the connection
-      onHoleConnectorDragStart(
+      onPlaceholderConnectorDragStart(
         nodeId,
         pieceId,
-        e.target.parent.parent.x()
+        e.target.parent.parent.parent.x()
+          + e.target.parent.parent.x()
           + e.target.parent.x()
-          + e.target.x()
-          + holeWidth / 2,
-        e.target.parent.parent.y()
+          + paddingX
+          + labelPiecesPosition[pieceId]
+          + placeholderWidth / 2,
+        e.target.parent.parent.parent.y()
+          + e.target.parent.parent.y()
           + e.target.parent.y()
-          + e.target.y()
-          + holeWidth * 0.75,
+          + paddingY
+          + textHeight / 2,
       );
     } else {
       e.target.stopDrag();
@@ -220,29 +209,50 @@ function Node({
     });
   };
 
+  /**
+   *
+   * Compute node color given a style object
+   *
+   * @param {Object} stl
+   */
+  const computeColor = (stl) => {
+    if (currentErrorLocation
+      && currentErrorLocation.node
+      && currentErrorLocation.nodeId === id) {
+      return stl.errorColor;
+    }
+    if (isSelected) {
+      return stl.selectedColor;
+    }
+    if (isFinal) {
+      return stl.finalColor;
+    }
+    return stl.fillColor;
+  };
+
   return (
     // A Node is a Group consisting in a Rect, an id Text, an "X" node deleting Text,
-    // a Circle/Star node connector, zero or more Rect hole connectors (+ Circle if hole if already occupied),
-    // one or more text pieces, and Label containing the node's selected type and value
+    // a Circle/Star node connector, zero or more Rect placeholder connectors (+ Circle if placeholder if already occupied),
+    // one or more text labelPieces, and Label containing the node's selected type and value
     <Group
       key={`Node-${id}`}
-      id={id}
-      x={x}
-      y={y}
-      draggable={!fullDisabled}
-      onClick={!fullDisabled && handleNodeClick}
-      onTap={!fullDisabled && handleNodeClick}
-      onDblClick={!fullDisabled && onNodeDblClick}
-      onDblTap={!fullDisabled && onNodeDblClick}
-      onDragStart={!fullDisabled && ((e) => handleDragStart(e))}
-      onTouchStart={!fullDisabled && ((e) => handleDragStart(e))}
-      onDragMove={!fullDisabled && handleDragMove}
-      onTouchMove={!fullDisabled && handleDragMove}
-      onDragEnd={!fullDisabled && handleDragEnd}
-      onTouchEnd={!fullDisabled && handleDragEnd}
+      nodeId={id}
+      x={positionX}
+      y={positionY}
+      draggable={!isFullDisabled}
+      onClick={!isFullDisabled && handleNodeClick}
+      onTap={!isFullDisabled && handleNodeClick}
+      onDblClick={!isFullDisabled && onNodeDblClick}
+      onDblTap={!isFullDisabled && onNodeDblClick}
+      onDragStart={!isFullDisabled && ((e) => handleDragStart(e))}
+      onTouchStart={!isFullDisabled && ((e) => handleDragStart(e))}
+      onDragMove={!isFullDisabled && handleDragMove}
+      onTouchMove={!isFullDisabled && handleDragMove}
+      onDragEnd={!isFullDisabled && handleDragEnd}
+      onTouchEnd={!isFullDisabled && handleDragEnd}
       dragBoundFunc={(pos) => checkDragBound(pos)}
       onMouseOver={
-        !fullDisabled
+        !isFullDisabled
         && ((e) => {
           e.cancelBubble = true;
           document.body.style.cursor = 'pointer';
@@ -253,179 +263,53 @@ function Node({
         name="Node"
         id={id}
         key={`NodeRect-${id}`}
-        x={0}
-        y={0}
         width={nodeWidth}
         height={nodeHeight}
-        fill={
-          currentErrorLocation
-          && currentErrorLocation.node
-          && currentErrorLocation.nodeId === id
-            ? style.node.errorColor
-            : isSelected
-              ? style.node.selectedColor
-              : isFinal
-                ? style.node.finalColor
-                : style.node.color
-        }
-        stroke="black"
-        strokeWidth={isSelected ? 2 : 1}
-        cornerRadius={5}
-        hitStrokeWidth={0}
-        shadowEnabled={!!isSelected}
-        shadowColor="black"
-        shadowOffset={{ x: 3, y: 3 }}
-        shadowBlur={3}
-        shadowForStrokeEnabled={false}
+        fill={computeColor(nodeStyle)}
+        stroke={nodeStyle.strokeColor}
+        strokeWidth={isSelected ? nodeStyle.strokeSelectedWidth : nodeStyle.strokeWidth}
+        cornerRadius={nodeStyle.radius}
       />
-      {isSelectedRoot ? (
-        <Star
-          id={id}
-          x={nodeWidth / 2}
-          y={0}
-          numPoints={5}
-          innerRadius={style.fontSize / 5}
-          outerRadius={style.fontSize / 2.5}
-          fill={
-            currentErrorLocation
-            && currentErrorLocation.nodeConnector
-            && currentErrorLocation.nodeId === id
-              ? style.node.errorColor
-              : isSelected
-                ? style.node.selectedColor
-                : edgeByChildNode(id, edges).length > 0
-                  ? style.edge.connector.childColor
-                  : style.node.connector.rootColor
-          }
-          stroke="black"
-          strokeWidth={2}
-          draggable={!fullDisabled}
-          onDragStart={!fullDisabled && handleNodeConnectorDragStart}
-          onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
-          onDragMove={() => {}}
-          onDragEnd={() => {}}
-          onMouseOver={
-            !fullDisabled
-            && ((e) => {
-              e.cancelBubble = true;
-              document.body.style.cursor = 'grab';
-            })
-          }
-        />
-      ) : (
-        <Circle
-          key={`NodeConnector-${id}`}
-          id={id}
-          x={nodeWidth / 2}
-          y={0}
-          radius={style.fontSize / 4}
-          fill={
-            currentErrorLocation
-            && currentErrorLocation.nodeConnector
-            && currentErrorLocation.nodeId === id
-              ? style.node.errorColor
-              : edgeByChildNode(id, edges).length > 0
-                ? style.edge.connector.childColor
-                : style.node.connector.nodeColor
-          }
-          stroke="black"
-          strokeWidth={1}
-          draggable={!fullDisabled}
-          onDragStart={!fullDisabled && handleNodeConnectorDragStart}
-          onTouchStart={!fullDisabled && handleNodeConnectorDragStart}
-          onDragMove={() => {}}
-          onDragEnd={() => {}}
-          onMouseOver={
-            !fullDisabled
-            && ((e) => {
-              e.cancelBubble = true;
-              document.body.style.cursor = 'grab';
-            })
-          }
-        />
-      )}
-      {pieces.map((p, i) => (p === connectorPlaceholder ? (
-        <Group key={`HolePiece-${i}`}>
-          <Rect
-            id={i}
-            x={xPad + piecesPos[i]}
-            y={nodeHeight / 2 - yPad}
-            width={holeWidth}
-            height={textHeight}
-            fill={
-                currentErrorLocation
-                && currentErrorLocation.pieceConnector
-                && currentErrorLocation.nodeId === id
-                && currentErrorLocation.pieceId === i
-                  ? style.node.errorColor
-                  : style.node.placeholderColor
-              }
-            stroke="black"
-            strokeWidth={1}
-            cornerRadius={3}
-            draggable={!fullDisabled}
-            onDragStart={
-                !fullDisabled && ((e) => handleHoleConnectorDragStart(e, id))
-              }
-            onTouchStart={
-                !fullDisabled && ((e) => handleHoleConnectorDragStart(e, id))
-              }
-            onDragMove={() => {}}
-            onDragEnd={() => {}}
-            onMouseOver={
-                !fullDisabled
-                && ((e) => {
-                  e.cancelBubble = true;
-                  document.body.style.cursor = 'grab';
-                })
-              }
-          />
-          <Circle
-            id={i}
-            x={xPad + piecesPos[i] + holeWidth / 2}
-            y={yPad + textHeight / 2}
-            draggable={!fullDisabled}
-            onDragStart={
-                !fullDisabled && ((e) => handleHoleConnectorDragStart(e, id))
-              }
-            onTouchStart={
-                !fullDisabled && ((e) => handleHoleConnectorDragStart(e, id))
-              }
-            onDragMove={(e) => {}}
-            onDragEnd={(e) => {}}
-            radius={style.fontSize / 4}
-            fill={style.edge.connector.parentColor}
-            stroke="black"
-            strokeWidth={1}
-            onMouseOver={
-                !fullDisabled
-                && ((e) => {
-                  e.cancelBubble = true;
-                  document.body.style.cursor = 'grab';
-                })
-              }
-            visible={edgeByParentPiece(id, i, edges).length > 0}
-          />
-        </Group>
-      ) : (
+      <TopConnector
+        nodeId={id}
+        edges={edges}
+        nodeWidth={nodeWidth}
+        currentErrorLocation={currentErrorLocation}
+        isSelectedRoot={isSelectedRoot}
+        isFullDisabled={isFullDisabled}
+        isSelected={isSelected}
+        selectedEdgeRef={selectedEdgeRef}
+        setSelectedEdgeRef={setSelectedEdgeRef}
+        clearEdgeSelection={clearEdgeSelection}
+        transformerRef={transformerRef}
+        onNodeConnectorDragStart={onNodeConnectorDragStart}
+        nodeStyle={nodeStyle}
+        connectorStyle={connectorStyle}
+      />
+      <NodeLabel
+        nodeId={id}
+        connectorPlaceholder={connectorPlaceholder}
+        placeholderWidth={placeholderWidth}
+        labelPieces={labelPieces}
+        labelPiecesPosition={labelPiecesPosition}
+        textHeight={textHeight}
+        nodeHeight={nodeHeight}
+        edges={edges}
+        currentErrorLocation={currentErrorLocation}
+        isFullDisabled={isFullDisabled}
+        handlePlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
+        fontFamily={fontFamily}
+        fontSize={fontSize}
+        nodeStyle={nodeStyle}
+        connectorStyle={connectorStyle}
+      />
+      {!isFinal && !isFullDisabled && (
         <Text
-          key={`TextPiece-${i}`}
-          x={xPad + piecesPos[i]}
-          y={yPad}
-          fill={style.node.textColor}
-          fontFamily={style.fontFamily}
-          fontSize={style.fontSize}
-          text={p}
-          listening={false}
-        />
-      )))}
-      {!isFinal && !fullDisabled && (
-        <Text
-          x={nodeWidth - xPad}
+          x={nodeWidth - paddingX}
           y={3}
-          fill={style.node.textColor}
-          fontFamily={style.fontFamily}
-          fontSize={style.fontSize / 2}
+          fill={nodeStyle.textColor}
+          fontFamily={fontFamily}
+          fontSize={fontSize / 2}
           text="X"
           onClick={handleRemoveClick}
           onTap={handleRemoveClick}
@@ -434,7 +318,7 @@ function Node({
               if (!draggingSelectionRect) {
                 e.cancelBubble = true;
                 document.body.style.cursor = 'pointer';
-                e.target.attrs.fill = style.node.deleteButtonColor;
+                e.target.attrs.fill = nodeStyle.deleteButtonColor;
                 e.target.draw();
               }
             }
@@ -442,26 +326,26 @@ function Node({
           onMouseLeave={(e) => {
             if (!draggingSelectionRect) {
               e.cancelBubble = true;
-              e.target.attrs.fill = style.node.textColor;
+              e.target.attrs.fill = nodeStyle.textColor;
               e.target.draw();
             }
           }}
         />
       )}
-      <Label x={nodeWidth / 2} y={-style.fontSize / 4}>
+      <Label x={nodeWidth / 2} y={-fontSize / 4}>
         <Tag
-          fill={style.node.tagColor}
+          fill={nodeStyle.tagColor}
           stroke="black"
           strokeWidth={type !== '' || value !== '' ? 1 : 0}
           pointerDirection="down"
-          pointerWidth={type !== '' || value !== '' ? style.fontSize / 3 : 0}
-          pointerHeight={type !== '' || value !== '' ? style.fontSize / 4 : 0}
+          pointerWidth={type !== '' || value !== '' ? fontSize / 3 : 0}
+          pointerHeight={type !== '' || value !== '' ? fontSize / 4 : 0}
           cornerRadius={3}
         />
         <Text
-          fill={style.node.textColor}
-          fontFamily={style.fontFamily}
-          fontSize={style.fontSize / 2}
+          fill={nodeStyle.textColor}
+          fontFamily={fontFamily}
+          fontSize={fontSize / 2}
           text={type + (type !== '' && value !== '' ? ': ' : '') + value}
           padding={type !== '' || value !== '' ? 5 : 0}
         />
@@ -471,10 +355,11 @@ function Node({
 }
 
 Node.propTypes = {
-  id: PropTypes.number,
-  pieces: PropTypes.arrayOf(PropTypes.string),
-  x: PropTypes.number,
-  y: PropTypes.number,
+  id: PropTypes.number.isRequired,
+  labelPieces: PropTypes.arrayOf(PropTypes.string).isRequired,
+  positionX: PropTypes.number.isRequired,
+  positionY: PropTypes.number.isRequired,
+
   nodeWidth: PropTypes.number,
   nodeHeight: PropTypes.number,
   type: PropTypes.string,
@@ -484,7 +369,7 @@ Node.propTypes = {
   isSelectedRoot: PropTypes.bool,
   nodes: PropTypes.arrayOf(
     PropTypes.shape({
-      pieces: PropTypes.arrayOf(PropTypes.string),
+      labelPieces: PropTypes.arrayOf(PropTypes.string),
       x: PropTypes.number,
       y: PropTypes.number,
       type: PropTypes.string,
@@ -501,61 +386,77 @@ Node.propTypes = {
   stageRef: PropTypes.object,
   stageWidth: PropTypes.number,
   stageHeight: PropTypes.number,
-  pressingMeta: PropTypes.bool,
-  xPad: PropTypes.number,
-  yPad: PropTypes.number,
-  holeWidth: PropTypes.number,
+  isPressingMetaOrShift: PropTypes.bool,
   textHeight: PropTypes.number,
-  connectorPlaceholder: PropTypes.string,
-  fullDisabled: PropTypes.bool,
+  isFullDisabled: PropTypes.bool,
   removeNode: PropTypes.func,
   clearNodeSelection: PropTypes.func,
   moveNodeTo: PropTypes.func,
   moveNodeToEnd: PropTypes.func,
   clearEdgeSelection: PropTypes.func,
+
+  connectorPlaceholder: PropTypes.string.isRequired,
+  placeholderWidth: PropTypes.number.isRequired,
   // Event Listeners
   onNodeMove: PropTypes.func,
-  onNodeSelect: PropTypes.func,
   onNodeDelete: PropTypes.func,
   onNodeClick: PropTypes.func,
   onNodeDblClick: PropTypes.func,
   onNodeConnectorDragStart: PropTypes.func,
-  onHoleConnectorDragStart: PropTypes.func,
-  // Style
-  style: PropTypes.exact({
-    fontSize: PropTypes.number,
-    fontFamily: PropTypes.string,
-    node: PropTypes.exact({
-      color: PropTypes.string,
-      errorColor: PropTypes.string,
-      selectedColor: PropTypes.string,
-      finalColor: PropTypes.string,
-      placeholderColor: PropTypes.string,
-      tagColor: PropTypes.string,
-      textColor: PropTypes.string,
-      deleteButtonColor: PropTypes.string,
-      connector: PropTypes.exact({
-        rootColor: PropTypes.string,
-        nodeColor: PropTypes.string,
-      }),
+  onPlaceholderConnectorDragStart: PropTypes.func,
+  fontSize: PropTypes.number.isRequired,
+  fontFamily: PropTypes.string.isRequired,
+  nodeStyle: PropTypes.exact({
+    paddingX: PropTypes.number,
+    paddingY: PropTypes.number,
+    radius: PropTypes.number,
+    strokeColor: PropTypes.string,
+    strokeWidth: PropTypes.number,
+    strokeSelectedWidth: PropTypes.number,
+    fillColor: PropTypes.string,
+    errorColor: PropTypes.string,
+    selectedColor: PropTypes.string,
+    finalColor: PropTypes.string,
+    placeholderColor: PropTypes.string,
+    tagColor: PropTypes.string,
+    textColor: PropTypes.string,
+    deleteButtonColor: PropTypes.string,
+    star: PropTypes.exact({
+      strokeSize: PropTypes.number,
+      strokeColor: PropTypes.string,
+      numPoints: PropTypes.number,
+      innerRadius: PropTypes.number,
+      outerRadius: PropTypes.number,
     }),
-    edge: PropTypes.exact({
-      connector: PropTypes.exact({
-        childColor: PropTypes.string,
-        parentColor: PropTypes.string,
-      }),
+  }).isRequired,
+  connectorStyle: PropTypes.exact({
+    child: PropTypes.exact({
+      radiusSize: PropTypes.number,
+      color: PropTypes.string,
+      emptyColor: PropTypes.string,
+      draggingColor: PropTypes.string,
+      errorColor: PropTypes.string,
+      strokeSize: PropTypes.number,
+      strokeColor: PropTypes.string,
+    }),
+    parent: PropTypes.exact({
+      radiusSize: PropTypes.number,
+      color: PropTypes.string,
+      draggingColor: PropTypes.string,
+      errorColor: PropTypes.string,
+      strokeSize: PropTypes.number,
+      strokeColor: PropTypes.string,
     }),
   }).isRequired,
 };
 
 Node.defaultProps = {
   onNodeMove: null,
-  onNodeSelect: null,
   onNodeDelete: null,
   onNodeClick: null,
   onNodeDblClick: null,
   onNodeConnectorDragStart: null,
-  onHoleConnectorDragStart: null,
+  onPlaceholderConnectorDragStart: null,
 };
 
 export default Node;

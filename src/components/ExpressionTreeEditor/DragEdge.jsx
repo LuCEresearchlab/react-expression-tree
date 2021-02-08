@@ -2,57 +2,66 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Line, Circle } from 'react-konva';
 
+/**
+ *
+ * The DragEdge component represent the Edge that is being dragged
+ *
+ */
 function DragEdge({
   childX,
   childY,
   parentX,
   parentY,
-  // Style
   style,
 }) {
   return (
-    // DragEdge is composed of a Line and two Circle ends components
+    // DragEdge is composed of a Line and two Circles
     <>
       <Line
         points={[childX, childY, parentX, parentY]}
-        stroke={style.edge.dragColor}
-        strokeWidth={style.fontSize / 4}
-        lineCap="round"
-        lineJoin="round"
+        stroke={style.color}
+        strokeWidth={style.strokeSize}
       />
       <Circle
         x={childX}
         y={childY}
-        radius={style.fontSize / 4}
-        fill={style.edge.connector.childColor}
-        stroke="black"
-        strokeWidth={1}
+        radius={style.connector.child.radiusSize}
+        fill={style.connector.child.color}
+        stroke={style.connector.child.strokeColor}
+        strokeWidth={style.connector.child.strokeSize}
       />
       <Circle
         x={parentX}
         y={parentY}
-        radius={style.fontSize / 4}
-        fill={style.edge.connector.parentColor}
-        stroke="black"
-        strokeWidth={1}
+        radius={style.connector.parent.radiusSize}
+        fill={style.connector.parent.color}
+        stroke={style.connector.parent.strokeColor}
+        strokeWidth={style.connector.parent.strokeSize}
       />
     </>
   );
 }
 
 DragEdge.propTypes = {
-  childX: PropTypes.number,
-  childY: PropTypes.number,
-  parentX: PropTypes.number,
-  parentY: PropTypes.number,
-  // Style
+  childX: PropTypes.number.isRequired,
+  childY: PropTypes.number.isRequired,
+  parentX: PropTypes.number.isRequired,
+  parentY: PropTypes.number.isRequired,
   style: PropTypes.exact({
-    fontSize: PropTypes.number,
-    edge: PropTypes.exact({
-      dragColor: PropTypes.string,
-      connector: PropTypes.exact({
-        childColor: PropTypes.string,
-        parentColor: PropTypes.string,
+    strokeSize: PropTypes.number,
+    color: PropTypes.string,
+    connector: PropTypes.exact({
+      child: PropTypes.exact({
+        radiusSize: PropTypes.number,
+        color: PropTypes.string,
+        strokeSize: PropTypes.number,
+        strokeColor: PropTypes.string,
+      }),
+      parent: PropTypes.exact({
+        radiusSize: PropTypes.number,
+        color: PropTypes.string,
+        strokeSize: PropTypes.number,
+        strokeColor: PropTypes.string,
       }),
     }),
   }).isRequired,
