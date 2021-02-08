@@ -656,7 +656,13 @@ function StageDrawer({
       setIsValidOpen(true);
     }
   };
- 
+
+  // Prepare the UI for image download (e.g., hiding unwanted nodes).
+  // Should be called with inverse is false (default behavior) before downloading,
+  // and with inverse === true after the download to reset the status.
+  const prepareUIForImageDownload = (inverse = false) => {
+    stageRef.current.find('.deleteButton').visible(inverse);
+  };
 
   // Handle editor screenshot button click,
   // downloading the image of the current visible stage portion
@@ -664,6 +670,7 @@ function StageDrawer({
   // (note: only nodes, edges, placeholder, selected root node, stage position and stage scale
   // are serialized)
   const handleImageClick = () => {
+    prepareUIForImageDownload();
     const stagePos = stageRef.current.absolutePosition();
     const stageScale = stageRef.current.scale();
     const currentState = {
@@ -682,6 +689,7 @@ function StageDrawer({
     document.body.appendChild(downloadElement);
     downloadElement.click();
     downloadElement.remove();
+    prepareUIForImageDownload(true);
   };
 
 

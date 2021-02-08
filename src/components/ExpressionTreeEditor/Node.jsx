@@ -311,6 +311,7 @@ function Node({
           fontFamily={fontFamily}
           fontSize={fontSize / 2}
           text="X"
+          name="deleteButton"
           onClick={handleRemoveClick}
           onTap={handleRemoveClick}
           onMouseOver={
