@@ -1461,7 +1461,6 @@ ExpressionTreeEditor.defaultProps = {
     redo: true,
     reorder: true,
     validate: true,
-    download: true,
     upload: true,
     screenshot: true,
     zoomIn: true,

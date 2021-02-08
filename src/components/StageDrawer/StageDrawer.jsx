@@ -61,6 +61,8 @@ import {
   parsePieces,
 } from '../utils';
 
+import { addExpressionTutorMetaData, getExpressionTutorMetaData } from '../PNG_utils';
+
 // Width of the side drawer
 const drawerWidth = 300;
 
@@ -304,35 +306,6 @@ function StageDrawer({
     });
   };
 
-  // Handle state download, serializing the current editor state,
-  // only nodes, edges, selected root node, stage position and stage scale are serialized
-  const handleStateDownload = () => {
-    if (selectedNode) {
-      clearNodeSelection();
-    } else if (selectedEdgeRef) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-      clearEdgeSelection();
-    }
-    const stagePos = stageRef.current.absolutePosition();
-    const stageScale = stageRef.current.scale();
-    const currentState = {
-      nodes,
-      edges,
-      selectedRootNode,
-      stagePos,
-      stageScale,
-    };
-    const stateData = `data:text/json;charset=utf-8,${
-      encodeURIComponent(JSON.stringify(currentState, null, 4))}`;
-    const downloadElement = document.createElement('a');
-    downloadElement.href = stateData;
-    downloadElement.download = 'expression_editor_state.json';
-    document.body.appendChild(downloadElement);
-    downloadElement.click();
-    downloadElement.remove();
-  };
-
   // Handle state upload of a previously downloaded state,
   const handleStateUpload = () => {
     const uploadElement = document.getElementById('stateUploadButton');
@@ -345,7 +318,14 @@ function StageDrawer({
     const fr = new FileReader();
     fr.onload = (e) => {
       try {
-        const state = JSON.parse(e.target.result);
+        const buffer = e.target.result;
+        let jsonStr = getExpressionTutorMetaData(buffer);
+        if (jsonStr === undefined) {
+          // then attempt decoding as a JSON file
+          const enc = new TextDecoder('utf-8');
+          jsonStr = enc.decode(buffer);
+        }
+        const state = JSON.parse(jsonStr);
         uploadState({
           nodes: state.nodes,
           edges: state.edges,
@@ -355,7 +335,8 @@ function StageDrawer({
           selectedEdgeRef.moveToBottom();
           setSelectedEdgeRef(null);
         }
-        clearAdding();
+        // TODO This crashes
+        //clearAdding();
         if (drawerFields.addField) {
           document.getElementById('addField').value = '';
         }
@@ -377,10 +358,11 @@ function StageDrawer({
           .map((edge) => edge.moveToBottom());
         // dispatch(ActionCreators.clearHistory());
       } catch (e) {
-        alert('Invalid JSON file.');
+        // TODO Change alert into SnackBar
+        alert('Invalid JSON/PNG file.');
       }
     };
-    fr.readAsText(file);
+    fr.readAsArrayBuffer(file);
   };
 
   // Handle action undo button click, only unfiltered actions can be undone,
@@ -674,17 +656,34 @@ function StageDrawer({
       setIsValidOpen(true);
     }
   };
+ 
 
   // Handle editor screenshot button click,
   // downloading the image of the current visible stage portion
+  // Moreover, embed the state in a custom PNG metadata chunk, serializing the current editor state
+  // (note: only nodes, edges, placeholder, selected root node, stage position and stage scale
+  // are serialized)
   const handleImageClick = () => {
+    const stagePos = stageRef.current.absolutePosition();
+    const stageScale = stageRef.current.scale();
+    const currentState = {
+      nodes,
+      edges,
+      selectedRootNode,
+      stagePos,
+      stageScale,
+      connectorPlaceholder,
+    };
+    const jsonRepr = JSON.stringify(currentState, null, 0);
     const downloadElement = document.createElement('a');
-    downloadElement.href = stageRef.current.toDataURL({ pixelRatio: 2 });
+    const imageBase64 = stageRef.current.toDataURL({ pixelRatio: 2 });
+    downloadElement.href = addExpressionTutorMetaData(imageBase64, jsonRepr);
     downloadElement.download = 'expression_editor_image.png';
     document.body.appendChild(downloadElement);
     downloadElement.click();
     downloadElement.remove();
   };
+
 
   // Handle zoom in button click, zooming in the stage relative to its center
   const handleZoomInClick = () => {
@@ -898,19 +897,8 @@ function StageDrawer({
             </span>
           </Tooltip>
         )}
-        {toolbarButtons.download && !fullDisabled && (
-          <Tooltip title="Download state" placement="bottom">
-            <IconButton
-              className={classes.toolbarButton}
-              color="primary"
-              onClick={handleStateDownload}
-            >
-              <GetAppRounded />
-            </IconButton>
-          </Tooltip>
-        )}
         {toolbarButtons.upload && !fullDisabled && (
-          <Tooltip title="Upload state" placement="bottom">
+          <Tooltip title="Restore state" placement="bottom">
             <IconButton
               className={classes.toolbarButton}
               color="primary"
@@ -924,7 +912,7 @@ function StageDrawer({
           id="stateUploadButton"
           style={{ display: 'none' }}
           type="file"
-          accept=".json"
+          accept="application/json,image/png"
           onChange={(e) => handleFileChange(e)}
         />
         {toolbarButtons.screenshot && !fullDisabled && (
