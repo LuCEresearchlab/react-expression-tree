@@ -10,7 +10,7 @@ import {
   edgeByChildNode,
 } from '../utils';
 
-function TopConnector({
+function NodeTopConnector({
   nodeId,
   edges,
   nodeWidth,
@@ -134,7 +134,7 @@ function TopConnector({
   );
 }
 
-TopConnector.propTypes = {
+NodeTopConnector.propTypes = {
   nodeId: PropTypes.number.isRequired,
   edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)).isRequired,
   nodeWidth: PropTypes.number.isRequired,
@@ -179,6 +179,12 @@ TopConnector.propTypes = {
       innerRadius: PropTypes.number,
       outerRadius: PropTypes.number,
     }),
+    delete: PropTypes.exact({
+      fontSize: PropTypes.number,
+      text: PropTypes.string,
+      textColor: PropTypes.string,
+      overTextColor: PropTypes.string,
+    }),
   }).isRequired,
   connectorStyle: PropTypes.exact({
     child: PropTypes.exact({
@@ -201,6 +207,6 @@ TopConnector.propTypes = {
   }).isRequired,
 };
 
-TopConnector.defaultProps = {};
+NodeTopConnector.defaultProps = {};
 
-export default TopConnector;
+export default NodeTopConnector;

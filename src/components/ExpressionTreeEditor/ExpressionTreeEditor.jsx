@@ -16,9 +16,9 @@ import PropTypes from 'prop-types';
 // import { ActionCreators } from 'redux-undo';
 
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import Node from './Node';
-import Edge from './Edge';
-import DragEdge from './DragEdge';
+import Node from '../Node/Node';
+import Edge from '../Edge/Edge';
+import DragEdge from '../Edge/DragEdge';
 import StageDrawer from '../StageDrawer/StageDrawer';
 
 import reducer from '../store/reducers';
@@ -236,13 +236,12 @@ function ExpressionTreeEditor({
   });
   const textHeight = oText.fontSize();
   const holeWidth = oText.getTextWidth();
-  const nodeHeight = 2 * style.node.paddingY + textHeight; // TODO: Move inside the node
 
   // State hooks
   const containerWidth = useContainerWidthOnWindowResize(containerRef);
   const [selectedEdgeRef, setSelectedEdgeRef] = useState(null);
   const [isPressingMetaOrShift, setIsPressingMetaOrShift] = useState(false);
-  const [draggingSelectionRect, setDraggingSelectionRect] = useState(false);
+  const [isDraggingSelectionRect, setIsDraggingSelectionRect] = useState(false);
   const [isSelectingRectVisible, setIsSelectingRectVisible] = useState(false);
   const [isSelectedRectVisible, setIsSelectedRectVisible] = useState(false);
   const [selectionRectStartPos, setSelectionRectStartPos] = useState({
@@ -301,7 +300,7 @@ function ExpressionTreeEditor({
       if (e.key === 'Meta' || e.key === 'Shift') {
         document.body.style.cursor = 'move';
         setIsSelectingRectVisible(false);
-        setDraggingSelectionRect(false);
+        setIsDraggingSelectionRect(false);
         const allNodes = stageRef.current.find('.Node').toArray();
         const box = selectionRectRef.current.getClientRect();
         const intersectingNodes = allNodes.filter((node) => Konva.Util.haveIntersection(box, node.getClientRect()));
@@ -319,7 +318,7 @@ function ExpressionTreeEditor({
   // const onFocus = () => {
   //   document.body.style.cursor = 'move';
   //   setIsSelectingRectVisible(false);
-  //   setDraggingSelectionRect(false);
+  //   setIsDraggingSelectionRect(false);
   //   setIsPressingMetaOrShift(false);
   // };
 
@@ -450,7 +449,7 @@ function ExpressionTreeEditor({
         });
       }
     }
-    if (draggingSelectionRect && isPressingMetaOrShift) {
+    if (isDraggingSelectionRect && isPressingMetaOrShift) {
       document.body.style.cursor = 'grabbing';
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
@@ -701,10 +700,10 @@ function ExpressionTreeEditor({
       clearDragEdge();
     }
     // If we were dragging the multiple selection rectangle
-    if (draggingSelectionRect && isPressingMetaOrShift) {
+    if (isDraggingSelectionRect && isPressingMetaOrShift) {
       document.body.style.cursor = 'move';
       setIsSelectingRectVisible(false);
-      setDraggingSelectionRect(false);
+      setIsDraggingSelectionRect(false);
       const allNodes = stageRef.current.find('.Node').toArray();
       const box = selectionRectRef.current.getClientRect();
       const intersectingNodes = allNodes.filter((node) => Konva.Util.haveIntersection(box, node.getClientRect()));
@@ -882,7 +881,7 @@ function ExpressionTreeEditor({
       });
       setIsSelectingRectVisible(true);
       setIsSelectedRectVisible(false);
-      setDraggingSelectionRect(true);
+      setIsDraggingSelectionRect(true);
       selectionRectRef.current.moveToTop();
     }
   };
@@ -1103,7 +1102,7 @@ function ExpressionTreeEditor({
                 }
                 isDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
                 isFullDisabled={fullDisabled}
-                isDraggingSelectionRect={draggingSelectionRect}
+                isDraggingSelectionRect={isDraggingSelectionRect}
                 isSelected={selectedEdge && selectedEdge.id === edge.id}
                 selectedEdgeRef={selectedEdgeRef}
                 setSelectedEdgeRef={setSelectedEdgeRef}
@@ -1134,11 +1133,10 @@ function ExpressionTreeEditor({
                 transformerRef={transformerRef}
                 selectedEdgeRef={selectedEdgeRef}
                 setSelectedEdgeRef={setSelectedEdgeRef}
-                draggingSelectionRect={draggingSelectionRect}
+                isDraggingSelectionRect={isDraggingSelectionRect}
                 isPressingMetaOrShift={isPressingMetaOrShift}
                 currentErrorLocation={currentErrorLocation}
                 nodeWidth={node.width}
-                nodeHeight={nodeHeight}
                 isSelected={selectedNode && selectedNode.id === node.id}
                 isSelectedRoot={
                   selectedRootNode && selectedRootNode.id === node.id
@@ -1167,7 +1165,6 @@ function ExpressionTreeEditor({
                 onNodeDblClick={() => handleNodeDblClick(node.id)}
                 onNodeConnectorDragStart={handleNodeConnectorDragStart}
                 onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
-                // Style
                 fontSize={style.fontSize}
                 fontFamily={style.fontFamily}
                 nodeStyle={style.node}
@@ -1365,6 +1362,12 @@ ExpressionTreeEditor.propTypes = {
         innerRadius: PropTypes.number,
         outerRadius: PropTypes.number,
       }),
+      delete: PropTypes.exact({
+        fontSize: PropTypes.number,
+        text: PropTypes.string,
+        textColor: PropTypes.string,
+        overTextColor: PropTypes.string,
+      }),
     }),
     edge: PropTypes.exact({
       size: PropTypes.number,
@@ -1511,6 +1514,12 @@ ExpressionTreeEditor.defaultProps = {
         numPoints: 5,
         innerRadius: 5,
         outerRadius: 10,
+      },
+      delete: {
+        fontSize: 12,
+        text: 'X',
+        textColor: '#ffffff',
+        overTextColor: '#ff2f2f',
       },
     },
     edge: {

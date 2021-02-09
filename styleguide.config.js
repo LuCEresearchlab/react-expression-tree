@@ -6,16 +6,12 @@ module.exports = {
   title: `${pkg.name} v${pkg.version}`,
   components: 'src/components/**/*.jsx',
   ignore: [
-    '**/components/**/DragEdge.jsx',
-    '**/components/**/Edge.jsx',
-    '**/components/**/Node.jsx',
-    '**/components/**/NodeLabel.jsx',
-    '**/components/**/TopConnector.jsx',
-    '**/components/**/StageDrawer.jsx',
+    '**/components/**/Node/**.jsx',
+    '**/components/**/Edge/**.jsx',
   ],
   showSidebar: true,
   usageMode: 'expand',
-  // skipComponentsWithoutExample: true,
+  skipComponentsWithoutExample: true,
   theme: {
     color: {
       link: '#065fd4',

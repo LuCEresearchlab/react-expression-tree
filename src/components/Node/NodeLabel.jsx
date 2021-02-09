@@ -157,6 +157,12 @@ NodeLabel.propTypes = {
       innerRadius: PropTypes.number,
       outerRadius: PropTypes.number,
     }),
+    delete: PropTypes.exact({
+      fontSize: PropTypes.number,
+      text: PropTypes.string,
+      textColor: PropTypes.string,
+      overTextColor: PropTypes.string,
+    }),
   }).isRequired,
   connectorStyle: PropTypes.exact({
     child: PropTypes.exact({

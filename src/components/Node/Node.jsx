@@ -13,7 +13,8 @@ import {
 } from '../utils';
 
 import NodeLabel from './NodeLabel';
-import TopConnector from './TopConnector';
+import NodeDeleteButton from './NodeDeleteButton';
+import NodeTopConnector from './NodeTopConnector';
 
 function Node({
   id,
@@ -22,7 +23,6 @@ function Node({
   positionY,
 
   nodeWidth,
-  nodeHeight,
   type,
   value,
   isFinal,
@@ -33,7 +33,7 @@ function Node({
   transformerRef,
   selectedEdgeRef,
   setSelectedEdgeRef,
-  draggingSelectionRect,
+  isDraggingSelectionRect,
   currentErrorLocation,
   stageRef,
   stageWidth,
@@ -65,6 +65,7 @@ function Node({
   // State hook to keep track when we are dragging a node
   // and not from a node/placeholder connector
   const [draggingNode, setDraggingNode] = useState(false);
+  const [nodeHeight, setNodeHeight] = useState(0);
   const [labelPiecesPosition, setLabelPiecesPosition] = useState(
     new Array(labelPieces.length).fill(0),
   );
@@ -78,6 +79,10 @@ function Node({
       fontFamily,
     ));
   }, [labelPieces, connectorPlaceholder, fontSize, fontFamily]);
+
+  useEffect(() => {
+    setNodeHeight(2 * nodeStyle.paddingY + textHeight);
+  }, [nodeStyle.paddingY, textHeight]);
 
   const { paddingX, paddingY } = nodeStyle;
 
@@ -192,23 +197,6 @@ function Node({
     };
   };
 
-  // Handle node remove click
-  const handleRemoveClick = (e) => {
-    e.cancelBubble = true;
-    transformerRef.current.nodes([]);
-    document.body.style.cursor = 'move';
-    if (selectedEdgeRef) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-      clearEdgeSelection();
-    }
-    clearNodeSelection();
-    removeNode({
-      nodeId: e.target.parent.attrs.id,
-      onNodeDelete,
-    });
-  };
-
   /**
    *
    * Compute node color given a style object
@@ -231,9 +219,13 @@ function Node({
   };
 
   return (
-    // A Node is a Group consisting in a Rect, an id Text, an "X" node deleting Text,
-    // a Circle/Star node connector, zero or more Rect placeholder connectors (+ Circle if placeholder if already occupied),
-    // one or more text labelPieces, and Label containing the node's selected type and value
+    /**
+     * A node is a groupd composed by:
+     *  - Reactangle: the box surrounding the node
+     *  - NodeTopConnector: the circle on the top edge, used for connect Edges
+     *  - NodeLabel: the content of the node
+     *  - NodeDeleteButton: the button for removing the node
+     */
     <Group
       key={`Node-${id}`}
       nodeId={id}
@@ -270,7 +262,7 @@ function Node({
         strokeWidth={isSelected ? nodeStyle.strokeSelectedWidth : nodeStyle.strokeWidth}
         cornerRadius={nodeStyle.radius}
       />
-      <TopConnector
+      <NodeTopConnector
         nodeId={id}
         edges={edges}
         nodeWidth={nodeWidth}
@@ -303,35 +295,24 @@ function Node({
         nodeStyle={nodeStyle}
         connectorStyle={connectorStyle}
       />
-      {!isFinal && !isFullDisabled && (
-        <Text
-          x={nodeWidth - paddingX}
-          y={3}
-          fill={nodeStyle.textColor}
-          fontFamily={fontFamily}
-          fontSize={fontSize / 2}
-          text="X"
-          onClick={handleRemoveClick}
-          onTap={handleRemoveClick}
-          onMouseOver={
-            (e) => {
-              if (!draggingSelectionRect) {
-                e.cancelBubble = true;
-                document.body.style.cursor = 'pointer';
-                e.target.attrs.fill = nodeStyle.deleteButtonColor;
-                e.target.draw();
-              }
-            }
-          }
-          onMouseLeave={(e) => {
-            if (!draggingSelectionRect) {
-              e.cancelBubble = true;
-              e.target.attrs.fill = nodeStyle.textColor;
-              e.target.draw();
-            }
-          }}
-        />
-      )}
+      <NodeDeleteButton
+        nodeId={id}
+        nodeWidth={nodeWidth}
+        paddingX={paddingX}
+        isFinal={isFinal}
+        isFullDisabled={isFullDisabled}
+        isDraggingSelectionRect={isDraggingSelectionRect}
+        selectedEdgeRef={selectedEdgeRef}
+        setSelectedEdgeRef={setSelectedEdgeRef}
+        clearEdgeSelection={clearEdgeSelection}
+        clearNodeSelection={clearNodeSelection}
+        transformerRef={transformerRef}
+        removeNode={removeNode}
+        onNodeDelete={onNodeDelete}
+        fontFamily={fontFamily}
+        fontSize={fontSize}
+        style={nodeStyle.delete}
+      />
       <Label x={nodeWidth / 2} y={-fontSize / 4}>
         <Tag
           fill={nodeStyle.tagColor}
@@ -360,8 +341,9 @@ Node.propTypes = {
   positionX: PropTypes.number.isRequired,
   positionY: PropTypes.number.isRequired,
 
+  isDraggingSelectionRect: PropTypes.bool.isRequired,
+
   nodeWidth: PropTypes.number,
-  nodeHeight: PropTypes.number,
   type: PropTypes.string,
   value: PropTypes.string,
   isFinal: PropTypes.bool,
@@ -381,7 +363,6 @@ Node.propTypes = {
   transformerRef: PropTypes.object,
   selectedEdgeRef: PropTypes.object,
   setSelectedEdgeRef: PropTypes.func,
-  draggingSelectionRect: PropTypes.bool,
   currentErrorLocation: PropTypes.object,
   stageRef: PropTypes.object,
   stageWidth: PropTypes.number,
@@ -427,6 +408,12 @@ Node.propTypes = {
       numPoints: PropTypes.number,
       innerRadius: PropTypes.number,
       outerRadius: PropTypes.number,
+    }),
+    delete: PropTypes.exact({
+      fontSize: PropTypes.number,
+      text: PropTypes.string,
+      textColor: PropTypes.string,
+      overTextColor: PropTypes.string,
     }),
   }).isRequired,
   connectorStyle: PropTypes.exact({
