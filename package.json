@@ -1,6 +1,6 @@
 {
   "name": "react-expression-tree",
-  "version": "0.2.2",
+  "version": "0.3.0-beta.0",
   "description": "Create expression trees",
   "author": {
     "name": "Tiziano Marsetti",
