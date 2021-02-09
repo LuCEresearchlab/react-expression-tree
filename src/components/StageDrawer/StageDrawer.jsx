@@ -129,7 +129,7 @@ const useStyles = makeStyles((theme) => ({
     border: 'solid 1px black',
     borderRadius: '5px',
     padding: '3px 10px 7px 10px',
-    fontFamily: 'Ubuntu Mono, Courier',
+    fontFamily: 'Roboto Mono, Courier',
     fontSize: '22px',
     '&:hover': {
       cursor: 'pointer',
@@ -142,7 +142,7 @@ const useStyles = makeStyles((theme) => ({
     border: 'solid 2px black',
     borderRadius: '5px',
     padding: '3px 10px 7px 10px',
-    fontFamily: 'Ubuntu Mono, Courier',
+    fontFamily: 'Roboto Mono, Courier',
     fontSize: '22px',
     '&:hover': {
       cursor: 'pointer',

@@ -41,6 +41,8 @@ import {
 
 import useContainerWidthOnWindowResize from './useContainerWidthOnWindowResize';
 
+import '@fontsource/roboto-mono/300.css';
+
 function ExpressionTreeEditor({
   width,
   height,
@@ -1488,7 +1490,7 @@ ExpressionTreeEditor.defaultProps = {
   // Style
   style: {
     fontSize: 24,
-    fontFamily: 'Ubuntu Mono, Courier',
+    fontFamily: 'Roboto Mono, Courier',
     selectionRectColor: 'rgba(0,0,255,0.2)',
     node: {
       paddingX: 12,
