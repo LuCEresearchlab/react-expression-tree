@@ -1123,6 +1123,7 @@ function ExpressionTreeEditor({
                 onEdgeClick={(e) => handleEdgeClick(e, edge.id)}
                 onNodeConnectorDragStart={handleNodeConnectorDragStart}
                 onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
+                setCursor={setCursor}
                 // Style
                 style={style.edge}
               />
