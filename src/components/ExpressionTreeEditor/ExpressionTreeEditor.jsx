@@ -9,6 +9,7 @@ import React, {
   useRef,
   useReducer,
   useState,
+  useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 
@@ -39,6 +40,8 @@ import {
 } from '../utils';
 
 import useContainerWidthOnWindowResize from './useContainerWidthOnWindowResize';
+
+import '@fontsource/roboto-mono/300.css';
 
 function ExpressionTreeEditor({
   width,
@@ -221,12 +224,12 @@ function ExpressionTreeEditor({
   }, [dispatch]);
 
   // Set the theme primary and secondary colors according to the recived props
-  const theme = createMuiTheme({
+  const theme = useMemo(() => createMuiTheme({
     palette: {
       primary: { main: style.toolbar.primaryColor },
       secondary: { main: style.toolbar.secondaryColor },
     },
-  });
+  }), [style]);
 
   // Layout utils
   const oText = new Konva.Text({
@@ -1464,7 +1467,6 @@ ExpressionTreeEditor.defaultProps = {
     redo: true,
     reorder: true,
     validate: true,
-    download: true,
     upload: true,
     screenshot: true,
     zoomIn: true,
@@ -1491,7 +1493,7 @@ ExpressionTreeEditor.defaultProps = {
   // Style
   style: {
     fontSize: 24,
-    fontFamily: 'Ubuntu Mono, Courier',
+    fontFamily: 'Roboto Mono, Courier',
     selectionRectColor: 'rgba(0,0,255,0.2)',
     node: {
       paddingX: 12,

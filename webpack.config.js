@@ -59,21 +59,28 @@ module.exports = {
       test: /\.(js|jsx)$/,
       include: [path.resolve(__dirname, 'src')],
       loader: 'babel-loader',
-    }, {
-      test: /.css$/,
-
-      use: [{
-        loader: MiniCssExtractPlugin.loader,
-      }, {
-        loader: 'style-loader',
-      }, {
-        loader: 'css-loader',
-
-        options: {
-          sourceMap: true,
+    },
+    {
+      test: /\.css$/,
+      use: [
+        {
+          loader: 'style-loader',
         },
-      }],
-    }, {
+        {
+          loader: 'css-loader',
+          options: {
+            sourceMap: true,
+          },
+        },
+      ],
+    },
+    {
+      test: /\.(woff|woff2|eot|ttf|otf)$/,
+      use: [
+        'file-loader',
+      ],
+    },
+    {
       test: /worker\.js$/,
       use: {
         loader: 'worker-loader',
