@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Line, Circle, Group } from 'react-konva';
 
@@ -31,6 +31,15 @@ function Edge({
   setCursor,
   style,
 }) {
+  const startX = useMemo(() => childX + childWidth / 2,
+    [childX, childWidth]);
+  const startY = useMemo(() => childY,
+    [childY]);
+  const endX = useMemo(() => parentX + nodePaddingX + parentPieceX + placeholderWidth / 2,
+    [parentX, nodePaddingX, parentPieceX, placeholderWidth]);
+  const endY = useMemo(() => parentY + nodePaddingY + textHeight / 2,
+    [parentY, nodePaddingY, textHeight]);
+
   // Handle drag start event on edge's node connector end
   const handleNodeConnectorDragStart = (e) => {
     // prevent onDragStart of Group
@@ -68,10 +77,22 @@ function Edge({
     );
   };
 
+  const handleMouseOverLine = (e) => {
+    e.cancelBubble = true;
+    if (!isDraggingSelectionRect) {
+      setCursor('pointer');
+    }
+  };
+
+  const handleMouseOverCircle = (e) => {
+    e.cancelBubble = true;
+    if (!isDraggingSelectionRect) {
+      setCursor('grab');
+    }
+  };
+
   /**
-   *
    * Compute color given a style object
-   *
    * @param {Object} stl
    */
   const computeColor = (stl) => {
@@ -98,29 +119,16 @@ function Edge({
       onTap={isFullDisabled && onEdgeClick}
     >
       <Line
-        key={`Edge-Line-${id}`}
-        points={[
-          childX + childWidth / 2,
-          childY,
-          parentX + nodePaddingX + parentPieceX + placeholderWidth / 2,
-          parentY + nodePaddingY + textHeight / 2,
-        ]}
+        key={`edge-${id}`}
+        points={[startX, startY, endX, endY]}
         stroke={computeColor(style)}
         strokeWidth={style.strokeSize}
         hitStrokeWidth={10}
-        onMouseOver={
-          !isFullDisabled
-          && ((e) => {
-            e.cancelBubble = true;
-            if (!isDraggingSelectionRect) {
-              setCursor('pointer');
-            }
-          })
-        }
+        onMouseOver={!isFullDisabled && handleMouseOverLine}
       />
       <Circle
-        x={childX + childWidth / 2}
-        y={childY}
+        x={startX}
+        y={startY}
         radius={style.connector.child.radiusSize}
         fill={computeColor(style.connector.child)}
         stroke={style.connector.child.strokeColor}
@@ -128,21 +136,13 @@ function Edge({
         draggable
         onDragStart={!isFullDisabled && handleNodeConnectorDragStart}
         onTouchStart={!isFullDisabled && handleNodeConnectorDragStart}
-        onMouseOver={
-          !isFullDisabled
-          && ((e) => {
-            e.cancelBubble = true;
-            if (!isDraggingSelectionRect) {
-              setCursor('grab');
-            }
-          })
-        }
+        onMouseOver={!isFullDisabled && handleMouseOverCircle}
         onDragMove={() => {}}
         onDragEnd={() => {}}
       />
       <Circle
-        x={parentX + nodePaddingX + parentPieceX + placeholderWidth / 2}
-        y={parentY + nodePaddingY + textHeight / 2}
+        x={endX}
+        y={endY}
         radius={style.connector.parent.radiusSize}
         fill={computeColor(style.connector.parent)}
         stroke={style.connector.parent.strokeColor}
@@ -150,15 +150,7 @@ function Edge({
         draggable
         onDragStart={!isFullDisabled && handlePlaceholderConnectorDragStart}
         onTouchStart={!isFullDisabled && handleNodeConnectorDragStart}
-        onMouseOver={
-          !isFullDisabled
-          && ((e) => {
-            e.cancelBubble = true;
-            if (!isDraggingSelectionRect) {
-              setCursor('grab');
-            }
-          })
-        }
+        onMouseOver={!isFullDisabled && handleMouseOverCircle}
         onDragMove={() => {}}
         onDragEnd={() => {}}
       />
