@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import {
   Group,
@@ -48,6 +52,7 @@ function Node({
   moveNodeToEnd,
   clearEdgeSelection,
 
+  setCursor,
   placeholderWidth,
   // Event Listeners
   onNodeMove,
@@ -56,35 +61,26 @@ function Node({
   onNodeDblClick,
   onNodeConnectorDragStart,
   onPlaceholderConnectorDragStart,
-  // Style
   fontSize,
   fontFamily,
   nodeStyle,
   connectorStyle,
 }) {
+  const { paddingX, paddingY } = nodeStyle;
   // State hook to keep track when we are dragging a node
   // and not from a node/placeholder connector
   const [draggingNode, setDraggingNode] = useState(false);
-  const [nodeHeight, setNodeHeight] = useState(0);
-  const [labelPiecesPosition, setLabelPiecesPosition] = useState(
-    new Array(labelPieces.length).fill(0),
+
+  const nodeHeight = useMemo(
+    () => 2 * nodeStyle.paddingY + textHeight,
+    [paddingY, textHeight],
   );
-
-  // Compute the positions of each node piece
-  useEffect(() => {
-    setLabelPiecesPosition(computeLabelPiecesPositions(
-      labelPieces,
-      connectorPlaceholder,
-      fontSize,
-      fontFamily,
-    ));
-  }, [labelPieces, connectorPlaceholder, fontSize, fontFamily]);
-
-  useEffect(() => {
-    setNodeHeight(2 * nodeStyle.paddingY + textHeight);
-  }, [nodeStyle.paddingY, textHeight]);
-
-  const { paddingX, paddingY } = nodeStyle;
+  const labelPiecesPosition = useMemo(() => computeLabelPiecesPositions(
+    labelPieces,
+    connectorPlaceholder,
+    fontSize,
+    fontFamily,
+  ), [labelPieces, connectorPlaceholder, fontSize, fontFamily]);
 
   // Handle drag start event of a node, if a meta key is not being pressed,
   // set up the state for node drag move event, otherwise stop the node drag
@@ -117,7 +113,7 @@ function Node({
   // (different action to be able to filter all the previous moving actions to allow undo/redo working)
   const handleDragEnd = (e) => {
     e.cancelBubble = true;
-    document.body.style.cursor = 'pointer';
+    setCursor('pointer');
     if (draggingNode) {
       const x = e.target.x();
       const y = e.target.y();
@@ -150,7 +146,7 @@ function Node({
         setSelectedEdgeRef(null);
         clearEdgeSelection();
       }
-      document.body.style.cursor = 'grabbing';
+      setCursor('grabbing');
       const pieceId = e.target.id();
 
       // we don't want the connector to be moved
@@ -247,7 +243,7 @@ function Node({
         !isFullDisabled
         && ((e) => {
           e.cancelBubble = true;
-          document.body.style.cursor = 'pointer';
+          setCursor('pointer');
         })
       }
     >
@@ -275,6 +271,7 @@ function Node({
         clearEdgeSelection={clearEdgeSelection}
         transformerRef={transformerRef}
         onNodeConnectorDragStart={onNodeConnectorDragStart}
+        setCursor={setCursor}
         nodeStyle={nodeStyle}
         connectorStyle={connectorStyle}
       />
@@ -290,6 +287,7 @@ function Node({
         currentErrorLocation={currentErrorLocation}
         isFullDisabled={isFullDisabled}
         handlePlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
+        setCursor={setCursor}
         fontFamily={fontFamily}
         fontSize={fontSize}
         nodeStyle={nodeStyle}
@@ -298,7 +296,6 @@ function Node({
       <NodeDeleteButton
         nodeId={id}
         nodeWidth={nodeWidth}
-        paddingX={paddingX}
         isFinal={isFinal}
         isFullDisabled={isFullDisabled}
         isDraggingSelectionRect={isDraggingSelectionRect}
@@ -309,8 +306,8 @@ function Node({
         transformerRef={transformerRef}
         removeNode={removeNode}
         onNodeDelete={onNodeDelete}
+        setCursor={setCursor}
         fontFamily={fontFamily}
-        fontSize={fontSize}
         style={nodeStyle.delete}
       />
       <Label x={nodeWidth / 2} y={-fontSize / 4}>
@@ -376,6 +373,7 @@ Node.propTypes = {
   moveNodeToEnd: PropTypes.func,
   clearEdgeSelection: PropTypes.func,
 
+  setCursor: PropTypes.func.isRequired,
   connectorPlaceholder: PropTypes.string.isRequired,
   placeholderWidth: PropTypes.number.isRequired,
   // Event Listeners
@@ -410,6 +408,7 @@ Node.propTypes = {
       outerRadius: PropTypes.number,
     }),
     delete: PropTypes.exact({
+      paddingX: PropTypes.number,
       fontSize: PropTypes.number,
       text: PropTypes.string,
       textColor: PropTypes.string,

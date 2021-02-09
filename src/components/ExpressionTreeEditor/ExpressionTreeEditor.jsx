@@ -270,6 +270,10 @@ function ExpressionTreeEditor({
     // dispatch(ActionCreators.clearHistory());
   }, []);
 
+  const setCursor = useCallback((cursor) => {
+    containerRef.current.style.cursor = cursor;
+  }, []);
+
   const handleKeyDown = (e) => {
     if (e.currentTarget === e.target) {
       if (e.key === 'Backspace' || e.key === 'Delete') {
@@ -292,7 +296,7 @@ function ExpressionTreeEditor({
           clearEdgeSelection();
         }
       } else if (e.key === 'Meta' || e.key === 'Shift') {
-        document.body.style.cursor = 'grab';
+        setCursor('grab');
         setIsPressingMetaOrShift(true);
       }
     }
@@ -301,7 +305,7 @@ function ExpressionTreeEditor({
   const handleKeyUp = (e) => {
     if (e.currentTarget === e.target) {
       if (e.key === 'Meta' || e.key === 'Shift') {
-        document.body.style.cursor = 'move';
+        setCursor('move');
         setIsSelectingRectVisible(false);
         setIsDraggingSelectionRect(false);
         const allNodes = stageRef.current.find('.Node').toArray();
@@ -319,7 +323,7 @@ function ExpressionTreeEditor({
 
   // TODO Can this be removed?
   // const onFocus = () => {
-  //   document.body.style.cursor = 'move';
+  //   setCursor('move');
   //   setIsSelectingRectVisible(false);
   //   setIsDraggingSelectionRect(false);
   //   setIsPressingMetaOrShift(false);
@@ -436,7 +440,7 @@ function ExpressionTreeEditor({
   const handleStageMouseMove = (e) => {
     e.cancelBubble = true;
     if (dragEdge) {
-      document.body.style.cursor = 'grabbing';
+      setCursor('grabbing');
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
       const stageScale = stageRef.current.scale();
@@ -453,7 +457,7 @@ function ExpressionTreeEditor({
       }
     }
     if (isDraggingSelectionRect && isPressingMetaOrShift) {
-      document.body.style.cursor = 'grabbing';
+      setCursor('grabbing');
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
       const stageScale = stageRef.current.scale();
@@ -504,7 +508,7 @@ function ExpressionTreeEditor({
                 && allowedErrors.multiEdgeOnHoleConnector)
               || foundEdges.length === 0
             ) {
-              document.body.style.cursor = 'grab';
+              setCursor('grab');
               clearDragEdge();
               setSelectedEdgeRef(null);
               clearEdgeSelection();
@@ -538,7 +542,7 @@ function ExpressionTreeEditor({
             // If we are dropping the DragEdge on an invalid location,
             // clear the DragEdge and remove the original edge
           } else if (!parentPiece) {
-            document.body.style.cursor = 'move';
+            setCursor('move');
             clearDragEdge();
             setSelectedEdgeRef(null);
             removeEdge({ edgeId: originalEdge.id, onEdgeDelete });
@@ -562,7 +566,7 @@ function ExpressionTreeEditor({
                 && allowedErrors.multiEdgeOnHoleConnector)
               || foundEdges.length === 0
             ) {
-              document.body.style.cursor = 'grab';
+              setCursor('grab');
               const newEdge = {
                 childNodeId: dragEdge.childNodeId,
                 parentNodeId: parentPiece.parentNodeId,
@@ -588,7 +592,7 @@ function ExpressionTreeEditor({
             }
             // If we are dropping the DragEdge on an invalid location, clear the DragEdge
           } else {
-            document.body.style.cursor = 'move';
+            setCursor('move');
             clearDragEdge();
           }
         }
@@ -618,7 +622,7 @@ function ExpressionTreeEditor({
                 && allowedErrors.multiEdgeOnNodeConnector)
               || foundEdges.length === 0
             ) {
-              document.body.style.cursor = 'grab';
+              setCursor('grab');
               clearDragEdge();
               setSelectedEdgeRef(null);
               clearEdgeSelection();
@@ -652,7 +656,7 @@ function ExpressionTreeEditor({
             // If we are dropping the DragEdge on an invalid location,
             // clear the DragEdge and remove the original edge
           } else if (!childNodeId) {
-            document.body.style.cursor = 'move';
+            setCursor('move');
             clearDragEdge();
             setSelectedEdgeRef(null);
             removeEdge({ edgeId: originalEdge.id, onEdgeDelete });
@@ -669,7 +673,7 @@ function ExpressionTreeEditor({
                 && allowedErrors.multiEdgeOnNodeConnector)
               || foundEdges.length === 0
             ) {
-              document.body.style.cursor = 'grab';
+              setCursor('grab');
               const newEdge = {
                 parentNodeId: dragEdge.parentNodeId,
                 parentPieceId: dragEdge.parentPieceId,
@@ -695,7 +699,7 @@ function ExpressionTreeEditor({
             }
             // If we are dropping the DragEdge on an invalid location, clear the DragEdge
           } else {
-            document.body.style.cursor = 'move';
+            setCursor('move');
             clearDragEdge();
           }
         }
@@ -704,7 +708,7 @@ function ExpressionTreeEditor({
     }
     // If we were dragging the multiple selection rectangle
     if (isDraggingSelectionRect && isPressingMetaOrShift) {
-      document.body.style.cursor = 'move';
+      setCursor('move');
       setIsSelectingRectVisible(false);
       setIsDraggingSelectionRect(false);
       const allNodes = stageRef.current.find('.Node').toArray();
@@ -870,7 +874,7 @@ function ExpressionTreeEditor({
   const handleStageMouseDown = (e) => {
     if (isPressingMetaOrShift) {
       e.cancelBubble = true;
-      document.body.style.cursor = 'grabbing';
+      setCursor('grabbing');
       const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
       const stageScale = stageRef.current.scale();
@@ -902,8 +906,8 @@ function ExpressionTreeEditor({
     e.evt.preventDefault();
 
     e.evt.deltaY < 0
-      ? (document.body.style.cursor = 'zoom-in')
-      : (document.body.style.cursor = 'zoom-out');
+      ? (setCursor('zoom-in'))
+      : (setCursor('zoom-out'));
 
     const stage = stageRef.current;
 
@@ -934,7 +938,7 @@ function ExpressionTreeEditor({
   let wheelTimeout;
   const setWheelTimeout = () => {
     wheelTimeout = setTimeout(() => {
-      document.body.style.cursor = 'move';
+      setCursor('move');
     }, 300);
   };
   const clearWheelTimeout = () => {
@@ -957,7 +961,7 @@ function ExpressionTreeEditor({
   // moving actions to allow undo/redo working)
   const handleSelectedDragEnd = (e) => {
     e.cancelBubble = true;
-    document.body.style.cursor = 'grab';
+    setCursor('grab');
     moveSelectedNodesToEnd({
       nodes: transformerRef.current.nodes(),
       delta: { x: e.evt.movementX, y: e.evt.movementY },
@@ -1056,27 +1060,27 @@ function ExpressionTreeEditor({
           onDragStart={
             !fullDisabled
             && ((e) => {
-              document.body.style.cursor = 'grabbing';
+              setCursor('grabbing');
             })
           }
           onDragMove={!fullDisabled && ((e) => handleStageDragMove(e))}
           onDragEnd={
             !fullDisabled
             && ((e) => {
-              document.body.style.cursor = 'move';
+              setCursor('move');
             })
           }
           onWheel={!fullDisabled && handleStageWheel}
           onMouseOver={
             !fullDisabled
             && ((e) => {
-              document.body.style.cursor = 'move';
+              setCursor('move');
             })
           }
           onMouseLeave={
             !fullDisabled
             && ((e) => {
-              document.body.style.cursor = 'default';
+              setCursor('default');
             })
           }
         >
@@ -1161,6 +1165,8 @@ function ExpressionTreeEditor({
                 clearNodeSelection={clearNodeSelection}
                 clearEdgeSelection={clearEdgeSelection}
                 nodeValueChange={nodeValueChange}
+
+                setCursor={setCursor}
                 // Event Listeners
                 onNodeMove={onNodeMove}
                 onNodeDelete={onNodeDelete}
@@ -1215,10 +1221,10 @@ function ExpressionTreeEditor({
               visible={isSelectedRectVisible}
               draggable
               onMouseEnter={() => {
-                document.body.style.cursor = 'grab';
+                setCursor('grab');
               }}
               onDragStart={() => {
-                document.body.style.cursor = 'grabbing';
+                setCursor('grabbing');
               }}
               onDragMove={handleSelectedDragMove}
               onDragEnd={handleSelectedDragEnd}
@@ -1366,6 +1372,7 @@ ExpressionTreeEditor.propTypes = {
         outerRadius: PropTypes.number,
       }),
       delete: PropTypes.exact({
+        paddingX: PropTypes.number,
         fontSize: PropTypes.number,
         text: PropTypes.string,
         textColor: PropTypes.string,
@@ -1518,6 +1525,7 @@ ExpressionTreeEditor.defaultProps = {
         outerRadius: 10,
       },
       delete: {
+        paddingX: 12,
         fontSize: 12,
         text: 'X',
         textColor: '#ffffff',

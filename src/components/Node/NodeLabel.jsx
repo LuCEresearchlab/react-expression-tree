@@ -24,6 +24,7 @@ function NodeLabel({
   currentErrorLocation,
   isFullDisabled,
   handlePlaceholderConnectorDragStart,
+  setCursor,
   fontFamily,
   fontSize,
   nodeStyle,
@@ -66,7 +67,7 @@ function NodeLabel({
                 !isFullDisabled
                 && ((e) => {
                   e.cancelBubble = true;
-                  document.body.style.cursor = 'grab';
+                  setCursor('grab');
                 })
               }
             onDragMove={() => {}}
@@ -91,7 +92,7 @@ function NodeLabel({
                 !isFullDisabled
                 && ((e) => {
                   e.cancelBubble = true;
-                  document.body.style.cursor = 'grab';
+                  setCursor('grab');
                 })
               }
             onDragMove={() => {}}
@@ -133,6 +134,7 @@ NodeLabel.propTypes = {
   }).isRequired,
   isFullDisabled: PropTypes.bool.isRequired,
   handlePlaceholderConnectorDragStart: PropTypes.func.isRequired,
+  setCursor: PropTypes.func.isRequired,
   fontSize: PropTypes.number.isRequired,
   fontFamily: PropTypes.string.isRequired,
   nodeStyle: PropTypes.exact({
@@ -158,6 +160,7 @@ NodeLabel.propTypes = {
       outerRadius: PropTypes.number,
     }),
     delete: PropTypes.exact({
+      paddingX: PropTypes.number,
       fontSize: PropTypes.number,
       text: PropTypes.string,
       textColor: PropTypes.string,

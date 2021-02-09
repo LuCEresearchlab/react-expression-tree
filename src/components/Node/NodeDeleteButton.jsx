@@ -19,15 +19,15 @@ function NodeDeleteButton({
   transformerRef,
   removeNode,
   onNodeDelete,
+  setCursor,
   fontFamily,
-  paddingX,
   style,
 }) {
   // Handle node remove click
   const handleRemoveClick = (e) => {
     e.cancelBubble = true;
     transformerRef.current.nodes([]);
-    document.body.style.cursor = 'move';
+    setCursor('move');
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
@@ -44,7 +44,7 @@ function NodeDeleteButton({
     <Group>
       { !isFinal && !isFullDisabled && (
         <Text
-          x={nodeWidth - paddingX}
+          x={nodeWidth - style.paddingX}
           y={3}
           fill={style.textColor}
           fontFamily={fontFamily}
@@ -56,7 +56,7 @@ function NodeDeleteButton({
             (e) => {
               if (!isDraggingSelectionRect) {
                 e.cancelBubble = true;
-                document.body.style.cursor = 'pointer';
+                setCursor('pointer');
                 e.target.attrs.fill = style.overTextColor;
                 e.target.draw();
               }
@@ -94,33 +94,14 @@ NodeDeleteButton.propTypes = {
   }).isRequired,
   removeNode: PropTypes.func.isRequired,
   onNodeDelete: PropTypes.func.isRequired,
-  fontSize: PropTypes.number.isRequired,
+  setCursor: PropTypes.func.isRequired,
   fontFamily: PropTypes.string.isRequired,
-  paddingX: PropTypes.number.isRequired,
   style: PropTypes.exact({
+    paddingX: PropTypes.number,
     fontSize: PropTypes.number,
     text: PropTypes.string,
     textColor: PropTypes.string,
     overTextColor: PropTypes.string,
-  }).isRequired,
-  connectorStyle: PropTypes.exact({
-    child: PropTypes.exact({
-      radiusSize: PropTypes.number,
-      color: PropTypes.string,
-      emptyColor: PropTypes.string,
-      draggingColor: PropTypes.string,
-      errorColor: PropTypes.string,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-    }),
-    parent: PropTypes.exact({
-      radiusSize: PropTypes.number,
-      color: PropTypes.string,
-      draggingColor: PropTypes.string,
-      errorColor: PropTypes.string,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-    }),
   }).isRequired,
 };
 

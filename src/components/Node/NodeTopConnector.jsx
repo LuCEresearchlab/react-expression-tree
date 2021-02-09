@@ -24,6 +24,7 @@ function NodeTopConnector({
   clearEdgeSelection,
   transformerRef,
   onNodeConnectorDragStart,
+  setCursor,
   nodeStyle,
   connectorStyle,
 
@@ -45,7 +46,7 @@ function NodeTopConnector({
         setSelectedEdgeRef(null);
         clearEdgeSelection();
       }
-      document.body.style.cursor = 'grabbing';
+      setCursor('grabbing');
       // we don't want the connector to be moved
       e.target.stopDrag();
       // but we want to initiate the moving around of the connection
@@ -100,7 +101,7 @@ function NodeTopConnector({
             !isFullDisabled
             && ((e) => {
               e.cancelBubble = true;
-              document.body.style.cursor = 'grab';
+              setCursor('grab');
             })
           }
           onDragMove={() => {}}
@@ -123,7 +124,7 @@ function NodeTopConnector({
             !isFullDisabled
             && ((e) => {
               e.cancelBubble = true;
-              document.body.style.cursor = 'grab';
+              setCursor('grab');
             })
           }
           onDragMove={() => {}}
@@ -157,6 +158,7 @@ NodeTopConnector.propTypes = {
     }),
   }).isRequired,
   onNodeConnectorDragStart: PropTypes.func.isRequired,
+  setCursor: PropTypes.func.isRequired,
   nodeStyle: PropTypes.exact({
     paddingX: PropTypes.number,
     paddingY: PropTypes.number,
@@ -180,6 +182,7 @@ NodeTopConnector.propTypes = {
       outerRadius: PropTypes.number,
     }),
     delete: PropTypes.exact({
+      paddingX: PropTypes.number,
       fontSize: PropTypes.number,
       text: PropTypes.string,
       textColor: PropTypes.string,

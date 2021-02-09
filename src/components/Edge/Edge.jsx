@@ -28,13 +28,14 @@ function Edge({
   onEdgeClick,
   onNodeConnectorDragStart,
   onPlaceholderConnectorDragStart,
+  setCursor,
   style,
 }) {
   // Handle drag start event on edge's node connector end
   const handleNodeConnectorDragStart = (e) => {
     // prevent onDragStart of Group
     e.cancelBubble = true;
-    document.body.style.cursor = 'grabbing';
+    setCursor('grabbing');
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
@@ -50,7 +51,7 @@ function Edge({
   const handlePlaceholderConnectorDragStart = (e) => {
     // prevent onDragStart of Group
     e.cancelBubble = true;
-    document.body.style.cursor = 'grabbing';
+    setCursor('grabbing');
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
       setSelectedEdgeRef(null);
@@ -112,7 +113,7 @@ function Edge({
           && ((e) => {
             e.cancelBubble = true;
             if (!isDraggingSelectionRect) {
-              document.body.style.cursor = 'pointer';
+              setCursor('pointer');
             }
           })
         }
@@ -132,7 +133,7 @@ function Edge({
           && ((e) => {
             e.cancelBubble = true;
             if (!isDraggingSelectionRect) {
-              document.body.style.cursor = 'grab';
+              setCursor('grab');
             }
           })
         }
@@ -154,7 +155,7 @@ function Edge({
           && ((e) => {
             e.cancelBubble = true;
             if (!isDraggingSelectionRect) {
-              document.body.style.cursor = 'grab';
+              setCursor('grab');
             }
           })
         }
@@ -196,6 +197,7 @@ Edge.propTypes = {
   onEdgeClick: PropTypes.func,
   onNodeConnectorDragStart: PropTypes.func,
   onPlaceholderConnectorDragStart: PropTypes.func,
+  setCursor: PropTypes.func.isRequired,
   style: PropTypes.exact({
     strokeSize: PropTypes.number,
     color: PropTypes.string,
