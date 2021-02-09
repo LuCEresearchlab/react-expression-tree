@@ -183,6 +183,7 @@ NodeTopConnector.propTypes = {
     }),
     delete: PropTypes.exact({
       paddingX: PropTypes.number,
+      paddingY: PropTypes.number,
       fontSize: PropTypes.number,
       text: PropTypes.string,
       textColor: PropTypes.string,

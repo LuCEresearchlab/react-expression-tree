@@ -1374,6 +1374,7 @@ ExpressionTreeEditor.propTypes = {
       }),
       delete: PropTypes.exact({
         paddingX: PropTypes.number,
+        paddingY: PropTypes.number,
         fontSize: PropTypes.number,
         text: PropTypes.string,
         textColor: PropTypes.string,
@@ -1527,6 +1528,7 @@ ExpressionTreeEditor.defaultProps = {
       },
       delete: {
         paddingX: 12,
+        paddingY: 3,
         fontSize: 12,
         text: 'X',
         textColor: '#ffffff',

@@ -40,35 +40,37 @@ function NodeDeleteButton({
     });
   };
 
+  const handleMouseOver = (e) => {
+    if (!isDraggingSelectionRect) {
+      e.cancelBubble = true;
+      setCursor('pointer');
+      e.target.attrs.fill = style.overTextColor;
+      e.target.draw();
+    }
+  };
+
+  const handleMouseLeave = (e) => {
+    if (!isDraggingSelectionRect) {
+      e.cancelBubble = true;
+      e.target.attrs.fill = style.textColor;
+      e.target.draw();
+    }
+  }
+
   return (
     <Group>
       { !isFinal && !isFullDisabled && (
         <Text
           x={nodeWidth - style.paddingX}
-          y={3}
+          y={style.paddingY}
           fill={style.textColor}
           fontFamily={fontFamily}
           fontSize={style.fontSize}
           text={style.text}
           onClick={handleRemoveClick}
           onTap={handleRemoveClick}
-          onMouseOver={
-            (e) => {
-              if (!isDraggingSelectionRect) {
-                e.cancelBubble = true;
-                setCursor('pointer');
-                e.target.attrs.fill = style.overTextColor;
-                e.target.draw();
-              }
-            }
-          }
-          onMouseLeave={(e) => {
-            if (!isDraggingSelectionRect) {
-              e.cancelBubble = true;
-              e.target.attrs.fill = style.textColor;
-              e.target.draw();
-            }
-          }}
+          onMouseOver={handleMouseOver}
+          onMouseLeave={handleMouseLeave}
         />
       )}
     </Group>
@@ -98,6 +100,7 @@ NodeDeleteButton.propTypes = {
   fontFamily: PropTypes.string.isRequired,
   style: PropTypes.exact({
     paddingX: PropTypes.number,
+    paddingY: PropTypes.number,
     fontSize: PropTypes.number,
     text: PropTypes.string,
     textColor: PropTypes.string,
