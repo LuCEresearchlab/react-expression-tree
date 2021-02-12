@@ -10,7 +10,9 @@ import {
 
 import {
   edgeByParentPiece,
-} from '../../utils/tree';
+} from '../../../utils/tree';
+
+import defaultStyle from '../../../style/default.json';
 
 function NodeLabel({
   nodeId,
@@ -120,17 +122,17 @@ NodeLabel.propTypes = {
   labelPieces: PropTypes.arrayOf(PropTypes.string).isRequired,
   labelPiecesPosition: PropTypes.arrayOf(PropTypes.number).isRequired,
   nodeHeight: PropTypes.number.isRequired,
-  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)).isRequired,
+  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
   currentErrorLocation: PropTypes.shape({
     pieceConnector: PropTypes.string,
     nodeId: PropTypes.string,
     pieceId: PropTypes.number,
-  }).isRequired,
-  isFullDisabled: PropTypes.bool.isRequired,
-  handlePlaceholderConnectorDragStart: PropTypes.func.isRequired,
-  setCursor: PropTypes.func.isRequired,
-  fontSize: PropTypes.number.isRequired,
-  fontFamily: PropTypes.string.isRequired,
+  }),
+  isFullDisabled: PropTypes.bool,
+  handlePlaceholderConnectorDragStart: PropTypes.func,
+  setCursor: PropTypes.func,
+  fontSize: PropTypes.number,
+  fontFamily: PropTypes.string,
   nodeStyle: PropTypes.exact({
     paddingX: PropTypes.number,
     paddingY: PropTypes.number,
@@ -178,7 +180,7 @@ NodeLabel.propTypes = {
       textColor: PropTypes.string,
       padding: PropTypes.number,
     }),
-  }).isRequired,
+  }),
   connectorStyle: PropTypes.exact({
     child: PropTypes.exact({
       radiusSize: PropTypes.number,
@@ -197,9 +199,19 @@ NodeLabel.propTypes = {
       strokeSize: PropTypes.number,
       strokeColor: PropTypes.string,
     }),
-  }).isRequired,
+  }),
 };
 
-NodeLabel.defaultProps = {};
+NodeLabel.defaultProps = {
+  edges: [],
+  currentErrorLocation: null,
+  isFullDisabled: false,
+  handlePlaceholderConnectorDragStart: () => {},
+  setCursor: () => {},
+  fontSize: defaultStyle.fontSize,
+  fontFamily: defaultStyle.fontFamily,
+  nodeStyle: defaultStyle.node,
+  connectorStyle: defaultStyle.edge.connector,
+};
 
 export default NodeLabel;

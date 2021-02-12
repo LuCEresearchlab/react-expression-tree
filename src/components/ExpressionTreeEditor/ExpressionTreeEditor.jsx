@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import Node from '../Node/Node';
 import Edge from '../Edge/Edge';
-import DragEdge from '../Edge/DragEdge';
+import DragEdge from '../Edge/DragEdge/DragEdge';
 import StageDrawer from '../StageDrawer/StageDrawer';
 
 import reducer from '../../store/reducers';
@@ -71,6 +71,8 @@ import {
 } from '../../store/actions';
 
 import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
+
+import defaultStyle from '../../style/default.json';
 
 import '@fontsource/roboto-mono/300.css';
 
@@ -1466,114 +1468,7 @@ ExpressionTreeEditor.defaultProps = {
   onEdgeSelect: null,
   onValidate: null,
   // Style
-  style: {
-    fontSize: 24,
-    fontFamily: 'Roboto Mono, Courier',
-    selectionRectColor: 'rgba(0,0,255,0.2)',
-    node: {
-      paddingX: 12,
-      paddingY: 12,
-      radius: 5,
-      strokeColor: '#000000',
-      strokeWidth: 1,
-      strokeSelectedWidth: 2,
-      fillColor: '#208020',
-      errorColor: '#ff2f2f',
-      selectedColor: '#3f51b5',
-      finalColor: '#208080',
-      textColor: 'white',
-      deleteButtonColor: 'red',
-      placeholder: {
-        width: 16,
-        strokeSize: 1,
-        strokeColor: '#000000',
-        fillColor: '#104010',
-        radius: 3,
-      },
-      star: {
-        strokeSize: 2,
-        strokeColor: '#000000',
-        numPoints: 5,
-        innerRadius: 5,
-        outerRadius: 10,
-      },
-      delete: {
-        paddingX: 12,
-        paddingY: 3,
-        fontSize: 12,
-        text: 'X',
-        textColor: '#ffffff',
-        overTextColor: '#ff2f2f',
-      },
-      typeValue: {
-        fontSize: 12,
-        fillColor: '#3f51b5',
-        strokeSize: 1,
-        strokeColor: '#000000',
-        pointerDirection: 'down',
-        pointerWidth: 3,
-        pointerHeight: 4,
-        radius: 3,
-        textColor: '#ffffff',
-        padding: 5,
-      },
-    },
-    edge: {
-      strokeSize: 6,
-      color: '#000000',
-      selectedColor: '#f2d200',
-      draggingColor: '#f0f0f0',
-      errorColor: '#ff2f2f',
-      connector: {
-        child: {
-          radiusSize: 6,
-          color: '#555555',
-          emptyColor: 'black',
-          selectedColor: '#f2a200',
-          draggingColor: '#f0f0f0',
-          errorColor: '#ff2f2f',
-          strokeSize: 1,
-          strokeColor: '#000000',
-        },
-        parent: {
-          radiusSize: 6,
-          color: '#555555',
-          selectedColor: '#f2a200',
-          draggingColor: '#f0f0f0',
-          errorColor: '#ff2f2f',
-          strokeSize: 1,
-          strokeColor: '#000000',
-        },
-      },
-    },
-    dragEdge: {
-      strokeSize: 6,
-      color: '#000000',
-      connector: {
-        child: {
-          radiusSize: 6,
-          color: '#ff2f2f',
-          strokeSize: 1,
-          strokeColor: '#000000',
-        },
-        parent: {
-          radiusSize: 6,
-          color: '#ff2f2f',
-          strokeSize: 1,
-          strokeColor: '#000000',
-        },
-      },
-    },
-    toolbar: {
-      primaryColor: '#3f51b5',
-      secondaryColor: '#f50057',
-    },
-    container: {
-      border: '2px solid #3f50b5',
-      borderRadius: '5px',
-      backgroundColor: 'white',
-    },
-  },
+  style: defaultStyle,
 };
 
 export default ExpressionTreeEditor;

@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Line, Circle, Group } from 'react-konva';
 
+import defaultStyle from '../../style/default.json';
+
 function Edge({
   id,
   childX,
@@ -169,27 +171,27 @@ Edge.propTypes = {
   parentNodeId: PropTypes.number.isRequired,
   parentPieceId: PropTypes.number.isRequired,
   parentPieceX: PropTypes.number.isRequired,
-  isDragged: PropTypes.bool.isRequired,
-  isFullDisabled: PropTypes.bool.isRequired,
-  isSelected: PropTypes.bool.isRequired,
-  isDraggingSelectionRect: PropTypes.bool.isRequired,
+  isDragged: PropTypes.bool,
+  isFullDisabled: PropTypes.bool,
+  isSelected: PropTypes.bool,
+  isDraggingSelectionRect: PropTypes.bool,
   selectedEdgeRef: PropTypes.shape({
     moveToBottom: PropTypes.func,
-  }).isRequired,
-  setSelectedEdgeRef: PropTypes.func.isRequired,
-  clearEdgeSelection: PropTypes.func.isRequired,
+  }),
+  setSelectedEdgeRef: PropTypes.func,
+  clearEdgeSelection: PropTypes.func,
   currentErrorLocation: PropTypes.shape({
     edge: PropTypes.string,
     edgeId: PropTypes.string,
-  }).isRequired,
-  nodePaddingX: PropTypes.number.isRequired,
-  nodePaddingY: PropTypes.number.isRequired,
+  }),
+  nodePaddingX: PropTypes.number,
+  nodePaddingY: PropTypes.number,
   onEdgeClick: PropTypes.func,
   onNodeConnectorDragStart: PropTypes.func,
   onPlaceholderConnectorDragStart: PropTypes.func,
-  setCursor: PropTypes.func.isRequired,
+  setCursor: PropTypes.func,
   placeholderWidth: PropTypes.number.isRequired,
-  fontSize: PropTypes.number.isRequired,
+  fontSize: PropTypes.number,
   style: PropTypes.exact({
     strokeSize: PropTypes.number,
     color: PropTypes.string,
@@ -217,13 +219,26 @@ Edge.propTypes = {
         strokeColor: PropTypes.string,
       }),
     }),
-  }).isRequired,
+  }),
 };
 
 Edge.defaultProps = {
-  onEdgeClick: null,
-  onNodeConnectorDragStart: null,
-  onPlaceholderConnectorDragStart: null,
+  isDragged: false,
+  isFullDisabled: false,
+  isSelected: false,
+  isDraggingSelectionRect: false,
+  selectedEdgeRef: null,
+  setSelectedEdgeRef: () => {},
+  clearEdgeSelection: () => {},
+  currentErrorLocation: null,
+  nodePaddingX: defaultStyle.node.paddingX,
+  nodePaddingY: defaultStyle.node.paddingY,
+  onEdgeClick: () => {},
+  onNodeConnectorDragStart: () => {},
+  onPlaceholderConnectorDragStart: () => {},
+  setCursor: () => {},
+  fontSize: defaultStyle.fontSize,
+  style: defaultStyle.edge,
 };
 
 export default Edge;

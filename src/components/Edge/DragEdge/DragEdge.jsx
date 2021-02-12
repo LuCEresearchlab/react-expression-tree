@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Line, Circle } from 'react-konva';
 
+import defaultStyle from '../../../style/default.json';
+
 /**
  *
  * The DragEdge component represent the Edge that is being dragged
@@ -64,9 +66,11 @@ DragEdge.propTypes = {
         strokeColor: PropTypes.string,
       }),
     }),
-  }).isRequired,
+  }),
 };
 
-DragEdge.defaultProps = {};
+DragEdge.defaultProps = {
+  style: defaultStyle.dragEdge,
+};
 
 export default DragEdge;

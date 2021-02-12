@@ -6,6 +6,8 @@ import {
   Text,
 } from 'react-konva';
 
+import defaultStyle from '../../../style/default.json';
+
 function NodeDeleteButton({
   nodeId,
   nodeWidth,
@@ -80,24 +82,24 @@ function NodeDeleteButton({
 NodeDeleteButton.propTypes = {
   nodeId: PropTypes.number.isRequired,
   nodeWidth: PropTypes.number.isRequired,
-  isFinal: PropTypes.bool.isRequired,
-  isFullDisabled: PropTypes.bool.isRequired,
-  isDraggingSelectionRect: PropTypes.bool.isRequired,
+  isFinal: PropTypes.bool,
+  isFullDisabled: PropTypes.bool,
+  isDraggingSelectionRect: PropTypes.bool,
   selectedEdgeRef: PropTypes.shape({
     moveToBottom: PropTypes.func,
-  }).isRequired,
-  setSelectedEdgeRef: PropTypes.func.isRequired,
-  clearNodeSelection: PropTypes.func.isRequired,
-  clearEdgeSelection: PropTypes.func.isRequired,
+  }),
+  setSelectedEdgeRef: PropTypes.func,
+  clearNodeSelection: PropTypes.func,
+  clearEdgeSelection: PropTypes.func,
   transformerRef: PropTypes.shapre({
     current: PropTypes.shape({
       nodes: PropTypes.func,
     }),
-  }).isRequired,
-  removeNode: PropTypes.func.isRequired,
-  onNodeDelete: PropTypes.func.isRequired,
-  setCursor: PropTypes.func.isRequired,
-  fontFamily: PropTypes.string.isRequired,
+  }),
+  removeNode: PropTypes.func,
+  onNodeDelete: PropTypes.func,
+  setCursor: PropTypes.func,
+  fontFamily: PropTypes.string,
   style: PropTypes.exact({
     paddingX: PropTypes.number,
     paddingY: PropTypes.number,
@@ -105,9 +107,23 @@ NodeDeleteButton.propTypes = {
     text: PropTypes.string,
     textColor: PropTypes.string,
     overTextColor: PropTypes.string,
-  }).isRequired,
+  }),
 };
 
-NodeDeleteButton.defaultProps = {};
+NodeDeleteButton.defaultProps = {
+  isFinal: false,
+  isFullDisabled: false,
+  isDraggingSelectionRect: false,
+  selectedEdgeRef: null,
+  setSelectedEdgeRef: () => {},
+  clearNodeSelection: () => {},
+  clearEdgeSelection: () => {},
+  transformerRef: null,
+  removeNode: () => {},
+  onNodeDelete: () => {},
+  setCursor: () => {},
+  fontFamily: defaultStyle.fontFamily,
+  style: defaultStyle.node.delete,
+};
 
 export default NodeDeleteButton;

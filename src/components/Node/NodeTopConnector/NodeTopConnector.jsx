@@ -8,12 +8,14 @@ import {
 
 import {
   edgeByChildNode,
-} from '../../utils/tree';
+} from '../../../utils/tree';
+
+import defaultStyle from '../../../style/default.json';
 
 function NodeTopConnector({
   nodeId,
-  edges,
   nodeWidth,
+  edges,
   currentErrorLocation,
   isSelectedRoot,
   isFullDisabled,
@@ -27,7 +29,6 @@ function NodeTopConnector({
   setCursor,
   nodeStyle,
   connectorStyle,
-
 }) {
   const x = useMemo(() => nodeWidth / 2,
     [nodeWidth]);
@@ -136,28 +137,28 @@ function NodeTopConnector({
 
 NodeTopConnector.propTypes = {
   nodeId: PropTypes.number.isRequired,
-  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)).isRequired,
   nodeWidth: PropTypes.number.isRequired,
+  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
   currentErrorLocation: PropTypes.shape({
     nodeConnector: PropTypes.string,
     nodeId: PropTypes.string,
-  }).isRequired,
-  isSelectedRoot: PropTypes.bool.isRequired,
-  isFullDisabled: PropTypes.bool.isRequired,
-  isPressingMetaOrShift: PropTypes.bool.isRequired,
-  isSelected: PropTypes.bool.isRequired,
+  }),
+  isSelectedRoot: PropTypes.bool,
+  isFullDisabled: PropTypes.bool,
+  isPressingMetaOrShift: PropTypes.bool,
+  isSelected: PropTypes.bool,
   selectedEdgeRef: PropTypes.shape({
     moveToBottom: PropTypes.func,
-  }).isRequired,
-  setSelectedEdgeRef: PropTypes.func.isRequired,
-  clearEdgeSelection: PropTypes.func.isRequired,
+  }),
+  setSelectedEdgeRef: PropTypes.func,
+  clearEdgeSelection: PropTypes.func,
   transformerRef: PropTypes.shapre({
     current: PropTypes.shape({
       nodes: PropTypes.func,
     }),
-  }).isRequired,
-  onNodeConnectorDragStart: PropTypes.func.isRequired,
-  setCursor: PropTypes.func.isRequired,
+  }),
+  onNodeConnectorDragStart: PropTypes.func,
+  setCursor: PropTypes.func,
   nodeStyle: PropTypes.exact({
     paddingX: PropTypes.number,
     paddingY: PropTypes.number,
@@ -205,7 +206,7 @@ NodeTopConnector.propTypes = {
       textColor: PropTypes.string,
       padding: PropTypes.number,
     }),
-  }).isRequired,
+  }),
   connectorStyle: PropTypes.exact({
     child: PropTypes.exact({
       radiusSize: PropTypes.number,
@@ -224,9 +225,24 @@ NodeTopConnector.propTypes = {
       strokeSize: PropTypes.number,
       strokeColor: PropTypes.string,
     }),
-  }).isRequired,
+  }),
 };
 
-NodeTopConnector.defaultProps = {};
+NodeTopConnector.defaultProps = {
+  edges: [],
+  currentErrorLocation: null,
+  isSelectedRoot: false,
+  isFullDisabled: false,
+  isPressingMetaOrShift: false,
+  isSelected: false,
+  selectedEdgeRef: null,
+  setSelectedEdgeRef: () => {},
+  clearEdgeSelection: () => {},
+  transformerRef: {},
+  onNodeConnectorDragStart: () => {},
+  setCursor: () => {},
+  nodeStyle: defaultStyle.node,
+  connectorStyle: defaultStyle.edge.connector,
+};
 
 export default NodeTopConnector;

@@ -8,10 +8,12 @@ import {
   Rect,
 } from 'react-konva';
 
-import NodeLabel from './NodeLabel';
-import NodeDeleteButton from './NodeDeleteButton';
-import NodeTopConnector from './NodeTopConnector';
-import NodeTypeValue from './NodeTypeValue';
+import NodeLabel from './NodeLabel/NodeLabel';
+import NodeDeleteButton from './NodeDeleteButton/NodeDeleteButton';
+import NodeTopConnector from './NodeTopConnector/NodeTopConnector';
+import NodeTypeValue from './NodeTypeValue/NodeTypeValue';
+
+import defaultStyle from '../../style/default.json';
 
 function Node({
   id,
@@ -320,8 +322,8 @@ Node.propTypes = {
   labelPieces: PropTypes.arrayOf(PropTypes.string).isRequired,
   positionX: PropTypes.number.isRequired,
   positionY: PropTypes.number.isRequired,
-  typeText: PropTypes.string.isRequired,
-  valueText: PropTypes.string.isRequired,
+  typeText: PropTypes.string,
+  valueText: PropTypes.string,
   connectorPlaceholder: PropTypes.string.isRequired,
   placeholderWidth: PropTypes.number.isRequired,
   stageRef: PropTypes.shape({
@@ -335,38 +337,38 @@ Node.propTypes = {
     current: PropTypes.shape({
       nodes: PropTypes.func,
     }),
-  }).isRequired,
+  }),
   selectedEdgeRef: PropTypes.shape({
     moveToBottom: PropTypes.func,
-  }).isRequired,
-  setSelectedEdgeRef: PropTypes.func.isRequired,
+  }),
+  setSelectedEdgeRef: PropTypes.func,
   nodeWidth: PropTypes.number.isRequired,
-  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)).isRequired,
+  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
   currentErrorLocation: PropTypes.shape({
     node: PropTypes.string,
     nodeId: PropTypes.number,
-  }).isRequired,
-  moveNodeTo: PropTypes.func.isRequired,
-  moveNodeToEnd: PropTypes.func.isRequired,
-  removeNode: PropTypes.func.isRequired,
-  clearNodeSelection: PropTypes.func.isRequired,
-  clearEdgeSelection: PropTypes.func.isRequired,
+  }),
+  moveNodeTo: PropTypes.func,
+  moveNodeToEnd: PropTypes.func,
+  removeNode: PropTypes.func,
+  clearNodeSelection: PropTypes.func,
+  clearEdgeSelection: PropTypes.func,
   computeLabelPiecesXCoordinatePositions: PropTypes.func.isRequired,
-  setCursor: PropTypes.func.isRequired,
-  isDraggingSelectionRect: PropTypes.bool.isRequired,
-  isFinal: PropTypes.bool.isRequired,
-  isSelected: PropTypes.bool.isRequired,
-  isSelectedRoot: PropTypes.bool.isRequired,
-  isPressingMetaOrShift: PropTypes.bool.isRequired,
-  isFullDisabled: PropTypes.bool.isRequired,
+  setCursor: PropTypes.func,
+  isDraggingSelectionRect: PropTypes.bool,
+  isFinal: PropTypes.bool,
+  isSelected: PropTypes.bool,
+  isSelectedRoot: PropTypes.bool,
+  isPressingMetaOrShift: PropTypes.bool,
+  isFullDisabled: PropTypes.bool,
   onNodeMove: PropTypes.func,
   onNodeDelete: PropTypes.func,
   onNodeClick: PropTypes.func,
   onNodeDblClick: PropTypes.func,
   onNodeConnectorDragStart: PropTypes.func,
   onPlaceholderConnectorDragStart: PropTypes.func,
-  fontSize: PropTypes.number.isRequired,
-  fontFamily: PropTypes.string.isRequired,
+  fontSize: PropTypes.number,
+  fontFamily: PropTypes.string,
   nodeStyle: PropTypes.exact({
     paddingX: PropTypes.number,
     paddingY: PropTypes.number,
@@ -414,7 +416,7 @@ Node.propTypes = {
       textColor: PropTypes.string,
       padding: PropTypes.number,
     }),
-  }).isRequired,
+  }),
   connectorStyle: PropTypes.exact({
     child: PropTypes.exact({
       radiusSize: PropTypes.number,
@@ -433,16 +435,39 @@ Node.propTypes = {
       strokeSize: PropTypes.number,
       strokeColor: PropTypes.string,
     }),
-  }).isRequired,
+  }),
 };
 
 Node.defaultProps = {
+  typeText: '',
+  valueText: '',
+  transformerRef: null,
+  selectedEdgeRef: null,
+  setSelectedEdgeRef: () => {},
+  edges: [],
+  currentErrorLocation: null,
+  moveNodeTo: () => {},
+  moveNodeToEnd: () => {},
+  removeNode: () => {},
+  clearNodeSelection: () => {},
+  clearEdgeSelection: () => {},
+  setCursor: () => {},
+  isDraggingSelectionRect: false,
+  isFinal: false,
+  isSelected: false,
+  isSelectedRoot: false,
+  isPressingMetaOrShift: false,
+  isFullDisabled: false,
   onNodeMove: null,
   onNodeDelete: null,
   onNodeClick: null,
   onNodeDblClick: null,
   onNodeConnectorDragStart: null,
   onPlaceholderConnectorDragStart: null,
+  fontSize: defaultStyle.fontSize,
+  fontFamily: defaultStyle.fontFamily,
+  nodeStyle: defaultStyle.node,
+  connectorStyle: defaultStyle.edge.connector,
 };
 
 export default Node;

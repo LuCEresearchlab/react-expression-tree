@@ -6,8 +6,8 @@ module.exports = {
   title: `${pkg.name} v${pkg.version}`,
   components: 'src/components/**/*.jsx',
   ignore: [
-    '**/components/**/Node/**.jsx',
-    '**/components/**/Edge/**.jsx',
+    // '**/components/**/Node/**.jsx',
+    // '**/components/**/Edge/**.jsx',
   ],
   showSidebar: true,
   usageMode: 'expand',

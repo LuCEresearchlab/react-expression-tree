@@ -1,4 +1,4 @@
-Example:
+Example with initial state and final nodes:
 
 ```js
 <ExpressionTreeEditor
@@ -93,13 +93,15 @@ Example:
         y: 90,
         type: '',
         value: '',
-        isFinal: true,
+        isFinal: false,
       },
     ],
     initialEdges: [],
   }}
 />
 ```
+
+Example without initial state:
 
 ```js
 <ExpressionTreeEditor 

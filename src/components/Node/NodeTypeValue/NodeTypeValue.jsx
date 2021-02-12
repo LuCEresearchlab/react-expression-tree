@@ -7,6 +7,8 @@ import {
   Text,
 } from 'react-konva';
 
+import defaultStyle from '../../../style/default.json';
+
 function NodeTypeValue({
   typeText,
   valueText,
@@ -42,10 +44,10 @@ function NodeTypeValue({
 }
 
 NodeTypeValue.propTypes = {
-  typeText: PropTypes.string.isRequired,
-  valueText: PropTypes.string.isRequired,
+  typeText: PropTypes.string,
+  valueText: PropTypes.string,
   nodeWidth: PropTypes.number.isRequired,
-  fontFamily: PropTypes.string.isRequired,
+  fontFamily: PropTypes.string,
   style: PropTypes.exact({
     fontSize: PropTypes.number,
     fillColor: PropTypes.string,
@@ -57,9 +59,14 @@ NodeTypeValue.propTypes = {
     radius: PropTypes.number,
     textColor: PropTypes.string,
     padding: PropTypes.number,
-  }).isRequired,
+  }),
 };
 
-NodeTypeValue.defaultProps = {};
+NodeTypeValue.defaultProps = {
+  typeText: '',
+  valueText: '',
+  fontFamily: defaultStyle.fontFamily,
+  style: defaultStyle.node.typeValue,
+};
 
 export default NodeTypeValue;
