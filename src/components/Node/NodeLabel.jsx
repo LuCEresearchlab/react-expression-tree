@@ -10,15 +10,13 @@ import {
 
 import {
   edgeByParentPiece,
-} from '../utils';
+} from '../../utils/tree';
 
 function NodeLabel({
   nodeId,
   connectorPlaceholder,
-  placeholderWidth,
   labelPieces,
   labelPiecesPosition,
-  textHeight,
   nodeHeight,
   edges,
   currentErrorLocation,
@@ -31,70 +29,68 @@ function NodeLabel({
   connectorStyle,
 }) {
   const { paddingX, paddingY } = nodeStyle;
+  const { width: placeholderWidth } = nodeStyle.placeholder;
 
   const computePlaceholderPieceKey = (index) => `PlaceholderPiece-${nodeId}-${index}`;
   const computeTextPieceKey = (index) => `TextPiece-${nodeId}-${index}`;
 
+  const handleMouseOver = (e) => {
+    if (isFullDisabled) {
+      return;
+    }
+
+    e.cancelBubble = true;
+    setCursor('grab');
+  };
+
+  /**
+   * Compute connector color given a style object
+   * @param {Object} stl
+   */
+  const computeColor = (index, stl) => {
+    if (currentErrorLocation
+        && currentErrorLocation.pieceConnector
+        && currentErrorLocation.nodeId === nodeId
+        && currentErrorLocation.pieceId === index) {
+      return stl.errorColor;
+    }
+
+    return stl.placeholder.fillColor;
+  };
+
   return (
     <Group>
-      {labelPieces.map((p, i) => (p === connectorPlaceholder ? (
+      {labelPieces.map((pieceText, i) => (pieceText === connectorPlaceholder ? (
         <Group key={computePlaceholderPieceKey(i)}>
           <Rect
             id={i}
             x={paddingX + labelPiecesPosition[i]}
             y={nodeHeight / 2 - paddingY}
             width={placeholderWidth}
-            height={textHeight}
-            fill={
-                currentErrorLocation
-                && currentErrorLocation.pieceConnector
-                && currentErrorLocation.nodeId === nodeId
-                && currentErrorLocation.pieceId === i
-                  ? nodeStyle.errorColor
-                  : nodeStyle.placeholderColor
-              }
-            stroke="black"
-            strokeWidth={1}
-            cornerRadius={3}
+            height={fontSize}
+            fill={computeColor(i, nodeStyle)}
+            stroke={nodeStyle.placeholder.strokeColor}
+            strokeWidth={nodeStyle.placeholder.strokeSize}
+            cornerRadius={nodeStyle.placeholder.radius}
             draggable={!isFullDisabled}
-            onDragStart={
-                !isFullDisabled && ((e) => handlePlaceholderConnectorDragStart(e, nodeId))
-              }
-            onTouchStart={
-                !isFullDisabled && ((e) => handlePlaceholderConnectorDragStart(e, nodeId))
-              }
-            onMouseOver={
-                !isFullDisabled
-                && ((e) => {
-                  e.cancelBubble = true;
-                  setCursor('grab');
-                })
-              }
+            onDragStart={(e) => handlePlaceholderConnectorDragStart(e, nodeId)}
+            onTouchStart={(e) => handlePlaceholderConnectorDragStart(e, nodeId)}
+            onMouseOver={handleMouseOver}
             onDragMove={() => {}}
             onDragEnd={() => {}}
           />
           <Circle
             id={i}
             x={paddingX + labelPiecesPosition[i] + placeholderWidth / 2}
-            y={paddingY + textHeight / 2}
+            y={paddingY + fontSize / 2}
             draggable={!isFullDisabled}
-            onDragStart={
-              !isFullDisabled && ((e) => handlePlaceholderConnectorDragStart(e, nodeId))
-            }
-            onTouchStart={
-              !isFullDisabled && ((e) => handlePlaceholderConnectorDragStart(e, nodeId))
-            }
-            radius={fontSize / 4}
+            onDragStart={(e) => handlePlaceholderConnectorDragStart(e, nodeId)}
+            onTouchStart={((e) => handlePlaceholderConnectorDragStart(e, nodeId))}
+            radius={connectorStyle.parent.radiusSize}
             fill={connectorStyle.parent.color}
-            stroke="black"
-            strokeWidth={1}
-            onMouseOver={
-                !isFullDisabled
-                && ((e) => {
-                  e.cancelBubble = true;
-                  setCursor('grab');
-                })
-              }
+            stroke={connectorStyle.parent.strokeColor}
+            strokeWidth={connectorStyle.parent.strokeSize}
+            onMouseOver={handleMouseOver}
             onDragMove={() => {}}
             onDragEnd={() => {}}
             visible={edgeByParentPiece(nodeId, i, edges).length > 0}
@@ -108,7 +104,7 @@ function NodeLabel({
           fill={nodeStyle.textColor}
           fontFamily={fontFamily}
           fontSize={fontSize}
-          text={p}
+          text={pieceText}
           listening={false}
           onDragMove={() => {}}
           onDragEnd={() => {}}
@@ -121,10 +117,8 @@ function NodeLabel({
 NodeLabel.propTypes = {
   nodeId: PropTypes.number.isRequired,
   connectorPlaceholder: PropTypes.string.isRequired,
-  placeholderWidth: PropTypes.number.isRequired,
   labelPieces: PropTypes.arrayOf(PropTypes.string).isRequired,
   labelPiecesPosition: PropTypes.arrayOf(PropTypes.number).isRequired,
-  textHeight: PropTypes.number.isRequired,
   nodeHeight: PropTypes.number.isRequired,
   edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)).isRequired,
   currentErrorLocation: PropTypes.shape({
@@ -148,10 +142,15 @@ NodeLabel.propTypes = {
     errorColor: PropTypes.string,
     selectedColor: PropTypes.string,
     finalColor: PropTypes.string,
-    placeholderColor: PropTypes.string,
-    tagColor: PropTypes.string,
     textColor: PropTypes.string,
     deleteButtonColor: PropTypes.string,
+    placeholder: PropTypes.exact({
+      width: PropTypes.number,
+      strokeSize: PropTypes.number,
+      strokeColor: PropTypes.string,
+      fillColor: PropTypes.string,
+      radius: PropTypes.number,
+    }),
     star: PropTypes.exact({
       strokeSize: PropTypes.number,
       strokeColor: PropTypes.string,
@@ -166,6 +165,18 @@ NodeLabel.propTypes = {
       text: PropTypes.string,
       textColor: PropTypes.string,
       overTextColor: PropTypes.string,
+    }),
+    typeValue: PropTypes.exact({
+      fontSize: PropTypes.number,
+      fillColor: PropTypes.string,
+      strokeColor: PropTypes.string,
+      strokeSize: PropTypes.string,
+      pointerDirection: PropTypes.string,
+      pointerWidth: PropTypes.number,
+      pointerHeight: PropTypes.number,
+      radius: PropTypes.number,
+      textColor: PropTypes.string,
+      padding: PropTypes.number,
     }),
   }).isRequired,
   connectorStyle: PropTypes.exact({

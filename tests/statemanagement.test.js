@@ -5,9 +5,9 @@ import {
   edgeByChildNode,
   edgeByParentPiece,
   nodePositionById,
-} from '../src/components/utils';
+} from '../src/utils/tree';
 
-import reducer from '../src/components/store/reducers';
+import reducer from '../src/store/reducers';
 
 let state = {
   nodes: [],

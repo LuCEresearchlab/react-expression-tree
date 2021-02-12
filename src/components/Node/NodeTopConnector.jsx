@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   Circle,
@@ -8,7 +8,7 @@ import {
 
 import {
   edgeByChildNode,
-} from '../utils';
+} from '../../utils/tree';
 
 function NodeTopConnector({
   nodeId,
@@ -29,6 +29,9 @@ function NodeTopConnector({
   connectorStyle,
 
 }) {
+  const x = useMemo(() => nodeWidth / 2,
+    [nodeWidth]);
+
   // Handle drag start event from a node connector,
   // starting drag event from the node connector if a meta key is not being pressed,
   // otherwise stop the node connector drag
@@ -60,10 +63,17 @@ function NodeTopConnector({
     }
   };
 
+  const handleMouseOver = (e) => {
+    if (isFullDisabled) {
+      return;
+    }
+
+    e.cancelBubble = true;
+    setCursor('grab');
+  };
+
   /**
-   *
    * Compute connector color given a style object
-   *
    * @param {Object} stl
    */
   const computeColor = (stl) => {
@@ -85,8 +95,9 @@ function NodeTopConnector({
     <Group>
       {isSelectedRoot ? (
         <Star
+          key={`NodeConnector-${nodeId}`}
           id={nodeId}
-          x={nodeWidth / 2}
+          x={x}
           y={0}
           numPoints={nodeStyle.star.numPoints}
           innerRadius={nodeStyle.star.innerRadius}
@@ -97,13 +108,7 @@ function NodeTopConnector({
           draggable={!isFullDisabled}
           onDragStart={handleNodeConnectorDragStart}
           onTouchStart={handleNodeConnectorDragStart}
-          onMouseOver={
-            !isFullDisabled
-            && ((e) => {
-              e.cancelBubble = true;
-              setCursor('grab');
-            })
-          }
+          onMouseOver={handleMouseOver}
           onDragMove={() => {}}
           onDragEnd={() => {}}
         />
@@ -111,7 +116,7 @@ function NodeTopConnector({
         <Circle
           key={`NodeConnector-${nodeId}`}
           id={nodeId}
-          x={nodeWidth / 2}
+          x={x}
           y={0}
           radius={connectorStyle.child.radiusSize}
           fill={computeColor(connectorStyle.child)}
@@ -120,13 +125,7 @@ function NodeTopConnector({
           draggable={!isFullDisabled}
           onDragStart={handleNodeConnectorDragStart}
           onTouchStart={handleNodeConnectorDragStart}
-          onMouseOver={
-            !isFullDisabled
-            && ((e) => {
-              e.cancelBubble = true;
-              setCursor('grab');
-            })
-          }
+          onMouseOver={handleMouseOver}
           onDragMove={() => {}}
           onDragEnd={() => {}}
         />
@@ -170,10 +169,15 @@ NodeTopConnector.propTypes = {
     errorColor: PropTypes.string,
     selectedColor: PropTypes.string,
     finalColor: PropTypes.string,
-    placeholderColor: PropTypes.string,
-    tagColor: PropTypes.string,
     textColor: PropTypes.string,
     deleteButtonColor: PropTypes.string,
+    placeholder: PropTypes.exact({
+      width: PropTypes.number,
+      strokeSize: PropTypes.number,
+      strokeColor: PropTypes.string,
+      fillColor: PropTypes.string,
+      radius: PropTypes.number,
+    }),
     star: PropTypes.exact({
       strokeSize: PropTypes.number,
       strokeColor: PropTypes.string,
@@ -188,6 +192,18 @@ NodeTopConnector.propTypes = {
       text: PropTypes.string,
       textColor: PropTypes.string,
       overTextColor: PropTypes.string,
+    }),
+    typeValue: PropTypes.exact({
+      fontSize: PropTypes.number,
+      fillColor: PropTypes.string,
+      strokeColor: PropTypes.string,
+      strokeSize: PropTypes.string,
+      pointerDirection: PropTypes.string,
+      pointerWidth: PropTypes.number,
+      pointerHeight: PropTypes.number,
+      radius: PropTypes.number,
+      textColor: PropTypes.string,
+      padding: PropTypes.number,
     }),
   }).isRequired,
   connectorStyle: PropTypes.exact({

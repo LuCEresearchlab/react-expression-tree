@@ -1,60 +1,49 @@
 import React, {
   useState,
-  useEffect,
   useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
   Group,
-  Label,
   Rect,
-  Tag,
-  Text,
 } from 'react-konva';
-
-import {
-  computeLabelPiecesPositions,
-} from '../utils';
 
 import NodeLabel from './NodeLabel';
 import NodeDeleteButton from './NodeDeleteButton';
 import NodeTopConnector from './NodeTopConnector';
+import NodeTypeValue from './NodeTypeValue';
 
 function Node({
   id,
   labelPieces,
   positionX,
   positionY,
-
-  nodeWidth,
-  type,
-  value,
-  isFinal,
-  isSelected,
-  isSelectedRoot,
-  nodes,
-  edges,
-  transformerRef,
-  selectedEdgeRef,
-  setSelectedEdgeRef,
-  isDraggingSelectionRect,
-  currentErrorLocation,
+  typeText,
+  valueText,
+  connectorPlaceholder,
+  placeholderWidth,
   stageRef,
   stageWidth,
   stageHeight,
-  isPressingMetaOrShift,
-  textHeight,
-  connectorPlaceholder,
-  isFullDisabled,
-  removeNode,
-  clearNodeSelection,
+  transformerRef,
+  selectedEdgeRef,
+  setSelectedEdgeRef,
+  nodeWidth,
+  edges,
+  currentErrorLocation,
   moveNodeTo,
   moveNodeToEnd,
+  removeNode,
+  clearNodeSelection,
   clearEdgeSelection,
-
+  computeLabelPiecesXCoordinatePositions,
   setCursor,
-  placeholderWidth,
-  // Event Listeners
+  isDraggingSelectionRect,
+  isFinal,
+  isSelected,
+  isSelectedRoot,
+  isPressingMetaOrShift,
+  isFullDisabled,
   onNodeMove,
   onNodeDelete,
   onNodeClick,
@@ -72,15 +61,13 @@ function Node({
   const [draggingNode, setDraggingNode] = useState(false);
 
   const nodeHeight = useMemo(
-    () => 2 * nodeStyle.paddingY + textHeight,
-    [paddingY, textHeight],
+    () => 2 * nodeStyle.paddingY + fontSize,
+    [paddingY, fontSize],
   );
-  const labelPiecesPosition = useMemo(() => computeLabelPiecesPositions(
+
+  const labelPiecesPosition = useMemo(() => computeLabelPiecesXCoordinatePositions(
     labelPieces,
-    connectorPlaceholder,
-    fontSize,
-    fontFamily,
-  ), [labelPieces, connectorPlaceholder, fontSize, fontFamily]);
+  ), [labelPieces]);
 
   // Handle drag start event of a node, if a meta key is not being pressed,
   // set up the state for node drag move event, otherwise stop the node drag
@@ -109,8 +96,12 @@ function Node({
     }
   };
 
-  // Handle node drag move events, updating the node position to the final event coordinates
-  // (different action to be able to filter all the previous moving actions to allow undo/redo working)
+  /**
+   * Handle node drag move events,
+   * updating the node position to the final event coordinates
+   * (different action to be able to filter all the
+   * previous moving actions to allow undo/redo working)
+   */
   const handleDragEnd = (e) => {
     e.cancelBubble = true;
     setCursor('pointer');
@@ -137,6 +128,10 @@ function Node({
   // starting drag event from the placeholder connector if a meta key is not being pressed,
   // otherwise stop the placeholder connector drag
   const handlePlaceholderConnectorDragStart = (e, nodeId) => {
+    if (isFullDisabled) {
+      return;
+    }
+
     if (!isPressingMetaOrShift) {
       // prevent onDragStart of Group
       e.cancelBubble = true;
@@ -165,7 +160,7 @@ function Node({
           + e.target.parent.parent.y()
           + e.target.parent.y()
           + paddingY
-          + textHeight / 2,
+          + fontSize / 2,
       );
     } else {
       e.target.stopDrag();
@@ -281,7 +276,6 @@ function Node({
         placeholderWidth={placeholderWidth}
         labelPieces={labelPieces}
         labelPiecesPosition={labelPiecesPosition}
-        textHeight={textHeight}
         nodeHeight={nodeHeight}
         edges={edges}
         currentErrorLocation={currentErrorLocation}
@@ -310,24 +304,13 @@ function Node({
         fontFamily={fontFamily}
         style={nodeStyle.delete}
       />
-      <Label x={nodeWidth / 2} y={-fontSize / 4}>
-        <Tag
-          fill={nodeStyle.tagColor}
-          stroke="black"
-          strokeWidth={type !== '' || value !== '' ? 1 : 0}
-          pointerDirection="down"
-          pointerWidth={type !== '' || value !== '' ? fontSize / 3 : 0}
-          pointerHeight={type !== '' || value !== '' ? fontSize / 4 : 0}
-          cornerRadius={3}
-        />
-        <Text
-          fill={nodeStyle.textColor}
-          fontFamily={fontFamily}
-          fontSize={fontSize / 2}
-          text={type + (type !== '' && value !== '' ? ': ' : '') + value}
-          padding={type !== '' || value !== '' ? 5 : 0}
-        />
-      </Label>
+      <NodeTypeValue
+        typeText={typeText}
+        valueText={valueText}
+        nodeWidth={nodeWidth}
+        fontFamily={fontFamily}
+        style={nodeStyle.typeValue}
+      />
     </Group>
   );
 }
@@ -337,46 +320,45 @@ Node.propTypes = {
   labelPieces: PropTypes.arrayOf(PropTypes.string).isRequired,
   positionX: PropTypes.number.isRequired,
   positionY: PropTypes.number.isRequired,
-
-  isDraggingSelectionRect: PropTypes.bool.isRequired,
-
-  nodeWidth: PropTypes.number,
-  type: PropTypes.string,
-  value: PropTypes.string,
-  isFinal: PropTypes.bool,
-  isSelected: PropTypes.bool,
-  isSelectedRoot: PropTypes.bool,
-  nodes: PropTypes.arrayOf(
-    PropTypes.shape({
-      labelPieces: PropTypes.arrayOf(PropTypes.string),
-      x: PropTypes.number,
-      y: PropTypes.number,
-      type: PropTypes.string,
-      value: PropTypes.string,
-      isFinal: PropTypes.bool,
-    }),
-  ),
-  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
-  transformerRef: PropTypes.object,
-  selectedEdgeRef: PropTypes.object,
-  setSelectedEdgeRef: PropTypes.func,
-  currentErrorLocation: PropTypes.object,
-  stageRef: PropTypes.object,
-  stageWidth: PropTypes.number,
-  stageHeight: PropTypes.number,
-  isPressingMetaOrShift: PropTypes.bool,
-  textHeight: PropTypes.number,
-  isFullDisabled: PropTypes.bool,
-  removeNode: PropTypes.func,
-  clearNodeSelection: PropTypes.func,
-  moveNodeTo: PropTypes.func,
-  moveNodeToEnd: PropTypes.func,
-  clearEdgeSelection: PropTypes.func,
-
-  setCursor: PropTypes.func.isRequired,
+  typeText: PropTypes.string.isRequired,
+  valueText: PropTypes.string.isRequired,
   connectorPlaceholder: PropTypes.string.isRequired,
   placeholderWidth: PropTypes.number.isRequired,
-  // Event Listeners
+  stageRef: PropTypes.shape({
+    current: PropTypes.shape({
+      scale: PropTypes.func,
+    }),
+  }).isRequired,
+  stageWidth: PropTypes.number.isRequired,
+  stageHeight: PropTypes.number.isRequired,
+  transformerRef: PropTypes.shape({
+    current: PropTypes.shape({
+      nodes: PropTypes.func,
+    }),
+  }).isRequired,
+  selectedEdgeRef: PropTypes.shape({
+    moveToBottom: PropTypes.func,
+  }).isRequired,
+  setSelectedEdgeRef: PropTypes.func.isRequired,
+  nodeWidth: PropTypes.number.isRequired,
+  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)).isRequired,
+  currentErrorLocation: PropTypes.shape({
+    node: PropTypes.string,
+    nodeId: PropTypes.number,
+  }).isRequired,
+  moveNodeTo: PropTypes.func.isRequired,
+  moveNodeToEnd: PropTypes.func.isRequired,
+  removeNode: PropTypes.func.isRequired,
+  clearNodeSelection: PropTypes.func.isRequired,
+  clearEdgeSelection: PropTypes.func.isRequired,
+  computeLabelPiecesXCoordinatePositions: PropTypes.func.isRequired,
+  setCursor: PropTypes.func.isRequired,
+  isDraggingSelectionRect: PropTypes.bool.isRequired,
+  isFinal: PropTypes.bool.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  isSelectedRoot: PropTypes.bool.isRequired,
+  isPressingMetaOrShift: PropTypes.bool.isRequired,
+  isFullDisabled: PropTypes.bool.isRequired,
   onNodeMove: PropTypes.func,
   onNodeDelete: PropTypes.func,
   onNodeClick: PropTypes.func,
@@ -396,10 +378,15 @@ Node.propTypes = {
     errorColor: PropTypes.string,
     selectedColor: PropTypes.string,
     finalColor: PropTypes.string,
-    placeholderColor: PropTypes.string,
-    tagColor: PropTypes.string,
     textColor: PropTypes.string,
     deleteButtonColor: PropTypes.string,
+    placeholder: PropTypes.exact({
+      width: PropTypes.number,
+      strokeSize: PropTypes.number,
+      strokeColor: PropTypes.string,
+      fillColor: PropTypes.string,
+      radius: PropTypes.number,
+    }),
     star: PropTypes.exact({
       strokeSize: PropTypes.number,
       strokeColor: PropTypes.string,
@@ -414,6 +401,18 @@ Node.propTypes = {
       text: PropTypes.string,
       textColor: PropTypes.string,
       overTextColor: PropTypes.string,
+    }),
+    typeValue: PropTypes.exact({
+      fontSize: PropTypes.number,
+      fillColor: PropTypes.string,
+      strokeColor: PropTypes.string,
+      strokeSize: PropTypes.string,
+      pointerDirection: PropTypes.string,
+      pointerWidth: PropTypes.number,
+      pointerHeight: PropTypes.number,
+      radius: PropTypes.number,
+      textColor: PropTypes.string,
+      padding: PropTypes.number,
     }),
   }).isRequired,
   connectorStyle: PropTypes.exact({

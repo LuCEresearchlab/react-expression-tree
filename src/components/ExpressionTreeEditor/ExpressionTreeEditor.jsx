@@ -22,24 +22,55 @@ import Edge from '../Edge/Edge';
 import DragEdge from '../Edge/DragEdge';
 import StageDrawer from '../StageDrawer/StageDrawer';
 
-import reducer from '../store/reducers';
-import reducerInitialState from '../store/initialState';
+import reducer from '../../store/reducers';
+import reducerInitialState from '../../store/initialState';
 
 import {
   edgeByChildNode,
-  computeLabelPiecesPositions,
-  computeEdgeParentPos,
   edgeByParentPiece,
-  computeEdgeChildPos,
-  closestParentPiece,
   edgeById,
-  closestChildId,
   nodeById,
   nodePositionById,
-  computeNodeWidth,
-} from '../utils';
+} from '../../utils/tree';
 
-import useContainerWidthOnWindowResize from './useContainerWidthOnWindowResize';
+import createPositionUtils from '../../utils/position';
+
+import {
+  actionRemoveNode,
+  actionMoveNodeTo,
+  actionMoveNodeToEnd,
+  actionSetDragEdge,
+  actionMoveDragEdgeParentEndTo,
+  actionMoveDragEdgeChildEndTo,
+  actionRemoveEdge,
+  actionAddEdge,
+  actionUpdateEdge,
+  actionClearDragEdge,
+  actionClearNodeSelection,
+  actionAddNode,
+  actionSelectNode,
+  actionClearAdding,
+  actionEditValueChange,
+  actionTypeValueChange,
+  actionNodeValueChange,
+  actionSelectEdge,
+  actionClearEdgeSelection,
+  actionSelectRootNode,
+  actionSetInitialState,
+  actionMoveSelectedNodesTo,
+  actionMoveSelectedNodesToEnd,
+  actionClearRootSelection,
+  actionEditNode,
+  actionAddingNodeClick,
+  actionAddValueChange,
+  actionNodeTypeEdit,
+  actionNodeValueEdit,
+  actionStageReset,
+  actionUploadState,
+  actionReorderNodes,
+} from '../../store/actions';
+
+import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
 
 import '@fontsource/roboto-mono/300.css';
 
@@ -94,134 +125,41 @@ function ExpressionTreeEditor({
     nodeValue,
   } = store;
 
-  const removeNode = useCallback((payload) => {
-    dispatch({ type: 'removeNode', payload });
-  }, [dispatch]);
+  const removeNode = useCallback(actionRemoveNode(dispatch), [dispatch]);
+  const moveNodeTo = useCallback(actionMoveNodeTo(dispatch), [dispatch]);
+  const moveNodeToEnd = useCallback(actionMoveNodeToEnd(dispatch), [dispatch]);
+  const setDragEdge = useCallback(actionSetDragEdge(dispatch), [dispatch]);
+  const moveDragEdgeParentEndTo = useCallback(actionMoveDragEdgeParentEndTo(dispatch), [dispatch]);
+  const moveDragEdgeChildEndTo = useCallback(actionMoveDragEdgeChildEndTo(dispatch), [dispatch]);
+  const removeEdge = useCallback(actionRemoveEdge(dispatch), [dispatch]);
+  const addEdge = useCallback(actionAddEdge(dispatch), [dispatch]);
+  const updateEdge = useCallback(actionUpdateEdge(dispatch), [dispatch]);
+  const clearDragEdge = useCallback(actionClearDragEdge(dispatch), [dispatch]);
+  const clearNodeSelection = useCallback(actionClearNodeSelection(dispatch), [dispatch]);
+  const addNode = useCallback(actionAddNode(dispatch), [dispatch]);
+  const selectNode = useCallback(actionSelectNode(dispatch), [dispatch]);
+  const clearAdding = useCallback(actionClearAdding(dispatch), [dispatch]);
+  const editValueChange = useCallback(actionEditValueChange(dispatch), [dispatch]);
+  const typeValueChange = useCallback(actionTypeValueChange(dispatch), [dispatch]);
+  const nodeValueChange = useCallback(actionNodeValueChange(dispatch), [dispatch]);
+  const selectEdge = useCallback(actionSelectEdge(dispatch), [dispatch]);
+  const clearEdgeSelection = useCallback(actionClearEdgeSelection(dispatch), [dispatch]);
+  const selectRootNode = useCallback(actionSelectRootNode(dispatch), [dispatch]);
+  const setInitialState = useCallback(actionSetInitialState(dispatch), [dispatch]);
+  const moveSelectedNodesTo = useCallback(actionMoveSelectedNodesTo(dispatch), [dispatch]);
+  const moveSelectedNodesToEnd = useCallback(actionMoveSelectedNodesToEnd(dispatch), [dispatch]);
+  const clearRootSelection = useCallback(actionClearRootSelection(dispatch), [dispatch]);
+  const editNode = useCallback(actionEditNode(dispatch), [dispatch]);
+  const addingNodeClick = useCallback(actionAddingNodeClick(dispatch), [dispatch]);
+  const addValueChange = useCallback(actionAddValueChange(dispatch), [dispatch]);
+  const nodeTypeEdit = useCallback(actionNodeTypeEdit(dispatch), [dispatch]);
+  const nodeValueEdit = useCallback(actionNodeValueEdit(dispatch), [dispatch]);
+  const stageReset = useCallback(actionStageReset(dispatch), [dispatch]);
+  const uploadState = useCallback(actionUploadState(dispatch), [dispatch]);
+  const reorderNodes = useCallback(actionReorderNodes(dispatch), [dispatch]);
 
-  const moveNodeTo = useCallback((payload) => {
-    dispatch({ type: 'moveNodeTo', payload });
-  }, [dispatch]);
-
-  const moveNodeToEnd = useCallback((payload) => {
-    dispatch({ type: 'moveNodeToEnd', payload });
-  }, [dispatch]);
-
-  const setDragEdge = useCallback((payload) => {
-    dispatch({ type: 'setDragEdge', payload });
-  }, [dispatch]);
-
-  const moveDragEdgeParentEndTo = useCallback((payload) => {
-    dispatch({ type: 'moveDragEdgeParentEndTo', payload });
-  }, [dispatch]);
-
-  const moveDragEdgeChildEndTo = useCallback((payload) => {
-    dispatch({ type: 'moveDragEdgeChildEndTo', payload });
-  }, [dispatch]);
-
-  const removeEdge = useCallback((payload) => {
-    dispatch({ type: 'removeEdge', payload });
-  }, [dispatch]);
-
-  const addEdge = useCallback((payload) => {
-    dispatch({ type: 'addEdge', payload });
-  }, [dispatch]);
-
-  const updateEdge = useCallback((payload) => {
-    dispatch({ type: 'updateEdge', payload });
-  }, [dispatch]);
-
-  const clearDragEdge = useCallback(() => {
-    dispatch({ type: 'clearDragEdge' });
-  }, [dispatch]);
-
-  const clearNodeSelection = useCallback(() => {
-    dispatch({ type: 'clearNodeSelection' });
-  }, [dispatch]);
-
-  const addNode = useCallback((payload) => {
-    dispatch({ type: 'addNode', payload });
-  }, [dispatch]);
-
-  const selectNode = useCallback((payload) => {
-    dispatch({ type: 'selectNode', payload });
-  }, [dispatch]);
-
-  const clearAdding = useCallback(() => {
-    dispatch({ type: 'clearAdding' });
-  }, [dispatch]);
-
-  const editValueChange = useCallback((payload) => {
-    dispatch({ type: 'editValueChange', payload });
-  }, [dispatch]);
-
-  const typeValueChange = useCallback((payload) => {
-    dispatch({ type: 'typeValueChange', payload });
-  }, [dispatch]);
-
-  const nodeValueChange = useCallback((payload) => {
-    dispatch({ type: 'nodeValueChange', payload });
-  }, [dispatch]);
-
-  const selectEdge = useCallback((payload) => {
-    dispatch({ type: 'selectEdge', payload });
-  }, [dispatch]);
-
-  const clearEdgeSelection = useCallback(() => {
-    dispatch({ type: 'clearEdgeSelection' });
-  }, [dispatch]);
-
-  const selectRootNode = useCallback((payload) => {
-    dispatch({ type: 'selectRootNode', payload });
-  }, [dispatch]);
-
-  const clearRootSelection = useCallback(() => {
-    dispatch({ type: 'clearRootSelection' });
-  }, [dispatch]);
-
-  const setInitialState = useCallback((payload) => {
-    dispatch({ type: 'setInitialState', payload });
-  }, [dispatch]);
-
-  const moveSelectedNodesTo = useCallback((payload) => {
-    dispatch({ type: 'moveSelectedNodesTo', payload });
-  }, [dispatch]);
-
-  const moveSelectedNodesToEnd = useCallback((payload) => {
-    dispatch({ type: 'moveSelectedNodesToEnd', payload });
-  }, [dispatch]);
-
-  // Drawer
-  const editNode = useCallback((payload) => {
-    dispatch({ type: 'editNode', payload });
-  }, [dispatch]);
-
-  const addingNodeClick = useCallback(() => {
-    dispatch({ type: 'addingNodeClick' });
-  }, [dispatch]);
-
-  const addValueChange = useCallback((payload) => {
-    dispatch({ type: 'addValueChange', payload });
-  }, [dispatch]);
-
-  const nodeTypeEdit = useCallback((payload) => {
-    dispatch({ type: 'nodeTypeEdit', payload });
-  }, [dispatch]);
-
-  const nodeValueEdit = useCallback((payload) => {
-    dispatch({ type: 'nodeValueEdit', payload });
-  }, [dispatch]);
-
-  const stageReset = useCallback((payload) => {
-    dispatch({ type: 'stageReset', payload });
-  }, [dispatch]);
-
-  const uploadState = useCallback((payload) => {
-    dispatch({ type: 'uploadState', payload });
-  }, [dispatch]);
-
-  const reorderNodes = useCallback((payload) => {
-    dispatch({ type: 'reorderNodes', payload });
-  }, [dispatch]);
+  const { fontSize, fontFamily } = style;
+  const { width: placeholderWidth } = style.node.placeholder;
 
   // Set the theme primary and secondary colors according to the recived props
   const theme = useMemo(() => createMuiTheme({
@@ -231,14 +169,20 @@ function ExpressionTreeEditor({
     },
   }), [style]);
 
-  // Layout utils
-  const oText = new Konva.Text({
-    text: 'o',
-    fontFamily: style.fontFamily,
-    fontSize: style.fontSize,
-  });
-  const textHeight = oText.fontSize();
-  const holeWidth = oText.getTextWidth();
+  const {
+    closestChildId,
+    closestParentPiece,
+    computeEdgeChildPos,
+    computeEdgeParentPos,
+    computeLabelPiecesXCoordinatePositions,
+    computeNodeWidth,
+    parseLabelPieces,
+  } = useMemo(() => createPositionUtils(
+    fontSize,
+    fontFamily,
+    connectorPlaceholder,
+    placeholderWidth,
+  ), [fontSize, fontFamily, connectorPlaceholder, placeholderWidth]);
 
   // State hooks
   const containerWidth = useContainerWidthOnWindowResize(containerRef);
@@ -260,12 +204,32 @@ function ExpressionTreeEditor({
   // Effects
   // Initial state setting effect running only on first render
   useEffect(() => {
+    const initialNodes = initialState.initialNodes.map((node, i) => {
+      const nodeWidth = computeNodeWidth(
+        node.pieces,
+        connectorPlaceholder,
+        fontSize,
+        fontFamily,
+      );
+      const id = i + 1;
+      return {
+        ...node,
+        id,
+        width: nodeWidth,
+      };
+    });
+
+    const initialEdges = initialState.initialEdges.map((edge, i) => {
+      const id = i + 1;
+      return {
+        ...edge,
+        id,
+      };
+    });
+
     setInitialState({
-      initialNodes: initialState.initialNodes,
-      initialEdges: initialState.initialEdges,
-      connectorPlaceholder,
-      fontSize: style.fontSize,
-      fontFamily: style.fontFamily,
+      initialNodes,
+      initialEdges,
     });
     // dispatch(ActionCreators.clearHistory());
   }, []);
@@ -362,18 +326,15 @@ function ExpressionTreeEditor({
     }
     const edge = edgeByChildNode(nodeId, edges)[0];
     if (edge) {
-      const parentPieceX = computeLabelPiecesPositions(
+      const parentPieceX = computeLabelPiecesXCoordinatePositions(
         nodeById(edge.parentNodeId, nodes).pieces,
-        connectorPlaceholder,
-        style.fontSize,
-        style.fontFamily,
       )[edge.parentPieceId];
       const parentPos = computeEdgeParentPos(
         edge.parentNodeId,
         parentPieceX,
         nodes,
         style.fontSize,
-        style.fontFamily,
+        style.node.placeholder.width,
       );
       const newDragEdge = {
         originalEdgeId: edge.id,
@@ -381,7 +342,7 @@ function ExpressionTreeEditor({
         parentNodeId: edge.parentNodeId,
         parentPieceId: edge.parentPieceId,
         parentX: parentPos.x,
-        parentY: parentPos.y - textHeight / 2,
+        parentY: parentPos.y - fontSize / 2,
         childX: x,
         childY: y,
       };
@@ -482,9 +443,6 @@ function ExpressionTreeEditor({
           (pointerPos.x - stagePos.x) / stageScale.x,
           (pointerPos.y - stagePos.y) / stageScale.y,
           nodes,
-          connectorPlaceholder,
-          style.fontSize,
-          style.fontFamily,
         );
         // If we are updating an already existing edge
         if (dragEdge.originalEdgeId) {
@@ -602,8 +560,6 @@ function ExpressionTreeEditor({
           (pointerPos.x - stagePos.x) / stageScale.x,
           (pointerPos.y - stagePos.y) / stageScale.y,
           nodes,
-          style.fontSize,
-          style.fontFamily,
         );
         // If we are updating an already existing edge
         if (dragEdge.originalEdgeId) {
@@ -1002,7 +958,6 @@ function ExpressionTreeEditor({
           initialState={initialState}
           fontSize={style.fontSize}
           fontFamily={style.fontFamily}
-          textHeight={textHeight}
           yPad={style.node.paddingY}
           toolbarButtons={toolbarButtons}
           drawerFields={drawerFields}
@@ -1034,6 +989,8 @@ function ExpressionTreeEditor({
           editValueChange={editValueChange}
           nodeValueChange={nodeValueChange}
           typeValueChange={typeValueChange}
+          computeNodeWidth={computeNodeWidth}
+          parseLabelPieces={parseLabelPieces}
           // TODO: undo / redo
           // edges: state.editor.present.edges,
           // nodes: state.editor.present.nodes,
@@ -1100,11 +1057,8 @@ function ExpressionTreeEditor({
                 parentNodeId={edge.parentNodeId}
                 parentPieceId={edge.parentPieceId}
                 parentPieceX={
-                  computeLabelPiecesPositions(
+                  computeLabelPiecesXCoordinatePositions(
                     nodeById(edge.parentNodeId, nodes).pieces,
-                    connectorPlaceholder,
-                    style.fontSize,
-                    style.fontFamily,
                   )[edge.parentPieceId]
                 }
                 isDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
@@ -1115,8 +1069,6 @@ function ExpressionTreeEditor({
                 setSelectedEdgeRef={setSelectedEdgeRef}
                 clearEdgeSelection={clearEdgeSelection}
                 currentErrorLocation={currentErrorLocation}
-                textHeight={textHeight}
-                placeholderWidth={holeWidth}
                 nodePaddingX={style.node.paddingX}
                 nodePaddingY={style.node.paddingY}
                 // Event Listeners
@@ -1125,6 +1077,8 @@ function ExpressionTreeEditor({
                 onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
                 setCursor={setCursor}
                 // Style
+                placeholderWidth={style.node.placeholder.width}
+                fontSize={fontSize}
                 style={style.edge}
               />
             ))}
@@ -1136,39 +1090,34 @@ function ExpressionTreeEditor({
                 labelPieces={node.pieces}
                 positionX={nodePositionById(node.id, nodes).x}
                 positionY={nodePositionById(node.id, nodes).y}
-
+                typeText={node.type}
+                valueText={node.value}
+                connectorPlaceholder={connectorPlaceholder}
+                placeholderWidth={placeholderWidth}
                 stageRef={stageRef}
+                stageWidth={containerWidth}
+                stageHeight={height}
                 transformerRef={transformerRef}
                 selectedEdgeRef={selectedEdgeRef}
                 setSelectedEdgeRef={setSelectedEdgeRef}
-                isDraggingSelectionRect={isDraggingSelectionRect}
-                isPressingMetaOrShift={isPressingMetaOrShift}
-                currentErrorLocation={currentErrorLocation}
                 nodeWidth={node.width}
-                isSelected={selectedNode && selectedNode.id === node.id}
-                isSelectedRoot={
-                  selectedRootNode && selectedRootNode.id === node.id
-                }
-                type={node.type}
-                value={node.value}
-                isFinal={node.isFinal}
-                nodes={nodes}
                 edges={edges}
-                stageWidth={containerWidth}
-                stageHeight={height}
-                placeholderWidth={holeWidth}
-                textHeight={textHeight}
-                connectorPlaceholder={connectorPlaceholder}
-                fullDisabled={fullDisabled}
+                currentErrorLocation={currentErrorLocation}
                 moveNodeTo={moveNodeTo}
                 moveNodeToEnd={moveNodeToEnd}
                 removeNode={removeNode}
                 clearNodeSelection={clearNodeSelection}
                 clearEdgeSelection={clearEdgeSelection}
-                nodeValueChange={nodeValueChange}
-
+                computeLabelPiecesXCoordinatePositions={computeLabelPiecesXCoordinatePositions}
                 setCursor={setCursor}
-                // Event Listeners
+                isDraggingSelectionRect={isDraggingSelectionRect}
+                isFinal={node.isFinal}
+                isSelected={selectedNode && selectedNode.id === node.id}
+                isSelectedRoot={
+                  selectedRootNode && selectedRootNode.id === node.id
+                }
+                isPressingMetaOrShift={isPressingMetaOrShift}
+                isFullDisabled={fullDisabled}
                 onNodeMove={onNodeMove}
                 onNodeDelete={onNodeDelete}
                 onNodeClick={(e) => handleNodeClick(e, node.id)}
@@ -1361,10 +1310,15 @@ ExpressionTreeEditor.propTypes = {
       errorColor: PropTypes.string,
       selectedColor: PropTypes.string,
       finalColor: PropTypes.string,
-      placeholderColor: PropTypes.string,
-      tagColor: PropTypes.string,
       textColor: PropTypes.string,
       deleteButtonColor: PropTypes.string,
+      placeholder: PropTypes.exact({
+        width: PropTypes.number,
+        strokeSize: PropTypes.number,
+        strokeColor: PropTypes.string,
+        fillColor: PropTypes.string,
+        radius: PropTypes.number,
+      }),
       star: PropTypes.exact({
         strokeSize: PropTypes.number,
         strokeColor: PropTypes.string,
@@ -1379,6 +1333,18 @@ ExpressionTreeEditor.propTypes = {
         text: PropTypes.string,
         textColor: PropTypes.string,
         overTextColor: PropTypes.string,
+      }),
+      typeValue: PropTypes.exact({
+        fontSize: PropTypes.number,
+        fillColor: PropTypes.string,
+        strokeSize: PropTypes.string,
+        strokeColor: PropTypes.string,
+        pointerDirection: PropTypes.string,
+        pointerWidth: PropTypes.number,
+        pointerHeight: PropTypes.number,
+        radius: PropTypes.number,
+        textColor: PropTypes.string,
+        padding: PropTypes.number,
       }),
     }),
     edge: PropTypes.exact({
@@ -1515,10 +1481,15 @@ ExpressionTreeEditor.defaultProps = {
       errorColor: '#ff2f2f',
       selectedColor: '#3f51b5',
       finalColor: '#208080',
-      placeholderColor: '#104010',
-      tagColor: '#3f51b5',
       textColor: 'white',
       deleteButtonColor: 'red',
+      placeholder: {
+        width: 16,
+        strokeSize: 1,
+        strokeColor: '#000000',
+        fillColor: '#104010',
+        radius: 3,
+      },
       star: {
         strokeSize: 2,
         strokeColor: '#000000',
@@ -1533,6 +1504,18 @@ ExpressionTreeEditor.defaultProps = {
         text: 'X',
         textColor: '#ffffff',
         overTextColor: '#ff2f2f',
+      },
+      typeValue: {
+        fontSize: 12,
+        fillColor: '#3f51b5',
+        strokeSize: 1,
+        strokeColor: '#000000',
+        pointerDirection: 'down',
+        pointerWidth: 3,
+        pointerHeight: 4,
+        radius: 3,
+        textColor: '#ffffff',
+        padding: 5,
       },
     },
     edge: {

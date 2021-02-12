@@ -55,7 +55,7 @@ function NodeDeleteButton({
       e.target.attrs.fill = style.textColor;
       e.target.draw();
     }
-  }
+  };
 
   return (
     <Group>

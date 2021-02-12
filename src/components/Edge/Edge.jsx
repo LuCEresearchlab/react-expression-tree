@@ -21,14 +21,14 @@ function Edge({
   setSelectedEdgeRef,
   clearEdgeSelection,
   currentErrorLocation,
-  textHeight,
-  placeholderWidth,
   nodePaddingX,
   nodePaddingY,
   onEdgeClick,
   onNodeConnectorDragStart,
   onPlaceholderConnectorDragStart,
   setCursor,
+  placeholderWidth,
+  fontSize,
   style,
 }) {
   const startX = useMemo(() => childX + childWidth / 2,
@@ -37,8 +37,8 @@ function Edge({
     [childY]);
   const endX = useMemo(() => parentX + nodePaddingX + parentPieceX + placeholderWidth / 2,
     [parentX, nodePaddingX, parentPieceX, placeholderWidth]);
-  const endY = useMemo(() => parentY + nodePaddingY + textHeight / 2,
-    [parentY, nodePaddingY, textHeight]);
+  const endY = useMemo(() => parentY + nodePaddingY + fontSize / 2,
+    [parentY, nodePaddingY, fontSize]);
 
   // Handle drag start event on edge's node connector end
   const handleNodeConnectorDragStart = (e) => {
@@ -182,14 +182,14 @@ Edge.propTypes = {
     edge: PropTypes.string,
     edgeId: PropTypes.string,
   }).isRequired,
-  textHeight: PropTypes.number.isRequired,
-  placeholderWidth: PropTypes.number.isRequired,
   nodePaddingX: PropTypes.number.isRequired,
   nodePaddingY: PropTypes.number.isRequired,
   onEdgeClick: PropTypes.func,
   onNodeConnectorDragStart: PropTypes.func,
   onPlaceholderConnectorDragStart: PropTypes.func,
   setCursor: PropTypes.func.isRequired,
+  placeholderWidth: PropTypes.number.isRequired,
+  fontSize: PropTypes.number.isRequired,
   style: PropTypes.exact({
     strokeSize: PropTypes.number,
     color: PropTypes.string,

@@ -1,5 +1,8 @@
 /* eslint-disable arrow-body-style */
-import { computeNodeWidth, edgeByParentPiece, nodeById } from '../../utils';
+import {
+  edgeByParentPiece,
+  nodeById,
+} from '../../utils/tree';
 
 // Function that computes the last occupied node id
 function maxNodeId(state) {
@@ -192,10 +195,7 @@ export default {
       onNodeMove,
     } = payload;
 
-    if (onNodeMove) onNodeMove(nodeId, {
-      x,
-      y,
-    });
+    if (onNodeMove) onNodeMove(nodeId, { x, y });
     return {
       ...state,
       nodes: state.nodes.map((node) => (node.id === nodeId
@@ -426,22 +426,8 @@ export default {
     const {
       initialEdges,
       initialNodes,
-      connectorPlaceholder,
-      fontSize,
-      fontFamily,
     } = payload;
 
-    initialNodes.map((node, i) => {
-      node.width = computeNodeWidth(
-        node.pieces,
-        connectorPlaceholder,
-        fontSize,
-        fontFamily,
-      );
-      node.id = i + 1;
-      return node;
-    });
-    initialEdges.map((edge, i) => (edge.id = i + 1));
     return {
       ...state,
       nodes: initialNodes,
@@ -477,22 +463,8 @@ export default {
     const {
       initialNodes,
       initialEdges,
-      connectorPlaceholder,
-      fontSize,
-      fontFamily,
     } = payload;
 
-    initialNodes.map((node, i) => {
-      node.width = computeNodeWidth(
-        node.pieces,
-        connectorPlaceholder,
-        fontSize,
-        fontFamily,
-      );
-      node.id = i + 1;
-      return node;
-    });
-    initialEdges.map((edge, i) => (edge.id = i + 1));
     return {
       ...state,
       nodes: initialNodes,

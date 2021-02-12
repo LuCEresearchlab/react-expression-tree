@@ -54,14 +54,13 @@ import {
   Snackbar,
 } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
+
 import {
-  computeNodeWidth,
   edgeByParentPiece,
   nodeById,
-  parsePieces,
-} from '../utils';
+} from '../../utils/tree';
 
-import { addExpressionTutorMetaData, getExpressionTutorMetaData } from '../PNG_utils';
+import { addExpressionTutorMetaData, getExpressionTutorMetaData } from '../../utils/png';
 
 // Width of the side drawer
 const drawerWidth = 300;
@@ -197,7 +196,6 @@ function StageDrawer({
   onValidate,
   fontSize,
   fontFamily,
-  textHeight,
   nodes,
   edges,
   canUndo,
@@ -224,6 +222,8 @@ function StageDrawer({
   clearNodeSelection,
   selectedRootNode,
   clearEdgeSelection,
+  computeNodeWidth,
+  parseLabelPieces,
 }) {
   const classes = useStyles();
 
@@ -247,13 +247,13 @@ function StageDrawer({
       clearAdding();
     }
     setSelectedTemplate(null);
-    const addValue = parsePieces(value, connectorPlaceholder);
+    const addValue = parseLabelPieces(value, connectorPlaceholder);
     addValueChange({ addValue });
   };
 
   // Handle editing node value change event
   const handleEditChange = (value) => {
-    const editValue = parsePieces(value, connectorPlaceholder);
+    const editValue = parseLabelPieces(value, connectorPlaceholder);
     editValueChange({ editValue });
   };
 
@@ -396,12 +396,33 @@ function StageDrawer({
   // Handle stage reset button click, setting the editor state back to the initial state
   const handleReset = () => {
     setIsResetWarnOpen(false);
+
+    const initialNodes = initialState.initialNodes.map((node, i) => {
+      const nodeWidth = computeNodeWidth(
+        node.pieces,
+        connectorPlaceholder,
+        fontSize,
+        fontFamily,
+      );
+      const id = i + 1;
+      return {
+        ...node,
+        id,
+        width: nodeWidth,
+      };
+    });
+
+    const initialEdges = initialState.initialEdges.map((edge, i) => {
+      const id = i + 1;
+      return {
+        ...edge,
+        id,
+      };
+    });
+
     stageReset({
-      initialNodes: initialState.initialNodes,
-      initialEdges: initialState.initialEdges,
-      connectorPlaceholder,
-      fontSize,
-      fontFamily,
+      initialNodes,
+      initialEdges,
     });
     if (selectedEdgeRef) {
       selectedEdgeRef.moveToBottom();
@@ -433,7 +454,7 @@ function StageDrawer({
     }
     setSelectedTemplate(id);
     document.getElementById('addField').value = value;
-    const addValue = parsePieces(value, connectorPlaceholder);
+    const addValue = parseLabelPieces(value, connectorPlaceholder);
     addValueChange({ addValue });
   };
 
@@ -450,7 +471,7 @@ function StageDrawer({
         : stageRef.current.attrs.width / 2,
       isDrawerOpen,
       drawerWidth,
-      textHeight,
+      fontSize,
     });
   };
 
@@ -1669,7 +1690,6 @@ StageDrawer.propTypes = {
   onValidate: PropTypes.func,
   fontSize: PropTypes.number,
   fontFamily: PropTypes.string,
-  textHeight: PropTypes.number,
   nodes: PropTypes.arrayOf(
     PropTypes.shape({
       pieces: PropTypes.arrayOf(PropTypes.string),
@@ -1719,6 +1739,9 @@ StageDrawer.propTypes = {
     isFinal: PropTypes.bool,
   }),
   clearEdgeSelection: PropTypes.func,
+  
+  computeNodeWidth: PropTypes.func.isRequired,
+  parseLabelPieces: PropTypes.func.isRequired,
 };
 
 StageDrawer.defaultProps = {
