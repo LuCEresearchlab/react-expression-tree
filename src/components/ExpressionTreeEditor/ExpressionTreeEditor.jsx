@@ -689,9 +689,6 @@ function ExpressionTreeEditor({
       const stageScale = stageRef.current.scale();
       const nodeWidth = computeNodeWidth(
         addValue,
-        connectorPlaceholder,
-        style.fontSize,
-        style.fontFamily,
       );
       addNode({
         pieces: addValue,
@@ -936,7 +933,6 @@ function ExpressionTreeEditor({
       <div
         ref={containerRef}
         role="tab"
-        id="editorContainer"
         style={{
           position: 'relative',
           width: width || '100%',
@@ -950,6 +946,7 @@ function ExpressionTreeEditor({
       >
         {/* Top and side bar component */}
         <StageDrawer
+          containerRef={containerRef}
           stageRef={stageRef}
           layerRef={layerRef}
           transformerRef={transformerRef}

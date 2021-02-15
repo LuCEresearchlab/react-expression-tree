@@ -101,7 +101,7 @@
     "secondaryColor": "#f50057"
   },
   "container": {
-    "border": "2px solid #3f50b5",
+    "border": "1px solid #aaa",
     "borderRadius": "5px",
     "backgroundColor": "white"
   }

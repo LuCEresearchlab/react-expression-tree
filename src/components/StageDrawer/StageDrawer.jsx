@@ -30,6 +30,7 @@ import {
 } from '@material-ui/icons';
 
 import {
+  Toolbar,
   Drawer,
   IconButton,
   Popover,
@@ -53,14 +54,23 @@ import {
   DialogTitle,
   Snackbar,
 } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
+
+import {
+  Alert,
+  AlertTitle,
+} from '@material-ui/lab';
 
 import {
   edgeByParentPiece,
   nodeById,
 } from '../../utils/tree';
 
-import { addExpressionTutorMetaData, getExpressionTutorMetaData } from '../../utils/png';
+import {
+  addExpressionTutorMetaData,
+  getExpressionTutorMetaData,
+} from '../../utils/png';
+
+import defaultStyle from '../../style/default.json';
 
 // Width of the side drawer
 const drawerWidth = 300;
@@ -72,16 +82,19 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     top: '50px',
     maxHeight: '92%',
-    overflowY: 'scroll',
+    overflowY: 'auto',
     marginLeft: '1px',
   },
   toolbar: {
-    zIndex: '1',
-    position: 'absolute',
-    margin: '1px 0 0 1px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+    borderBottom: '1px solid #aaa',
+    overflowX: 'auto',
+    // zIndex: '1',
+    // position: 'absolute',
+    // margin: '1px 0 0 1px',
+    // display: 'flex',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
   toolbarButton: {
     backgroundColor: '#fff',
@@ -175,6 +188,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function StageDrawer({
+  containerRef,
   stageRef,
   layerRef,
   transformerRef,
@@ -369,28 +383,28 @@ function StageDrawer({
   // the list of filtered and grouped actions is located in the
   // ../store/reducers/treeEditorReducer.js file
   const handleUndo = () => {
-    dispatch(ActionCreators.undo());
-    if (selectedEdgeRef) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-    }
-    clearNodeSelection();
-    clearEdgeSelection();
-    transformerRef.current.nodes([]);
+    // dispatch(ActionCreators.undo());
+    // if (selectedEdgeRef) {
+    //   selectedEdgeRef.moveToBottom();
+    //   setSelectedEdgeRef(null);
+    // }
+    // clearNodeSelection();
+    // clearEdgeSelection();
+    // transformerRef.current.nodes([]);
   };
 
   // Handle action redo button click, only unfiltered actions can be redone,
   // the list of filtered and grouped actions is located in the
   // ../store/reducers/treeEditorReducer.js file
   const handleRedo = () => {
-    dispatch(ActionCreators.redo());
-    if (selectedEdgeRef) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-    }
-    clearNodeSelection();
-    clearEdgeSelection();
-    transformerRef.current.nodes([]);
+    // dispatch(ActionCreators.redo());
+    // if (selectedEdgeRef) {
+    //   selectedEdgeRef.moveToBottom();
+    //   setSelectedEdgeRef(null);
+    // }
+    // clearNodeSelection();
+    // clearEdgeSelection();
+    // transformerRef.current.nodes([]);
   };
 
   // Handle stage reset button click, setting the editor state back to the initial state
@@ -443,7 +457,7 @@ function StageDrawer({
     setSelectedTemplate(null);
     transformerRef.current.nodes([]);
     setIsSelectedRectVisible(false);
-    dispatch(ActionCreators.clearHistory());
+    // dispatch(ActionCreators.clearHistory());
   };
 
   // Handle node template click, setting the adding node textfield value
@@ -796,13 +810,13 @@ function StageDrawer({
   // using fscreen library to support different browsers fullscreen elements
   const handleFullScreenClick = () => {
     !fscreen.fullscreenElement
-      ? fscreen.requestFullscreen(document.getElementById('editorContainer'))
+      ? fscreen.requestFullscreen(containerRef.current)
       : fscreen.exitFullscreen();
   };
 
   return (
     <>
-      <div className={classes.toolbar}>
+      <Toolbar className={classes.toolbar} variant="dense">
         {/* Top bar buttons */}
         {toolbarButtons.drawerButton && !fullDisabled && (
           <Tooltip
@@ -979,13 +993,14 @@ function StageDrawer({
               </IconButton>
             </Tooltip>
         )}
-      </div>
+      </Toolbar>
+
       {/* Editor reset warning dialog */}
       <Dialog
         // props required to display the dialog relative to editor container and not relative to viewport
         style={{ position: 'absolute' }}
         BackdropProps={{ style: { position: 'absolute' } }}
-        container={document.getElementById('editorContainer')}
+        container={containerRef.current}
         PaperProps={{
           style: { border: '2px solid #3f50b5', borderRadius: '5px' },
         }}
@@ -1031,7 +1046,7 @@ function StageDrawer({
         // props required to display the dialog relative to editor container and not relative to viewport
         style={{ position: 'absolute' }}
         BackdropProps={{ style: { position: 'absolute' } }}
-        container={document.getElementById('editorContainer')}
+        container={containerRef.current}
         PaperProps={{
           style: { border: '2px solid #3f50b5', borderRadius: '5px' },
         }}
@@ -1297,7 +1312,7 @@ function StageDrawer({
         PaperProps={{ style: { position: 'relative' } }}
         BackdropProps={{ style: { position: 'relative' } }}
         ModalProps={{
-          container: document.getElementById('editorContainer'),
+          container: (containerRef.current),
           style: {
             position: 'absolute',
           },
@@ -1663,6 +1678,7 @@ function StageDrawer({
 }
 
 StageDrawer.propTypes = {
+  containerRef: PropTypes.object,
   stageRef: PropTypes.object,
   layerRef: PropTypes.object,
   transformerRef: PropTypes.object,
@@ -1674,7 +1690,7 @@ StageDrawer.propTypes = {
   toolbarButtons: PropTypes.objectOf(PropTypes.bool),
   drawerFields: PropTypes.objectOf(PropTypes.bool),
   fullDisabled: PropTypes.bool,
-  connectorPlaceholder: PropTypes.string,
+  connectorPlaceholder: PropTypes.string.isRequired,
   templateNodes: PropTypes.arrayOf(PropTypes.string),
   nodeTypes: PropTypes.arrayOf(
     PropTypes.shape({
@@ -1739,13 +1755,63 @@ StageDrawer.propTypes = {
     isFinal: PropTypes.bool,
   }),
   clearEdgeSelection: PropTypes.func,
-  
-  computeNodeWidth: PropTypes.func.isRequired,
-  parseLabelPieces: PropTypes.func.isRequired,
+  computeNodeWidth: PropTypes.func,
+  parseLabelPieces: PropTypes.func,
 };
 
 StageDrawer.defaultProps = {
+  containerRef: null,
+  stageRef: null,
+  layerRef: null,
+  transformerRef: null,
+  selectedEdgeRef: null,
+  setSelectedEdgeRef: () => {},
+  setIsSelectedRectVisible: () => {},
+  setCurrentErrorLocation: () => {},
+  initialState: null,
+  toolbarButtons: {},
+  drawerFields: {},
+  fullDisabled: false,
+  templateNodes: [],
+  nodeTypes: [],
+  reportedErrors: null,
+  onNodePiecesChange: () => {},
+  onNodeTypeChange: () => {},
+  onNodeValueChange: () => {},
+  onValidate: () => {},
+  nodes: [],
+  edges: [],
+  canUndo: false,
+  canRedo: false,
+  stageReset: () => {},
+  reorderNodes: () => {},
+  uploadState: () => {},
+  addingNode: false,
+  isAddEmpty: false,
+  addingNodeClick: () => {},
+  clearAdding: () => {},
+  addValueChange: () => {},
+  editValue: [],
+  isEditEmpty: false,
+  editValueChange: () => {},
+  editNode: () => {},
+  typeValue: '',
 
+  selectedRootNode: null,
+  selectedNode: null,
+  clearNodeSelection: () => {},
+  clearEdgeSelection: () => {},
+  computeNodeWidth: () => {},
+  parseLabelPieces: () => {},
+
+  typeValueChange: () => {},
+  nodeTypeEdit: () => {},
+  nodeValue: '',
+  nodeValueChange: () => {},
+  nodeValueEdit: () => {},
+
+  fontSize: defaultStyle.fontSize,
+  fontFamily: defaultStyle.fontFamily,
 };
 
 export default StageDrawer;
