@@ -60,20 +60,21 @@ import {
   AlertTitle,
 } from '@material-ui/lab';
 
+import { addMetadataFromBase64DataURI, getMetadata } from 'meta-png';
+
+
 import {
   edgeByParentPiece,
   nodeById,
 } from '../../utils/tree';
 
-import {
-  addExpressionTutorMetaData,
-  getExpressionTutorMetaData,
-} from '../../utils/png';
-
 import defaultStyle from '../../style/default.json';
 
 // Width of the side drawer
 const drawerWidth = 300;
+
+// Key used to store and retrieve metadata in PNG files.
+const ET_KEY = 'expressiontutor';
 
 // Top bar and side drawer styles
 const useStyles = makeStyles((theme) => ({
@@ -332,12 +333,12 @@ function StageDrawer({
     const fr = new FileReader();
     fr.onload = (e) => {
       try {
-        const buffer = e.target.result;
-        let jsonStr = getExpressionTutorMetaData(buffer);
+        const uint8Array = new Uint8Array(e.target.result);
+        let jsonStr = getMetadata(uint8Array, ET_KEY);
         if (jsonStr === undefined) {
           // then attempt decoding as a JSON file
           const enc = new TextDecoder('utf-8');
-          jsonStr = enc.decode(buffer);
+          jsonStr = enc.decode(uint8Array);
         }
         const state = JSON.parse(jsonStr);
         uploadState({
@@ -719,7 +720,7 @@ function StageDrawer({
     const jsonRepr = JSON.stringify(currentState, null, 0);
     const downloadElement = document.createElement('a');
     const imageBase64 = stageRef.current.toDataURL({ pixelRatio: 2 });
-    downloadElement.href = addExpressionTutorMetaData(imageBase64, jsonRepr);
+    downloadElement.href = addMetadataFromBase64DataURI(imageBase64, ET_KEY, jsonRepr);
     downloadElement.download = 'expression_editor_image.png';
     document.body.appendChild(downloadElement);
     downloadElement.click();
