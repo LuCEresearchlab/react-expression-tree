@@ -75,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     top: '50px',
     maxHeight: '92%',
-    overflowY: 'scroll',
+    overflowY: 'auto',
     marginLeft: '1px',
   },
   toolbar: {
@@ -1300,7 +1300,6 @@ function StageDrawer({
         PaperProps={{ style: { position: 'relative' } }}
         BackdropProps={{ style: { position: 'relative' } }}
         ModalProps={{
-          container: document.getElementById('editorContainer'),
           style: {
             position: 'absolute',
           },
