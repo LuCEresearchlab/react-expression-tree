@@ -80,7 +80,20 @@ const createPositionUtils = (
   };
 
   // Parse the nodes's pieces from a textfield string into the pieces array
-  const parseLabelPieces = (label) => label.split(connectorPlaceholder);
+  const parseLabelPieces = (label) => {
+    const splittedArray = label.split(connectorPlaceholder);
+    // TODO this is a temporary solution, there must be a better way to do this.
+    const labelPieces = splittedArray.reduce((acc, piece, index) => {
+      if (index === splittedArray.length) {
+        acc.push(piece);
+      } else {
+        acc.push(piece);
+        acc.push(connectorPlaceholder);
+      }
+      return acc;
+    }, []);
+    return labelPieces;
+  };
 
   // Compute the closest child notd given an (x, y) point coordinate
   const closestChildId = (
