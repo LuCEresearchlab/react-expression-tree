@@ -1,11 +1,18 @@
 import createTreeEditorReducerWithHandlers from './treeEditorReducer';
-import drawerReducer from './drawerReducer';
+import createGlobalsReducerWithHandlers from './globalsReducer';
+import createStageReducerWithHandlers from './stageReducer';
+import createDrawerReducerWithHandlers from './drawerReducer';
 
 function createReducerWithHandlers(handlers) {
+  const globalsReducer = createGlobalsReducerWithHandlers(handlers);
+  const stageReducer = createStageReducerWithHandlers(handlers);
   const editorReducer = createTreeEditorReducerWithHandlers(handlers);
+  const drawerReducer = createDrawerReducerWithHandlers(handlers);
 
   // Combine the editor and the drawer reducers
   const reducers = {
+    ...globalsReducer,
+    ...stageReducer,
     ...editorReducer,
     ...drawerReducer,
   };

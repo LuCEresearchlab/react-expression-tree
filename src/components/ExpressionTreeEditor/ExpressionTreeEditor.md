@@ -70,7 +70,7 @@ Example with initial state and final nodes:
     { type: 'Null', any: false, fixedValues: ['null'] },
   ]}
   initialState={{
-    initialNodes: [
+    nodes: [
       {
         pieces: ['{{}}', '+', '{{}}'],
         x: 320,
@@ -96,7 +96,7 @@ Example with initial state and final nodes:
         isFinal: false,
       },
     ],
-    initialEdges: [],
+    edges: [],
   }}
 />
 ```
@@ -142,9 +142,6 @@ Example without initial state:
     { type: 'Undefined', any: false, fixedValues: ['undefined'] },
     { type: 'Null', any: false, fixedValues: ['null'] },
   ]}
-  initialState={{
-    initialNodes: [],
-    initialEdges: [],
-  }}
+  initialState={{}}
 />
 ```

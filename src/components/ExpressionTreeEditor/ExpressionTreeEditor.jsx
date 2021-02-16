@@ -35,6 +35,8 @@ import {
 
 import createPositionUtils from '../../utils/position';
 
+import { importState } from '../../utils/state';
+
 import {
   actionRemoveNode,
   actionMoveNodeTo,
@@ -68,6 +70,8 @@ import {
   actionStageReset,
   actionUploadState,
   actionReorderNodes,
+  actionSetStagePos,
+  actionSetStageScale,
 } from '../../store/actions';
 
 import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
@@ -128,7 +132,12 @@ function ExpressionTreeEditor({
     onStateChange,
   }), []);
 
-  const [store, dispatch] = useReducer(reducer, reducerInitialState);
+  // TODO: Right now it is not possible to change the value of connectorPlaceholder dynamically
+  const [store, dispatch] = useReducer(reducer, {
+    ...reducerInitialState,
+    connectorPlaceholder,
+  });
+
   const {
     nodes,
     edges,
@@ -175,6 +184,8 @@ function ExpressionTreeEditor({
   const stageReset = useCallback(actionStageReset(dispatch), [dispatch]);
   const uploadState = useCallback(actionUploadState(dispatch), [dispatch]);
   const reorderNodes = useCallback(actionReorderNodes(dispatch), [dispatch]);
+  const setStagePos = useCallback(actionSetStagePos(dispatch), [dispatch]);
+  const setStageScale = useCallback(actionSetStageScale(dispatch), [dispatch]);
 
   const { fontSize, fontFamily } = style;
   const { width: placeholderWidth } = style.node.placeholder;
@@ -219,35 +230,24 @@ function ExpressionTreeEditor({
   });
   const [currentErrorLocation, setCurrentErrorLocation] = useState({});
 
-  // Effects
-  // Initial state setting effect running only on first render
   useEffect(() => {
-    const initialNodes = initialState.initialNodes.map((node, i) => {
-      const nodeWidth = computeNodeWidth(
-        node.pieces,
-      );
-      const id = i + 1;
-      return {
-        ...node,
-        id,
-        width: nodeWidth,
-      };
-    });
-
-    const initialEdges = initialState.initialEdges.map((edge, i) => {
-      const id = i + 1;
-      return {
-        ...edge,
-        id,
-      };
-    });
-
-    setInitialState({
-      initialNodes,
-      initialEdges,
-    });
-    // dispatch(ActionCreators.clearHistory());
-  }, [initialState]);
+    importState(
+      initialState,
+      uploadState,
+      selectedEdgeRef,
+      setSelectedEdgeRef,
+      addValueChange,
+      editValueChange,
+      typeValueChange,
+      nodeValueChange,
+      // setSelectedTemplate,
+      stageRef,
+      transformerRef,
+      setIsSelectedRectVisible,
+      // setInitialState,
+      computeNodeWidth,
+    );
+  }, [initialState, setInitialState, computeNodeWidth]);
 
   const setCursor = useCallback((cursor) => {
     containerRef.current.style.cursor = cursor;

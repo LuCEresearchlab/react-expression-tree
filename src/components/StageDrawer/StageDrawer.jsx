@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import fscreen from 'fscreen';
 import { makeStyles } from '@material-ui/core/styles';
@@ -237,6 +237,9 @@ function StageDrawer({
   computeNodeWidth,
   parseLabelPieces,
 }) {
+  // TODO never do this
+  const uploadButton = useRef();
+
   const classes = useStyles();
 
   // State hooks
@@ -315,7 +318,7 @@ function StageDrawer({
 
   // Handle state upload of a previously downloaded state,
   const handleStateUpload = () => {
-    const uploadElement = document.getElementById('stateUploadButton');
+    const uploadElement = uploadButton.current;
     uploadElement.click();
   };
   // Handle file change on upload element
@@ -948,6 +951,7 @@ function StageDrawer({
         )}
         <input
           id="stateUploadButton"
+          ref={uploadButton}
           style={{ display: 'none' }}
           type="file"
           accept="application/json,image/png"

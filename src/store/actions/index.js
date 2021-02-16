@@ -128,3 +128,11 @@ export const actionUploadState = (dispatch) => {
 export const actionReorderNodes = (dispatch) => {
   return (payload) => dispatch({ type: 'reorderNodes', payload });
 };
+
+export const actionSetStagePos = (dispatch) => {
+  return (payload) => dispatch({ type: 'setStagePos', payload });
+};
+
+export const actionSetStageScale = (dispatch) => {
+  return (payload) => dispatch({ type: 'setStageScale', payload });
+};

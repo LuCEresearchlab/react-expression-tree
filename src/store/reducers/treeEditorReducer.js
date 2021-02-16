@@ -1,5 +1,5 @@
 import {
-  getExportableState,
+  exportState,
   maxNodeId,
   maxEdgeId,
   orderWalk,
@@ -51,7 +51,7 @@ function createTreeEditorReducerWithHandlers({
         nodes: [...state.nodes, addingNode],
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -79,7 +79,7 @@ function createTreeEditorReducerWithHandlers({
             : state.selectedRootNode,
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -108,18 +108,24 @@ function createTreeEditorReducerWithHandlers({
     selectRootNode: (state, payload) => {
       const { selectedRootNode } = payload;
 
-      return {
+      const newState = {
         ...state,
         selectedRootNode,
       };
+
+      if (onStateChange) onStateChange(exportState(newState));
+      return newState;
     },
 
     // Clear the root node selection
     clearRootSelection: (state) => {
-      return {
+      const newState = {
         ...state,
         selectedRootNode: null,
       };
+
+      if (onStateChange) onStateChange(exportState(newState));
+      return newState;
     },
 
     // Move the selected node to the event coordinates
@@ -141,7 +147,7 @@ function createTreeEditorReducerWithHandlers({
           : node)),
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      // if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -167,7 +173,7 @@ function createTreeEditorReducerWithHandlers({
           : node)),
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -185,7 +191,7 @@ function createTreeEditorReducerWithHandlers({
         edges: [...state.edges, addingEdge],
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -201,7 +207,7 @@ function createTreeEditorReducerWithHandlers({
         edges: state.edges.filter((edge) => edge.id !== edgeId),
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -221,7 +227,7 @@ function createTreeEditorReducerWithHandlers({
         ],
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -327,7 +333,7 @@ function createTreeEditorReducerWithHandlers({
         },
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -359,7 +365,7 @@ function createTreeEditorReducerWithHandlers({
             : state.selectedRootNode,
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 
@@ -391,7 +397,7 @@ function createTreeEditorReducerWithHandlers({
             : state.selectedRootNode,
       };
 
-      if (onStateChange) onStateChange(getExportableState(newState));
+      if (onStateChange) onStateChange(exportState(newState));
       return newState;
     },
 

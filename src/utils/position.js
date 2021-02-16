@@ -84,7 +84,7 @@ const createPositionUtils = (
     const splittedArray = label.split(connectorPlaceholder);
     // TODO this is a temporary solution, there must be a better way to do this.
     const labelPieces = splittedArray.reduce((acc, piece, index) => {
-      if (index === splittedArray.length) {
+      if (index === splittedArray.length - 1) {
         acc.push(piece);
       } else {
         acc.push(piece);
