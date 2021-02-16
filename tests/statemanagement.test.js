@@ -7,7 +7,9 @@ import {
   nodePositionById,
 } from '../src/utils/tree';
 
-import reducer from '../src/store/reducers';
+import createReducerWithHandlers from '../src/store/reducers';
+
+const reducer = createReducerWithHandlers({});
 
 let state = {
   nodes: [],
@@ -133,7 +135,6 @@ describe('editor reducer', () => {
         type: '',
         value: '',
         isFinal: false,
-        onNodeAdd: () => {},
       },
     });
     expect(state.nodes).toEqual([
@@ -156,7 +157,6 @@ describe('editor reducer', () => {
         type: '',
         value: '',
         isFinal: false,
-        onNodeAdd: () => {},
       },
     });
     expect(state.nodes).toEqual([
@@ -176,7 +176,6 @@ describe('editor reducer', () => {
         type: '',
         value: '',
         isFinal: false,
-        onNodeAdd: () => {},
       },
     });
     expect(state.nodes).toEqual([
@@ -199,7 +198,6 @@ describe('editor reducer', () => {
         type: '',
         value: '',
         isFinal: true,
-        onNodeAdd: () => {},
       },
     });
     expect(state.nodes).toEqual([
@@ -224,7 +222,6 @@ describe('editor reducer', () => {
       payload: {
         type: 'String',
         selectedNodeId: 1,
-        onNodeTypeChange: () => {},
       },
     });
     state = reducer(state, {
@@ -232,7 +229,6 @@ describe('editor reducer', () => {
       payload: {
         value: '"Hello world!"',
         selectedNodeId: 1,
-        onNodeValueChange: () => {},
       },
     });
     expect(state.nodes).toEqual([
@@ -283,7 +279,7 @@ describe('editor reducer', () => {
     };
     state = reducer(state, {
       type: 'addEdge',
-      payload: { edge: edge1, onEdgeAdd: () => {} },
+      payload: { edge: edge1 },
     });
     expect(state.edges).toEqual([{ id: 1, ...edge1 }]);
     const edge2 = {
@@ -293,7 +289,7 @@ describe('editor reducer', () => {
     };
     state = reducer(state, {
       type: 'addEdge',
-      payload: { edge: edge2, onEdgeAdd: () => {} },
+      payload: { edge: edge2 },
     });
     expect(state.edges).toEqual([
       { id: 1, ...edge1 },
@@ -306,7 +302,7 @@ describe('editor reducer', () => {
     };
     state = reducer(state, {
       type: 'addEdge',
-      payload: { edge: edge3, onEdgeAdd: () => {} },
+      payload: { edge: edge3 },
     });
     expect(state.edges).toEqual([
       { id: 1, ...edge1 },
@@ -324,7 +320,7 @@ describe('editor reducer', () => {
     };
     state = reducer(state, {
       type: 'updateEdge',
-      payload: { edgeId: 3, newEdge: newEdge3, onEdgeUpdate: () => {} },
+      payload: { edgeId: 3, newEdge: newEdge3 },
     });
     expect(state.edges).toEqual([
       {
@@ -342,7 +338,7 @@ describe('editor reducer', () => {
   it('should handle selectNode, clearNodeSelection', () => {
     state = reducer(state, {
       type: 'selectNode',
-      payload: { selectedNode: { id: 2 }, onNodeSelect: () => {} },
+      payload: { selectedNode: { id: 2 } },
     });
     expect(state.selectedNode.id).toEqual(2);
     state = reducer(state, {
@@ -367,7 +363,7 @@ describe('editor reducer', () => {
   it('should handle selectEdge, clearEdgeSelection', () => {
     state = reducer(state, {
       type: 'selectEdge',
-      payload: { selectedEdge: { id: 1 }, onEdgeSelect: () => {} },
+      payload: { selectedEdge: { id: 1 } },
     });
     expect(state.selectedEdge.id).toEqual(1);
     state = reducer(state, {
@@ -530,7 +526,7 @@ describe('editor reducer', () => {
   it('should handle removeEdge', () => {
     state = reducer(state, {
       type: 'removeEdge',
-      payload: { edgeId: 3, onEdgeDelete: () => {} },
+      payload: { edgeId: 3 },
     });
     expect(state.edges).toEqual([
       {
@@ -548,7 +544,6 @@ describe('editor reducer', () => {
       payload: {
         pieces: ['a', '{{}}', 'c'],
         selectedNodeId: 2,
-        onNodePiecesChange: () => {},
       },
     });
     expect(state.nodes).toEqual([
@@ -599,7 +594,7 @@ describe('editor reducer', () => {
   it('should handle removeNode', () => {
     state = reducer(state, {
       type: 'removeNode',
-      payload: { nodeId: 2, onNodeDelete: () => {} },
+      payload: { nodeId: 2 },
     });
     expect(state.nodes).toEqual([
       {

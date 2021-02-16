@@ -20,7 +20,6 @@ function NodeDeleteButton({
   clearNodeSelection,
   transformerRef,
   removeNode,
-  onNodeDelete,
   setCursor,
   fontFamily,
   style,
@@ -38,7 +37,6 @@ function NodeDeleteButton({
     clearNodeSelection();
     removeNode({
       nodeId,
-      onNodeDelete,
     });
   };
 
@@ -97,7 +95,6 @@ NodeDeleteButton.propTypes = {
     }),
   }),
   removeNode: PropTypes.func,
-  onNodeDelete: PropTypes.func,
   setCursor: PropTypes.func,
   fontFamily: PropTypes.string,
   style: PropTypes.exact({
@@ -120,7 +117,6 @@ NodeDeleteButton.defaultProps = {
   clearEdgeSelection: () => {},
   transformerRef: null,
   removeNode: () => {},
-  onNodeDelete: () => {},
   setCursor: () => {},
   fontFamily: defaultStyle.fontFamily,
   style: defaultStyle.node.delete,

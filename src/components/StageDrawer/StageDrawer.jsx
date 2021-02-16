@@ -205,9 +205,6 @@ function StageDrawer({
   templateNodes,
   nodeTypes,
   reportedErrors,
-  onNodePiecesChange,
-  onNodeTypeChange,
-  onNodeValueChange,
   onValidate,
   fontSize,
   fontFamily,
@@ -262,13 +259,13 @@ function StageDrawer({
       clearAdding();
     }
     setSelectedTemplate(null);
-    const addValue = parseLabelPieces(value, connectorPlaceholder);
+    const addValue = parseLabelPieces(value);
     addValueChange({ addValue });
   };
 
   // Handle editing node value change event
   const handleEditChange = (value) => {
-    const editValue = parseLabelPieces(value, connectorPlaceholder);
+    const editValue = parseLabelPieces(value);
     editValueChange({ editValue });
   };
 
@@ -284,7 +281,6 @@ function StageDrawer({
       pieces: editValue,
       width: nodeWidth,
       selectedNodeId: selectedNode.id,
-      onNodePiecesChange,
     });
   };
 
@@ -294,7 +290,6 @@ function StageDrawer({
     nodeValueEdit({
       value: '',
       selectedNodeId: selectedNode.id,
-      onNodeValueChange,
     });
     if (document.getElementById('valueField')) {
       document.getElementById('valueField').value = '';
@@ -303,8 +298,6 @@ function StageDrawer({
     nodeTypeEdit({
       type: value,
       selectedNodeId: selectedNode.id,
-      onNodeTypeChange,
-      onNodeValueChange,
     });
   };
 
@@ -317,7 +310,6 @@ function StageDrawer({
     nodeValueEdit({
       value,
       selectedNodeId: selectedNode.id,
-      onNodeValueChange,
     });
   };
 
@@ -469,7 +461,7 @@ function StageDrawer({
     }
     setSelectedTemplate(id);
     document.getElementById('addField').value = value;
-    const addValue = parseLabelPieces(value, connectorPlaceholder);
+    const addValue = parseLabelPieces(value);
     addValueChange({ addValue });
   };
 
@@ -709,6 +701,8 @@ function StageDrawer({
     prepareUIForImageDownload();
     const stagePos = stageRef.current.absolutePosition();
     const stageScale = stageRef.current.scale();
+    // TODO: this function will not be inside StageDrawer, we will use the new
+    // getExportableState(store) function in ./utils/state when it will be moved
     const currentState = {
       nodes,
       edges,
@@ -1589,7 +1583,6 @@ function StageDrawer({
                             nodeValueEdit({
                               value: nodeValue,
                               selectedNodeId: selectedNode.id,
-                              onNodeValueChange,
                             });
                           }
                         }}
@@ -1604,7 +1597,6 @@ function StageDrawer({
                               onClick={() => nodeValueEdit({
                                 value: nodeValue,
                                 selectedNodeId: selectedNode.id,
-                                onNodeValueChange,
                               })}
                             >
                               <UpdateRounded />
@@ -1701,9 +1693,6 @@ StageDrawer.propTypes = {
     }),
   ),
   reportedErrors: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
-  onNodePiecesChange: PropTypes.func,
-  onNodeTypeChange: PropTypes.func,
-  onNodeValueChange: PropTypes.func,
   onValidate: PropTypes.func,
   fontSize: PropTypes.number,
   fontFamily: PropTypes.string,
@@ -1776,9 +1765,6 @@ StageDrawer.defaultProps = {
   templateNodes: [],
   nodeTypes: [],
   reportedErrors: null,
-  onNodePiecesChange: () => {},
-  onNodeTypeChange: () => {},
-  onNodeValueChange: () => {},
   onValidate: () => {},
   nodes: [],
   edges: [],

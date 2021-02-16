@@ -46,8 +46,6 @@ function Node({
   isSelectedRoot,
   isPressingMetaOrShift,
   isFullDisabled,
-  onNodeMove,
-  onNodeDelete,
   onNodeClick,
   onNodeDblClick,
   onNodeConnectorDragStart,
@@ -111,7 +109,7 @@ function Node({
       const x = e.target.x();
       const y = e.target.y();
       moveNodeToEnd({
-        nodeId: id, x, y, onNodeMove,
+        nodeId: id, x, y,
       });
     }
     setDraggingNode(false);
@@ -301,7 +299,6 @@ function Node({
         clearNodeSelection={clearNodeSelection}
         transformerRef={transformerRef}
         removeNode={removeNode}
-        onNodeDelete={onNodeDelete}
         setCursor={setCursor}
         fontFamily={fontFamily}
         style={nodeStyle.delete}
@@ -361,8 +358,6 @@ Node.propTypes = {
   isSelectedRoot: PropTypes.bool,
   isPressingMetaOrShift: PropTypes.bool,
   isFullDisabled: PropTypes.bool,
-  onNodeMove: PropTypes.func,
-  onNodeDelete: PropTypes.func,
   onNodeClick: PropTypes.func,
   onNodeDblClick: PropTypes.func,
   onNodeConnectorDragStart: PropTypes.func,
@@ -458,8 +453,6 @@ Node.defaultProps = {
   isSelectedRoot: false,
   isPressingMetaOrShift: false,
   isFullDisabled: false,
-  onNodeMove: null,
-  onNodeDelete: null,
   onNodeClick: null,
   onNodeDblClick: null,
   onNodeConnectorDragStart: null,
