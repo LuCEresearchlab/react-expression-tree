@@ -481,7 +481,7 @@ function StageDrawer({
         : stageRef.current.attrs.width / 2,
       isDrawerOpen,
       drawerWidth,
-      fontSize,
+      textHeight: fontSize,
     });
   };
 
