@@ -10,6 +10,7 @@ import React, {
   useReducer,
   useState,
   useMemo,
+  useContext,
 } from 'react';
 import PropTypes from 'prop-types';
 
@@ -37,42 +38,7 @@ import createPositionUtils from '../../utils/position';
 
 import { importState } from '../../utils/state';
 
-import {
-  actionRemoveNode,
-  actionMoveNodeTo,
-  actionMoveNodeToEnd,
-  actionSetDragEdge,
-  actionMoveDragEdgeParentEndTo,
-  actionMoveDragEdgeChildEndTo,
-  actionRemoveEdge,
-  actionAddEdge,
-  actionUpdateEdge,
-  actionClearDragEdge,
-  actionClearNodeSelection,
-  actionAddNode,
-  actionSelectNode,
-  actionClearAdding,
-  actionEditValueChange,
-  actionTypeValueChange,
-  actionNodeValueChange,
-  actionSelectEdge,
-  actionClearEdgeSelection,
-  actionSelectRootNode,
-  actionSetInitialState,
-  actionMoveSelectedNodesTo,
-  actionMoveSelectedNodesToEnd,
-  actionClearRootSelection,
-  actionEditNode,
-  actionAddingNodeClick,
-  actionAddValueChange,
-  actionNodeTypeEdit,
-  actionNodeValueEdit,
-  actionStageReset,
-  actionUploadState,
-  actionReorderNodes,
-  actionSetStagePos,
-  actionSetStageScale,
-} from '../../store/actions';
+import actions from '../../store/actions';
 
 import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
 
@@ -81,6 +47,7 @@ import defaultStyle from '../../style/default.json';
 import '@fontsource/roboto-mono/300.css';
 
 function ExpressionTreeEditor({
+  context,
   initialState,
   width,
   height,
@@ -133,10 +100,13 @@ function ExpressionTreeEditor({
   }), []);
 
   // TODO: Right now it is not possible to change the value of connectorPlaceholder dynamically
-  const [store, dispatch] = useReducer(reducer, {
+  let [store, dispatch] = useReducer(reducer, {
     ...reducerInitialState,
     connectorPlaceholder,
   });
+
+  // If context is passed a parameter, use the provided context;
+  store = context ? useContext(context) : store;
 
   const {
     nodes,
@@ -152,40 +122,52 @@ function ExpressionTreeEditor({
     nodeValue,
   } = store;
 
-  const removeNode = useCallback(actionRemoveNode(dispatch), [dispatch]);
-  const moveNodeTo = useCallback(actionMoveNodeTo(dispatch), [dispatch]);
-  const moveNodeToEnd = useCallback(actionMoveNodeToEnd(dispatch), [dispatch]);
-  const setDragEdge = useCallback(actionSetDragEdge(dispatch), [dispatch]);
-  const moveDragEdgeParentEndTo = useCallback(actionMoveDragEdgeParentEndTo(dispatch), [dispatch]);
-  const moveDragEdgeChildEndTo = useCallback(actionMoveDragEdgeChildEndTo(dispatch), [dispatch]);
-  const removeEdge = useCallback(actionRemoveEdge(dispatch), [dispatch]);
-  const addEdge = useCallback(actionAddEdge(dispatch), [dispatch]);
-  const updateEdge = useCallback(actionUpdateEdge(dispatch), [dispatch]);
-  const clearDragEdge = useCallback(actionClearDragEdge(dispatch), [dispatch]);
-  const clearNodeSelection = useCallback(actionClearNodeSelection(dispatch), [dispatch]);
-  const addNode = useCallback(actionAddNode(dispatch), [dispatch]);
-  const selectNode = useCallback(actionSelectNode(dispatch), [dispatch]);
-  const clearAdding = useCallback(actionClearAdding(dispatch), [dispatch]);
-  const editValueChange = useCallback(actionEditValueChange(dispatch), [dispatch]);
-  const typeValueChange = useCallback(actionTypeValueChange(dispatch), [dispatch]);
-  const nodeValueChange = useCallback(actionNodeValueChange(dispatch), [dispatch]);
-  const selectEdge = useCallback(actionSelectEdge(dispatch), [dispatch]);
-  const clearEdgeSelection = useCallback(actionClearEdgeSelection(dispatch), [dispatch]);
-  const selectRootNode = useCallback(actionSelectRootNode(dispatch), [dispatch]);
-  const setInitialState = useCallback(actionSetInitialState(dispatch), [dispatch]);
-  const moveSelectedNodesTo = useCallback(actionMoveSelectedNodesTo(dispatch), [dispatch]);
-  const moveSelectedNodesToEnd = useCallback(actionMoveSelectedNodesToEnd(dispatch), [dispatch]);
-  const clearRootSelection = useCallback(actionClearRootSelection(dispatch), [dispatch]);
-  const editNode = useCallback(actionEditNode(dispatch), [dispatch]);
-  const addingNodeClick = useCallback(actionAddingNodeClick(dispatch), [dispatch]);
-  const addValueChange = useCallback(actionAddValueChange(dispatch), [dispatch]);
-  const nodeTypeEdit = useCallback(actionNodeTypeEdit(dispatch), [dispatch]);
-  const nodeValueEdit = useCallback(actionNodeValueEdit(dispatch), [dispatch]);
-  const stageReset = useCallback(actionStageReset(dispatch), [dispatch]);
-  const uploadState = useCallback(actionUploadState(dispatch), [dispatch]);
-  const reorderNodes = useCallback(actionReorderNodes(dispatch), [dispatch]);
-  const setStagePos = useCallback(actionSetStagePos(dispatch), [dispatch]);
-  const setStageScale = useCallback(actionSetStageScale(dispatch), [dispatch]);
+  const {
+    removeNode,
+    moveNodeTo,
+    moveNodeToEnd,
+    setDragEdge,
+    moveDragEdgeParentEndTo,
+    moveDragEdgeChildEndTo,
+    removeEdge,
+    addEdge,
+    updateEdge,
+    clearDragEdge,
+    clearNodeSelection,
+    addNode,
+    selectNode,
+    clearAdding,
+    editValueChange,
+    typeValueChange,
+    nodeValueChange,
+    selectEdge,
+    clearEdgeSelection,
+    selectRootNode,
+    setInitialState,
+    moveSelectedNodesTo,
+    moveSelectedNodesToEnd,
+    clearRootSelection,
+    editNode,
+    addingNodeClick,
+    addValueChange,
+    nodeTypeEdit,
+    nodeValueEdit,
+    stageReset,
+    uploadState,
+    reorderNodes,
+    setStagePos,
+    setStageScale,
+  } = context
+    ? store
+    : useMemo(() => {
+      const temp = {};
+      actions.forEach((item) => {
+        temp[item.name] = (payload) => {
+          dispatch(item.action(payload));
+        };
+      });
+      return temp;
+    }, [dispatch]);
 
   const { fontSize, fontFamily } = style;
   const { width: placeholderWidth } = style.node.placeholder;
@@ -1221,6 +1203,7 @@ function ExpressionTreeEditor({
 }
 
 ExpressionTreeEditor.propTypes = {
+  context: PropTypes.object,
   width: PropTypes.number,
   height: PropTypes.number,
 
@@ -1406,6 +1389,7 @@ ExpressionTreeEditor.propTypes = {
 };
 
 ExpressionTreeEditor.defaultProps = {
+  context: null,
   getState: null,
 
   width: null,

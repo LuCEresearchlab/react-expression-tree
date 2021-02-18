@@ -490,7 +490,8 @@ function createTreeEditorReducerWithHandlers({
           textHeight,
         );
       }
-      return {
+      
+      const newState = {
         ...state,
         nodes: state.nodes.map((node) => {
           const newNode = newNodes.find((newNode) => node.id === newNode.id);
@@ -518,6 +519,8 @@ function createTreeEditorReducerWithHandlers({
           };
         }),
       };
+
+      return newState;
     },
 
     // Move the multiple nodes selection to the event coordinates
