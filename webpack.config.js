@@ -41,7 +41,7 @@ module.exports = {
 
   output: {
     filename: 'index.js',
-    library: 'ExpressionTreeEditor',
+    library: 'react-expression-tree',
     libraryTarget: 'umd',
     publicPath: '/dist/',
     globalObject: 'this',
@@ -61,18 +61,8 @@ module.exports = {
       loader: 'babel-loader',
     },
     {
-      test: /\.css$/,
-      use: [
-        {
-          loader: 'style-loader',
-        },
-        {
-          loader: 'css-loader',
-          options: {
-            sourceMap: true,
-          },
-        },
-      ],
+      test: /\.css$/i,
+      use: [MiniCssExtractPlugin.loader, 'css-loader'],
     },
     {
       test: /\.(woff|woff2|eot|ttf|otf)$/,

@@ -238,7 +238,9 @@ function StageDrawer({
   parseLabelPieces,
 }) {
   // TODO never do this
-  const uploadButton = useRef();
+  const uploadButtonRef = useRef();
+  const valueFieldRef = useRef();
+  const addFieldRef = useRef();
 
   const classes = useStyles();
 
@@ -294,8 +296,9 @@ function StageDrawer({
       value: '',
       selectedNodeId: selectedNode.id,
     });
-    if (document.getElementById('valueField')) {
-      document.getElementById('valueField').value = '';
+
+    if (valueFieldRef.current) {
+      valueFieldRef.current.value = '';
     }
     typeValueChange({ typeValue: value });
     nodeTypeEdit({
@@ -306,8 +309,8 @@ function StageDrawer({
 
   // Handle editing node value change
   const handleValueChange = (value) => {
-    if (document.getElementById('valueField')) {
-      document.getElementById('valueField').value = value;
+    if (valueFieldRef.current) {
+      valueFieldRef.current.value = value;
     }
     nodeValueChange({ nodeValue: value });
     nodeValueEdit({
@@ -318,7 +321,7 @@ function StageDrawer({
 
   // Handle state upload of a previously downloaded state,
   const handleStateUpload = () => {
-    const uploadElement = uploadButton.current;
+    const uploadElement = uploadButtonRef.current;
     uploadElement.click();
   };
   // Handle file change on upload element
@@ -348,7 +351,7 @@ function StageDrawer({
         // TODO This crashes
         //clearAdding();
         if (drawerFields.addField) {
-          document.getElementById('addField').value = '';
+          addFieldRef.current.value = '';
         }
         addValueChange({ addValue: [] });
         editValueChange({ editValue: [] });
@@ -444,7 +447,7 @@ function StageDrawer({
     transformerRef.current.nodes([]);
     clearAdding();
     if (drawerFields.addField) {
-      document.getElementById('addField').value = '';
+      addFieldRef.current.value = '';
     }
     addValueChange({ addValue: [] });
     editValueChange({ editValue: [] });
@@ -463,7 +466,7 @@ function StageDrawer({
       clearAdding();
     }
     setSelectedTemplate(id);
-    document.getElementById('addField').value = value;
+    addFieldRef.current.value = value;
     const addValue = parseLabelPieces(value);
     addValueChange({ addValue });
   };
@@ -714,15 +717,18 @@ function StageDrawer({
       stageScale,
       connectorPlaceholder,
     };
-    const jsonRepr = JSON.stringify(currentState, null, 0);
-    const downloadElement = document.createElement('a');
-    const imageBase64 = stageRef.current.toDataURL({ pixelRatio: 2 });
-    downloadElement.href = addMetadataFromBase64DataURI(imageBase64, ET_KEY, jsonRepr);
-    downloadElement.download = 'expression_editor_image.png';
-    document.body.appendChild(downloadElement);
-    downloadElement.click();
-    downloadElement.remove();
-    prepareUIForImageDownload(true);
+
+    if (typeof document !== 'undefined') {
+      const jsonRepr = JSON.stringify(currentState, null, 0);
+      const downloadElement = document.createElement('a');
+      const imageBase64 = stageRef.current.toDataURL({ pixelRatio: 2 });
+      downloadElement.href = addMetadataFromBase64DataURI(imageBase64, ET_KEY, jsonRepr);
+      downloadElement.download = 'expression_editor_image.png';
+      document.body.appendChild(downloadElement);
+      downloadElement.click();
+      downloadElement.remove();
+      prepareUIForImageDownload(true);
+    }
   };
 
 
@@ -951,7 +957,7 @@ function StageDrawer({
         )}
         <input
           id="stateUploadButton"
-          ref={uploadButton}
+          ref={uploadButtonRef}
           style={{ display: 'none' }}
           type="file"
           accept="application/json,image/png"
@@ -1359,6 +1365,7 @@ function StageDrawer({
             </div>
             <div className={classes.drawerField}>
               <TextField
+                ref={addFieldRef}
                 id="addField"
                 type="search"
                 variant="outlined"
@@ -1567,6 +1574,7 @@ function StageDrawer({
                     <div className={classes.drawerField}>
                       <TextField
                         key={selectedNode.id}
+                        ref={valueFieldRef}
                         id="valueField"
                         variant="outlined"
                         type="search"

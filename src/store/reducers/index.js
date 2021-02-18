@@ -26,3 +26,10 @@ function createReducerWithHandlers(handlers) {
 }
 
 export default createReducerWithHandlers;
+
+export const reducerFunctions = {
+  ...createGlobalsReducerWithHandlers({}),
+  ...createStageReducerWithHandlers({}),
+  ...createTreeEditorReducerWithHandlers({}),
+  ...createDrawerReducerWithHandlers({}),
+};

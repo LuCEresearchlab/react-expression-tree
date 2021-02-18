@@ -23,7 +23,7 @@ import Edge from '../Edge/Edge';
 import DragEdge from '../Edge/DragEdge/DragEdge';
 import StageDrawer from '../StageDrawer/StageDrawer';
 
-import createReducerWithHandlers from '../../store/reducers';
+import createReducerWithHandlers, { reducerFunctions as reducers } from '../../store/reducers';
 import reducerInitialState from '../../store/initialState';
 
 import {
@@ -739,14 +739,14 @@ function ExpressionTreeEditor({
       if (!selectedNode || selectedNode.id !== selectingNode.id) {
         selectNode({ selectedNode: selectingNode });
         if (drawerFields.editField) {
-          if (!selectingNode.isFinal) {
+          if (typeof document !== 'undefined' && !selectingNode.isFinal) {
             document.getElementById(
               'editField',
             ).value = selectingNode.pieces.join('');
             editValueChange({ editValue: selectingNode.pieces });
           }
           typeValueChange({ typeValue: selectingNode.type });
-          if (document.getElementById('valueField')) {
+          if (typeof document !== 'undefined' && document.getElementById('valueField')) {
             document.getElementById('valueField').value = selectingNode.value;
           }
           nodeValueChange({ nodeValue: selectingNode.value });
