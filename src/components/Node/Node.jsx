@@ -50,6 +50,9 @@ function Node({
   onNodeDblClick,
   onNodeConnectorDragStart,
   onPlaceholderConnectorDragStart,
+  onNodeMove,
+  onNodeDelete,
+  onStateChange,
   fontSize,
   fontFamily,
   nodeStyle,
@@ -109,7 +112,11 @@ function Node({
       const x = e.target.x();
       const y = e.target.y();
       moveNodeToEnd({
-        nodeId: id, x, y,
+        nodeId: id,
+        x,
+        y,
+        onNodeMove,
+        onStateChange,
       });
     }
     setDraggingNode(false);
@@ -300,6 +307,8 @@ function Node({
         transformerRef={transformerRef}
         removeNode={removeNode}
         setCursor={setCursor}
+        onNodeDelete={onNodeDelete}
+        onStateChange={onStateChange}
         fontFamily={fontFamily}
         style={nodeStyle.delete}
       />
@@ -362,6 +371,9 @@ Node.propTypes = {
   onNodeDblClick: PropTypes.func,
   onNodeConnectorDragStart: PropTypes.func,
   onPlaceholderConnectorDragStart: PropTypes.func,
+  onNodeMove: PropTypes.func,
+  onNodeDelete: PropTypes.func,
+  onStateChange: PropTypes.func,
   fontSize: PropTypes.number,
   fontFamily: PropTypes.string,
   nodeStyle: PropTypes.exact({
@@ -457,6 +469,9 @@ Node.defaultProps = {
   onNodeDblClick: null,
   onNodeConnectorDragStart: null,
   onPlaceholderConnectorDragStart: null,
+  onNodeMove: null,
+  onNodeDelete: null,
+  onStateChange: null,
   fontSize: defaultStyle.fontSize,
   fontFamily: defaultStyle.fontFamily,
   nodeStyle: defaultStyle.node,

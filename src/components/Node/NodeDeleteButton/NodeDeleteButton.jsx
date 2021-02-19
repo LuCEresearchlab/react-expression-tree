@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -21,6 +21,8 @@ function NodeDeleteButton({
   transformerRef,
   removeNode,
   setCursor,
+  onNodeDelete,
+  onStateChange,
   fontFamily,
   style,
 }) {
@@ -37,6 +39,8 @@ function NodeDeleteButton({
     clearNodeSelection();
     removeNode({
       nodeId,
+      onNodeDelete,
+      onStateChange,
     });
   };
 
@@ -96,6 +100,8 @@ NodeDeleteButton.propTypes = {
   }),
   removeNode: PropTypes.func,
   setCursor: PropTypes.func,
+  onNodeDelete: PropTypes.func,
+  onStateChange: PropTypes.func,
   fontFamily: PropTypes.string,
   style: PropTypes.exact({
     paddingX: PropTypes.number,
@@ -118,6 +124,8 @@ NodeDeleteButton.defaultProps = {
   transformerRef: null,
   removeNode: () => {},
   setCursor: () => {},
+  onNodeDelete: null,
+  onStateChange: null,
   fontFamily: defaultStyle.fontFamily,
   style: defaultStyle.node.delete,
 };

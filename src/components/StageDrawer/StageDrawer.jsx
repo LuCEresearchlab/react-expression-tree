@@ -62,7 +62,6 @@ import {
 
 import { addMetadataFromBase64DataURI, getMetadata } from 'meta-png';
 
-
 import {
   edgeByParentPiece,
   nodeById,
@@ -236,6 +235,10 @@ function StageDrawer({
   clearEdgeSelection,
   computeNodeWidth,
   parseLabelPieces,
+  onNodePiecesChange,
+  onNodeValueChange,
+  onNodeTypeChange,
+  onStateChange,
 }) {
   // TODO never do this
   const uploadButtonRef = useRef();
@@ -286,6 +289,8 @@ function StageDrawer({
       pieces: editValue,
       width: nodeWidth,
       selectedNodeId: selectedNode.id,
+      onNodePiecesChange,
+      onStateChange,
     });
   };
 
@@ -295,6 +300,8 @@ function StageDrawer({
     nodeValueEdit({
       value: '',
       selectedNodeId: selectedNode.id,
+      onNodeValueChange,
+      onStateChange,
     });
 
     if (valueFieldRef.current) {
@@ -304,6 +311,8 @@ function StageDrawer({
     nodeTypeEdit({
       type: value,
       selectedNodeId: selectedNode.id,
+      onNodeTypeChange,
+      onStateChange,
     });
   };
 
@@ -316,6 +325,8 @@ function StageDrawer({
     nodeValueEdit({
       value,
       selectedNodeId: selectedNode.id,
+      onNodeValueChange,
+      onStateChange,
     });
   };
 
@@ -1595,6 +1606,8 @@ function StageDrawer({
                             nodeValueEdit({
                               value: nodeValue,
                               selectedNodeId: selectedNode.id,
+                              onNodeValueChange,
+                              onStateChange,
                             });
                           }
                         }}
@@ -1609,6 +1622,8 @@ function StageDrawer({
                               onClick={() => nodeValueEdit({
                                 value: nodeValue,
                                 selectedNodeId: selectedNode.id,
+                                onNodeValueChange,
+                                onStateChange,
                               })}
                             >
                               <UpdateRounded />
@@ -1759,6 +1774,10 @@ StageDrawer.propTypes = {
   clearEdgeSelection: PropTypes.func,
   computeNodeWidth: PropTypes.func,
   parseLabelPieces: PropTypes.func,
+  onNodePiecesChange: PropTypes.func,
+  onNodeValueChange: PropTypes.func,
+  onNodeTypeChange: PropTypes.func,
+  onStateChange: PropTypes.func,
 };
 
 StageDrawer.defaultProps = {
@@ -1808,6 +1827,11 @@ StageDrawer.defaultProps = {
   nodeValue: '',
   nodeValueChange: () => {},
   nodeValueEdit: () => {},
+
+  onNodePiecesChange: null,
+  onNodeValueChange: null,
+  onNodeTypeChange: null,
+  onStateChange: null,
 
   fontSize: defaultStyle.fontSize,
   fontFamily: defaultStyle.fontFamily,

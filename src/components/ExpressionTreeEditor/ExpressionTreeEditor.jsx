@@ -23,7 +23,7 @@ import Edge from '../Edge/Edge';
 import DragEdge from '../Edge/DragEdge/DragEdge';
 import StageDrawer from '../StageDrawer/StageDrawer';
 
-import createReducerWithHandlers, { reducerFunctions as reducers } from '../../store/reducers';
+import reducer from '../../store/reducers';
 import reducerInitialState from '../../store/initialState';
 
 import {
@@ -84,21 +84,6 @@ function ExpressionTreeEditor({
   const selectedRectRef = useRef();
   const transformerRef = useRef();
 
-  const reducer = useMemo(() => createReducerWithHandlers({
-    onNodeAdd,
-    onNodeDelete,
-    onNodeSelect,
-    onNodeMove,
-    onEdgeAdd,
-    onEdgeDelete,
-    onEdgeUpdate,
-    onEdgeSelect,
-    onNodePiecesChange,
-    onNodeTypeChange,
-    onNodeValueChange,
-    onStateChange,
-  }), []);
-
   // TODO: Right now it is not possible to change the value of connectorPlaceholder dynamically
   let [store, dispatch] = useReducer(reducer, {
     ...reducerInitialState,
@@ -107,7 +92,7 @@ function ExpressionTreeEditor({
 
   // If context is passed a parameter, use the provided context;
   store = context ? useContext(context) : store;
-
+  
   const {
     nodes,
     edges,
@@ -240,11 +225,19 @@ function ExpressionTreeEditor({
       if (e.key === 'Backspace' || e.key === 'Delete') {
         if (selectedNode && !selectedNode.isFinal) {
           clearNodeSelection();
-          removeNode({ nodeId: selectedNode.id });
+          removeNode({
+            nodeId: selectedNode.id,
+            onNodeDelete,
+            onStateChange,
+          });
         } else if (selectedEdge) {
           setSelectedEdgeRef(null);
           clearEdgeSelection();
-          removeEdge({ edgeId: selectedEdge.id });
+          removeEdge({
+            edgeId: selectedEdge.id,
+            onEdgeDelete,
+            onStateChange,
+          });
         }
       } else if (e.key === 'Escape') {
         if (addingNode) {
@@ -486,6 +479,8 @@ function ExpressionTreeEditor({
                 updateEdge({
                   edgeId: originalEdge.id,
                   newEdge,
+                  onEdgeUpdate,
+                  onStateChange,
                 });
                 stageRef.current
                   .find('.Edge')
@@ -499,7 +494,11 @@ function ExpressionTreeEditor({
             setCursor('move');
             clearDragEdge();
             setSelectedEdgeRef(null);
-            removeEdge({ edgeId: originalEdge.id });
+            removeEdge({
+              edgeId: originalEdge.id,
+              onEdgeDelete,
+              onStateChange,
+            });
           }
           // If we are dragging from an empty connector without existing edges
         } else {
@@ -537,7 +536,11 @@ function ExpressionTreeEditor({
               // if the new edge is not creating a loop,
               // or if we are allowing loops to be created, complete the edge adding
               if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
-                addEdge({ edge: newEdge });
+                addEdge({
+                  edge: newEdge,
+                  onEdgeAdd,
+                  onStateChange,
+                });
                 stageRef.current
                   .find('.Edge')
                   .toArray()
@@ -597,6 +600,8 @@ function ExpressionTreeEditor({
                 updateEdge({
                   edgeId: dragEdge.originalEdgeId,
                   newEdge,
+                  onEdgeUpdate,
+                  onStateChange,
                 });
                 stageRef.current
                   .find('.Edge')
@@ -610,7 +615,11 @@ function ExpressionTreeEditor({
             setCursor('move');
             clearDragEdge();
             setSelectedEdgeRef(null);
-            removeEdge({ edgeId: originalEdge.id });
+            removeEdge({
+              edgeId: originalEdge.id,
+              onEdgeDelete,
+              onStateChange,
+            });
           }
           // If we are dragging from an empty connector without existing edges
         } else {
@@ -641,7 +650,11 @@ function ExpressionTreeEditor({
               // if the new edge is not creating a loop,
               // or if we are allowing loops to be created, complete the edge adding
               if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
-                addEdge({ edge: newEdge });
+                addEdge({
+                  edge: newEdge,
+                  onEdgeAdd,
+                  onStateChange,
+                });
                 stageRef.current
                   .find('.Edge')
                   .toArray()
@@ -691,6 +704,8 @@ function ExpressionTreeEditor({
         type: '',
         value: '',
         isFinal: false,
+        onNodeAdd,
+        onStateChange,
       });
       clearAdding();
     } else {
@@ -726,6 +741,8 @@ function ExpressionTreeEditor({
         type: '',
         value: '',
         isFinal: false,
+        onNodeAdd,
+        onStateChange,
       });
       clearAdding();
     } else {
@@ -737,7 +754,10 @@ function ExpressionTreeEditor({
         clearEdgeSelection();
       }
       if (!selectedNode || selectedNode.id !== selectingNode.id) {
-        selectNode({ selectedNode: selectingNode });
+        selectNode({
+          selectedNode: selectingNode,
+          onNodeSelect,
+        });
         if (drawerFields.editField) {
           if (typeof document !== 'undefined' && !selectingNode.isFinal) {
             document.getElementById(
@@ -758,10 +778,15 @@ function ExpressionTreeEditor({
   // Handle node double click event, selecting/deselecting the clicked node as root node
   const handleNodeDblClick = (nodeId) => {
     if (selectedRootNode && selectedRootNode.id === nodeId) {
-      clearRootSelection();
+      clearRootSelection({
+        onStateChange,
+      });
     } else {
       const selectedRootNode = nodeById(nodeId, nodes);
-      selectRootNode({ selectedRootNode });
+      selectRootNode({
+        selectedRootNode,
+        onStateChange,
+      });
     }
   };
 
@@ -783,6 +808,8 @@ function ExpressionTreeEditor({
         type: '',
         value: '',
         isFinal: false,
+        onNodeAdd,
+        onStateChange,
       });
       clearAdding();
     } else {
@@ -802,6 +829,7 @@ function ExpressionTreeEditor({
         setSelectedEdgeRef(e.currentTarget);
         selectEdge({
           selectedEdge: selectingEdge,
+          onEdgeSelect,
         });
       }
     }
@@ -975,6 +1003,10 @@ function ExpressionTreeEditor({
           typeValueChange={typeValueChange}
           computeNodeWidth={computeNodeWidth}
           parseLabelPieces={parseLabelPieces}
+          onNodePiecesChange={onNodePiecesChange}
+          onNodeValueChange={onNodeValueChange}
+          onNodeTypeChange={onNodeTypeChange}
+          onStateChange={onStateChange}
           // TODO: undo / redo
           // edges: state.editor.present.edges,
           // nodes: state.editor.present.nodes,
@@ -1102,11 +1134,13 @@ function ExpressionTreeEditor({
                 }
                 isPressingMetaOrShift={isPressingMetaOrShift}
                 isFullDisabled={fullDisabled}
-                onNodeDelete={onNodeDelete}
                 onNodeClick={(e) => handleNodeClick(e, node.id)}
                 onNodeDblClick={() => handleNodeDblClick(node.id)}
                 onNodeConnectorDragStart={handleNodeConnectorDragStart}
                 onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
+                onNodeMove={onNodeMove}
+                onNodeDelete={onNodeDelete}
+                onStateChange={onStateChange}
                 fontSize={style.fontSize}
                 fontFamily={style.fontFamily}
                 nodeStyle={style.node}

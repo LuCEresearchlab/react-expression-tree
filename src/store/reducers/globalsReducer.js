@@ -1,7 +1,5 @@
-function createGlobalsReducerWithHandlers() {
-  return {
-    // TODO: change connectorPlaceholder dynamically
-  };
-}
+const reducers = {
+  // TODO: change connectorPlaceholder dynamically
+};
 
-export default createGlobalsReducerWithHandlers;
+export default reducers;

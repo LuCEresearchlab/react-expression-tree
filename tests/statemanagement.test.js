@@ -7,9 +7,7 @@ import {
   nodePositionById,
 } from '../src/utils/tree';
 
-import createReducerWithHandlers from '../src/store/reducers';
-
-const reducer = createReducerWithHandlers({});
+import reducer from '../src/store/reducers';
 
 let state = {
   nodes: [],
@@ -356,6 +354,7 @@ describe('editor reducer', () => {
     expect(state.selectedRootNode).toEqual(selectedRootNode);
     state = reducer(state, {
       type: 'clearRootSelection',
+      payload: {},
     });
     expect(state.selectedRootNode).toEqual(null);
   });
