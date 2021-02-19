@@ -35,8 +35,10 @@ import {
 } from '../../utils/tree';
 
 import createPositionUtils from '../../utils/position';
-
-import { importState } from '../../utils/state';
+import {
+  exportState,
+  importState,
+} from '../../utils/state';
 
 import actions from '../../store/actions';
 
@@ -92,7 +94,7 @@ function ExpressionTreeEditor({
 
   // If context is passed a parameter, use the provided context;
   store = context ? useContext(context) : store;
-  
+
   const {
     nodes,
     edges,
@@ -196,6 +198,15 @@ function ExpressionTreeEditor({
     y: 0,
   });
   const [currentErrorLocation, setCurrentErrorLocation] = useState({});
+
+  useEffect(() => {
+    if (onStateChange) onStateChange(exportState(store));
+  }, [
+    nodes,
+    edges,
+    selectedRootNode,
+    connectorPlaceholder,
+  ]);
 
   useEffect(() => {
     importState(

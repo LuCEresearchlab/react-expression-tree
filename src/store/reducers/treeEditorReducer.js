@@ -16,8 +16,6 @@ const reducers = {
       type,
       value,
       isFinal,
-      onNodeAdd,
-      onStateChange,
     } = payload;
 
     const addingNodeId = maxNodeId(state) + 1;
@@ -32,14 +30,11 @@ const reducers = {
       isFinal,
     };
 
-    if (onNodeAdd) onNodeAdd(addingNode);
-
     const newState = {
       ...state,
       nodes: [...state.nodes, addingNode],
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -50,11 +45,8 @@ const reducers = {
   removeNode: (state, payload) => {
     const {
       nodeId,
-      onNodeDelete,
-      onStateChange,
     } = payload;
 
-    if (onNodeDelete) onNodeDelete(nodeId);
     const newState = {
       ...state,
       nodes: state.nodes.filter((node) => node.id !== nodeId),
@@ -69,7 +61,6 @@ const reducers = {
           : state.selectedRootNode,
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -77,10 +68,8 @@ const reducers = {
   selectNode: (state, payload) => {
     const {
       selectedNode,
-      onNodeSelect,
     } = payload;
 
-    if (onNodeSelect) onNodeSelect(selectedNode);
     return {
       ...state,
       selectedNode,
@@ -99,7 +88,6 @@ const reducers = {
   selectRootNode: (state, payload) => {
     const {
       selectedRootNode,
-      onStateChange,
     } = payload;
 
     const newState = {
@@ -107,22 +95,16 @@ const reducers = {
       selectedRootNode,
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
   // Clear the root node selection
   clearRootSelection: (state, payload) => {
-    const {
-      onStateChange,
-    } = payload;
-
     const newState = {
       ...state,
       selectedRootNode: null,
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -145,7 +127,6 @@ const reducers = {
         : node)),
     };
 
-    // if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -157,11 +138,8 @@ const reducers = {
       nodeId,
       x,
       y,
-      onNodeMove,
-      onStateChange,
     } = payload;
 
-    if (onNodeMove) onNodeMove(nodeId, { x, y });
     const newState = {
       ...state,
       nodes: state.nodes.map((node) => (node.id === nodeId
@@ -173,7 +151,6 @@ const reducers = {
         : node)),
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -181,19 +158,16 @@ const reducers = {
   addEdge: (state, payload) => {
     const {
       edge,
-      onEdgeAdd,
-      onStateChange,
     } = payload;
 
     const addingEdgeId = maxEdgeId(state) + 1;
     const addingEdge = { ...edge, id: addingEdgeId };
-    if (onEdgeAdd) onEdgeAdd(addingEdge);
+
     const newState = {
       ...state,
       edges: [...state.edges, addingEdge],
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -201,17 +175,13 @@ const reducers = {
   removeEdge: (state, payload) => {
     const {
       edgeId,
-      onEdgeDelete,
-      onStateChange,
     } = payload;
 
-    if (onEdgeDelete) onEdgeDelete(edgeId);
     const newState = {
       ...state,
       edges: state.edges.filter((edge) => edge.id !== edgeId),
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -220,11 +190,8 @@ const reducers = {
     const {
       newEdge,
       edgeId,
-      onEdgeUpdate,
-      onStateChange,
     } = payload;
 
-    if (onEdgeUpdate) onEdgeUpdate(newEdge);
     const newState = {
       ...state,
       edges: [
@@ -233,7 +200,6 @@ const reducers = {
       ],
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -241,10 +207,8 @@ const reducers = {
   selectEdge: (state, payload) => {
     const {
       selectedEdge,
-      onEdgeSelect,
     } = payload;
 
-    if (onEdgeSelect) onEdgeSelect(selectedEdge);
     return {
       ...state,
       selectedEdge,
@@ -318,11 +282,8 @@ const reducers = {
       pieces,
       selectedNodeId,
       width,
-      onNodePiecesChange,
-      onStateChange,
     } = payload;
 
-    if (onNodePiecesChange) onNodePiecesChange(pieces);
     const newState = {
       ...state,
       nodes: state.nodes.map((node) => (node.id === selectedNodeId
@@ -342,7 +303,6 @@ const reducers = {
       },
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -352,11 +312,8 @@ const reducers = {
     const {
       type,
       selectedNodeId,
-      onNodeTypeChange,
-      onStateChange,
     } = payload;
 
-    if (onNodeTypeChange) onNodeTypeChange(type);
     const newState = {
       ...state,
       nodes: state.nodes.map((node) => (node.id === selectedNodeId
@@ -376,7 +333,6 @@ const reducers = {
           : state.selectedRootNode,
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
@@ -386,11 +342,8 @@ const reducers = {
     const {
       value,
       selectedNodeId,
-      onNodeValueChange,
-      onStateChange,
     } = payload;
 
-    if (onNodeValueChange) onNodeValueChange(value);
     const newState = {
       ...state,
       nodes: state.nodes.map((node) => (node.id === selectedNodeId
@@ -410,7 +363,6 @@ const reducers = {
           : state.selectedRootNode,
     };
 
-    if (onStateChange) onStateChange(exportState(newState));
     return newState;
   },
 
