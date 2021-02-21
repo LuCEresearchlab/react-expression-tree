@@ -7,10 +7,8 @@ import React, {
   useCallback,
   useEffect,
   useRef,
-  useReducer,
   useState,
   useMemo,
-  useContext,
 } from 'react';
 import PropTypes from 'prop-types';
 
@@ -22,9 +20,6 @@ import Node from '../Node/Node';
 import Edge from '../Edge/Edge';
 import DragEdge from '../Edge/DragEdge/DragEdge';
 import StageDrawer from '../StageDrawer/StageDrawer';
-
-import reducer from '../../store/reducers';
-import reducerInitialState from '../../store/initialState';
 
 import {
   edgeByChildNode,
@@ -40,13 +35,12 @@ import {
   importState,
 } from '../../utils/state';
 
-import actions from '../../store/actions';
-
 import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
 
 import defaultStyle from '../../style/default.json';
 
 import '@fontsource/roboto-mono/300.css';
+import useStore from '../../hooks/useStore';
 
 function ExpressionTreeEditor({
   context,
@@ -86,15 +80,7 @@ function ExpressionTreeEditor({
   const selectedRectRef = useRef();
   const transformerRef = useRef();
 
-  // TODO: Right now it is not possible to change the value of connectorPlaceholder dynamically
-  let [store, dispatch] = useReducer(reducer, {
-    ...reducerInitialState,
-    connectorPlaceholder,
-  });
-
-  // If context is passed a parameter, use the provided context;
-  store = context ? useContext(context) : store;
-
+  const [store, actions] = useStore(context, connectorPlaceholder);
   const {
     nodes,
     edges,
@@ -144,17 +130,7 @@ function ExpressionTreeEditor({
     reorderNodes,
     setStagePos,
     setStageScale,
-  } = context
-    ? store
-    : useMemo(() => {
-      const temp = {};
-      actions.forEach((item) => {
-        temp[item.name] = (payload) => {
-          dispatch(item.action(payload));
-        };
-      });
-      return temp;
-    }, [dispatch]);
+  } = actions;
 
   const { fontSize, fontFamily } = style;
   const { width: placeholderWidth } = style.node.placeholder;
@@ -1028,220 +1004,222 @@ function ExpressionTreeEditor({
           // canRedo: state.editor.future.length > 0,
         />
         {/* Stage component containing the layer component */}
-        <Stage
-          ref={stageRef}
-          width={computeStageWidth()}
-          height={height}
-          style={{ cursor: addingNode && 'crosshair' }}
-          onMouseMove={!fullDisabled && handleStageMouseMove}
-          onTouchMove={!fullDisabled && handleStageMouseMove}
-          onMouseUp={!fullDisabled && handleStageMouseUp}
-          onTouchEnd={!fullDisabled && handleStageMouseUp}
-          onClick={!fullDisabled && handleStageClick}
-          onTouchStart={!fullDisabled && handleStageClick}
-          draggable={!isPressingMetaOrShift && !fullDisabled}
-          onMouseDown={!fullDisabled && handleStageMouseDown}
-          onDragStart={
-            !fullDisabled
-            && ((e) => {
-              setCursor('grabbing');
-            })
-          }
-          onDragMove={!fullDisabled && ((e) => handleStageDragMove(e))}
-          onDragEnd={
-            !fullDisabled
-            && ((e) => {
-              setCursor('move');
-            })
-          }
-          onWheel={!fullDisabled && handleStageWheel}
-          onMouseOver={
-            !fullDisabled
-            && ((e) => {
-              setCursor('move');
-            })
-          }
-          onMouseLeave={
-            !fullDisabled
-            && ((e) => {
-              setCursor('default');
-            })
-          }
-        >
-          {/* Layer component containing nodes, edges, dragEdge and selection rectangles components */}
-          <Layer ref={layerRef}>
-            {/* Map all the state edges */}
-            {edges.map((edge) => (
-              <Edge
-                key={`Edge-${edge.id}`}
-                id={edge.id}
-                childX={nodePositionById(edge.childNodeId, nodes).x}
-                childY={nodePositionById(edge.childNodeId, nodes).y}
-                childNodeId={edge.childNodeId}
-                childWidth={nodeById(edge.childNodeId, nodes).width}
-                parentX={nodePositionById(edge.parentNodeId, nodes).x}
-                parentY={nodePositionById(edge.parentNodeId, nodes).y}
-                parentNodeId={edge.parentNodeId}
-                parentPieceId={edge.parentPieceId}
-                parentPieceX={
-                  computeLabelPiecesXCoordinatePositions(
-                    nodeById(edge.parentNodeId, nodes).pieces,
-                  )[edge.parentPieceId]
-                }
-                isDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
-                isFullDisabled={fullDisabled}
-                isDraggingSelectionRect={isDraggingSelectionRect}
-                isSelected={selectedEdge && selectedEdge.id === edge.id}
-                selectedEdgeRef={selectedEdgeRef}
-                setSelectedEdgeRef={setSelectedEdgeRef}
-                clearEdgeSelection={clearEdgeSelection}
-                currentErrorLocation={currentErrorLocation}
-                nodePaddingX={style.node.paddingX}
-                nodePaddingY={style.node.paddingY}
-                // Event Listeners
-                onEdgeClick={(e) => handleEdgeClick(e, edge.id)}
-                onNodeConnectorDragStart={handleNodeConnectorDragStart}
-                onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
-                setCursor={setCursor}
-                // Style
-                placeholderWidth={style.node.placeholder.width}
-                fontSize={fontSize}
-                style={style.edge}
-              />
-            ))}
-            {/* Map all the state nodes */}
-            { nodes.map((node) => (
-              <Node
-                key={`Node-${node.id}`}
-                id={node.id}
-                labelPieces={node.pieces}
-                positionX={nodePositionById(node.id, nodes).x}
-                positionY={nodePositionById(node.id, nodes).y}
-                typeText={node.type}
-                valueText={node.value}
-                connectorPlaceholder={connectorPlaceholder}
-                placeholderWidth={placeholderWidth}
-                stageRef={stageRef}
-                stageWidth={containerWidth}
-                stageHeight={height}
-                transformerRef={transformerRef}
-                selectedEdgeRef={selectedEdgeRef}
-                setSelectedEdgeRef={setSelectedEdgeRef}
-                nodeWidth={node.width}
-                edges={edges}
-                currentErrorLocation={currentErrorLocation}
-                moveNodeTo={moveNodeTo}
-                moveNodeToEnd={moveNodeToEnd}
-                removeNode={removeNode}
-                clearNodeSelection={clearNodeSelection}
-                clearEdgeSelection={clearEdgeSelection}
-                computeLabelPiecesXCoordinatePositions={computeLabelPiecesXCoordinatePositions}
-                setCursor={setCursor}
-                isDraggingSelectionRect={isDraggingSelectionRect}
-                isFinal={node.isFinal}
-                isSelected={selectedNode && selectedNode.id === node.id}
-                isSelectedRoot={
-                  selectedRootNode && selectedRootNode.id === node.id
-                }
-                isPressingMetaOrShift={isPressingMetaOrShift}
-                isFullDisabled={fullDisabled}
-                onNodeClick={(e) => handleNodeClick(e, node.id)}
-                onNodeDblClick={() => handleNodeDblClick(node.id)}
-                onNodeConnectorDragStart={handleNodeConnectorDragStart}
-                onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
-                onNodeMove={onNodeMove}
-                onNodeDelete={onNodeDelete}
-                onStateChange={onStateChange}
-                fontSize={style.fontSize}
-                fontFamily={style.fontFamily}
-                nodeStyle={style.node}
-                connectorStyle={style.edge.connector}
-              />
-            ))}
-            {/* Multiple selection rectangle component */}
-            <Rect
-              ref={selectionRectRef}
-              x={Math.min(selectionRectStartPos.x, selectionRectEndPos.x)}
-              y={Math.min(selectionRectStartPos.y, selectionRectEndPos.y)}
-              width={Math.abs(selectionRectEndPos.x - selectionRectStartPos.x)}
-              height={Math.abs(selectionRectEndPos.y - selectionRectStartPos.y)}
-              fill={style.selectionRectColor}
-              visible={isSelectingRectVisible}
-            />
-            {/* Multiple selected rectangle component */}
-            <Rect
-              ref={selectedRectRef}
-              x={
-                transformerRef.current
-                && stageRef.current
-                && (transformerRef.current.getClientRect().x
-                  - stageRef.current.absolutePosition().x)
-                  / stageRef.current.scale().x
-              }
-              y={
-                transformerRef.current
-                && stageRef.current
-                && (transformerRef.current.getClientRect().y
-                  - stageRef.current.absolutePosition().y)
-                  / stageRef.current.scale().y
-              }
-              width={
-                transformerRef.current
-                && transformerRef.current.getClientRect().width
-                  / stageRef.current.scale().x
-              }
-              height={
-                transformerRef.current
-                && transformerRef.current.getClientRect().height
-                  / stageRef.current.scale().y
-              }
-              fill="rgba(255, 255, 255, 0)"
-              visible={isSelectedRectVisible}
-              draggable
-              onMouseEnter={() => {
-                setCursor('grab');
-              }}
-              onDragStart={() => {
+        <div>
+          <Stage
+            ref={stageRef}
+            width={computeStageWidth()}
+            height={height}
+            style={{ cursor: addingNode && 'crosshair' }}
+            onMouseMove={!fullDisabled && handleStageMouseMove}
+            onTouchMove={!fullDisabled && handleStageMouseMove}
+            onMouseUp={!fullDisabled && handleStageMouseUp}
+            onTouchEnd={!fullDisabled && handleStageMouseUp}
+            onClick={!fullDisabled && handleStageClick}
+            onTouchStart={!fullDisabled && handleStageClick}
+            draggable={!isPressingMetaOrShift && !fullDisabled}
+            onMouseDown={!fullDisabled && handleStageMouseDown}
+            onDragStart={
+              !fullDisabled
+              && ((e) => {
                 setCursor('grabbing');
-              }}
-              onDragMove={handleSelectedDragMove}
-              onDragEnd={handleSelectedDragEnd}
-              onMouseDown={handleStageMouseDown}
-            />
-            {/* Transformer component attached to the multiple selected nodes */}
-            <Transformer
-              ref={transformerRef}
-              x={
-                transformerRef.current
-                && stageRef.current
-                && (transformerRef.current.getClientRect().x
-                  - stageRef.current.absolutePosition().x)
-                  / stageRef.current.scale().x
-              }
-              y={
-                transformerRef.current
-                && stageRef.current
-                && (transformerRef.current.getClientRect().y
-                  - stageRef.current.absolutePosition().y)
-                  / stageRef.current.scale().y
-              }
-              rotateEnabled={false}
-              resizeEnabled={false}
-              visible={isSelectedRectVisible}
-            />
-            {/* DragEdge component */}
-            {dragEdge && (
-              <DragEdge
-                key="DragEdge"
-                childX={dragEdge.childX}
-                childY={dragEdge.childY}
-                parentX={dragEdge.parentX}
-                parentY={dragEdge.parentY}
-                style={style.dragEdge}
+              })
+            }
+            onDragMove={!fullDisabled && ((e) => handleStageDragMove(e))}
+            onDragEnd={
+              !fullDisabled
+              && ((e) => {
+                setCursor('move');
+              })
+            }
+            onWheel={!fullDisabled && handleStageWheel}
+            onMouseOver={
+              !fullDisabled
+              && ((e) => {
+                setCursor('move');
+              })
+            }
+            onMouseLeave={
+              !fullDisabled
+              && ((e) => {
+                setCursor('default');
+              })
+            }
+          >
+            {/* Layer component containing nodes, edges, dragEdge and selection rectangles components */}
+            <Layer ref={layerRef}>
+              {/* Map all the state edges */}
+              {edges.map((edge) => (
+                <Edge
+                  key={`Edge-${edge.id}`}
+                  id={edge.id}
+                  childX={nodePositionById(edge.childNodeId, nodes).x}
+                  childY={nodePositionById(edge.childNodeId, nodes).y}
+                  childNodeId={edge.childNodeId}
+                  childWidth={nodeById(edge.childNodeId, nodes).width}
+                  parentX={nodePositionById(edge.parentNodeId, nodes).x}
+                  parentY={nodePositionById(edge.parentNodeId, nodes).y}
+                  parentNodeId={edge.parentNodeId}
+                  parentPieceId={edge.parentPieceId}
+                  parentPieceX={
+                    computeLabelPiecesXCoordinatePositions(
+                      nodeById(edge.parentNodeId, nodes).pieces,
+                    )[edge.parentPieceId]
+                  }
+                  isDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
+                  isFullDisabled={fullDisabled}
+                  isDraggingSelectionRect={isDraggingSelectionRect}
+                  isSelected={selectedEdge && selectedEdge.id === edge.id}
+                  selectedEdgeRef={selectedEdgeRef}
+                  setSelectedEdgeRef={setSelectedEdgeRef}
+                  clearEdgeSelection={clearEdgeSelection}
+                  currentErrorLocation={currentErrorLocation}
+                  nodePaddingX={style.node.paddingX}
+                  nodePaddingY={style.node.paddingY}
+                  // Event Listeners
+                  onEdgeClick={(e) => handleEdgeClick(e, edge.id)}
+                  onNodeConnectorDragStart={handleNodeConnectorDragStart}
+                  onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
+                  setCursor={setCursor}
+                  // Style
+                  placeholderWidth={style.node.placeholder.width}
+                  fontSize={fontSize}
+                  style={style.edge}
+                />
+              ))}
+              {/* Map all the state nodes */}
+              { nodes.map((node) => (
+                <Node
+                  key={`Node-${node.id}`}
+                  id={node.id}
+                  labelPieces={node.pieces}
+                  positionX={nodePositionById(node.id, nodes).x}
+                  positionY={nodePositionById(node.id, nodes).y}
+                  typeText={node.type}
+                  valueText={node.value}
+                  connectorPlaceholder={connectorPlaceholder}
+                  placeholderWidth={placeholderWidth}
+                  stageRef={stageRef}
+                  stageWidth={containerWidth}
+                  stageHeight={height}
+                  transformerRef={transformerRef}
+                  selectedEdgeRef={selectedEdgeRef}
+                  setSelectedEdgeRef={setSelectedEdgeRef}
+                  nodeWidth={node.width}
+                  edges={edges}
+                  currentErrorLocation={currentErrorLocation}
+                  moveNodeTo={moveNodeTo}
+                  moveNodeToEnd={moveNodeToEnd}
+                  removeNode={removeNode}
+                  clearNodeSelection={clearNodeSelection}
+                  clearEdgeSelection={clearEdgeSelection}
+                  computeLabelPiecesXCoordinatePositions={computeLabelPiecesXCoordinatePositions}
+                  setCursor={setCursor}
+                  isDraggingSelectionRect={isDraggingSelectionRect}
+                  isFinal={node.isFinal}
+                  isSelected={selectedNode && selectedNode.id === node.id}
+                  isSelectedRoot={
+                    selectedRootNode && selectedRootNode.id === node.id
+                  }
+                  isPressingMetaOrShift={isPressingMetaOrShift}
+                  isFullDisabled={fullDisabled}
+                  onNodeClick={(e) => handleNodeClick(e, node.id)}
+                  onNodeDblClick={() => handleNodeDblClick(node.id)}
+                  onNodeConnectorDragStart={handleNodeConnectorDragStart}
+                  onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
+                  onNodeMove={onNodeMove}
+                  onNodeDelete={onNodeDelete}
+                  onStateChange={onStateChange}
+                  fontSize={style.fontSize}
+                  fontFamily={style.fontFamily}
+                  nodeStyle={style.node}
+                  connectorStyle={style.edge.connector}
+                />
+              ))}
+              {/* Multiple selection rectangle component */}
+              <Rect
+                ref={selectionRectRef}
+                x={Math.min(selectionRectStartPos.x, selectionRectEndPos.x)}
+                y={Math.min(selectionRectStartPos.y, selectionRectEndPos.y)}
+                width={Math.abs(selectionRectEndPos.x - selectionRectStartPos.x)}
+                height={Math.abs(selectionRectEndPos.y - selectionRectStartPos.y)}
+                fill={style.selectionRectColor}
+                visible={isSelectingRectVisible}
               />
-            )}
-          </Layer>
-        </Stage>
+              {/* Multiple selected rectangle component */}
+              <Rect
+                ref={selectedRectRef}
+                x={
+                  transformerRef.current
+                  && stageRef.current
+                  && (transformerRef.current.getClientRect().x
+                    - stageRef.current.absolutePosition().x)
+                    / stageRef.current.scale().x
+                }
+                y={
+                  transformerRef.current
+                  && stageRef.current
+                  && (transformerRef.current.getClientRect().y
+                    - stageRef.current.absolutePosition().y)
+                    / stageRef.current.scale().y
+                }
+                width={
+                  transformerRef.current
+                  && transformerRef.current.getClientRect().width
+                    / stageRef.current.scale().x
+                }
+                height={
+                  transformerRef.current
+                  && transformerRef.current.getClientRect().height
+                    / stageRef.current.scale().y
+                }
+                fill="rgba(255, 255, 255, 0)"
+                visible={isSelectedRectVisible}
+                draggable
+                onMouseEnter={() => {
+                  setCursor('grab');
+                }}
+                onDragStart={() => {
+                  setCursor('grabbing');
+                }}
+                onDragMove={handleSelectedDragMove}
+                onDragEnd={handleSelectedDragEnd}
+                onMouseDown={handleStageMouseDown}
+              />
+              {/* Transformer component attached to the multiple selected nodes */}
+              <Transformer
+                ref={transformerRef}
+                x={
+                  transformerRef.current
+                  && stageRef.current
+                  && (transformerRef.current.getClientRect().x
+                    - stageRef.current.absolutePosition().x)
+                    / stageRef.current.scale().x
+                }
+                y={
+                  transformerRef.current
+                  && stageRef.current
+                  && (transformerRef.current.getClientRect().y
+                    - stageRef.current.absolutePosition().y)
+                    / stageRef.current.scale().y
+                }
+                rotateEnabled={false}
+                resizeEnabled={false}
+                visible={isSelectedRectVisible}
+              />
+              {/* DragEdge component */}
+              {dragEdge && (
+                <DragEdge
+                  key="DragEdge"
+                  childX={dragEdge.childX}
+                  childY={dragEdge.childY}
+                  parentX={dragEdge.parentX}
+                  parentY={dragEdge.parentY}
+                  style={style.dragEdge}
+                />
+              )}
+            </Layer>
+          </Stage>
+        </div>
       </div>
     </ThemeProvider>
   );

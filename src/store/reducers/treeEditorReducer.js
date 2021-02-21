@@ -1,5 +1,4 @@
 import {
-  exportState,
   maxNodeId,
   maxEdgeId,
   orderWalk,
@@ -18,7 +17,10 @@ const reducers = {
       isFinal,
     } = payload;
 
-    const addingNodeId = maxNodeId(state) + 1;
+    const { expressionTreeEditor } = state;
+    const { nodes } = expressionTreeEditor;
+
+    const addingNodeId = maxNodeId(nodes) + 1;
     const addingNode = {
       id: addingNodeId,
       pieces,
@@ -30,12 +32,13 @@ const reducers = {
       isFinal,
     };
 
-    const newState = {
+    return {
       ...state,
-      nodes: [...state.nodes, addingNode],
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: [...nodes, addingNode],
+      },
     };
-
-    return newState;
   },
 
   // Remove the selected node from the array of nodes,
@@ -47,21 +50,24 @@ const reducers = {
       nodeId,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    const { nodes, edges, selectedRootNode } = expressionTreeEditor;
+    return {
       ...state,
-      nodes: state.nodes.filter((node) => node.id !== nodeId),
-      edges: state.edges.filter(
-        (edge) => edge.parentNodeId !== nodeId
-          && edge.childNodeId !== nodeId,
-      ),
-      selectedRootNode:
-        state.selectedRootNode
-        && state.selectedRootNode.id === nodeId
-          ? null
-          : state.selectedRootNode,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: nodes.filter((node) => node.id !== nodeId),
+        edges: edges.filter(
+          (edge) => edge.parentNodeId !== nodeId
+            && edge.childNodeId !== nodeId,
+        ),
+        selectedRootNode:
+          selectedRootNode
+          && selectedRootNode.id === nodeId
+            ? null
+            : selectedRootNode,
+      },
     };
-
-    return newState;
   },
 
   // Select the selecting node
@@ -70,17 +76,25 @@ const reducers = {
       selectedNode,
     } = payload;
 
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      selectedNode,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        selectedNode,
+      },
     };
   },
 
   // Clear the node selection
   clearNodeSelection: (state) => {
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      selectedNode: null,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        selectedNode: null,
+      },
     };
   },
 
@@ -90,22 +104,26 @@ const reducers = {
       selectedRootNode,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    return {
       ...state,
-      selectedRootNode,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        selectedRootNode,
+      },
     };
-
-    return newState;
   },
 
   // Clear the root node selection
   clearRootSelection: (state, payload) => {
-    const newState = {
+    const { expressionTreeEditor } = state;
+    return {
       ...state,
-      selectedRootNode: null,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        selectedRootNode: null,
+      },
     };
-
-    return newState;
   },
 
   // Move the selected node to the event coordinates
@@ -116,18 +134,21 @@ const reducers = {
       y,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    const { nodes } = expressionTreeEditor;
+    return {
       ...state,
-      nodes: state.nodes.map((node) => (node.id === nodeId
-        ? {
-          ...node,
-          x,
-          y,
-        }
-        : node)),
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: nodes.map((node) => (node.id === nodeId
+          ? {
+            ...node,
+            x,
+            y,
+          }
+          : node)),
+      },
     };
-
-    return newState;
   },
 
   // Move the selected node to the final event coordinates,
@@ -140,18 +161,22 @@ const reducers = {
       y,
     } = payload;
 
-    const newState = {
-      ...state,
-      nodes: state.nodes.map((node) => (node.id === nodeId
-        ? {
-          ...node,
-          x,
-          y,
-        }
-        : node)),
-    };
+    const { expressionTreeEditor } = state;
+    const { nodes } = expressionTreeEditor;
 
-    return newState;
+    return {
+      ...state,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: nodes.map((node) => (node.id === nodeId
+          ? {
+            ...node,
+            x,
+            y,
+          }
+          : node)),
+      },
+    };
   },
 
   // Add the new edge to the array of edges
@@ -160,15 +185,19 @@ const reducers = {
       edge,
     } = payload;
 
-    const addingEdgeId = maxEdgeId(state) + 1;
+    const { expressionTreeEditor } = state;
+    const { edges } = expressionTreeEditor;
+
+    const addingEdgeId = maxEdgeId(edges) + 1;
     const addingEdge = { ...edge, id: addingEdgeId };
 
-    const newState = {
+    return {
       ...state,
-      edges: [...state.edges, addingEdge],
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        edges: [...edges, addingEdge],
+      },
     };
-
-    return newState;
   },
 
   // Remove the selected edge from the array of edges
@@ -177,12 +206,15 @@ const reducers = {
       edgeId,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    const { edges } = expressionTreeEditor;
+    return {
       ...state,
-      edges: state.edges.filter((edge) => edge.id !== edgeId),
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        edges: edges.filter((edge) => edge.id !== edgeId),
+      },
     };
-
-    return newState;
   },
 
   // Update the selected edge to the new node/hole connector
@@ -192,15 +224,18 @@ const reducers = {
       edgeId,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    const { edges } = expressionTreeEditor;
+    return {
       ...state,
-      edges: [
-        ...state.edges.filter((edge) => edge.id !== edgeId),
-        newEdge,
-      ],
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        edges: [
+          ...edges.filter((edge) => edge.id !== edgeId),
+          newEdge,
+        ],
+      },
     };
-
-    return newState;
   },
 
   // Select the selecting edge
@@ -209,17 +244,25 @@ const reducers = {
       selectedEdge,
     } = payload;
 
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      selectedEdge,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        selectedEdge,
+      },
     };
   },
 
   // Clear the edge selection
   clearEdgeSelection: (state) => {
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      selectedEdge: null,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        selectedEdge: null,
+      },
     };
   },
 
@@ -227,17 +270,25 @@ const reducers = {
   setDragEdge: (state, payload) => {
     const { dragEdge } = payload;
 
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      dragEdge,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        dragEdge,
+      },
     };
   },
 
   // Clear the DragEdge
   clearDragEdge: (state) => {
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      dragEdge: null,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        dragEdge: null,
+      },
     };
   },
 
@@ -248,12 +299,17 @@ const reducers = {
       y,
     } = payload;
 
+    const { expressionTreeEditor } = state;
+    const { dragEdge } = expressionTreeEditor;
     return {
       ...state,
-      dragEdge: {
-        ...state.dragEdge,
-        parentX: x,
-        parentY: y,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        dragEdge: {
+          ...dragEdge,
+          parentX: x,
+          parentY: y,
+        },
       },
     };
   },
@@ -265,12 +321,17 @@ const reducers = {
       y,
     } = payload;
 
+    const { expressionTreeEditor } = state;
+    const { dragEdge } = expressionTreeEditor;
     return {
       ...state,
-      dragEdge: {
-        ...state.dragEdge,
-        childX: x,
-        childY: y,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        dragEdge: {
+          ...dragEdge,
+          childX: x,
+          childY: y,
+        },
       },
     };
   },
@@ -284,26 +345,29 @@ const reducers = {
       width,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    const { nodes, edges, selectedNode } = expressionTreeEditor;
+    return {
       ...state,
-      nodes: state.nodes.map((node) => (node.id === selectedNodeId
-        ? {
-          ...node,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: nodes.map((node) => (node.id === selectedNodeId
+          ? {
+            ...node,
+            pieces,
+            width,
+          }
+          : node)),
+        edges: edges.filter(
+          (edge) => edge.parentNodeId !== selectedNodeId,
+        ),
+        selectedNode: {
+          ...selectedNode,
           pieces,
           width,
-        }
-        : node)),
-      edges: state.edges.filter(
-        (edge) => edge.parentNodeId !== selectedNodeId,
-      ),
-      selectedNode: {
-        ...state.selectedNode,
-        pieces,
-        width,
+        },
       },
     };
-
-    return newState;
   },
 
   // Edit the selected node type, if the selected node is the selected root node,
@@ -314,26 +378,29 @@ const reducers = {
       selectedNodeId,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    const { nodes, selectedNode, selectedRootNode } = expressionTreeEditor;
+    return {
       ...state,
-      nodes: state.nodes.map((node) => (node.id === selectedNodeId
-        ? {
-          ...node,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: nodes.map((node) => (node.id === selectedNodeId
+          ? {
+            ...node,
+            type,
+          }
+          : node)),
+        selectedNode: {
+          ...selectedNode,
           type,
-        }
-        : node)),
-      selectedNode: {
-        ...state.selectedNode,
-        type,
+        },
+        selectedRootNode:
+          selectedRootNode
+          && selectedNodeId === selectedRootNode.id
+            ? { ...selectedRootNode, type }
+            : selectedRootNode,
       },
-      selectedRootNode:
-        state.selectedRootNode
-        && selectedNodeId === state.selectedRootNode.id
-          ? { ...state.selectedRootNode, type }
-          : state.selectedRootNode,
     };
-
-    return newState;
   },
 
   // Edit the selected node value, if the selected node is the selected root node,
@@ -344,26 +411,29 @@ const reducers = {
       selectedNodeId,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    const { nodes, selectedNode, selectedRootNode } = expressionTreeEditor;
+    return {
       ...state,
-      nodes: state.nodes.map((node) => (node.id === selectedNodeId
-        ? {
-          ...node,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: nodes.map((node) => (node.id === selectedNodeId
+          ? {
+            ...node,
+            value,
+          }
+          : node)),
+        selectedNode: {
+          ...selectedNode,
           value,
-        }
-        : node)),
-      selectedNode: {
-        ...state.selectedNode,
-        value,
+        },
+        selectedRootNode:
+          selectedRootNode
+          && selectedNodeId === selectedRootNode.id
+            ? { ...selectedRootNode, value }
+            : selectedRootNode,
       },
-      selectedRootNode:
-        state.selectedRootNode
-        && selectedNodeId === state.selectedRootNode.id
-          ? { ...state.selectedRootNode, value }
-          : state.selectedRootNode,
     };
-
-    return newState;
   },
 
   // Reset the editor state to the initial state
@@ -373,14 +443,18 @@ const reducers = {
       initialNodes,
     } = payload;
 
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      nodes: initialNodes,
-      edges: initialEdges,
-      dragEdge: null,
-      selectedNode: null,
-      selectedEdge: null,
-      selectedRootNode: null,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: initialNodes,
+        edges: initialEdges,
+        dragEdge: null,
+        selectedNode: null,
+        selectedEdge: null,
+        selectedRootNode: null,
+      },
     };
   },
 
@@ -392,14 +466,18 @@ const reducers = {
       selectedRootNode,
     } = payload;
 
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      nodes,
-      edges,
-      selectedNode: null,
-      selectedEdge: null,
-      dragEdge: null,
-      selectedRootNode,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes,
+        edges,
+        selectedNode: null,
+        selectedEdge: null,
+        dragEdge: null,
+        selectedRootNode,
+      },
     };
   },
 
@@ -410,10 +488,14 @@ const reducers = {
       initialEdges,
     } = payload;
 
+    const { expressionTreeEditor } = state;
     return {
       ...state,
-      nodes: initialNodes,
-      edges: initialEdges,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: initialNodes,
+        edges: initialEdges,
+      },
     };
   },
 
@@ -429,6 +511,9 @@ const reducers = {
       connectorPlaceholder,
     } = payload;
 
+    const { expressionTreeEditor } = state;
+    const { nodes, selectedRootNode } = expressionTreeEditor;
+
     const nodesPerRow = isDrawerOpen ? 8 : 10;
     const initialX = isDrawerOpen
       ? drawerWidth + 20
@@ -437,15 +522,15 @@ const reducers = {
     let unconnectedCount = -1;
     let newNodes = [];
     const visitedNodes = [];
-    let currentLevelX = state.selectedRootNode
-      ? [reorderStartingX - state.selectedRootNode.width / 2]
+    let currentLevelX = selectedRootNode
+      ? [reorderStartingX - selectedRootNode.width / 2]
       : [];
     let levelIndex = 0;
     const currentY = textHeight * 4;
-    if (state.selectedRootNode) {
+    if (selectedRootNode) {
       [newNodes, currentLevelX] = orderWalk(
-        state,
-        state.selectedRootNode,
+        expressionTreeEditor,
+        selectedRootNode,
         connectorPlaceholder,
         newNodes,
         visitedNodes,
@@ -455,37 +540,38 @@ const reducers = {
         textHeight,
       );
     }
-    
-    const newState = {
+
+    return {
       ...state,
-      nodes: state.nodes.map((node) => {
-        const newNode = newNodes.find((newNode) => node.id === newNode.id);
-        if (newNode !== undefined) {
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: nodes.map((node) => {
+          const newNode = newNodes.find((newNode) => node.id === newNode.id);
+          if (newNode !== undefined) {
+            return {
+              ...node,
+              x: newNode.x,
+              y: newNode.y,
+            };
+          }
+          unconnectedCount++;
+          if (unconnectedCount % nodesPerRow === 0) {
+            unconnectedCurrentX = initialX;
+          }
+          const tmpX = unconnectedCurrentX;
+          unconnectedCurrentX += node.width + 10;
           return {
             ...node,
-            x: newNode.x,
-            y: newNode.y,
+            x: tmpX,
+            y:
+                textHeight * 4
+                + (currentLevelX.length
+                  + Math.floor(unconnectedCount / nodesPerRow))
+                  * (textHeight * 4),
           };
-        }
-        unconnectedCount++;
-        if (unconnectedCount % nodesPerRow === 0) {
-          unconnectedCurrentX = initialX;
-        }
-        const tmpX = unconnectedCurrentX;
-        unconnectedCurrentX += node.width + 10;
-        return {
-          ...node,
-          x: tmpX,
-          y:
-              textHeight * 4
-              + (currentLevelX.length
-                + Math.floor(unconnectedCount / nodesPerRow))
-                * (textHeight * 4),
-        };
-      }),
+        }),
+      },
     };
-
-    return newState;
   },
 
   // Move the multiple nodes selection to the event coordinates
@@ -495,21 +581,26 @@ const reducers = {
       delta,
     } = payload;
 
+    const { expressionTreeEditor } = state;
+    const { nodes: previousNodesState } = expressionTreeEditor;
     return {
       ...state,
-      nodes: state.nodes.map((node) => {
-        const foundNode = nodes.find(
-          (payloadNode) => payloadNode.attrs.id === node.id,
-        );
-        if (foundNode !== undefined) {
-          return {
-            ...node,
-            x: node.x + delta.x,
-            y: node.y + delta.y,
-          };
-        }
-        return { ...node };
-      }),
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: previousNodesState.map((node) => {
+          const foundNode = nodes.find(
+            (payloadNode) => payloadNode.attrs.id === node.id,
+          );
+          if (foundNode !== undefined) {
+            return {
+              ...node,
+              x: node.x + delta.x,
+              y: node.y + delta.y,
+            };
+          }
+          return { ...node };
+        }),
+      },
     };
   },
 
@@ -522,21 +613,26 @@ const reducers = {
       delta,
     } = payload;
 
+    const { expressionTreeEditor } = state;
+    const { nodes: previousNodesState } = expressionTreeEditor;
     return {
       ...state,
-      nodes: state.nodes.map((node) => {
-        const foundNode = nodes.find(
-          (payloadNode) => payloadNode.attrs.id === node.id,
-        );
-        if (foundNode !== undefined) {
-          return {
-            ...node,
-            x: node.x + delta.x,
-            y: node.y + delta.y,
-          };
-        }
-        return { ...node };
-      }),
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        nodes: previousNodesState.map((node) => {
+          const foundNode = nodes.find(
+            (payloadNode) => payloadNode.attrs.id === node.id,
+          );
+          if (foundNode !== undefined) {
+            return {
+              ...node,
+              x: node.x + delta.x,
+              y: node.y + delta.y,
+            };
+          }
+          return { ...node };
+        }),
+      },
     };
   },
 };

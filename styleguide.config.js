@@ -1,6 +1,6 @@
 const path = require('path');
 const pkg = require('./package.json');
-const webpackConfig = require('./webpack.config.js');
+const webpackConfig = require('./styleguide.webpack.config.js');
 
 module.exports = {
   title: `${pkg.name} v${pkg.version}`,

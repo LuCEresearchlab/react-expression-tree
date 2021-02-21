@@ -145,3 +145,25 @@ Example without initial state:
   initialState={{}}
 />
 ```
+
+Example with external context
+
+```jsx
+import ActivityStateManager from '../../../tests/components/ActivityStateManager';
+import actions from '../../store/actions/index';
+import { reducers } from '../../store/reducers/index';
+import defaultState from '../../store/initialState';
+import context from '../../../tests/components/ActivityStateContext';
+
+;
+<ActivityStateManager
+  actions={actions}
+  reducers={reducers}
+  defaultState={defaultState}
+>
+  <ExpressionTreeEditor
+    height={700}
+    context={context}
+  />
+</ActivityStateManager>
+```

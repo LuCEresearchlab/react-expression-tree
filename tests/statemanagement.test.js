@@ -10,18 +10,20 @@ import {
 import reducer from '../src/store/reducers';
 
 let state = {
-  nodes: [],
-  edges: [],
-  dragEdge: null,
-  selectedNode: null,
-  selectedEdge: null,
-  selectedRootNode: null,
+  expressionTreeEditor: {
+    nodes: [],
+    edges: [],
+    dragEdge: null,
+    selectedNode: null,
+    selectedEdge: null,
+    selectedRootNode: null,
 
-  addingNode: false,
-  addValue: [],
-  editValue: [],
-  typeValue: '',
-  nodeValue: '',
+    addingNode: false,
+    addValue: [],
+    editValue: [],
+    typeValue: '',
+    nodeValue: '',
+  },
 };
 
 describe('lookup functions', () => {
@@ -135,7 +137,7 @@ describe('editor reducer', () => {
         isFinal: false,
       },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1,
         pieces,
@@ -157,7 +159,7 @@ describe('editor reducer', () => {
         isFinal: false,
       },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1, pieces, x: 10, y: 20, type: '', value: '', isFinal: false,
       },
@@ -176,7 +178,7 @@ describe('editor reducer', () => {
         isFinal: false,
       },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1, pieces, x: 10, y: 20, type: '', value: '', isFinal: false,
       },
@@ -198,7 +200,7 @@ describe('editor reducer', () => {
         isFinal: true,
       },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1, pieces, x: 10, y: 20, type: '', value: '', isFinal: false,
       },
@@ -229,7 +231,7 @@ describe('editor reducer', () => {
         selectedNodeId: 1,
       },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -279,7 +281,7 @@ describe('editor reducer', () => {
       type: 'addEdge',
       payload: { edge: edge1 },
     });
-    expect(state.edges).toEqual([{ id: 1, ...edge1 }]);
+    expect(state.expressionTreeEditor.edges).toEqual([{ id: 1, ...edge1 }]);
     const edge2 = {
       childNodeId: 3,
       parentNodeId: 2,
@@ -289,7 +291,7 @@ describe('editor reducer', () => {
       type: 'addEdge',
       payload: { edge: edge2 },
     });
-    expect(state.edges).toEqual([
+    expect(state.expressionTreeEditor.edges).toEqual([
       { id: 1, ...edge1 },
       { id: 2, ...edge2 },
     ]);
@@ -302,7 +304,7 @@ describe('editor reducer', () => {
       type: 'addEdge',
       payload: { edge: edge3 },
     });
-    expect(state.edges).toEqual([
+    expect(state.expressionTreeEditor.edges).toEqual([
       { id: 1, ...edge1 },
       { id: 2, ...edge2 },
       { id: 3, ...edge3 },
@@ -320,7 +322,7 @@ describe('editor reducer', () => {
       type: 'updateEdge',
       payload: { edgeId: 3, newEdge: newEdge3 },
     });
-    expect(state.edges).toEqual([
+    expect(state.expressionTreeEditor.edges).toEqual([
       {
         id: 1, childNodeId: 2, parentNodeId: 1, parentPieceId: 1,
       },
@@ -338,25 +340,25 @@ describe('editor reducer', () => {
       type: 'selectNode',
       payload: { selectedNode: { id: 2 } },
     });
-    expect(state.selectedNode.id).toEqual(2);
+    expect(state.expressionTreeEditor.selectedNode.id).toEqual(2);
     state = reducer(state, {
       type: 'clearNodeSelection',
     });
-    expect(state.selectedNode).toEqual(null);
+    expect(state.expressionTreeEditor.selectedNode).toEqual(null);
   });
 
   it('should handle selectRootNode, clearRootSelection', () => {
-    const selectedRootNode = nodeById(1, state.nodes);
+    const selectedRootNode = nodeById(1, state.expressionTreeEditor.nodes);
     state = reducer(state, {
       type: 'selectRootNode',
       payload: { selectedRootNode },
     });
-    expect(state.selectedRootNode).toEqual(selectedRootNode);
+    expect(state.expressionTreeEditor.selectedRootNode).toEqual(selectedRootNode);
     state = reducer(state, {
       type: 'clearRootSelection',
       payload: {},
     });
-    expect(state.selectedRootNode).toEqual(null);
+    expect(state.expressionTreeEditor.selectedRootNode).toEqual(null);
   });
 
   it('should handle selectEdge, clearEdgeSelection', () => {
@@ -364,11 +366,11 @@ describe('editor reducer', () => {
       type: 'selectEdge',
       payload: { selectedEdge: { id: 1 } },
     });
-    expect(state.selectedEdge.id).toEqual(1);
+    expect(state.expressionTreeEditor.selectedEdge.id).toEqual(1);
     state = reducer(state, {
       type: 'clearEdgeSelection',
     });
-    expect(state.selectedEdge).toEqual(null);
+    expect(state.expressionTreeEditor.selectedEdge).toEqual(null);
   });
 
   it('should handle moveNodeTo', () => {
@@ -376,7 +378,7 @@ describe('editor reducer', () => {
       type: 'moveNodeTo',
       payload: { nodeId: 3, x: 30, y: 40 },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -418,7 +420,7 @@ describe('editor reducer', () => {
       type: 'moveNodeTo',
       payload: { nodeId: 1, x: 40, y: 30 },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -472,9 +474,9 @@ describe('editor reducer', () => {
       type: 'setDragEdge',
       payload: { dragEdge: dragEdge1 },
     });
-    expect(state.dragEdge).toEqual({ ...dragEdge1 });
+    expect(state.expressionTreeEditor.dragEdge).toEqual({ ...dragEdge1 });
     state = reducer(state, { type: 'clearDragEdge' });
-    expect(state.dragEdge).toEqual(null);
+    expect(state.expressionTreeEditor.dragEdge).toEqual(null);
     const dragEdge2 = {
       originalEdgeId: 3,
       updateParent: false,
@@ -489,7 +491,7 @@ describe('editor reducer', () => {
       type: 'setDragEdge',
       payload: { dragEdge: dragEdge2 },
     });
-    expect(state.dragEdge).toEqual({ ...dragEdge2 });
+    expect(state.expressionTreeEditor.dragEdge).toEqual({ ...dragEdge2 });
   });
 
   it('should handle moveDragEdgeParentEndTo', () => {
@@ -497,14 +499,14 @@ describe('editor reducer', () => {
       type: 'moveDragEdgeParentEndTo',
       payload: { x: 10, y: 20 },
     });
-    expect(state.dragEdge.parentX).toEqual(10);
-    expect(state.dragEdge.parentY).toEqual(20);
+    expect(state.expressionTreeEditor.dragEdge.parentX).toEqual(10);
+    expect(state.expressionTreeEditor.dragEdge.parentY).toEqual(20);
     state = reducer(state, {
       type: 'moveDragEdgeParentEndTo',
       payload: { x: 100, y: 200 },
     });
-    expect(state.dragEdge.parentX).toEqual(100);
-    expect(state.dragEdge.parentY).toEqual(200);
+    expect(state.expressionTreeEditor.dragEdge.parentX).toEqual(100);
+    expect(state.expressionTreeEditor.dragEdge.parentY).toEqual(200);
   });
 
   it('should handle moveDragEdgeChildEndTo', () => {
@@ -512,14 +514,14 @@ describe('editor reducer', () => {
       type: 'moveDragEdgeChildEndTo',
       payload: { x: 10, y: 20 },
     });
-    expect(state.dragEdge.childX).toEqual(10);
-    expect(state.dragEdge.childY).toEqual(20);
+    expect(state.expressionTreeEditor.dragEdge.childX).toEqual(10);
+    expect(state.expressionTreeEditor.dragEdge.childY).toEqual(20);
     state = reducer(state, {
       type: 'moveDragEdgeChildEndTo',
       payload: { x: 100, y: 200 },
     });
-    expect(state.dragEdge.childX).toEqual(100);
-    expect(state.dragEdge.childY).toEqual(200);
+    expect(state.expressionTreeEditor.dragEdge.childX).toEqual(100);
+    expect(state.expressionTreeEditor.dragEdge.childY).toEqual(200);
   });
 
   it('should handle removeEdge', () => {
@@ -527,7 +529,7 @@ describe('editor reducer', () => {
       type: 'removeEdge',
       payload: { edgeId: 3 },
     });
-    expect(state.edges).toEqual([
+    expect(state.expressionTreeEditor.edges).toEqual([
       {
         id: 1, childNodeId: 2, parentNodeId: 1, parentPieceId: 1,
       },
@@ -545,7 +547,7 @@ describe('editor reducer', () => {
         selectedNodeId: 2,
       },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -583,7 +585,7 @@ describe('editor reducer', () => {
         isFinal: true,
       },
     ]);
-    expect(state.edges).toEqual([
+    expect(state.expressionTreeEditor.edges).toEqual([
       {
         id: 1, childNodeId: 2, parentNodeId: 1, parentPieceId: 1,
       },
@@ -595,7 +597,7 @@ describe('editor reducer', () => {
       type: 'removeNode',
       payload: { nodeId: 2 },
     });
-    expect(state.nodes).toEqual([
+    expect(state.expressionTreeEditor.nodes).toEqual([
       {
         id: 1,
         pieces: ['a', '{{}}', 'b'],
@@ -624,7 +626,7 @@ describe('editor reducer', () => {
         isFinal: true,
       },
     ]);
-    expect(state.edges).toEqual([]);
+    expect(state.expressionTreeEditor.edges).toEqual([]);
   });
 
   it('should handle stageReset', () => {
@@ -632,7 +634,7 @@ describe('editor reducer', () => {
       type: 'stageReset',
       payload: { initialNodes: [], initialEdges: [] },
     });
-    expect(state).toEqual({
+    expect(state.expressionTreeEditor).toEqual({
       nodes: [],
       edges: [],
       dragEdge: null,
@@ -653,19 +655,19 @@ describe('drawer reducer', () => {
     state = reducer(state, {
       type: 'addingNodeClick',
     });
-    expect(state.addingNode).toEqual(true);
+    expect(state.expressionTreeEditor.addingNode).toEqual(true);
     state = reducer(state, {
       type: 'addingNodeClick',
     });
-    expect(state.addingNode).toEqual(false);
+    expect(state.expressionTreeEditor.addingNode).toEqual(false);
     state = reducer(state, {
       type: 'addingNodeClick',
     });
-    expect(state.addingNode).toEqual(true);
+    expect(state.expressionTreeEditor.addingNode).toEqual(true);
     state = reducer(state, {
       type: 'clearAdding',
     });
-    expect(state.addingNode).toEqual(false);
+    expect(state.expressionTreeEditor.addingNode).toEqual(false);
   });
 
   it('should handle addValueChange', () => {
@@ -673,7 +675,7 @@ describe('drawer reducer', () => {
       type: 'addValueChange',
       payload: { addValue: ['a', '{{}}', 'b'] },
     });
-    expect(state.addValue).toEqual(['a', '{{}}', 'b']);
+    expect(state.expressionTreeEditor.addValue).toEqual(['a', '{{}}', 'b']);
   });
 
   it('should handle editValueChange', () => {
@@ -681,7 +683,7 @@ describe('drawer reducer', () => {
       type: 'editValueChange',
       payload: { editValue: ['a', '{{}}', 'c'] },
     });
-    expect(state.editValue).toEqual(['a', '{{}}', 'c']);
+    expect(state.expressionTreeEditor.editValue).toEqual(['a', '{{}}', 'c']);
   });
 
   it('should handle typeValueChange', () => {
@@ -689,7 +691,7 @@ describe('drawer reducer', () => {
       type: 'typeValueChange',
       payload: { typeValue: 'String' },
     });
-    expect(state.typeValue).toEqual('String');
+    expect(state.expressionTreeEditor.typeValue).toEqual('String');
   });
 
   it('should handle nodeValueChange', () => {
@@ -697,6 +699,6 @@ describe('drawer reducer', () => {
       type: 'nodeValueChange',
       payload: { nodeValue: '"Hello World!' },
     });
-    expect(state.nodeValue).toEqual('"Hello World!');
+    expect(state.expressionTreeEditor.nodeValue).toEqual('"Hello World!');
   });
 });

@@ -4,12 +4,14 @@ const reducers = {
       stagePos,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    return {
       ...state,
-      stagePos,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        stagePos,
+      },
     };
-
-    return newState;
   },
 
   setStageScale: (state, payload) => {
@@ -17,12 +19,14 @@ const reducers = {
       stageScale,
     } = payload;
 
-    const newState = {
+    const { expressionTreeEditor } = state;
+    return {
       ...state,
-      stageScale,
+      expressionTreeEditor: {
+        ...expressionTreeEditor,
+        stageScale,
+      },
     };
-
-    return newState;
   },
 };
 

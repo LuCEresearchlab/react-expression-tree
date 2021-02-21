@@ -122,15 +122,15 @@ export function importState(
 }
 
 // Function that computes the last occupied node id
-export function maxNodeId(state) {
-  return state.nodes
+export function maxNodeId(nodes) {
+  return nodes
     .map((n) => n.id)
     .reduce((id1, id2) => Math.max(id1, id2), 0);
 }
 
 // Function that computes the last occupied edge id
-export function maxEdgeId(state) {
-  return state.edges
+export function maxEdgeId(edges) {
+  return edges
     .map((e) => e.id)
     .reduce((id1, id2) => Math.max(id1, id2), 0);
 }
