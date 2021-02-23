@@ -1,4 +1,4 @@
-import { useContext, useReducer, useMemo } from 'react';
+import { useReducer, useMemo } from 'react';
 
 import actions from '../store/actions';
 import reducer from '../store/reducers';
@@ -19,12 +19,6 @@ function useStore(ctx, connectorPlaceholder) {
     });
     return temp;
   }, [dispatch]);
-
-  const context = useContext(ctx || {});
-
-  if (ctx && context.ready) {
-    return [context.expressionTreeEditor, context];
-  }
 
   return [store.expressionTreeEditor, storeActions];
 }

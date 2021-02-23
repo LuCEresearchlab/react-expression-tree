@@ -80,7 +80,8 @@ function ExpressionTreeEditor({
   const selectedRectRef = useRef();
   const transformerRef = useRef();
 
-  const [store, actions] = useStore(context, connectorPlaceholder);
+  const [store, actions] = useStore(connectorPlaceholder);
+
   const {
     nodes,
     edges,
