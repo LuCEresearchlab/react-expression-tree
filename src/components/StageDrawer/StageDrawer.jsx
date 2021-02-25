@@ -1579,60 +1579,56 @@ function StageDrawer({
                     ))}
                   </RadioGroup>
                 </div>
-                {typeValue
-                  && nodeTypes.find((nodeType) => nodeType.type === typeValue)
-                    .any && (
-                    <div className={classes.drawerField}>
-                      <TextField
-                        key={selectedNode.id}
-                        ref={valueFieldRef}
-                        id="valueField"
-                        variant="outlined"
-                        type="search"
-                        fullWidth
-                        size="medium"
-                        placeholder="ex: 1234567890"
-                        margin="dense"
-                        label="Insert the node's value"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        onChange={(e) => nodeValueChange({ nodeValue: e.target.value })}
-                        onKeyPress={(e) => {
-                          if (
-                            e.key === 'Enter'
-                            && nodeValue !== selectedNode.value
-                          ) {
-                            nodeValueEdit({
-                              value: nodeValue,
-                              selectedNodeId: selectedNode.id,
-                              onNodeValueChange,
-                              onStateChange,
-                            });
-                          }
-                        }}
-                      />
-                      <div>
-                        <Tooltip title="Update node value" placement="top">
-                          <span>
-                            <IconButton
-                              size="medium"
-                              color="primary"
-                              disabled={nodeValue === selectedNode.value}
-                              onClick={() => nodeValueEdit({
-                                value: nodeValue,
-                                selectedNodeId: selectedNode.id,
-                                onNodeValueChange,
-                                onStateChange,
-                              })}
-                            >
-                              <UpdateRounded />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </div>
-                    </div>
-                )}
+                <div className={classes.drawerField}>
+                  <TextField
+                    key={selectedNode.id}
+                    ref={valueFieldRef}
+                    id="valueField"
+                    variant="outlined"
+                    type="search"
+                    fullWidth
+                    size="medium"
+                    placeholder="ex: 1234567890"
+                    margin="dense"
+                    label="Insert the node's value"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    onChange={(e) => nodeValueChange({ nodeValue: e.target.value })}
+                    onKeyPress={(e) => {
+                      if (
+                        e.key === 'Enter'
+                        && nodeValue !== selectedNode.value
+                      ) {
+                        nodeValueEdit({
+                          value: nodeValue,
+                          selectedNodeId: selectedNode.id,
+                          onNodeValueChange,
+                          onStateChange,
+                        });
+                      }
+                    }}
+                  />
+                  <div>
+                    <Tooltip title="Update node value" placement="top">
+                      <span>
+                        <IconButton
+                          size="medium"
+                          color="primary"
+                          disabled={nodeValue === selectedNode.value}
+                          onClick={() => nodeValueEdit({
+                            value: nodeValue,
+                            selectedNodeId: selectedNode.id,
+                            onNodeValueChange,
+                            onStateChange,
+                          })}
+                        >
+                          <UpdateRounded />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </div>
+                </div>
                 {/* Node value editing field */}
                 {typeValue
                   && nodeTypes.find((nodeType) => nodeType.type === typeValue)
