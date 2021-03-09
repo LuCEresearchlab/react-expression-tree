@@ -1,24 +1,53 @@
-const initialState = {
-  expressionTreeEditor: {
+function createInitialState(
+  nodes,
+  selectedNode,
+  edges,
+  selectedEdge,
+  selectedRootNode,
+  stagePos,
+  stageScale,
+  connectorPlaceholder,
+  placeholderWidth,
+  fontSize,
+  fontFamily,
+) {
+  return {
     // Global
-    connectorPlaceholder: '{{}}',
+    fontSize: fontSize || 24,
+    fontFamily: fontFamily || 'Roboto Mono, Courier',
+    connectorPlaceholder: connectorPlaceholder || '{{}}',
+    placeholderWidth: placeholderWidth || 16,
+    isDraggingNode: false,
     // Stage
-    stagePos: { x: 0, y: 0 },
-    stageScale: { x: 1, y: 1 },
+    isFullScreen: false,
+    stagePos: stagePos || { x: 0, y: 0 },
+    stageScale: stageScale || { x: 1, y: 1 },
     // Tree
-    nodes: [],
-    edges: [],
+    nodes: nodes || [],
+    edges: edges || [],
     dragEdge: null,
-    selectedNode: null,
-    selectedEdge: null,
-    selectedRootNode: null,
+    selectedNode: selectedNode || null,
+    selectedEdge: selectedEdge || null,
+    selectedRootNode: selectedRootNode || null,
     // Drawer
-    addingNode: false,
-    addValue: [],
-    editValue: [],
-    typeValue: '',
-    nodeValue: '',
-  },
-};
+    isDrawerOpen: true,
+    addEdgeErrorMessage: '',
+    isAddEdgeErrorSnackbarOpen: false,
+    isCreatingNode: false,
+    isSelectedNodeEditable: {
+      label: false,
+      type: false,
+      value: false,
+    },
+    createNodeInputValue: '',
+    editLabelInputValue: '',
+    editTypeInputValue: '',
+    editValueInputValue: '',
+    // Errors
+    isValidationDialogOpen: false,
+    validationErrors: [],
+    currentError: undefined,
+  };
+}
 
-export default initialState;
+export default createInitialState;

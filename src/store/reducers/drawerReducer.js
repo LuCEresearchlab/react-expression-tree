@@ -1,80 +1,75 @@
+/* eslint-disable arrow-body-style */
 const reducers = {
   // Invert the addingNode state
-  addingNodeClick: (state) => {
-    const { expressionTreeEditor } = state;
-    const { addingNode } = expressionTreeEditor;
+  toggleIsCreatingNode: (state) => {
+    const { isCreatingNode } = state;
     return {
       ...state,
-      expressionTreeEditor: {
-        ...expressionTreeEditor,
-        addingNode: !addingNode,
-      },
+      isCreatingNode: !isCreatingNode,
     };
   },
 
-  // Clear addingNode state
-  clearAdding: (state) => {
-    const { expressionTreeEditor } = state;
+  clearIsCreatingNode: (state) => ({
+    ...state,
+    isCreatingNode: false,
+  }),
+
+  toggleDrawer: (state) => {
+    const { isDrawerOpen } = state;
+
     return {
       ...state,
-      expressionTreeEditor: {
-        ...expressionTreeEditor,
-        addingNode: false,
-      },
+      isDrawerOpen: !isDrawerOpen,
     };
   },
 
   // Handle addValue changes
-  addValueChange: (state, payload) => {
-    const { addValue } = payload;
-    const { expressionTreeEditor } = state;
+  setCreateNodeInputValue: (state, payload) => {
+    const { createNodeInputValue } = payload;
     return {
       ...state,
-      expressionTreeEditor: {
-        ...expressionTreeEditor,
-        addValue,
-      },
+      createNodeInputValue,
     };
   },
 
-  // Handle editValue changes
-  editValueChange: (state, payload) => {
-    const { editValue } = payload;
-    const { expressionTreeEditor } = state;
+  setEditLabelInputValue: (state, payload) => {
+    const { editLabelInputValue } = payload;
     return {
       ...state,
-      expressionTreeEditor: {
-        ...expressionTreeEditor,
-        editValue,
-      },
+      editLabelInputValue,
     };
   },
 
-  // Handle typeValue changes
-  typeValueChange: (state, payload) => {
-    const { typeValue } = payload;
-    const { expressionTreeEditor } = state;
+  setEditTypeInputValue: (state, payload) => {
+    const { editTypeInputValue } = payload;
     return {
       ...state,
-      expressionTreeEditor: {
-        ...expressionTreeEditor,
-        typeValue,
-      },
+      editTypeInputValue,
     };
   },
 
-  // Handle nodeValue changes
-  nodeValueChange: (state, payload) => {
-    const { nodeValue } = payload;
-    const { expressionTreeEditor } = state;
+  setEditValueInputValue: (state, payload) => {
+    const { editValueInputValue } = payload;
     return {
       ...state,
-      expressionTreeEditor: {
-        ...expressionTreeEditor,
-        nodeValue,
-      },
+      editValueInputValue,
     };
   },
+
+  setAddEdgeErrorSnackbarMessage: (state, payload) => {
+    const { addEdgeErrorMessage } = payload;
+    return {
+      ...state,
+      addEdgeErrorMessage,
+      isAddEdgeErrorSnackbarOpen: true,
+      dragEdge: null,
+    };
+  },
+
+  toggleIsAddEdgeErrorSnackbarOpen: (state) => ({
+    ...state,
+    isAddEdgeErrorSnackbarOpen: false,
+  }),
 };
 
 export default reducers;

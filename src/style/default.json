@@ -54,7 +54,7 @@
     "strokeSize": 6,
     "color": "#000000",
     "selectedColor": "#f2d200",
-    "draggingColor": "#f0f0f0",
+    "draggingColor": "#f2d280",
     "errorColor": "#ff2f2f",
     "connector": {
       "child": {
@@ -62,7 +62,7 @@
         "color": "#555555",
         "emptyColor": "black",
         "selectedColor": "#f2a200",
-        "draggingColor": "#f0f0f0",
+        "draggingColor": "#f2d280",
         "errorColor": "#ff2f2f",
         "strokeSize": 1,
         "strokeColor": "#000000"
@@ -71,7 +71,7 @@
         "radiusSize": 6,
         "color": "#555555",
         "selectedColor": "#f2a200",
-        "draggingColor": "#f0f0f0",
+        "draggingColor": "#f2d280",
         "errorColor": "#ff2f2f",
         "strokeSize": 1,
         "strokeColor": "#000000"

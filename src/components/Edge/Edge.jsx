@@ -1,97 +1,127 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Line, Circle, Group } from 'react-konva';
 
 import defaultStyle from '../../style/default.json';
 
+import {
+  nodeById,
+  nodePositionById,
+} from '../../utils/tree';
+
 function Edge({
   id,
-  childX,
-  childY,
+  nodes,
   childNodeId,
-  childWidth,
-  parentX,
-  parentY,
   parentNodeId,
   parentPieceId,
-  parentPieceX,
   isDragged,
   isFullDisabled,
   isDraggingSelectionRect,
   isSelected,
-  selectedEdgeRef,
-  setSelectedEdgeRef,
-  clearEdgeSelection,
   currentErrorLocation,
   nodePaddingX,
   nodePaddingY,
-  onEdgeClick,
-  onNodeConnectorDragStart,
-  onPlaceholderConnectorDragStart,
+  handleEdgeClick,
+  handleConnectorDragStart,
+  handleConnectorDragMove,
+  handleConnectorDragEnd,
+  computeLabelPiecesXCoordinatePositions,
   setCursor,
   placeholderWidth,
   fontSize,
   style,
 }) {
-  const startX = useMemo(() => childX + childWidth / 2,
-    [childX, childWidth]);
-  const startY = useMemo(() => childY,
-    [childY]);
-  const endX = useMemo(() => parentX + nodePaddingX + parentPieceX + placeholderWidth / 2,
-    [parentX, nodePaddingX, parentPieceX, placeholderWidth]);
-  const endY = useMemo(() => parentY + nodePaddingY + fontSize / 2,
-    [parentY, nodePaddingY, fontSize]);
+  const [
+    startX,
+    startY,
+    endX,
+    endY,
+  ] = useMemo(() => {
+    const {
+      width,
+    } = nodeById(childNodeId, nodes);
+    const {
+      pieces: parentPieces,
+    } = nodeById(parentNodeId, nodes);
+    const parentPieceX = computeLabelPiecesXCoordinatePositions(parentPieces)[parentPieceId];
+    const { x: childX, y: childY } = nodePositionById(childNodeId, nodes);
+    const { x: parentX, y: parentY } = nodePositionById(parentNodeId, nodes);
 
-  // Handle drag start event on edge's node connector end
-  const handleNodeConnectorDragStart = (e) => {
-    // prevent onDragStart of Group
+    return [
+      childX + width / 2,
+      childY,
+      parentX + nodePaddingX + parentPieceX + placeholderWidth / 2,
+      parentY + nodePaddingY + fontSize / 2,
+    ];
+  }, [
+    nodes,
+    childNodeId,
+    parentNodeId,
+    parentPieceId,
+    nodePaddingX,
+    nodePaddingY,
+    placeholderWidth,
+    fontSize,
+  ]);
+
+  const handleNodeConnectorDragStart = useCallback((e) => {
     e.cancelBubble = true;
-    setCursor('grabbing');
-    if (selectedEdgeRef) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-      clearEdgeSelection();
-    }
-    // we don't want the connector to be moved
     e.target.stopDrag();
-    // but we want to initiate the moving around of the connection
-    onNodeConnectorDragStart(childNodeId, e.target.x(), e.target.y());
-  };
+
+    if (isFullDisabled) {
+      return;
+    }
+
+    handleConnectorDragStart(
+      false,
+      childNodeId,
+      e.target.x(),
+      e.target.y(),
+    );
+  });
 
   // Handle drag start event on edge's placeholder connector end
-  const handlePlaceholderConnectorDragStart = (e) => {
-    // prevent onDragStart of Group
+  const handlePlaceholderConnectorDragStart = useCallback((e) => {
     e.cancelBubble = true;
-    setCursor('grabbing');
-    if (selectedEdgeRef) {
-      selectedEdgeRef.moveToBottom();
-      setSelectedEdgeRef(null);
-      clearEdgeSelection();
-    }
-    // we don't want the connector to be moved
     e.target.stopDrag();
-    // but we want to initiate the moving around of the connection
-    onPlaceholderConnectorDragStart(
+
+    if (isFullDisabled) {
+      return;
+    }
+
+    handleConnectorDragStart(
+      true,
       parentNodeId,
-      parentPieceId,
       e.target.parent.x() + e.target.x() + placeholderWidth / 2,
       e.target.parent.y() + e.target.y() + placeholderWidth * 0.75,
+      parentPieceId,
     );
-  };
+  });
 
-  const handleMouseOverLine = (e) => {
+  const handleMouseOverLine = useCallback((e) => {
     e.cancelBubble = true;
+    if (isFullDisabled) {
+      return;
+    }
+
     if (!isDraggingSelectionRect) {
       setCursor('pointer');
     }
-  };
+  });
 
-  const handleMouseOverCircle = (e) => {
+  const handleMouseOverCircle = useCallback((e) => {
     e.cancelBubble = true;
+    if (isFullDisabled) {
+      return;
+    }
+
     if (!isDraggingSelectionRect) {
       setCursor('grab');
     }
-  };
+  });
+
+  const onEdgeClick = useCallback((e) => handleEdgeClick(e, id));
 
   /**
    * Compute color given a style object
@@ -117,8 +147,8 @@ function Edge({
     <Group
       id={id}
       name="Edge"
-      onClick={!isFullDisabled && onEdgeClick}
-      onTap={isFullDisabled && onEdgeClick}
+      onClick={onEdgeClick}
+      onTap={onEdgeClick}
     >
       <Line
         key={`edge-${id}`}
@@ -126,7 +156,7 @@ function Edge({
         stroke={computeColor(style)}
         strokeWidth={style.strokeSize}
         hitStrokeWidth={10}
-        onMouseOver={!isFullDisabled && handleMouseOverLine}
+        onMouseOver={handleMouseOverLine}
       />
       <Circle
         x={startX}
@@ -135,12 +165,12 @@ function Edge({
         fill={computeColor(style.connector.child)}
         stroke={style.connector.child.strokeColor}
         strokeWidth={style.connector.child.strokeSize}
-        draggable
-        onDragStart={!isFullDisabled && handleNodeConnectorDragStart}
-        onTouchStart={!isFullDisabled && handleNodeConnectorDragStart}
-        onMouseOver={!isFullDisabled && handleMouseOverCircle}
-        onDragMove={() => {}}
-        onDragEnd={() => {}}
+        draggable={!isFullDisabled}
+        onDragStart={handleNodeConnectorDragStart}
+        onTouchStart={handleNodeConnectorDragStart}
+        onMouseOver={handleMouseOverCircle}
+        onDragMove={handleConnectorDragMove}
+        onDragEnd={handleConnectorDragEnd}
       />
       <Circle
         x={endX}
@@ -149,12 +179,12 @@ function Edge({
         fill={computeColor(style.connector.parent)}
         stroke={style.connector.parent.strokeColor}
         strokeWidth={style.connector.parent.strokeSize}
-        draggable
-        onDragStart={!isFullDisabled && handlePlaceholderConnectorDragStart}
-        onTouchStart={!isFullDisabled && handleNodeConnectorDragStart}
-        onMouseOver={!isFullDisabled && handleMouseOverCircle}
-        onDragMove={() => {}}
-        onDragEnd={() => {}}
+        draggable={!isFullDisabled}
+        onDragStart={handlePlaceholderConnectorDragStart}
+        onTouchStart={handleNodeConnectorDragStart}
+        onMouseOver={handleMouseOverCircle}
+        onDragMove={handleConnectorDragMove}
+        onDragEnd={handleConnectorDragEnd}
       />
     </Group>
   );
@@ -162,33 +192,29 @@ function Edge({
 
 Edge.propTypes = {
   id: PropTypes.number.isRequired,
-  childX: PropTypes.number.isRequired,
-  childY: PropTypes.number.isRequired,
+  nodes: PropTypes.arrayOf(PropTypes.shape({
+    pieces: PropTypes.arrayOf(PropTypes.string),
+    x: PropTypes.number,
+    y: PropTypes.number,
+    type: PropTypes.string,
+    value: PropTypes.string,
+    isFinal: PropTypes.bool,
+  })),
   childNodeId: PropTypes.number.isRequired,
-  childWidth: PropTypes.number.isRequired,
-  parentX: PropTypes.number.isRequired,
-  parentY: PropTypes.number.isRequired,
   parentNodeId: PropTypes.number.isRequired,
   parentPieceId: PropTypes.number.isRequired,
-  parentPieceX: PropTypes.number.isRequired,
   isDragged: PropTypes.bool,
   isFullDisabled: PropTypes.bool,
   isSelected: PropTypes.bool,
   isDraggingSelectionRect: PropTypes.bool,
-  selectedEdgeRef: PropTypes.shape({
-    moveToBottom: PropTypes.func,
-  }),
-  setSelectedEdgeRef: PropTypes.func,
-  clearEdgeSelection: PropTypes.func,
   currentErrorLocation: PropTypes.shape({
     edge: PropTypes.string,
     edgeId: PropTypes.string,
   }),
   nodePaddingX: PropTypes.number,
   nodePaddingY: PropTypes.number,
-  onEdgeClick: PropTypes.func,
-  onNodeConnectorDragStart: PropTypes.func,
-  onPlaceholderConnectorDragStart: PropTypes.func,
+  handleEdgeClick: PropTypes.func,
+  handleConnectorDragStart: PropTypes.func,
   setCursor: PropTypes.func,
   placeholderWidth: PropTypes.number.isRequired,
   fontSize: PropTypes.number,
@@ -223,19 +249,16 @@ Edge.propTypes = {
 };
 
 Edge.defaultProps = {
+  nodes: [],
   isDragged: false,
   isFullDisabled: false,
   isSelected: false,
   isDraggingSelectionRect: false,
-  selectedEdgeRef: null,
-  setSelectedEdgeRef: () => {},
-  clearEdgeSelection: () => {},
   currentErrorLocation: null,
   nodePaddingX: defaultStyle.node.paddingX,
   nodePaddingY: defaultStyle.node.paddingY,
-  onEdgeClick: () => {},
-  onNodeConnectorDragStart: () => {},
-  onPlaceholderConnectorDragStart: () => {},
+  handleEdgeClick: () => {},
+  handleConnectorDragStart: () => {},
   setCursor: () => {},
   fontSize: defaultStyle.fontSize,
   style: defaultStyle.edge,

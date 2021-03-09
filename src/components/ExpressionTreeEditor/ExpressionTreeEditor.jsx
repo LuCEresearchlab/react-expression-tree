@@ -12,13 +12,14 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 
-// import { useDispatch } from 'react-redux';
-// import { ActionCreators } from 'redux-undo';
+import fscreen from 'fscreen';
+
+import { addMetadataFromBase64DataURI } from 'meta-png';
 
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import Node from '../Node/Node';
 import Edge from '../Edge/Edge';
-import DragEdge from '../Edge/DragEdge/DragEdge';
+import DragEdge from '../DragEdge/DragEdge';
 import StageDrawer from '../StageDrawer/StageDrawer';
 
 import {
@@ -29,71 +30,121 @@ import {
   nodePositionById,
 } from '../../utils/tree';
 
-import createPositionUtils from '../../utils/position';
 import {
+  maxNodeId,
   exportState,
-  importState,
 } from '../../utils/state';
 
+import {
+  checkIsCreatingLoop,
+  checkIsMultiEdgeOnHoleConnector,
+  checkIsMultiEdgeOnNodeConnector,
+  checkSameNodeTarget,
+  checkSamePreviousParent,
+  checkSamePreviousChild,
+} from '../../utils/addEdge';
+
+import useStore from '../../hooks/useStore';
+import useKeypress from '../../hooks/useKeypress';
 import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
 
 import defaultStyle from '../../style/default.json';
 
 import '@fontsource/roboto-mono/300.css';
-import useStore from '../../hooks/useStore';
+
+// Key used to store and retrieve metadata in PNG files.
+const ET_KEY = 'expressiontutor';
 
 function ExpressionTreeEditor({
-  context,
-  initialState,
   width,
   height,
-  toolbarButtons,
-  drawerFields,
-  fullDisabled,
   allowedErrors,
-  reportedErrors,
-  connectorPlaceholder,
+  isFullDisabled,
+  showToolbar,
+  showToolbarButtons,
+  showDrawer,
+  showDrawerSections,
+  reportErrorConfig,
   templateNodes,
-  nodeTypes,
-  // Event Listeners
-  onNodeAdd,
-  onNodeDelete,
-  onNodeSelect,
-  onNodeMove,
-  onNodePiecesChange,
-  onNodeTypeChange,
-  onNodeValueChange,
-  onEdgeAdd,
-  onEdgeDelete,
-  onEdgeUpdate,
-  onEdgeSelect,
+  allowFreeTypeEdit,
+  allowFreeValueEdit,
+  templateNodeTypesAndValues,
+  connectorPlaceholder: propConnectorPlaceholder,
+  nodes: propNodes,
+  selectedNode: propSelectedNode,
+  edges: propEdges,
+  selectedEdge: propSelectedEdge,
+  selectedRootNode: propSelectedRootNode,
+  stagePos: propStagePos,
+  stageScale: propStageScale,
+  // onNodeAdd,
+  // onNodeDelete,
+  // onNodeSelect,
+  // onNodeMove,
+  // onNodePiecesChange,
+  // onNodeTypeChange,
+  // onNodeValueChange,
+  // onEdgeAdd,
+  // onEdgeDelete,
+  // onEdgeUpdate,
+  // onEdgeSelect,
+  // onValidate,
   onStateChange,
-  onValidate,
-  // Style
   style,
 }) {
-  // Refs
   const containerRef = useRef();
+  const containerWidth = useContainerWidthOnWindowResize(containerRef);
+
   const stageRef = useRef();
   const layerRef = useRef();
   const selectionRectRef = useRef();
   const selectedRectRef = useRef();
   const transformerRef = useRef();
 
-  const [store, actions] = useStore(connectorPlaceholder);
+  const { fontSize: propFontSize, fontFamily: propFontFamily } = style;
+  const { width: propPlaceholderWidth } = style.node.placeholder;
+
+  const [store, actions, utils] = useStore({
+    propNodes,
+    propSelectedNode,
+    propEdges,
+    propSelectedEdge,
+    propSelectedRootNode,
+    propStagePos,
+    propStageScale,
+    propConnectorPlaceholder,
+    propPlaceholderWidth,
+    propFontSize,
+    propFontFamily,
+  });
 
   const {
+    fontSize,
+    // fontFamily,
+    connectorPlaceholder,
+    placeholderWidth,
+    isDraggingNode,
+    isFullScreen,
+    stagePos,
+    stageScale,
     nodes,
+    selectedNode,
     edges,
     dragEdge,
-    selectedNode,
-    addingNode,
-    selectedRootNode,
     selectedEdge,
-    addValue,
-    editValue,
-    typeValue,
-    nodeValue,
+    selectedRootNode,
+    isDrawerOpen,
+    isCreatingNode,
+    addEdgeErrorMessage,
+    isAddEdgeErrorSnackbarOpen,
+    isSelectedNodeEditable,
+    createNodeInputValue,
+    editLabelInputValue,
+    editTypeInputValue,
+    editValueInputValue,
+    isValidationDialogOpen,
+    validationErrors,
+    currentError,
   } = store;
 
   const {
@@ -107,42 +158,46 @@ function ExpressionTreeEditor({
     addEdge,
     updateEdge,
     clearDragEdge,
-    clearNodeSelection,
-    addNode,
-    selectNode,
-    clearAdding,
-    editValueChange,
-    typeValueChange,
-    nodeValueChange,
-    selectEdge,
-    clearEdgeSelection,
-    selectRootNode,
-    setInitialState,
     moveSelectedNodesTo,
     moveSelectedNodesToEnd,
-    clearRootSelection,
-    editNode,
-    addingNodeClick,
-    addValueChange,
-    nodeTypeEdit,
-    nodeValueEdit,
-    stageReset,
-    uploadState,
-    reorderNodes,
+
+    // Global
+    setIsDraggingNode,
+    // Drawer
+    toggleIsCreatingNode,
+    clearIsCreatingNode,
+    toggleDrawer,
+    setCreateNodeInputValue,
+    setEditLabelInputValue,
+    setEditTypeInputValue,
+    setEditValueInputValue,
+    setAddEdgeErrorSnackbarMessage,
+    toggleIsAddEdgeErrorSnackbarOpen,
+    // Stage
+    zoomStage,
+    zoomStageWheel,
     setStagePos,
-    setStageScale,
+    setStagePositionAndScale,
+    toggleFullScreen,
+    // Tree
+    stageReset,
+    createNode,
+    setSelectedNode,
+    clearSelectedNode,
+    setSelectedEdge,
+    clearSelectedEdge,
+    setSelectedRootNode,
+    clearSelectedRootNode,
+    editNode,
+    editNodeType,
+    editNodeValue,
+    setOrderedNodes,
+    // Errors
+    closeValidationDialog,
+    setValidationErrors,
+    setPreviousError,
+    setNextError,
   } = actions;
-
-  const { fontSize, fontFamily } = style;
-  const { width: placeholderWidth } = style.node.placeholder;
-
-  // Set the theme primary and secondary colors according to the recived props
-  const theme = useMemo(() => createMuiTheme({
-    palette: {
-      primary: { main: style.toolbar.primaryColor },
-      secondary: { main: style.toolbar.secondaryColor },
-    },
-  }), [style]);
 
   const {
     closestChildId,
@@ -152,17 +207,287 @@ function ExpressionTreeEditor({
     computeLabelPiecesXCoordinatePositions,
     computeNodeWidth,
     parseLabelPieces,
-  } = useMemo(() => createPositionUtils(
-    fontSize,
-    fontFamily,
-    connectorPlaceholder,
-    placeholderWidth,
-  ), [fontSize, fontFamily, connectorPlaceholder, placeholderWidth]);
+    sanitizeNodes,
+    sanitizeEdges,
+    reorderNodes,
+    validateTree,
+  } = utils;
+
+  const computeStageWidth = () => width || containerWidth;
+
+  const handleEditLabelPiecesChange = useCallback(() => {
+    const pieces = parseLabelPieces(editLabelInputValue);
+    editNode({
+      pieces,
+      width: computeNodeWidth(pieces),
+    });
+  });
+
+  const handleEditNodeTypeChange = useCallback((value) => {
+    editNodeType(value);
+  });
+
+  const handleEditNodeValueChange = useCallback((value) => {
+    editNodeValue(value);
+  });
+
+  // Handle stage reset button click, setting the editor state back to the initial state
+  const handleResetState = () => {
+    // TODO improve the stage reset function
+    stageReset({
+      nodes: sanitizeNodes(propNodes),
+      selectedNode: propSelectedNode,
+      edges: sanitizeEdges(propEdges),
+      selectedEdge: propSelectedEdge,
+      selectedRootNode: propSelectedRootNode,
+      stagePos: propStagePos || { x: 0, y: 0 },
+      stageScale: propStageScale || { x: 0, y: 0 },
+      connectorPlaceholder: propConnectorPlaceholder || '{{}}',
+    });
+  };
+
+  // TODO undo / redo
+  const hasStateToUndo = false;
+  const hasStateToRedo = false;
+  const handleUndoButtonAction = useCallback(() => {});
+  const handleRedoButtonAction = useCallback(() => {});
+
+  const handleCreateNode = useCallback(() => {
+    const pointerPos = stageRef.current.getPointerPosition();
+    const labelPieces = parseLabelPieces(createNodeInputValue);
+    const nodeWidth = computeNodeWidth(
+      labelPieces,
+    );
+    const id = maxNodeId(nodes) + 1;
+    createNode({
+      id,
+      pieces: labelPieces,
+      x: (pointerPos.x - stagePos.x) / stageScale.x,
+      y: (pointerPos.y - stagePos.y) / stageScale.y,
+      width: nodeWidth,
+      type: '',
+      value: '',
+      isFinal: false,
+    });
+  });
+
+  const handleZoomOutButtonAction = useCallback(() => {
+    zoomStage(0.8);
+  });
+
+  const handleZoomInButtonAction = useCallback(() => {
+    zoomStage(1.2);
+  });
+
+  const handleStageWheel = (e) => {
+    e.evt.preventDefault();
+    if (isFullDisabled) {
+      return;
+    }
+
+    const { current } = stageRef;
+
+    const zoomMultiplier = e.evt.deltaY < 0 ? 1.10 : 0.90;
+    const oldScale = current.scaleX();
+    const newScale = oldScale * zoomMultiplier;
+
+    const pointerPos = current.getPointerPosition();
+
+    const mousePointTo = {
+      x: (pointerPos.x - current.x()) / oldScale,
+      y: (pointerPos.y - current.y()) / oldScale,
+    };
+
+    const newPosition = {
+      x: pointerPos.x - mousePointTo.x * newScale,
+      y: pointerPos.y - mousePointTo.y * newScale,
+    };
+
+    zoomStageWheel({
+      stageScale: { x: newScale, y: newScale },
+      stagePos: newPosition,
+    });
+  };
+
+  // Handle zoom to fit and centering button click.
+  // The stage scale will be adapted to the ratio between
+  // the nodes bounding rectangle and the stage size,
+  // then the stage will be repositioned,
+  // in order to have all the nodes inside the viewport
+  const handleZoomToFitButtonAction = () => {
+    const padding = 100;
+
+    const box = layerRef.current.getClientRect({
+      relativeTo: stageRef.current,
+    });
+
+    const scale = Math.min(
+      stageRef.current.width() / (box.width + padding * 2),
+      stageRef.current.height() / (box.height + padding * 2),
+    );
+
+    const x = -box.x * scale + padding * scale;
+    const y = -box.y * scale + padding * scale;
+
+    setStagePositionAndScale({
+      stageScale: { x: scale, y: scale },
+      stagePos: { x, y },
+    });
+  };
+
+  const handleReorderNodesButtonAction = useCallback(() => {
+    const orderedNodes = reorderNodes(
+      nodes,
+      edges,
+      selectedRootNode,
+    );
+
+    const position = { x: 0, y: 0 };
+    const scale = { x: 1, y: 1 };
+
+    setOrderedNodes({
+      nodes: orderedNodes,
+      stagePos: position,
+      stageScale: scale,
+    });
+  });
+
+  const handleValidateTreeButtonAction = useCallback(() => {
+    if (selectedRootNode !== undefined && selectedRootNode !== null) {
+      const rootNode = nodeById(selectedRootNode, nodes);
+      const [errors] = validateTree(
+        reportErrorConfig,
+        rootNode,
+        nodes,
+        edges,
+      );
+      setValidationErrors(errors);
+    }
+  });
+
+  const handleUploadStateButtonAction = useCallback(({
+    nodes: uploadNodes,
+    edges: uploadEdges,
+    selectedRootNode: uploadSelectedRootNode,
+    stagePos: uploadStagePos,
+    stageScale: uploadStageScale,
+    connectorPlaceholder: uploadConnectorPlaceholder,
+  }) => {
+    stageReset({
+      nodes: uploadNodes,
+      edges: uploadEdges,
+      selectedRootNode: uploadSelectedRootNode,
+      stagePos: uploadStagePos,
+      stageScale: uploadStageScale,
+      connectorPlaceholder: uploadConnectorPlaceholder,
+    });
+  });
+
+  // Prepare the UI for image download (e.g., hiding unwanted nodes).
+  // Should be called with inverse is false (default behavior) before downloading,
+  // and with inverse === true after the download to reset the status.
+  const handlePrepareUIForImageDownload = useCallback((inverse = false) => {
+    stageRef.current.find('.deleteButton').visible(inverse);
+  });
+
+  // downloading the image of the current visible stage portion
+  // Moreover, embed the state in a custom PNG metadata chunk, serializing the current editor state
+  // (note: only nodes, edges, placeholder, selected root node, stage position and stage scale
+  // are serialized)
+  const handleTakeScreenshotButtonAction = useCallback(() => {
+    handlePrepareUIForImageDownload();
+    const currentState = {
+      nodes,
+      edges,
+      selectedRootNode,
+      stagePos,
+      stageScale,
+      connectorPlaceholder,
+    };
+
+    if (typeof document !== 'undefined') {
+      const jsonRepr = JSON.stringify(currentState, null, 0);
+      const downloadElement = document.createElement('a');
+      const imageBase64 = stageRef.current.toDataURL({ pixelRatio: 2 });
+      downloadElement.href = addMetadataFromBase64DataURI(imageBase64, ET_KEY, jsonRepr);
+      downloadElement.download = 'expression_editor_image.png';
+      document.body.appendChild(downloadElement);
+      downloadElement.click();
+      downloadElement.remove();
+      handlePrepareUIForImageDownload(true);
+    }
+  });
+
+  const handleFullScreenButtonAction = useCallback(() => {
+    if (!fscreen.fullscreenElement) {
+      fscreen.requestFullscreen(containerRef.current);
+      toggleFullScreen();
+    } else {
+      fscreen.exitFullscreen();
+      toggleFullScreen();
+    }
+  });
+
+  useEffect(() => {
+    if (stageRef && stageRef.current) {
+      stageRef.current.scale(stageScale);
+      stageRef.current.batchDraw();
+    }
+  }, [stageScale]);
+
+  useEffect(() => {
+    if (stageRef && stageRef.current) {
+      stageRef.current.position(stagePos);
+      stageRef.current.batchDraw();
+    }
+  }, [stagePos]);
+
+  useEffect(() => {
+    stageRef.current.find('.Edge').toArray().forEach((edge) => {
+      if (edge.attrs.id === selectedEdge) {
+        edge.moveToTop();
+      } else {
+        edge.moveToBottom();
+      }
+    });
+  }, [selectedEdge]);
+
+  useEffect(() => {
+    if (validationErrors.length > 0
+        && currentError !== undefined
+        && currentError !== null) {
+      const errorType = validationErrors[currentError].currentErrorLocation;
+      if (errorType.node
+          || errorType.pieceConnector
+          || errorType.nodeConnector) {
+        const currentNode = stageRef.current
+          .find('.Node')
+          .toArray()
+          .find(
+            (node) => node.attrs.id === errorType.nodeId,
+          );
+        currentNode.parent.moveToTop();
+      } else if (errorType.edge) {
+        const currentEdge = stageRef.current
+          .find('.Edge')
+          .toArray()
+          .find(
+            (edge) => edge.attrs.id === errorType.edgeId,
+          );
+        currentEdge.moveToTop();
+      }
+    }
+  }, [validationErrors, currentError]);
+
+  // Set the theme primary and secondary colors according to the received props
+  const theme = useMemo(() => createMuiTheme({
+    palette: {
+      primary: { main: style.toolbar.primaryColor },
+      secondary: { main: style.toolbar.secondaryColor },
+    },
+  }), [style]);
 
   // State hooks
-  const containerWidth = useContainerWidthOnWindowResize(containerRef);
-  const [selectedEdgeRef, setSelectedEdgeRef] = useState(null);
-  const [isPressingMetaOrShift, setIsPressingMetaOrShift] = useState(false);
   const [isDraggingSelectionRect, setIsDraggingSelectionRect] = useState(false);
   const [isSelectingRectVisible, setIsSelectingRectVisible] = useState(false);
   const [isSelectedRectVisible, setIsSelectedRectVisible] = useState(false);
@@ -174,7 +499,6 @@ function ExpressionTreeEditor({
     x: 0,
     y: 0,
   });
-  const [currentErrorLocation, setCurrentErrorLocation] = useState({});
 
   useEffect(() => {
     if (onStateChange) onStateChange(exportState(store));
@@ -182,207 +506,93 @@ function ExpressionTreeEditor({
     nodes,
     edges,
     selectedRootNode,
+    stagePos,
+    stageScale,
     connectorPlaceholder,
   ]);
-
-  useEffect(() => {
-    importState(
-      initialState,
-      uploadState,
-      selectedEdgeRef,
-      setSelectedEdgeRef,
-      addValueChange,
-      editValueChange,
-      typeValueChange,
-      nodeValueChange,
-      // setSelectedTemplate,
-      stageRef,
-      transformerRef,
-      setIsSelectedRectVisible,
-      // setInitialState,
-      computeNodeWidth,
-    );
-  }, [initialState, setInitialState, computeNodeWidth]);
 
   const setCursor = useCallback((cursor) => {
     containerRef.current.style.cursor = cursor;
   }, []);
 
-  const handleKeyDown = (e) => {
-    if (e.currentTarget === e.target) {
-      if (e.key === 'Backspace' || e.key === 'Delete') {
-        if (selectedNode && !selectedNode.isFinal) {
-          clearNodeSelection();
-          removeNode({
-            nodeId: selectedNode.id,
-            onNodeDelete,
-            onStateChange,
-          });
-        } else if (selectedEdge) {
-          setSelectedEdgeRef(null);
-          clearEdgeSelection();
-          removeEdge({
-            edgeId: selectedEdge.id,
-            onEdgeDelete,
-            onStateChange,
-          });
-        }
-      } else if (e.key === 'Escape') {
-        if (addingNode) {
-          clearAdding();
-        } else if (selectedNode) {
-          clearNodeSelection();
-        } else if (selectedEdge) {
-          selectedEdgeRef.moveToBottom();
-          setSelectedEdgeRef(null);
-          clearEdgeSelection();
-        }
-      } else if (e.key === 'Meta' || e.key === 'Shift') {
-        setCursor('grab');
-        setIsPressingMetaOrShift(true);
-      }
-    }
-  };
+  const {
+    isBackpasceOrDeleteKeyPressed,
+    isMetaOrShiftKeyPressed,
+    isEscapedKeyPressed,
+  } = useKeypress(containerRef, isFullDisabled);
 
-  const handleKeyUp = (e) => {
-    if (e.currentTarget === e.target) {
-      if (e.key === 'Meta' || e.key === 'Shift') {
-        setCursor('move');
-        setIsSelectingRectVisible(false);
-        setIsDraggingSelectionRect(false);
-        const allNodes = stageRef.current.find('.Node').toArray();
-        const box = selectionRectRef.current.getClientRect();
-        const intersectingNodes = allNodes.filter((node) => Konva.Util.haveIntersection(box, node.getClientRect()));
-        intersectingNodes.map((intersectingNode) => intersectingNode.parent.moveToTop());
-        selectedRectRef.current.moveToTop();
-        transformerRef.current.nodes(intersectingNodes);
-        setIsSelectedRectVisible(true);
-        selectedRectRef.current.moveToTop();
-        setIsPressingMetaOrShift(false);
-      }
-    }
-  };
-
-  // TODO Can this be removed?
-  // const onFocus = () => {
-  //   setCursor('move');
-  //   setIsSelectingRectVisible(false);
-  //   setIsDraggingSelectionRect(false);
-  //   setIsPressingMetaOrShift(false);
-  // };
-
-  // Check if the edge that is going to be added/updated is going to create a loop
-  // in the tree, by checking if we get to an already visited node on the walking branch
-  // while performing an in order tree walk
-  function checkIsCreatingLoop(node, visitedBranch, creatingLoop) {
-    visitedBranch.push(node.id);
-    node.pieces.forEach((piece, i) => {
-      if (piece === connectorPlaceholder) {
-        const childEdges = edgeByParentPiece(node.id, i, edges);
-        childEdges.forEach((edge) => {
-          const childNode = nodeById(edge.childNodeId, nodes);
-          if (visitedBranch.find((e) => e === childNode.id) !== undefined) {
-            creatingLoop = true;
-            return [visitedBranch, creatingLoop];
-          }
-          [visitedBranch, creatingLoop] = checkIsCreatingLoop(
-            childNode,
-            visitedBranch,
-            creatingLoop,
+  const handleConnectorDragStart = useCallback((isParent, nodeId, x, y, pieceId) => {
+    if (!isMetaOrShiftKeyPressed) {
+      if (!isParent) {
+        const edge = edgeByChildNode(nodeId, edges)[0];
+        if (edge) {
+          const parentPieceX = computeLabelPiecesXCoordinatePositions(
+            nodeById(edge.parentNodeId, nodes).pieces,
+          )[edge.parentPieceId];
+          const parentPos = computeEdgeParentPos(
+            edge.parentNodeId,
+            parentPieceX,
+            nodes,
+            style.fontSize,
+            style.node.placeholder.width,
           );
-        });
+          const newDragEdge = {
+            originalEdgeId: edge.id,
+            updateParent: false,
+            parentNodeId: edge.parentNodeId,
+            parentPieceId: edge.parentPieceId,
+            parentX: parentPos.x,
+            parentY: parentPos.y - fontSize / 2,
+            childX: x,
+            childY: y,
+          };
+          setDragEdge({ dragEdge: newDragEdge });
+        } else {
+          const newDragEdge = {
+            originalEdgeId: null,
+            updateParent: true,
+            childNodeId: nodeId,
+            childX: x,
+            childY: y,
+            parentX: x,
+            parentY: y,
+          };
+          setDragEdge({ dragEdge: newDragEdge });
+        }
+      } else {
+        const edge = edgeByParentPiece(nodeId, pieceId, edges)[0];
+        if (edge) {
+          const childPos = computeEdgeChildPos(edge.childNodeId, nodes);
+          const newDragEdge = {
+            originalEdgeId: edge.id,
+            updateParent: true,
+            childNodeId: edge.childNodeId,
+            childX: childPos.x,
+            childY: childPos.y,
+            parentX: x,
+            parentY: y,
+          };
+          setDragEdge({ dragEdge: newDragEdge });
+        } else {
+          const newDragEdge = {
+            originalEdgeId: null,
+            updateParent: false,
+            parentNodeId: nodeId,
+            parentPieceId: pieceId,
+            parentX: x,
+            parentY: y,
+            childX: x,
+            childY: y,
+          };
+          setDragEdge({ dragEdge: newDragEdge });
+        }
       }
-    });
-    visitedBranch.pop();
-    return [visitedBranch, creatingLoop];
-  }
-
-  // Handle drag start event from a node connector by setting up the corresponding DragEdge
-  const handleNodeConnectorDragStart = (nodeId, x, y) => {
-    if (addingNode) {
-      clearAdding();
     }
-    const edge = edgeByChildNode(nodeId, edges)[0];
-    if (edge) {
-      const parentPieceX = computeLabelPiecesXCoordinatePositions(
-        nodeById(edge.parentNodeId, nodes).pieces,
-      )[edge.parentPieceId];
-      const parentPos = computeEdgeParentPos(
-        edge.parentNodeId,
-        parentPieceX,
-        nodes,
-        style.fontSize,
-        style.node.placeholder.width,
-      );
-      const newDragEdge = {
-        originalEdgeId: edge.id,
-        updateParent: false,
-        parentNodeId: edge.parentNodeId,
-        parentPieceId: edge.parentPieceId,
-        parentX: parentPos.x,
-        parentY: parentPos.y - fontSize / 2,
-        childX: x,
-        childY: y,
-      };
-      setDragEdge({ dragEdge: newDragEdge });
-    } else {
-      const newDragEdge = {
-        originalEdgeId: null,
-        updateParent: true,
-        childNodeId: nodeId,
-        childX: x,
-        childY: y,
-        parentX: x,
-        parentY: y,
-      };
-      setDragEdge({ dragEdge: newDragEdge });
-    }
-  };
+  });
 
-  // Handle drag start event from a node hole connector by setting up the corresponding DragEdge
-  const handlePlaceholderConnectorDragStart = (nodeId, pieceId, x, y) => {
-    if (addingNode) {
-      clearAdding();
-    }
-
-    const edge = edgeByParentPiece(nodeId, pieceId, edges)[0];
-    if (edge) {
-      const childPos = computeEdgeChildPos(edge.childNodeId, nodes);
-      const newDragEdge = {
-        originalEdgeId: edge.id,
-        updateParent: true,
-        childNodeId: edge.childNodeId,
-        childX: childPos.x,
-        childY: childPos.y,
-        parentX: x,
-        parentY: y,
-      };
-      setDragEdge({ dragEdge: newDragEdge });
-    } else {
-      const newDragEdge = {
-        originalEdgeId: null,
-        updateParent: false,
-        parentNodeId: nodeId,
-        parentPieceId: pieceId,
-        parentX: x,
-        parentY: y,
-        childX: x,
-        childY: y,
-      };
-      setDragEdge({ dragEdge: newDragEdge });
-    }
-  };
-
-  // Handle maouse move envents on stage checking if we are dragging a DragEdge,
-  // moving the correct DragEdge end, or if we are dragging the multiple selection
-  // rectangle while pressing a meta key
-  const handleStageMouseMove = (e) => {
-    e.cancelBubble = true;
+  const handleConnectorDragMove = useCallback(() => {
+    const pointerPos = stageRef.current.getPointerPosition();
     if (dragEdge) {
-      setCursor('grabbing');
-      const stagePos = stageRef.current.absolutePosition();
-      const pointerPos = stageRef.current.getPointerPosition();
-      const stageScale = stageRef.current.scale();
       if (dragEdge.updateParent) {
         moveDragEdgeParentEndTo({
           x: (pointerPos.x - stagePos.x) / stageScale.x,
@@ -394,272 +604,318 @@ function ExpressionTreeEditor({
           y: (pointerPos.y - stagePos.y) / stageScale.y,
         });
       }
-    }
-    if (isDraggingSelectionRect && isPressingMetaOrShift) {
-      setCursor('grabbing');
-      const stagePos = stageRef.current.absolutePosition();
-      const pointerPos = stageRef.current.getPointerPosition();
-      const stageScale = stageRef.current.scale();
+    } else if (isDraggingSelectionRect) {
       setSelectionRectEndPos({
         x: (pointerPos.x - stagePos.x) / stageScale.x,
         y: (pointerPos.y - stagePos.y) / stageScale.y,
       });
     }
-  };
+  });
+
+  const handleConnectorDragEnd = useCallback(() => {
+    if (!dragEdge) {
+      return;
+    }
+
+    const rejectCallback = (error) => {
+      setAddEdgeErrorSnackbarMessage(error.message);
+    };
+
+    const fulfillUpdate = (edgeId, edge) => {
+      updateEdge({
+        edgeId,
+        newEdge: edge,
+      });
+    };
+
+    const fulfillNewEdge = (edge) => {
+      addEdge({ edge });
+    };
+
+    const pointerPos = stageRef.current.getPointerPosition();
+    const {
+      updateParent: isParentTheTarget,
+      originalEdgeId: oldEdgeId,
+    } = dragEdge;
+
+    if (isParentTheTarget) {
+      const targetParentPiece = closestParentPiece(
+        (pointerPos.x - stagePos.x) / stageScale.x,
+        (pointerPos.y - stagePos.y) / stageScale.y,
+        nodes,
+      );
+
+      // If the edge already existed
+      if (oldEdgeId !== null && oldEdgeId !== undefined) {
+        const oldEdge = edgeById(oldEdgeId, edges);
+
+        // If it does not point to a valid target, remove the edge
+        if (targetParentPiece === null || !targetParentPiece === undefined) {
+          removeEdge(oldEdgeId);
+          return;
+        }
+
+        const newEdge = {
+          id: oldEdgeId,
+          childNodeId: oldEdge.childNodeId,
+          parentNodeId: targetParentPiece.parentNodeId,
+          parentPieceId: targetParentPiece.parentPieceId,
+        };
+
+        checkSamePreviousParent(oldEdge, targetParentPiece)
+          .then(() => checkSameNodeTarget(targetParentPiece, dragEdge.childNodeId))
+          .then(() => checkIsMultiEdgeOnHoleConnector(
+            allowedErrors.multiEdgeOnHoleConnector,
+            targetParentPiece,
+            edges,
+          ))
+          .then(() => checkIsCreatingLoop(
+            allowedErrors.loop,
+            nodeById(oldEdge.childNodeId, nodes),
+            [targetParentPiece.parentNodeId],
+            edges,
+            nodes,
+            connectorPlaceholder,
+          ))
+          .then(() => fulfillUpdate(oldEdgeId, newEdge))
+          .catch(rejectCallback);
+      } else {
+        // If the edge is new and does not point to a target piece, do nothing
+        if (targetParentPiece === null || !targetParentPiece === undefined) {
+          clearDragEdge();
+          return;
+        }
+
+        const newEdge = {
+          childNodeId: dragEdge.childNodeId,
+          parentNodeId: targetParentPiece.parentNodeId,
+          parentPieceId: targetParentPiece.parentPieceId,
+        };
+
+        checkSameNodeTarget(targetParentPiece, newEdge.childNodeId)
+          .then(() => checkIsMultiEdgeOnHoleConnector(
+            allowedErrors.multiEdgeOnHoleConnector,
+            targetParentPiece,
+            edges,
+          ))
+          .then(() => checkIsCreatingLoop(
+            allowedErrors.loop,
+            nodeById(newEdge.childNodeId, nodes),
+            [targetParentPiece.parentNodeId],
+            edges,
+            nodes,
+            connectorPlaceholder,
+          ))
+          .then(() => fulfillNewEdge(newEdge))
+          .catch(rejectCallback);
+      }
+    } else {
+      const targetChildId = closestChildId(
+        (pointerPos.x - stagePos.x) / stageScale.x,
+        (pointerPos.y - stagePos.y) / stageScale.y,
+        nodes,
+      );
+
+      // If the edge already existed
+      if (oldEdgeId !== null && oldEdgeId !== undefined) {
+        const oldEdge = edgeById(oldEdgeId, edges);
+
+        // If it does not point to a valid target, remove the edge
+        if (targetChildId === null || targetChildId === undefined) {
+          removeEdge(oldEdgeId);
+          return;
+        }
+
+        const newEdge = {
+          id: oldEdgeId,
+          parentNodeId: oldEdge.parentNodeId,
+          parentPieceId: oldEdge.parentPieceId,
+          childNodeId: targetChildId,
+        };
+
+        checkSamePreviousChild(oldEdge, targetChildId)
+          .then(() => checkSameNodeTarget(oldEdge, targetChildId))
+          .then(() => checkIsMultiEdgeOnNodeConnector(
+            allowedErrors.multiEdgeOnNodeConnector,
+            targetChildId,
+            edges,
+          ))
+          .then(() => checkIsCreatingLoop(
+            allowedErrors.loop,
+            nodeById(targetChildId, nodes),
+            [oldEdge.parentNodeId],
+            edges,
+            nodes,
+            connectorPlaceholder,
+          ))
+          .then(() => fulfillUpdate(oldEdgeId, newEdge))
+          .catch(rejectCallback);
+      } else {
+        // If it does not point to a valid target, do nothing
+        if (targetChildId === null || targetChildId === undefined) {
+          removeEdge(oldEdgeId);
+          return;
+        }
+
+        const newEdge = {
+          parentNodeId: dragEdge.parentNodeId,
+          parentPieceId: dragEdge.parentPieceId,
+          childNodeId: targetChildId,
+        };
+
+        checkSameNodeTarget(newEdge, targetChildId)
+          .then(() => checkIsMultiEdgeOnNodeConnector(
+            allowedErrors.multiEdgeOnHoleConnector,
+            targetChildId,
+            edges,
+          ))
+          .then(() => checkIsCreatingLoop(
+            allowedErrors.loop,
+            nodeById(targetChildId, nodes),
+            [newEdge.parentNodeId],
+            edges,
+            nodes,
+            connectorPlaceholder,
+          ))
+          .then(() => fulfillNewEdge(newEdge))
+          .catch(rejectCallback);
+      }
+    }
+  });
+
+  const handleNodeDragStart = useCallback((e) => {
+    if (isFullDisabled) {
+      return;
+    }
+
+    if (!isMetaOrShiftKeyPressed) {
+      transformerRef.current.nodes([]);
+      e.currentTarget.moveToTop();
+      setIsDraggingNode(true);
+    } else {
+      e.target.stopDrag();
+    }
+  });
+
+  const handleNodeDragMove = useCallback((e, nodeId) => {
+    e.cancelBubble = true;
+    if (isFullDisabled) {
+      return;
+    }
+
+    if (isDraggingNode) {
+      const x = e.target.x();
+      const y = e.target.y();
+      moveNodeTo({ nodeId, x, y });
+    }
+  });
+
+  const handleNodeDragEnd = useCallback((e, nodeId) => {
+    e.cancelBubble = true;
+    if (isFullDisabled) {
+      return;
+    }
+
+    if (isDraggingNode) {
+      const x = e.target.x();
+      const y = e.target.y();
+      moveNodeToEnd({
+        nodeId,
+        x,
+        y,
+      });
+    }
+  });
+
+  useEffect(() => {
+    if (isBackpasceOrDeleteKeyPressed) {
+      if (selectedNode !== null && selectedNode !== undefined) {
+        // TODO cannot remove with delete
+        // if (!nodeById(selectedNode, nodes).isFinal) {
+        //   removeNode(selectedNode);
+        // }
+      } else if (selectedEdge !== null && selectedEdge !== undefined) {
+        removeEdge(selectedEdge);
+      }
+    }
+  }, [isBackpasceOrDeleteKeyPressed]);
+
+  useEffect(() => {
+    if (isEscapedKeyPressed) {
+      if (isCreatingNode) {
+        clearIsCreatingNode();
+      } else if (selectedNode !== undefined && selectedNode !== null) {
+        clearSelectedNode();
+      } else if (selectedEdge !== undefined && selectedEdge !== null) {
+        clearSelectedEdge();
+      }
+    }
+  }, [isEscapedKeyPressed]);
+
+  useEffect(() => {
+    if (isMetaOrShiftKeyPressed) {
+      setCursor('grab');
+    } else {
+      setCursor('move');
+    }
+  }, [isMetaOrShiftKeyPressed]);
+
+  const handleNodeClick = useCallback((e, nodeId) => {
+    e.cancelBubble = true;
+    if (isFullDisabled) {
+      return;
+    }
+
+    if (!isMetaOrShiftKeyPressed) {
+      transformerRef.current.nodes([]);
+      if (isCreatingNode) {
+        handleCreateNode();
+      } else {
+        e.currentTarget.moveToTop();
+        const selectingNode = nodeById(nodeId, nodes);
+        if (selectedNode !== selectingNode.id) {
+          setSelectedNode(selectingNode.id);
+        }
+      }
+    }
+  });
+
+  const handleNodeDblClick = useCallback((nodeId) => {
+    if (isFullDisabled) {
+      return;
+    }
+
+    if (nodeId === selectedRootNode) {
+      clearSelectedRootNode();
+    } else {
+      setSelectedRootNode(nodeId);
+    }
+  });
+
+  const handleEdgeClick = useCallback((e, edgeId) => {
+    if (isFullDisabled) {
+      return;
+    }
+
+    if (isCreatingNode) {
+      handleCreateNode();
+    } else {
+      e.cancelBubble = true;
+      if (selectedEdge === undefined || selectedEdge === null || selectedEdge !== edgeId) {
+        setSelectedEdge(edgeId);
+      }
+    }
+  });
 
   // Handle stage mouse up event adding/updating an edge if we were dragging a DragEdge,
   // otherwise set up the multiple selection created dragging the selection rectangle
   const handleStageMouseUp = (e) => {
     e.cancelBubble = true;
-    if (dragEdge) {
-      const stagePos = stageRef.current.absolutePosition();
-      const pointerPos = stageRef.current.getPointerPosition();
-      const stageScale = stageRef.current.scale();
-      // If we are dragging the DragEdge from a hole connector
-      if (dragEdge.updateParent) {
-        const parentPiece = closestParentPiece(
-          (pointerPos.x - stagePos.x) / stageScale.x,
-          (pointerPos.y - stagePos.y) / stageScale.y,
-          nodes,
-        );
-        // If we are updating an already existing edge
-        if (dragEdge.originalEdgeId) {
-          const originalEdge = edgeById(dragEdge.originalEdgeId, edges);
-          // If we dropped the DragEdge on a valid location
-          if (
-            parentPiece
-            && originalEdge.childNodeId !== parentPiece.parentNodeId
-            && (originalEdge.parentNodeId !== parentPiece.parentNodeId
-              || originalEdge.parentPieceId !== parentPiece.parentPieceId)
-          ) {
-            const foundEdges = edgeByParentPiece(
-              parentPiece.parentNodeId,
-              parentPiece.parentPieceId,
-              edges,
-            );
-            // Check if the connector is empty, or if it is not,
-            // check if we are allowing multiple edges on the same connector
-            if (
-              (foundEdges.length > 0
-                && allowedErrors.multiEdgeOnHoleConnector)
-              || foundEdges.length === 0
-            ) {
-              setCursor('grab');
-              clearDragEdge();
-              setSelectedEdgeRef(null);
-              clearEdgeSelection();
-              const newEdge = {
-                id: originalEdge.id,
-                childNodeId: originalEdge.childNodeId,
-                parentNodeId: parentPiece.parentNodeId,
-                parentPieceId: parentPiece.parentPieceId,
-              };
-              // eslint-disable-next-line no-unused-vars
-              const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
-                nodeById(originalEdge.childNodeId, nodes),
-                [parentPiece.parentNodeId],
-                false,
-              );
-              // Check if the new edge is creating a loop,
-              // if the new edge is not creating a loop,
-              // or if we are allowing loops to be created, complete the edge update
-              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
-                updateEdge({
-                  edgeId: originalEdge.id,
-                  newEdge,
-                  onEdgeUpdate,
-                  onStateChange,
-                });
-                stageRef.current
-                  .find('.Edge')
-                  .toArray()
-                  .map((edge) => edge.moveToBottom());
-              }
-            }
-            // If we are dropping the DragEdge on an invalid location,
-            // clear the DragEdge and remove the original edge
-          } else if (!parentPiece) {
-            setCursor('move');
-            clearDragEdge();
-            setSelectedEdgeRef(null);
-            removeEdge({
-              edgeId: originalEdge.id,
-              onEdgeDelete,
-              onStateChange,
-            });
-          }
-          // If we are dragging from an empty connector without existing edges
-        } else {
-          // If we dropped the DragEdge on a valid location
-          if (
-            parentPiece
-            && dragEdge.childNodeId !== parentPiece.parentNodeId
-          ) {
-            const foundEdges = edgeByParentPiece(
-              parentPiece.parentNodeId,
-              parentPiece.parentPieceId,
-              edges,
-            );
-            // Check if the connector is empty, or if it is not,
-            // check if we are allowing multiple edges on the same connector
-            if (
-              (foundEdges.length > 0
-                && allowedErrors.multiEdgeOnHoleConnector)
-              || foundEdges.length === 0
-            ) {
-              setCursor('grab');
-              const newEdge = {
-                childNodeId: dragEdge.childNodeId,
-                parentNodeId: parentPiece.parentNodeId,
-                parentPieceId: parentPiece.parentPieceId,
-              };
-              clearDragEdge();
-              // eslint-disable-next-line no-unused-vars
-              const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
-                nodeById(dragEdge.childNodeId, nodes),
-                [parentPiece.parentNodeId],
-                false,
-              );
-              // Check if the new edge is creating a loop,
-              // if the new edge is not creating a loop,
-              // or if we are allowing loops to be created, complete the edge adding
-              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
-                addEdge({
-                  edge: newEdge,
-                  onEdgeAdd,
-                  onStateChange,
-                });
-                stageRef.current
-                  .find('.Edge')
-                  .toArray()
-                  .map((edge) => edge.moveToBottom());
-              }
-            }
-            // If we are dropping the DragEdge on an invalid location, clear the DragEdge
-          } else {
-            setCursor('move');
-            clearDragEdge();
-          }
-        }
-        // If we are dragging the DragEdge from a node connector
-      } else {
-        const childNodeId = closestChildId(
-          (pointerPos.x - stagePos.x) / stageScale.x,
-          (pointerPos.y - stagePos.y) / stageScale.y,
-          nodes,
-        );
-        // If we are updating an already existing edge
-        if (dragEdge.originalEdgeId) {
-          const originalEdge = edgeById(dragEdge.originalEdgeId, edges);
-          // If we dropped the DragEdge on a valid location
-          if (
-            childNodeId
-            && childNodeId !== originalEdge.parentNodeId
-            && originalEdge.childNodeId !== childNodeId
-          ) {
-            const foundEdges = edgeByChildNode(childNodeId, edges);
-            // Check if the connector is empty, or if it is not,
-            // check if we are allowing multiple edges on the same connector
-            if (
-              (foundEdges.length > 0
-                && allowedErrors.multiEdgeOnNodeConnector)
-              || foundEdges.length === 0
-            ) {
-              setCursor('grab');
-              clearDragEdge();
-              setSelectedEdgeRef(null);
-              clearEdgeSelection();
-              const newEdge = {
-                id: originalEdge.id,
-                parentNodeId: originalEdge.parentNodeId,
-                parentPieceId: originalEdge.parentPieceId,
-                childNodeId,
-              };
-              // eslint-disable-next-line no-unused-vars
-              const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
-                nodeById(childNodeId, nodes),
-                [originalEdge.parentNodeId],
-                false,
-              );
-              // Check if the new edge is creating a loop,
-              // if the new edge is not creating a loop,
-              // or if we are allowing loops to be created, complete the edge update
-              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
-                updateEdge({
-                  edgeId: dragEdge.originalEdgeId,
-                  newEdge,
-                  onEdgeUpdate,
-                  onStateChange,
-                });
-                stageRef.current
-                  .find('.Edge')
-                  .toArray()
-                  .map((edge) => edge.moveToBottom());
-              }
-            }
-            // If we are dropping the DragEdge on an invalid location,
-            // clear the DragEdge and remove the original edge
-          } else if (!childNodeId) {
-            setCursor('move');
-            clearDragEdge();
-            setSelectedEdgeRef(null);
-            removeEdge({
-              edgeId: originalEdge.id,
-              onEdgeDelete,
-              onStateChange,
-            });
-          }
-          // If we are dragging from an empty connector without existing edges
-        } else {
-          // If we dropped the DragEdge on a valid location
-          if (childNodeId && dragEdge.parentNodeId !== childNodeId) {
-            const foundEdges = edgeByChildNode(childNodeId, edges);
-            // Check if the connector is empty, or if it is not,
-            // check if we are allowing multiple edges on the same connector
-            if (
-              (foundEdges.length > 0
-                && allowedErrors.multiEdgeOnNodeConnector)
-              || foundEdges.length === 0
-            ) {
-              setCursor('grab');
-              const newEdge = {
-                parentNodeId: dragEdge.parentNodeId,
-                parentPieceId: dragEdge.parentPieceId,
-                childNodeId,
-              };
-              clearDragEdge();
-              // eslint-disable-next-line no-unused-vars
-              const [visitedBranch, creatingLoop] = checkIsCreatingLoop(
-                nodeById(childNodeId, nodes),
-                [dragEdge.parentNodeId],
-                false,
-              );
-              // Check if the new edge is creating a loop,
-              // if the new edge is not creating a loop,
-              // or if we are allowing loops to be created, complete the edge adding
-              if ((allowedErrors.loop && creatingLoop) || !creatingLoop) {
-                addEdge({
-                  edge: newEdge,
-                  onEdgeAdd,
-                  onStateChange,
-                });
-                stageRef.current
-                  .find('.Edge')
-                  .toArray()
-                  .map((edge) => edge.moveToBottom());
-              }
-            }
-            // If we are dropping the DragEdge on an invalid location, clear the DragEdge
-          } else {
-            setCursor('move');
-            clearDragEdge();
-          }
-        }
-      }
-      clearDragEdge();
+    if (isFullDisabled) {
+      return;
     }
-    // If we were dragging the multiple selection rectangle
-    if (isDraggingSelectionRect && isPressingMetaOrShift) {
+
+    if (isDraggingSelectionRect && isMetaOrShiftKeyPressed) {
       setCursor('move');
       setIsSelectingRectVisible(false);
       setIsDraggingSelectionRect(false);
@@ -671,167 +927,43 @@ function ExpressionTreeEditor({
       transformerRef.current.nodes(intersectingNodes);
       setIsSelectedRectVisible(true);
       selectedRectRef.current.moveToTop();
+    } else {
+      const newStagePos = stageRef.current.absolutePosition();
+      setStagePos(newStagePos);
     }
   };
 
   // Handle stage click event, if the adding node button has been pressed,
   // add the new node at the clicked location, otherwise clear all selections
-  const handleStageClick = (e) => {
-    if (addingNode) {
-      const stagePos = stageRef.current.absolutePosition();
-      const pointerPos = stageRef.current.getPointerPosition();
-      const stageScale = stageRef.current.scale();
-      const nodeWidth = computeNodeWidth(
-        addValue,
-      );
-      addNode({
-        pieces: addValue,
-        x: (pointerPos.x - stagePos.x) / stageScale.x,
-        y: (pointerPos.y - stagePos.y) / stageScale.y,
-        width: nodeWidth,
-        type: '',
-        value: '',
-        isFinal: false,
-        onNodeAdd,
-        onStateChange,
-      });
-      clearAdding();
+  const handleStageClick = () => {
+    if (isFullDisabled) {
+      return;
+    }
+
+    if (isCreatingNode) {
+      handleCreateNode();
     } else {
       transformerRef.current.nodes([]);
       setIsSelectedRectVisible(false);
-      if (selectedNode) {
-        clearNodeSelection();
+      if (selectedNode !== undefined || selectedNode !== null) {
+        clearSelectedNode();
       }
-      if (selectedEdge) {
-        selectedEdgeRef.moveToBottom();
-        setSelectedEdgeRef(null);
-        clearEdgeSelection();
-      }
-    }
-  };
-
-  // Handle node click event, if the adding node button has been pressed,
-  // add the new node at the clicked location, otherwise select the clicked node,
-  // and setup the edit node field on the side drawer
-  const handleNodeClick = (e, nodeId) => {
-    if (addingNode) {
-      const stagePos = stageRef.current.absolutePosition();
-      const pointerPos = stageRef.current.getPointerPosition();
-      const stageScale = stageRef.current.scale();
-      const nodeWidth = computeNodeWidth(
-        addValue,
-      );
-      addNode({
-        pieces: addValue,
-        x: (pointerPos.x - stagePos.x) / stageScale.x,
-        y: (pointerPos.y - stagePos.y) / stageScale.y,
-        width: nodeWidth,
-        type: '',
-        value: '',
-        isFinal: false,
-        onNodeAdd,
-        onStateChange,
-      });
-      clearAdding();
-    } else {
-      e.currentTarget.moveToTop();
-      const selectingNode = nodeById(nodeId, nodes);
-      if (selectedEdge) {
-        selectedEdgeRef.moveToBottom();
-        setSelectedEdgeRef(null);
-        clearEdgeSelection();
-      }
-      if (!selectedNode || selectedNode.id !== selectingNode.id) {
-        selectNode({
-          selectedNode: selectingNode,
-          onNodeSelect,
-        });
-        if (drawerFields.editField) {
-          if (typeof document !== 'undefined' && !selectingNode.isFinal) {
-            document.getElementById(
-              'editField',
-            ).value = selectingNode.pieces.join('');
-            editValueChange({ editValue: selectingNode.pieces });
-          }
-          typeValueChange({ typeValue: selectingNode.type });
-          if (typeof document !== 'undefined' && document.getElementById('valueField')) {
-            document.getElementById('valueField').value = selectingNode.value;
-          }
-          nodeValueChange({ nodeValue: selectingNode.value });
-        }
-      }
-    }
-  };
-
-  // Handle node double click event, selecting/deselecting the clicked node as root node
-  const handleNodeDblClick = (nodeId) => {
-    if (selectedRootNode && selectedRootNode.id === nodeId) {
-      clearRootSelection({
-        onStateChange,
-      });
-    } else {
-      const selectedRootNode = nodeById(nodeId, nodes);
-      selectRootNode({
-        selectedRootNode,
-        onStateChange,
-      });
-    }
-  };
-
-  // Handle edge click event, if the adding node button has been pressed,
-  // add the new node at the clicked location, otherwise select the clicked edge
-  const handleEdgeClick = (e, edgeId) => {
-    if (addingNode) {
-      const stagePos = stageRef.current.absolutePosition();
-      const pointerPos = stageRef.current.getPointerPosition();
-      const stageScale = stageRef.current.scale();
-      const nodeWidth = computeNodeWidth(
-        addValue,
-      );
-      addNode({
-        pieces: addValue,
-        x: (pointerPos.x - stagePos.x) / stageScale.x,
-        y: (pointerPos.y - stagePos.y) / stageScale.y,
-        width: nodeWidth,
-        type: '',
-        value: '',
-        isFinal: false,
-        onNodeAdd,
-        onStateChange,
-      });
-      clearAdding();
-    } else {
-      e.cancelBubble = true;
-      if (selectedNode) {
-        clearNodeSelection();
-      }
-      if (!selectedEdge) {
-        e.currentTarget.moveToTop();
-        const selectingEdge = edgeById(edgeId, edges);
-        setSelectedEdgeRef(e.currentTarget);
-        selectEdge({ selectedEdge: selectingEdge });
-      } else if (selectedEdgeRef !== e.currentTarget) {
-        selectedEdgeRef.moveToBottom();
-        e.currentTarget.moveToTop();
-        const selectingEdge = edgeById(edgeId, edges);
-        setSelectedEdgeRef(e.currentTarget);
-        selectEdge({
-          selectedEdge: selectingEdge,
-          onEdgeSelect,
-        });
+      if (selectedEdge !== undefined || selectedEdge !== null) {
+        clearSelectedEdge();
       }
     }
   };
 
   // Handle stage mouse down event if we are pressing a meta key,
   // setting up the starting coordinates of the multiple selection rectangle
-  const handleStageMouseDown = (e) => {
-    if (isPressingMetaOrShift) {
+  const handleStageMouseDown = useCallback((e) => {
+    if (isFullDisabled) {
+      return;
+    }
+
+    if (isMetaOrShiftKeyPressed) {
       e.cancelBubble = true;
-      setCursor('grabbing');
-      const stagePos = stageRef.current.absolutePosition();
       const pointerPos = stageRef.current.getPointerPosition();
-      const stageScale = stageRef.current.scale();
       setSelectionRectStartPos({
         x: (pointerPos.x - stagePos.x) / stageScale.x,
         y: (pointerPos.y - stagePos.y) / stageScale.y,
@@ -845,58 +977,17 @@ function ExpressionTreeEditor({
       setIsDraggingSelectionRect(true);
       selectionRectRef.current.moveToTop();
     }
-  };
+  });
 
   // Handle stage drag move event, updating the stage position to the event coordinates
   const handleStageDragMove = (e) => {
     e.cancelBubble = true;
+    if (isFullDisabled) {
+      return;
+    }
+
     const newPos = e.target.absolutePosition();
     stageRef.current.position({ x: newPos.x, y: newPos.y });
-  };
-
-  // Handle stage wheel event, zooming in/out the stage scale according to the pointer position
-  const handleStageWheel = (e) => {
-    clearWheelTimeout();
-    e.evt.preventDefault();
-
-    e.evt.deltaY < 0
-      ? (setCursor('zoom-in'))
-      : (setCursor('zoom-out'));
-
-    const stage = stageRef.current;
-
-    const scaleBy = 1.03;
-    const oldScale = stage.scaleX();
-    const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
-
-    const pointerPos = stage.getPointerPosition();
-
-    const mousePointTo = {
-      x: (pointerPos.x - stage.x()) / oldScale,
-      y: (pointerPos.y - stage.y()) / oldScale,
-    };
-
-    stage.scale({ x: newScale, y: newScale });
-
-    const newPos = {
-      x: pointerPos.x - mousePointTo.x * newScale,
-      y: pointerPos.y - mousePointTo.y * newScale,
-    };
-
-    stage.position(newPos);
-    stage.batchDraw();
-    setWheelTimeout();
-  };
-
-  // Timeout functions to set the cursor back to normal after a wheel event
-  let wheelTimeout;
-  const setWheelTimeout = () => {
-    wheelTimeout = setTimeout(() => {
-      setCursor('move');
-    }, 300);
-  };
-  const clearWheelTimeout = () => {
-    clearTimeout(wheelTimeout);
   };
 
   // Handle drag move event on multiple nodes selection,
@@ -922,13 +1013,8 @@ function ExpressionTreeEditor({
     });
   };
 
-  const computeStageWidth = () => width || containerWidth;
-
   return (
-    // Provide the theme to all the child elements
     <ThemeProvider theme={theme}>
-      {/* Editor container element, necessary for the modals and alerts
-      to appear relative to the container and not relative to the viewport */}
       <div
         ref={containerRef}
         role="tab"
@@ -940,146 +1026,110 @@ function ExpressionTreeEditor({
           backgroundColor: style.container.backgroundColor,
         }}
         tabIndex={0}
-        onKeyDown={!fullDisabled && handleKeyDown}
-        onKeyUp={!fullDisabled && handleKeyUp}
-        onBlur={() => {
-          // TODO: this shoud solve the CMD+Tab issue, but should
-          // be handled better in the future!
-          setIsPressingMetaOrShift(false);
-        }}
       >
-        {/* Top and side bar component */}
         <StageDrawer
           containerRef={containerRef}
-          stageRef={stageRef}
-          layerRef={layerRef}
-          transformerRef={transformerRef}
-          selectedEdgeRef={selectedEdgeRef}
-          setSelectedEdgeRef={setSelectedEdgeRef}
-          setIsSelectedRectVisible={setIsSelectedRectVisible}
-          setCurrentErrorLocation={setCurrentErrorLocation}
-          initialState={initialState}
-          fontSize={style.fontSize}
-          fontFamily={style.fontFamily}
-          yPad={style.node.paddingY}
-          toolbarButtons={toolbarButtons}
-          drawerFields={drawerFields}
-          fullDisabled={fullDisabled}
           connectorPlaceholder={connectorPlaceholder}
+          downloadKey={ET_KEY}
+          isCreatingNode={isCreatingNode}
+          isAddEdgeErrorSnackbarOpen={isAddEdgeErrorSnackbarOpen}
+          isFullDisabled={isFullDisabled}
+          isDrawerOpen={isDrawerOpen}
+          isFullScreen={isFullScreen}
+          isValidationDialogOpen={isValidationDialogOpen}
+          isSelectedNodeEditable={isSelectedNodeEditable}
+          createNodeInputValue={createNodeInputValue}
+          editLabelInputValue={editLabelInputValue}
+          editTypeInputValue={editTypeInputValue}
+          editValueInputValue={editValueInputValue}
+          showToolbar={showToolbar}
+          showToolbarButtons={showToolbarButtons}
+          showDrawer={showDrawer}
+          showDrawerSections={showDrawerSections}
           templateNodes={templateNodes}
-          nodeTypes={nodeTypes}
-          reportedErrors={reportedErrors}
-          onValidate={onValidate}
-          selectedNode={selectedNode}
-          editValue={editValue}
-          addingNode={addingNode}
-          typeValue={typeValue}
-          nodes={nodes}
-          selectedRootNode={selectedRootNode}
-          nodeValue={nodeValue}
-          edges={edges}
-          editNode={editNode}
-          addingNodeClick={addingNodeClick}
-          addValueChange={addValueChange}
-          nodeTypeEdit={nodeTypeEdit}
-          nodeValueEdit={nodeValueEdit}
-          stageReset={stageReset}
-          uploadState={uploadState}
-          reorderNodes={reorderNodes}
-          editValueChange={editValueChange}
-          nodeValueChange={nodeValueChange}
-          typeValueChange={typeValueChange}
-          computeNodeWidth={computeNodeWidth}
-          parseLabelPieces={parseLabelPieces}
-          onNodePiecesChange={onNodePiecesChange}
-          onNodeValueChange={onNodeValueChange}
-          onNodeTypeChange={onNodeTypeChange}
-          onStateChange={onStateChange}
-          // TODO: undo / redo
-          // edges: state.editor.present.edges,
-          // nodes: state.editor.present.nodes,
-          // selectedRootNode: state.editor.present.selectedRootNode,
-          // isAddEmpty: state.drawer.addValue.length < 1,
-          // isEditEmpty: state.drawer.editValue.length < 1,
-          // canUndo: state.editor.past.length > 0,
-          // canRedo: state.editor.future.length > 0,
+          allowFreeTypeEdit={allowFreeTypeEdit}
+          allowFreeValueEdit={allowFreeValueEdit}
+          templateNodeTypesAndValues={templateNodeTypesAndValues}
+          hasStateToUndo={hasStateToUndo}
+          hasStateToRedo={hasStateToRedo}
+          validationErrors={validationErrors}
+          currentError={currentError}
+          addEdgeErrorMessage={addEdgeErrorMessage}
+          closeValidationDialog={closeValidationDialog}
+          toggleDrawer={toggleDrawer}
+          toggleIsCreatingNode={toggleIsCreatingNode}
+          toggleIsAddEdgeErrorSnackbarOpen={toggleIsAddEdgeErrorSnackbarOpen}
+          setCreateNodeInputValue={setCreateNodeInputValue}
+          setEditLabelInputValue={setEditLabelInputValue}
+          setEditTypeInputValue={setEditTypeInputValue}
+          setEditValueInputValue={setEditValueInputValue}
+          handleResetState={handleResetState}
+          handleEditLabelPiecesChange={handleEditLabelPiecesChange}
+          handleEditNodeTypeChange={handleEditNodeTypeChange}
+          handleEditNodeValueChange={handleEditNodeValueChange}
+          handleUndoButtonAction={handleUndoButtonAction}
+          handleRedoButtonAction={handleRedoButtonAction}
+          handleZoomOutButtonAction={handleZoomOutButtonAction}
+          handleZoomInButtonAction={handleZoomInButtonAction}
+          handleZoomToFitButtonAction={handleZoomToFitButtonAction}
+          handleReorderNodesButtonAction={handleReorderNodesButtonAction}
+          handleValidateTreeButtonAction={handleValidateTreeButtonAction}
+          handleUploadStateButtonAction={handleUploadStateButtonAction}
+          handleTakeScreenshotButtonAction={handleTakeScreenshotButtonAction}
+          handleFullScreenButtonAction={handleFullScreenButtonAction}
+          setPreviousError={setPreviousError}
+          setNextError={setNextError}
         />
-        {/* Stage component containing the layer component */}
         <div>
+          {/* Stage component containing the layer component */}
           <Stage
             ref={stageRef}
             width={computeStageWidth()}
             height={height}
-            style={{ cursor: addingNode && 'crosshair' }}
-            onMouseMove={!fullDisabled && handleStageMouseMove}
-            onTouchMove={!fullDisabled && handleStageMouseMove}
-            onMouseUp={!fullDisabled && handleStageMouseUp}
-            onTouchEnd={!fullDisabled && handleStageMouseUp}
-            onClick={!fullDisabled && handleStageClick}
-            onTouchStart={!fullDisabled && handleStageClick}
-            draggable={!isPressingMetaOrShift && !fullDisabled}
-            onMouseDown={!fullDisabled && handleStageMouseDown}
+            style={{ cursor: isCreatingNode && 'crosshair' }}
+            onMouseUp={handleStageMouseUp}
+            onTouchEnd={handleStageMouseUp}
+            onClick={handleStageClick}
+            onTouchStart={handleStageClick}
+            draggable={!isMetaOrShiftKeyPressed && !isFullDisabled}
+            onMouseDown={handleStageMouseDown}
             onDragStart={
-              !fullDisabled
-              && ((e) => {
+              !isFullDisabled
+              && (() => {
                 setCursor('grabbing');
               })
             }
-            onDragMove={!fullDisabled && ((e) => handleStageDragMove(e))}
+            onDragMove={((e) => handleStageDragMove(e))}
             onDragEnd={
-              !fullDisabled
-              && ((e) => {
+              !isFullDisabled
+              && (() => {
                 setCursor('move');
               })
             }
-            onWheel={!fullDisabled && handleStageWheel}
-            onMouseOver={
-              !fullDisabled
-              && ((e) => {
-                setCursor('move');
-              })
-            }
-            onMouseLeave={
-              !fullDisabled
-              && ((e) => {
-                setCursor('default');
-              })
-            }
+            onWheel={handleStageWheel}
           >
-            {/* Layer component containing nodes, edges, dragEdge and selection rectangles components */}
             <Layer ref={layerRef}>
-              {/* Map all the state edges */}
               {edges.map((edge) => (
                 <Edge
                   key={`Edge-${edge.id}`}
                   id={edge.id}
-                  childX={nodePositionById(edge.childNodeId, nodes).x}
-                  childY={nodePositionById(edge.childNodeId, nodes).y}
+                  nodes={nodes}
                   childNodeId={edge.childNodeId}
-                  childWidth={nodeById(edge.childNodeId, nodes).width}
-                  parentX={nodePositionById(edge.parentNodeId, nodes).x}
-                  parentY={nodePositionById(edge.parentNodeId, nodes).y}
                   parentNodeId={edge.parentNodeId}
                   parentPieceId={edge.parentPieceId}
-                  parentPieceX={
-                    computeLabelPiecesXCoordinatePositions(
-                      nodeById(edge.parentNodeId, nodes).pieces,
-                    )[edge.parentPieceId]
-                  }
                   isDragged={dragEdge && dragEdge.originalEdgeId === edge.id}
-                  isFullDisabled={fullDisabled}
+                  isFullDisabled={isFullDisabled}
                   isDraggingSelectionRect={isDraggingSelectionRect}
-                  isSelected={selectedEdge && selectedEdge.id === edge.id}
-                  selectedEdgeRef={selectedEdgeRef}
-                  setSelectedEdgeRef={setSelectedEdgeRef}
-                  clearEdgeSelection={clearEdgeSelection}
-                  currentErrorLocation={currentErrorLocation}
+                  isSelected={edge.id === selectedEdge}
+                  clearEdgeSelection={clearSelectedEdge}
                   nodePaddingX={style.node.paddingX}
                   nodePaddingY={style.node.paddingY}
                   // Event Listeners
-                  onEdgeClick={(e) => handleEdgeClick(e, edge.id)}
-                  onNodeConnectorDragStart={handleNodeConnectorDragStart}
-                  onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
+                  handleEdgeClick={handleEdgeClick}
+                  handleConnectorDragStart={handleConnectorDragStart}
+                  handleConnectorDragMove={handleConnectorDragMove}
+                  handleConnectorDragEnd={handleConnectorDragEnd}
+                  computeLabelPiecesXCoordinatePositions={computeLabelPiecesXCoordinatePositions}
                   setCursor={setCursor}
                   // Style
                   placeholderWidth={style.node.placeholder.width}
@@ -1103,33 +1153,27 @@ function ExpressionTreeEditor({
                   stageWidth={containerWidth}
                   stageHeight={height}
                   transformerRef={transformerRef}
-                  selectedEdgeRef={selectedEdgeRef}
-                  setSelectedEdgeRef={setSelectedEdgeRef}
                   nodeWidth={node.width}
                   edges={edges}
-                  currentErrorLocation={currentErrorLocation}
                   moveNodeTo={moveNodeTo}
                   moveNodeToEnd={moveNodeToEnd}
                   removeNode={removeNode}
-                  clearNodeSelection={clearNodeSelection}
-                  clearEdgeSelection={clearEdgeSelection}
                   computeLabelPiecesXCoordinatePositions={computeLabelPiecesXCoordinatePositions}
                   setCursor={setCursor}
                   isDraggingSelectionRect={isDraggingSelectionRect}
                   isFinal={node.isFinal}
-                  isSelected={selectedNode && selectedNode.id === node.id}
-                  isSelectedRoot={
-                    selectedRootNode && selectedRootNode.id === node.id
-                  }
-                  isPressingMetaOrShift={isPressingMetaOrShift}
-                  isFullDisabled={fullDisabled}
-                  onNodeClick={(e) => handleNodeClick(e, node.id)}
-                  onNodeDblClick={() => handleNodeDblClick(node.id)}
-                  onNodeConnectorDragStart={handleNodeConnectorDragStart}
-                  onPlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
-                  onNodeMove={onNodeMove}
-                  onNodeDelete={onNodeDelete}
-                  onStateChange={onStateChange}
+                  isSelected={node.id === selectedNode}
+                  isSelectedRoot={node.id === selectedRootNode}
+                  isMetaOrShiftKeyPressed={isMetaOrShiftKeyPressed}
+                  isFullDisabled={isFullDisabled}
+                  handleNodeClick={(e) => handleNodeClick(e, node.id)}
+                  handleNodeDblClick={() => handleNodeDblClick(node.id)}
+                  handleNodeDragStart={(e) => handleNodeDragStart(e, node.id)}
+                  handleNodeDragMove={(e) => handleNodeDragMove(e, node.id)}
+                  handleNodeDragEnd={(e) => handleNodeDragEnd(e, node.id)}
+                  handleConnectorDragStart={handleConnectorDragStart}
+                  handleConnectorDragMove={handleConnectorDragMove}
+                  handleConnectorDragEnd={handleConnectorDragEnd}
                   fontSize={style.fontSize}
                   fontFamily={style.fontFamily}
                   nodeStyle={style.node}
@@ -1175,13 +1219,13 @@ function ExpressionTreeEditor({
                 }
                 fill="rgba(255, 255, 255, 0)"
                 visible={isSelectedRectVisible}
-                draggable
-                onMouseEnter={() => {
-                  setCursor('grab');
-                }}
-                onDragStart={() => {
-                  setCursor('grabbing');
-                }}
+                draggable={!isFullDisabled}
+                // onMouseEnter={() => {
+                //   setCursor('grab');
+                // }}
+                // onDragStart={() => {
+                //   setCursor('grabbing');
+                // }}
                 onDragMove={handleSelectedDragMove}
                 onDragEnd={handleSelectedDragEnd}
                 onMouseDown={handleStageMouseDown}
@@ -1227,83 +1271,90 @@ function ExpressionTreeEditor({
 }
 
 ExpressionTreeEditor.propTypes = {
-  context: PropTypes.object,
   width: PropTypes.number,
   height: PropTypes.number,
-
-  connectorPlaceholder: PropTypes.string,
-  fullDisabled: PropTypes.bool,
-  toolbarButtons: PropTypes.objectOf(PropTypes.bool),
-  drawerFields: PropTypes.objectOf(PropTypes.bool),
+  allowedErrors: PropTypes.shape({
+    loop: PropTypes.bool,
+    multiEdgeOnHoleConnector: PropTypes.bool,
+    multiEdgeOnNodeConnector: PropTypes.bool,
+  }),
+  isFullDisabled: PropTypes.bool,
+  reportErrorConfig: PropTypes.shape({
+    structureErrors: {
+      loop: PropTypes.bool,
+      multiEdgeOnHoleConnector: PropTypes.bool,
+      multiEdgeOnNodeConnector: PropTypes.bool,
+    },
+    completenessErrors: {
+      emptyPieceConnector: PropTypes.bool,
+      missingNodeType: PropTypes.bool,
+      missingNodeValue: PropTypes.bool,
+    },
+  }),
+  showToolbar: PropTypes.bool,
+  showToolbarButtons: PropTypes.shape({
+    showDrawerButton: PropTypes.bool,
+    showEditorInfoButton: PropTypes.bool,
+    showStateResetButton: PropTypes.bool,
+    showUndoButton: PropTypes.bool,
+    showRedoButton: PropTypes.bool,
+    showZoomOutButton: PropTypes.bool,
+    showZoomInButton: PropTypes.bool,
+    showZoomToFitButton: PropTypes.bool,
+    showReorderNodesButton: PropTypes.bool,
+    showValidateTreeButton: PropTypes.bool,
+    showUploadStateButton: PropTypes.bool,
+    showTakeScreenshotButton: PropTypes.bool,
+    showFullScreenButton: PropTypes.bool,
+  }),
+  showDrawer: PropTypes.bool,
+  showDrawerSections: PropTypes.shape({
+    addNodeField: PropTypes.bool,
+    templateDropdown: PropTypes.bool,
+    editLabelField: PropTypes.bool,
+    editValueField: PropTypes.bool,
+    editTypeField: PropTypes.bool,
+  }),
   templateNodes: PropTypes.arrayOf(PropTypes.string),
-  nodeTypes: PropTypes.arrayOf(
-    PropTypes.shape({
-      type: PropTypes.string.isRequired,
-      any: PropTypes.bool,
-      fixedValues: PropTypes.arrayOf(PropTypes.string),
-    }),
-  ),
-  allowedErrors: PropTypes.objectOf(PropTypes.bool),
-  reportedErrors: PropTypes.objectOf(PropTypes.objectOf(PropTypes.bool)),
-  initialState: PropTypes.shape({
-    initialNodes: PropTypes.arrayOf(PropTypes.object).isRequired,
-    initialEdges: PropTypes.arrayOf(PropTypes.object).isRequired,
-  }),
-  nodes: PropTypes.arrayOf(
-    PropTypes.shape({
-      pieces: PropTypes.arrayOf(PropTypes.string),
-      x: PropTypes.number,
-      y: PropTypes.number,
-      type: PropTypes.string,
-      value: PropTypes.string,
-      isFinal: PropTypes.bool,
-    }),
-  ),
-  selectedNode: PropTypes.shape({
+  allowFreeTypeEdit: PropTypes.bool,
+  allowFreeValueEdit: PropTypes.bool,
+  templateNodeTypesAndValues: PropTypes.shape({}),
+  nodes: PropTypes.arrayOf(PropTypes.shape({
     pieces: PropTypes.arrayOf(PropTypes.string),
     x: PropTypes.number,
     y: PropTypes.number,
     type: PropTypes.string,
     value: PropTypes.string,
     isFinal: PropTypes.bool,
-  }),
-  selectedRootNode: PropTypes.shape({
-    pieces: PropTypes.arrayOf(PropTypes.string),
+  })),
+  selectedNode: PropTypes.number,
+  edges: PropTypes.arrayOf(PropTypes.shape({
+
+  })),
+  selectedEdge: PropTypes.number,
+  selectedRootNode: PropTypes.number,
+  stagePos: PropTypes.shape({
     x: PropTypes.number,
     y: PropTypes.number,
-    type: PropTypes.string,
-    value: PropTypes.string,
-    isFinal: PropTypes.bool,
   }),
-  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
-  selectedEdge: PropTypes.objectOf(PropTypes.number),
-  dragEdge: PropTypes.shape({
-    originalEdgeId: PropTypes.number,
-    updateParent: PropTypes.bool,
-    parentNodeId: PropTypes.number,
-    parentPieceId: PropTypes.number,
-    parentX: PropTypes.number,
-    parentY: PropTypes.number,
-    childX: PropTypes.number,
-    childY: PropTypes.number,
+  stageScale: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number,
   }),
-  addValue: PropTypes.arrayOf(PropTypes.string),
-  addingNode: PropTypes.bool,
-  // EventListeners
-  onNodeAdd: PropTypes.func,
-  onNodeDelete: PropTypes.func,
-  onNodeSelect: PropTypes.func,
-  onNodeMove: PropTypes.func,
-  onNodePiecesChange: PropTypes.func,
-  onNodeTypeChange: PropTypes.func,
-  onNodeValueChange: PropTypes.func,
-  onEdgeAdd: PropTypes.func,
-  onEdgeDelete: PropTypes.func,
-  onEdgeUpdate: PropTypes.func,
-  onEdgeSelect: PropTypes.func,
+  connectorPlaceholder: PropTypes.string,
+  // onNodeAdd: PropTypes.func,
+  // onNodeDelete: PropTypes.func,
+  // onNodeSelect: PropTypes.func,
+  // onNodeMove: PropTypes.func,
+  // onNodePiecesChange: PropTypes.func,
+  // onNodeTypeChange: PropTypes.func,
+  // onNodeValueChange: PropTypes.func,
+  // onEdgeAdd: PropTypes.func,
+  // onEdgeDelete: PropTypes.func,
+  // onEdgeUpdate: PropTypes.func,
+  // onEdgeSelect: PropTypes.func,
+  // onValidate: PropTypes.func,
   onStateChange: PropTypes.func,
-  onValidate: PropTypes.func,
-  // Style
   style: PropTypes.exact({
     fontSize: PropTypes.number,
     fontFamily: PropTypes.string,
@@ -1413,29 +1464,15 @@ ExpressionTreeEditor.propTypes = {
 };
 
 ExpressionTreeEditor.defaultProps = {
-  context: null,
-  getState: null,
-
   width: null,
   height: '300px',
-
-  connectorPlaceholder: '{{}}',
-  templateNodes: [],
-  initialState: { initialNodes: [], initialEdges: [] },
-  nodeTypes: [
-    { type: 'String', any: true, fixedValues: [] },
-    { type: 'Number', any: true, fixedValues: [] },
-    { type: 'Boolean', any: false, fixedValues: ['true', 'false'] },
-    { type: 'Object', any: true, fixedValues: [] },
-    { type: 'Undefined', any: false, fixedValues: ['undefined'] },
-    { type: 'Null', any: false, fixedValues: ['null'] },
-  ],
   allowedErrors: {
     loop: true,
     multiEdgeOnHoleConnector: true,
     multiEdgeOnNodeConnector: true,
   },
-  reportedErrors: {
+  isFullDisabled: false,
+  reportErrorConfig: {
     structureErrors: {
       loop: true,
       multiEdgeOnHoleConnector: true,
@@ -1447,38 +1484,55 @@ ExpressionTreeEditor.defaultProps = {
       missingNodeValue: true,
     },
   },
-  toolbarButtons: {
-    drawerButton: true,
-    reset: true,
-    undo: true,
-    redo: true,
-    reorder: true,
-    validate: true,
-    upload: true,
-    screenshot: true,
-    zoomIn: true,
-    zoomOut: true,
-    info: true,
-    zoomToFit: true,
-    fullScreen: true,
+  showToolbar: true,
+  showToolbarButtons: {
+    showDrawerButton: true,
+    showEditorInfoButton: true,
+    showStateResetButton: true,
+    showUndoButton: true,
+    showRedoButton: true,
+    showZoomOutButton: true,
+    showZoomInButton: true,
+    showZoomToFitButton: true,
+    showReorderNodesButton: true,
+    showValidateTreeButton: true,
+    showUploadStateButton: true,
+    showTakeScreenshotButton: true,
+    showFullScreenButton: true,
   },
-  drawerFields: { addField: true, editField: true },
-  fullDisabled: false,
-  // Event Listeners
-  onNodeAdd: null,
-  onNodeDelete: null,
-  onNodeSelect: null,
-  onNodeMove: null,
-  onNodePiecesChange: null,
-  onNodeTypeChange: null,
-  onNodeValueChange: null,
-  onEdgeAdd: null,
-  onEdgeDelete: null,
-  onEdgeUpdate: null,
-  onEdgeSelect: null,
+  showDrawer: true,
+  showDrawerSections: {
+    addNodeField: true,
+    templateDropdown: true,
+    editLabelField: true,
+    editValueField: true,
+    editTypeField: true,
+  },
+  templateNodes: undefined,
+  allowFreeTypeEdit: true,
+  allowFreeValueEdit: true,
+  templateNodeTypesAndValues: undefined,
+  connectorPlaceholder: undefined,
+  nodes: [],
+  selectedNode: undefined,
+  edges: [],
+  selectedEdge: undefined,
+  selectedRootNode: undefined,
+  stagePos: undefined,
+  stageScale: undefined,
+  // onNodeAdd: null,
+  // onNodeDelete: null,
+  // onNodeSelect: null,
+  // onNodeMove: null,
+  // onNodePiecesChange: null,
+  // onNodeTypeChange: null,
+  // onNodeValueChange: null,
+  // onEdgeAdd: null,
+  // onEdgeDelete: null,
+  // onEdgeUpdate: null,
+  // onEdgeSelect: null,
+  // onValidate: null,
   onStateChange: null,
-  onValidate: null,
-  // Style
   style: defaultStyle,
 };
 

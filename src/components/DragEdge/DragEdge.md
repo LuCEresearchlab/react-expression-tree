@@ -2,7 +2,7 @@
 import { useRef } from 'react';
 import Konva from 'konva';
 import { Stage, Layer } from 'react-konva';
-import useContainerWidthOnWindowResize from '../../../hooks/useContainerWidthOnWindowResize';
+import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
 
 const containerRef = useRef();
 const width = useContainerWidthOnWindowResize(containerRef);

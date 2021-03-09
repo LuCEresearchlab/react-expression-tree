@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -16,9 +16,15 @@ function NodeTypeValue({
   fontFamily,
   style,
 }) {
+  const x = useMemo(() => (nodeWidth / 2), [nodeWidth]);
+  const y = useMemo(() => (-style.fontSize / 2), [style.fontSize]);
+
   // Handle node remove click
   return (
-    <Label x={nodeWidth / 2} y={-style.fontSize / 2}>
+    <Label
+      x={x}
+      y={y}
+    >
       {typeText !== '' || valueText !== '' ? (
         <>
           <Tag

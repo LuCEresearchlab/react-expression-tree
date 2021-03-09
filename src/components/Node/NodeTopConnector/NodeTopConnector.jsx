@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Circle,
@@ -6,63 +6,27 @@ import {
   Star,
 } from 'react-konva';
 
-import {
-  edgeByChildNode,
-} from '../../../utils/tree';
-
 import defaultStyle from '../../../style/default.json';
 
 function NodeTopConnector({
   nodeId,
   nodeWidth,
-  edges,
   currentErrorLocation,
+  hasIncomingEdge,
   isSelectedRoot,
   isFullDisabled,
-  isPressingMetaOrShift,
   isSelected,
-  selectedEdgeRef,
-  setSelectedEdgeRef,
-  clearEdgeSelection,
-  transformerRef,
-  onNodeConnectorDragStart,
+  handleNodeConnectorDragStart,
+  handleConnectorDragMove,
+  handleConnectorDragEnd,
   setCursor,
   nodeStyle,
   connectorStyle,
 }) {
-  const x = useMemo(() => nodeWidth / 2,
-    [nodeWidth]);
+  const starRef = useRef();
+  const circleRef = useRef();
 
-  // Handle drag start event from a node connector,
-  // starting drag event from the node connector if a meta key is not being pressed,
-  // otherwise stop the node connector drag
-  const handleNodeConnectorDragStart = (e) => {
-    if (isFullDisabled) {
-      return;
-    }
-
-    if (!isPressingMetaOrShift) {
-      // prevent onDragStart of Group
-      e.cancelBubble = true;
-      transformerRef.current.nodes([]);
-      if (selectedEdgeRef) {
-        selectedEdgeRef.moveToBottom();
-        setSelectedEdgeRef(null);
-        clearEdgeSelection();
-      }
-      setCursor('grabbing');
-      // we don't want the connector to be moved
-      e.target.stopDrag();
-      // but we want to initiate the moving around of the connection
-      onNodeConnectorDragStart(
-        nodeId,
-        e.target.parent.parent.x() + e.target.parent.x() + (nodeWidth / 2),
-        e.target.parent.parent.y() + e.target.parent.y(),
-      );
-    } else {
-      e.target.stopDrag();
-    }
-  };
+  const x = useMemo(() => nodeWidth / 2, [nodeWidth]);
 
   const handleMouseOver = (e) => {
     if (isFullDisabled) {
@@ -86,7 +50,7 @@ function NodeTopConnector({
     if (isSelected) {
       return stl.selectedColor;
     }
-    if (edgeByChildNode(nodeId, edges).length > 0) {
+    if (hasIncomingEdge) {
       return stl.color;
     }
     return stl.emptyColor;
@@ -97,6 +61,7 @@ function NodeTopConnector({
       {isSelectedRoot ? (
         <Star
           key={`NodeConnector-${nodeId}`}
+          ref={starRef}
           id={nodeId}
           x={x}
           y={0}
@@ -107,15 +72,17 @@ function NodeTopConnector({
           stroke={nodeStyle.star.strokeColor}
           strokeWidth={nodeStyle.star.strokeSize}
           draggable={!isFullDisabled}
-          onDragStart={handleNodeConnectorDragStart}
-          onTouchStart={handleNodeConnectorDragStart}
           onMouseOver={handleMouseOver}
-          onDragMove={() => {}}
-          onDragEnd={() => {}}
+          onTouchStart={handleNodeConnectorDragStart}
+          onDragStart={handleNodeConnectorDragStart}
+          onDragMove={handleConnectorDragMove}
+          onDragEnd={handleConnectorDragEnd}
+          dragBoundFunc={() => starRef.current.getAbsolutePosition()}
         />
       ) : (
         <Circle
           key={`NodeConnector-${nodeId}`}
+          ref={circleRef}
           id={nodeId}
           x={x}
           y={0}
@@ -124,11 +91,12 @@ function NodeTopConnector({
           stroke={connectorStyle.child.strokeColor}
           strokeWidth={connectorStyle.child.strokeSize}
           draggable={!isFullDisabled}
+          onMouseOver={handleMouseOver}
           onDragStart={handleNodeConnectorDragStart}
           onTouchStart={handleNodeConnectorDragStart}
-          onMouseOver={handleMouseOver}
-          onDragMove={() => {}}
-          onDragEnd={() => {}}
+          onDragMove={handleConnectorDragMove}
+          onDragEnd={handleConnectorDragEnd}
+          dragBoundFunc={() => circleRef.current.getAbsolutePosition()}
         />
       )}
     </Group>
@@ -138,27 +106,18 @@ function NodeTopConnector({
 NodeTopConnector.propTypes = {
   nodeId: PropTypes.number.isRequired,
   nodeWidth: PropTypes.number.isRequired,
-  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
   currentErrorLocation: PropTypes.shape({
     nodeConnector: PropTypes.string,
     nodeId: PropTypes.string,
   }),
+  hasIncomingEdge: PropTypes.bool,
   isSelectedRoot: PropTypes.bool,
   isFullDisabled: PropTypes.bool,
-  isPressingMetaOrShift: PropTypes.bool,
   isSelected: PropTypes.bool,
-  selectedEdgeRef: PropTypes.shape({
-    moveToBottom: PropTypes.func,
-  }),
-  setSelectedEdgeRef: PropTypes.func,
-  clearEdgeSelection: PropTypes.func,
-  transformerRef: PropTypes.shapre({
-    current: PropTypes.shape({
-      nodes: PropTypes.func,
-    }),
-  }),
-  onNodeConnectorDragStart: PropTypes.func,
   setCursor: PropTypes.func,
+  handleNodeConnectorDragStart: PropTypes.func,
+  handleConnectorDragMove: PropTypes.func,
+  handleConnectorDragEnd: PropTypes.func,
   nodeStyle: PropTypes.exact({
     paddingX: PropTypes.number,
     paddingY: PropTypes.number,
@@ -229,18 +188,15 @@ NodeTopConnector.propTypes = {
 };
 
 NodeTopConnector.defaultProps = {
-  edges: [],
   currentErrorLocation: null,
+  hasIncomingEdge: false,
   isSelectedRoot: false,
   isFullDisabled: false,
-  isPressingMetaOrShift: false,
   isSelected: false,
-  selectedEdgeRef: null,
-  setSelectedEdgeRef: () => {},
-  clearEdgeSelection: () => {},
-  transformerRef: {},
-  onNodeConnectorDragStart: () => {},
   setCursor: () => {},
+  handleNodeConnectorDragStart: () => {},
+  handleConnectorDragMove: () => {},
+  handleConnectorDragEnd: () => {},
   nodeStyle: defaultStyle.node,
   connectorStyle: defaultStyle.edge.connector,
 };
