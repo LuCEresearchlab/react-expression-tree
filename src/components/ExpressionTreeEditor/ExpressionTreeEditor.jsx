@@ -408,7 +408,15 @@ function ExpressionTreeEditor({
     if (typeof document !== 'undefined') {
       const jsonRepr = JSON.stringify(currentState, null, 0);
       const downloadElement = document.createElement('a');
-      const imageBase64 = stageRef.current.toDataURL({ pixelRatio: 2 });
+      const boundingBox = layerRef.current.getClientRect();
+      const padding = 10; // Add a padding of 10 pixel all around the bounding box
+      const imageBase64 = stageRef.current.toCanvas({
+        pixelRatio: 2,
+        x: boundingBox.x - padding,
+        y: boundingBox.y - padding,
+        width: boundingBox.width + 2 * padding,
+        height: boundingBox.height + 2 * padding,
+      }).toDataURL();
       downloadElement.href = addMetadataFromBase64DataURI(imageBase64, ET_KEY, jsonRepr);
       downloadElement.download = 'expression_editor_image.png';
       document.body.appendChild(downloadElement);
