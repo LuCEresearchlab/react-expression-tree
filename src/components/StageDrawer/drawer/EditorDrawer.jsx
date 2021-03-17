@@ -114,6 +114,8 @@ const useStyles = makeStyles((theme) => ({
   },
   typeButton: {
     marginRight: '30px',
+    textTransform: 'none',
+    fontFamily: 'monospace',
   },
 }));
 
@@ -385,7 +387,7 @@ function EditorDrawer({
 
             {templateNodeTypesAndValues && (
               <div className={classes.typeField}>
-                <FormLabel>Suggested node types:</FormLabel>
+                <FormLabel>Suggested types:</FormLabel>
                 <div>
                   {Object.keys(templateNodeTypesAndValues).map((nodeType) => (
                     <Button
@@ -430,7 +432,7 @@ function EditorDrawer({
               && templateNodeTypesAndValues[editTypeInputValue]
               && templateNodeTypesAndValues[editTypeInputValue].length > 0 && (
                 <div className={classes.typeField}>
-                  <FormLabel>Suggested node types:</FormLabel>
+                  <FormLabel>Suggested values:</FormLabel>
                   <div>
                     {templateNodeTypesAndValues[editTypeInputValue].map((nodeValue) => (
                       <Button
