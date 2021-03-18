@@ -9,7 +9,7 @@ import {
   Typography,
   TextField,
   Divider,
-  Button,
+  Chip,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -103,18 +103,8 @@ const useStyles = makeStyles((theme) => ({
   typeField: {
     margin: '10px 10px 10px 10px',
   },
-  typeButtonContainer: {
-    maxHeight: '150px',
-    overflowY: 'scroll',
-    borderRadius: '3px',
-    marginTop: '10px',
-    paddingTop: '10px',
-    padding: '5px 20px 5px 20px',
-    boxShadow: '0 0 1px 1px #ddd',
-  },
-  typeButton: {
-    marginRight: '30px',
-    textTransform: 'none',
+  suggestionChip: {
+    margin: theme.spacing(0.5),
     fontFamily: 'monospace',
   },
   monospaceInput: {
@@ -398,13 +388,12 @@ function EditorDrawer({
                 <FormLabel>Suggested types:</FormLabel>
                 <div>
                   {Object.keys(templateNodeTypesAndValues).map((nodeType) => (
-                    <Button
+                    <Chip
                       key={nodeType}
-                      className={classes.typeButton}
+                      label={nodeType}
+                      className={classes.suggestionChip}
                       onClick={() => handleEditNodeTypeChange(nodeType)}
-                    >
-                      {nodeType}
-                    </Button>
+                    />
                   ))}
                 </div>
               </div>
@@ -448,13 +437,12 @@ function EditorDrawer({
                   <FormLabel>Suggested values:</FormLabel>
                   <div>
                     {templateNodeTypesAndValues[editTypeInputValue].map((nodeValue) => (
-                      <Button
+                      <Chip
                         key={nodeValue}
-                        className={classes.typeButton}
+                        label={nodeValue}
+                        className={classes.suggestionChip}
                         onClick={() => handleEditNodeValueChange(nodeValue)}
-                      >
-                        {nodeValue}
-                      </Button>
+                      />
                     ))}
                   </div>
                 </div>
