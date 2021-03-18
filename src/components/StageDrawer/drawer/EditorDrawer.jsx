@@ -117,6 +117,9 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     fontFamily: 'monospace',
   },
+  monospaceInput: {
+    fontFamily: 'monospace',
+  },
 }));
 
 function EditorDrawer({
@@ -371,11 +374,16 @@ function EditorDrawer({
                     variant="outlined"
                     fullWidth
                     size="medium"
-                    placeholder="ex: 1234567890"
+                    placeholder="'int', ..."
                     margin="dense"
-                    label="Insert the node's type"
+                    label="Type of this node"
                     InputLabelProps={{
                       shrink: true,
+                    }}
+                    InputProps={{
+                      classes: {
+                        input: classes.monospaceInput,
+                      },
                     }}
                     autoComplete="off"
                     value={editTypeInputValue}
@@ -414,11 +422,16 @@ function EditorDrawer({
                     variant="outlined"
                     fullWidth
                     size="medium"
-                    placeholder="ex: 1234567890"
+                    placeholder="42, 'Hello', ..."
                     margin="dense"
-                    label="Insert the node's value"
+                    label="Value of this node"
                     InputLabelProps={{
                       shrink: true,
+                    }}
+                    InputProps={{
+                      classes: {
+                        input: classes.monospaceInput,
+                      },
                     }}
                     autoComplete="off"
                     value={editValueInputValue}
