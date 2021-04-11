@@ -6,13 +6,11 @@ import {
   Star,
 } from 'react-konva';
 
-import defaultStyle from '../../../style/default.json';
-
 function NodeTopConnector({
   nodeId,
   nodeWidth,
   currentErrorLocation,
-  hasIncomingEdge,
+  hasChildEdges,
   isSelectedRoot,
   isFullDisabled,
   isSelected,
@@ -20,8 +18,18 @@ function NodeTopConnector({
   handleConnectorDragMove,
   handleConnectorDragEnd,
   setCursor,
-  nodeStyle,
-  connectorStyle,
+  starNumPoints,
+  starInnerRadius,
+  starOuterRadius,
+  starStrokeColor,
+  starStrokeWidth,
+  connectorRadius,
+  connectorStrokeColor,
+  connectorStrokeWidth,
+  connectorFillColor,
+  connectorErrorColor,
+  connectorSelectedColor,
+  connectorEmptyFillColor,
 }) {
   const starRef = useRef();
   const circleRef = useRef();
@@ -41,19 +49,19 @@ function NodeTopConnector({
    * Compute connector color given a style object
    * @param {Object} stl
    */
-  const computeColor = (stl) => {
+  const computeColor = (defaultColor, errorColor, selectedColor, emptyColor) => {
     if (currentErrorLocation
       && currentErrorLocation.nodeConnector
       && currentErrorLocation.nodeId === nodeId) {
-      return stl.errorColor;
+      return errorColor;
     }
     if (isSelected) {
-      return stl.selectedColor;
+      return selectedColor;
     }
-    if (hasIncomingEdge) {
-      return stl.color;
+    if (hasChildEdges) {
+      return defaultColor;
     }
-    return stl.emptyColor;
+    return emptyColor;
   };
 
   return (
@@ -65,12 +73,17 @@ function NodeTopConnector({
           id={nodeId}
           x={x}
           y={0}
-          numPoints={nodeStyle.star.numPoints}
-          innerRadius={nodeStyle.star.innerRadius}
-          outerRadius={nodeStyle.star.outerRadius}
-          fill={computeColor(connectorStyle.child)}
-          stroke={nodeStyle.star.strokeColor}
-          strokeWidth={nodeStyle.star.strokeSize}
+          numPoints={starNumPoints}
+          innerRadius={starInnerRadius}
+          outerRadius={starOuterRadius}
+          fill={computeColor(
+            connectorFillColor,
+            connectorErrorColor,
+            connectorSelectedColor,
+            connectorEmptyFillColor,
+          )}
+          stroke={starStrokeColor}
+          strokeWidth={starStrokeWidth}
           draggable={!isFullDisabled}
           onMouseOver={handleMouseOver}
           onTouchStart={handleNodeConnectorDragStart}
@@ -86,10 +99,15 @@ function NodeTopConnector({
           id={nodeId}
           x={x}
           y={0}
-          radius={connectorStyle.child.radiusSize}
-          fill={computeColor(connectorStyle.child)}
-          stroke={connectorStyle.child.strokeColor}
-          strokeWidth={connectorStyle.child.strokeSize}
+          radius={connectorRadius}
+          fill={computeColor(
+            connectorFillColor,
+            connectorErrorColor,
+            connectorSelectedColor,
+            connectorEmptyFillColor,
+          )}
+          stroke={connectorStrokeColor}
+          strokeWidth={connectorStrokeWidth}
           draggable={!isFullDisabled}
           onMouseOver={handleMouseOver}
           onDragStart={handleNodeConnectorDragStart}
@@ -110,95 +128,50 @@ NodeTopConnector.propTypes = {
     nodeConnector: PropTypes.string,
     nodeId: PropTypes.string,
   }),
-  hasIncomingEdge: PropTypes.bool,
+  hasChildEdges: PropTypes.bool,
   isSelectedRoot: PropTypes.bool,
   isFullDisabled: PropTypes.bool,
   isSelected: PropTypes.bool,
-  setCursor: PropTypes.func,
   handleNodeConnectorDragStart: PropTypes.func,
   handleConnectorDragMove: PropTypes.func,
   handleConnectorDragEnd: PropTypes.func,
-  nodeStyle: PropTypes.exact({
-    paddingX: PropTypes.number,
-    paddingY: PropTypes.number,
-    radius: PropTypes.number,
-    strokeColor: PropTypes.string,
-    strokeWidth: PropTypes.number,
-    strokeSelectedWidth: PropTypes.number,
-    fillColor: PropTypes.string,
-    errorColor: PropTypes.string,
-    selectedColor: PropTypes.string,
-    finalColor: PropTypes.string,
-    textColor: PropTypes.string,
-    deleteButtonColor: PropTypes.string,
-    placeholder: PropTypes.exact({
-      width: PropTypes.number,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-      fillColor: PropTypes.string,
-      radius: PropTypes.number,
-    }),
-    star: PropTypes.exact({
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-      numPoints: PropTypes.number,
-      innerRadius: PropTypes.number,
-      outerRadius: PropTypes.number,
-    }),
-    delete: PropTypes.exact({
-      paddingX: PropTypes.number,
-      paddingY: PropTypes.number,
-      fontSize: PropTypes.number,
-      text: PropTypes.string,
-      textColor: PropTypes.string,
-      overTextColor: PropTypes.string,
-    }),
-    typeValue: PropTypes.exact({
-      fontSize: PropTypes.number,
-      fillColor: PropTypes.string,
-      strokeColor: PropTypes.string,
-      strokeSize: PropTypes.string,
-      pointerDirection: PropTypes.string,
-      pointerWidth: PropTypes.number,
-      pointerHeight: PropTypes.number,
-      radius: PropTypes.number,
-      textColor: PropTypes.string,
-      padding: PropTypes.number,
-    }),
-  }),
-  connectorStyle: PropTypes.exact({
-    child: PropTypes.exact({
-      radiusSize: PropTypes.number,
-      color: PropTypes.string,
-      emptyColor: PropTypes.string,
-      draggingColor: PropTypes.string,
-      errorColor: PropTypes.string,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-    }),
-    parent: PropTypes.exact({
-      radiusSize: PropTypes.number,
-      color: PropTypes.string,
-      draggingColor: PropTypes.string,
-      errorColor: PropTypes.string,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-    }),
-  }),
+  setCursor: PropTypes.func,
+  starNumPoints: PropTypes.number,
+  starInnerRadius: PropTypes.number,
+  starOuterRadius: PropTypes.number,
+  starStrokeColor: PropTypes.string,
+  starStrokeWidth: PropTypes.number,
+  connectorRadius: PropTypes.number,
+  connectorStrokeColor: PropTypes.string,
+  connectorStrokeWidth: PropTypes.number,
+  connectorFillColor: PropTypes.string,
+  connectorErrorColor: PropTypes.string,
+  connectorSelectedColor: PropTypes.string,
+  connectorEmptyFillColor: PropTypes.string,
 };
 
 NodeTopConnector.defaultProps = {
   currentErrorLocation: null,
-  hasIncomingEdge: false,
+  hasChildEdges: false,
   isSelectedRoot: false,
   isFullDisabled: false,
   isSelected: false,
-  setCursor: () => {},
   handleNodeConnectorDragStart: () => {},
   handleConnectorDragMove: () => {},
   handleConnectorDragEnd: () => {},
-  nodeStyle: defaultStyle.node,
-  connectorStyle: defaultStyle.edge.connector,
+  setCursor: () => {},
+  starNumPoints: 5,
+  starInnerRadius: 5,
+  starOuterRadius: 10,
+  starStrokeColor: '#000000',
+  starStrokeWidth: 2,
+  connectorRadius: 6,
+  connectorStrokeColor: '#000000',
+  connectorStrokeWidth: 1,
+  connectorFillColor: '#555555',
+  connectorErrorColor: '#ff2f2f',
+  connectorSelectedColor: '#f2a200',
+  connectorEmptyFillColor: '#000000',
 };
 
 export default NodeTopConnector;

@@ -1,7 +1,6 @@
 ```jsx
 import { useRef } from 'react';
 import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
-import defaultStyle from '../../style/default.json'
 
 const containerRef = useRef();
 const width = useContainerWidthOnWindowResize(containerRef);
@@ -29,7 +28,6 @@ const height = 600;
       zoomToFit: true,
       fullScreen: true,
     }}
-    drawerFields={{ addField: true, editField: true }}
     templateNodes={[
       '{{}}?{{}}:{{}}',
       '{{}}[{{}}]',

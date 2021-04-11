@@ -1,4 +1,67 @@
-function createInitialState(
+const defaultFontSize = 24;
+const defaultFontFamily = 'Roboto Mono, Courier';
+const defaultNodePaddingX = 12;
+const defaultNodePaddingY = 12;
+const defaultPlaceholderWidth = 16;
+
+export const defaultProps = {
+  // Global
+  fontSize: defaultFontSize,
+  fontFamily: defaultFontFamily,
+  nodePaddingX: defaultNodePaddingX,
+  nodePaddingY: defaultNodePaddingY,
+  connectorPlaceholder: '#',
+  placeholderWidth: defaultPlaceholderWidth,
+  isDraggingNode: false,
+  // Stage
+  isFullScreen: false,
+  stagePos: { x: 0, y: 0 },
+  stageScale: { x: 1, y: 1 },
+  // Tree
+  nodes: {},
+  edges: {},
+  dragEdge: null,
+  selectedNode: null,
+  selectedEdge: null,
+  selectedRootNode: null,
+  // Drawer
+  isDrawerOpen: true,
+  addEdgeErrorMessage: '',
+  isAddEdgeErrorSnackbarOpen: false,
+  isCreatingNode: false,
+  isSelectedNodeEditable: {
+    label: false,
+    type: false,
+    value: false,
+  },
+  createNodeInputValue: '',
+  createNodeDescription: undefined,
+  updateLabelInputValue: '',
+  updateTypeInputValue: '',
+  updateValueInputValue: '',
+  // Errors
+  isValidationDialogOpen: false,
+  validationErrors: [],
+  currentError: undefined,
+};
+
+export const createSanitizedUtilsProps = (
+  propFontSize,
+  propFontFamily,
+  propConnectorPlaceholder,
+  propPlaceholderWidth,
+  propNodePaddingX,
+  propNodePaddingY,
+) => ({
+  sanitizedFontSize: propFontSize || defaultProps.fontSize,
+  sanitizedFontFamily: propFontFamily || defaultProps.fontFamily,
+  sanitizedConnectorPlaceholder: propConnectorPlaceholder || defaultProps.connectorPlaceholder,
+  sanitizedPlaceholderWidth: propPlaceholderWidth || defaultProps.placeholderWidth,
+  sanitizedNodePaddingX: propNodePaddingX || defaultNodePaddingX,
+  sanitizedNodePaddingY: propNodePaddingY || defaultNodePaddingY,
+});
+
+export const createInitialState = (
   nodes,
   selectedNode,
   edges,
@@ -10,44 +73,48 @@ function createInitialState(
   placeholderWidth,
   fontSize,
   fontFamily,
-) {
-  return {
-    // Global
-    fontSize: fontSize || 24,
-    fontFamily: fontFamily || 'Roboto Mono, Courier',
-    connectorPlaceholder: connectorPlaceholder || '{{}}',
-    placeholderWidth: placeholderWidth || 16,
-    isDraggingNode: false,
-    // Stage
-    isFullScreen: false,
-    stagePos: stagePos || { x: 0, y: 0 },
-    stageScale: stageScale || { x: 1, y: 1 },
-    // Tree
-    nodes: nodes || [],
-    edges: edges || [],
-    dragEdge: null,
-    selectedNode: selectedNode || null,
-    selectedEdge: selectedEdge || null,
-    selectedRootNode: selectedRootNode || null,
-    // Drawer
-    isDrawerOpen: true,
-    addEdgeErrorMessage: '',
-    isAddEdgeErrorSnackbarOpen: false,
-    isCreatingNode: false,
-    isSelectedNodeEditable: {
-      label: false,
-      type: false,
-      value: false,
-    },
-    createNodeInputValue: '',
-    editLabelInputValue: '',
-    editTypeInputValue: '',
-    editValueInputValue: '',
-    // Errors
-    isValidationDialogOpen: false,
-    validationErrors: [],
-    currentError: undefined,
-  };
-}
-
-export default createInitialState;
+  nodePaddingX,
+  nodePaddingY,
+) => ({
+  // Global
+  fontSize: fontSize || defaultProps.fontSize,
+  fontFamily: fontFamily || defaultProps.fontFamily,
+  nodePaddingX: nodePaddingX || defaultNodePaddingX,
+  nodePaddingY: nodePaddingY || defaultNodePaddingY,
+  connectorPlaceholder: connectorPlaceholder || defaultProps.connectorPlaceholder,
+  placeholderWidth: placeholderWidth || defaultProps.placeholderWidth,
+  isDraggingNode: defaultProps.isDraggingNode,
+  // Stage
+  isFullScreen: defaultProps.isFullScreen,
+  stagePos: stagePos || defaultProps.stagePos,
+  stageScale: stageScale || defaultProps.stageScale,
+  // Tree
+  nodes: nodes || defaultProps.nodes,
+  edges: edges || defaultProps.edges,
+  dragEdge: null,
+  selectedNode: selectedNode || defaultProps.selectedNode,
+  selectedEdge: selectedEdge || defaultProps.selectedEdge,
+  selectedRootNode: selectedRootNode || defaultProps.selectedRootNode,
+  // Drawer
+  isDrawerOpen: defaultProps.isDrawerOpen,
+  addEdgeErrorMessage: defaultProps.addEdgeErrorMessage,
+  isAddEdgeErrorSnackbarOpen: defaultProps.isAddEdgeErrorSnackbarOpen,
+  isCreatingNode: defaultProps.isCreatingNode,
+  isSelectedNodeEditable: {
+    label: defaultProps.isSelectedNodeEditable.label,
+    type: defaultProps.isSelectedNodeEditable.type,
+    value: defaultProps.isSelectedNodeEditable.value,
+  },
+  createNodeInputValue: defaultProps.createNodeInputValue,
+  createNodeDescription: defaultProps.createNodeDescrpiton,
+  updateLabelInputValue: defaultProps.updateLabelInputValue,
+  updateTypeInputValue: defaultProps.updateTypeInputValue,
+  updateValueInputValue: defaultProps.updateValueInputValue,
+  // Errors
+  isValidationDialogOpen: defaultProps.isValidationDialogOpen,
+  validationErrors: defaultProps.validationErrors,
+  currentError: defaultProps.currentError,
+  // Undo - Redo
+  undoState: [],
+  redoState: [],
+});

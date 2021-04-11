@@ -8,8 +8,6 @@ import {
   Text,
 } from 'react-konva';
 
-import defaultStyle from '../../../style/default.json';
-
 function NodeLabel({
   nodeId,
   connectorPlaceholder,
@@ -17,7 +15,7 @@ function NodeLabel({
   labelPiecesPosition,
   nodeHeight,
   currentErrorLocation,
-  hasOutgoingEdges,
+  hasParentEdges,
   isFullDisabled,
   handlePlaceholderConnectorDragStart,
   handleConnectorDragMove,
@@ -25,27 +23,35 @@ function NodeLabel({
   setCursor,
   fontFamily,
   fontSize,
-  nodeStyle,
-  connectorStyle,
+  nodePaddingX,
+  nodePaddingY,
+  placeholderWidth,
+  nodeTextColor,
+  placeholderStrokeWidth,
+  placeholderStrokeColor,
+  placeholderFillColor,
+  placeholderErrorColor,
+  placeholderRadius,
+  connectorRadiusSize,
+  connectorStrokeWidth,
+  connectorFillColor,
+  connectorStrokeColor,
 }) {
   const rectRef = useRef([]);
   const circleRef = useRef([]);
 
-  const { paddingX, paddingY } = nodeStyle;
-  const { width: placeholderWidth } = nodeStyle.placeholder;
-
   const positions = useMemo(() => (labelPieces.map((pieceText, i) => {
     if (pieceText === connectorPlaceholder) {
       return {
-        x: paddingX + labelPiecesPosition[i],
-        y: nodeHeight / 2 - paddingY,
-        circleX: paddingX + labelPiecesPosition[i] + placeholderWidth / 2,
-        circleY: paddingY + fontSize / 2,
+        x: nodePaddingX + labelPiecesPosition[i],
+        y: nodeHeight / 2 - nodePaddingY,
+        circleX: nodePaddingX + labelPiecesPosition[i] + placeholderWidth / 2,
+        circleY: nodePaddingY + fontSize / 2,
       };
     }
     return {
-      x: paddingX + labelPiecesPosition[i],
-      y: paddingY,
+      x: nodePaddingX + labelPiecesPosition[i],
+      y: nodePaddingY,
     };
   })), [
     labelPieces,
@@ -54,8 +60,8 @@ function NodeLabel({
     connectorPlaceholder,
     fontSize,
     placeholderWidth,
-    paddingX,
-    paddingY,
+    nodePaddingX,
+    nodePaddingY,
   ]);
 
   const computePlaceholderPieceKey = (index) => `PlaceholderPiece-${nodeId}-${index}`;
@@ -74,15 +80,15 @@ function NodeLabel({
    * Compute connector color given a style object
    * @param {Object} stl
    */
-  const computeColor = (index, stl) => {
+  const computeColor = (defaultColor, errorColor, index) => {
     if (currentErrorLocation
         && currentErrorLocation.pieceConnector
         && currentErrorLocation.nodeId === nodeId
         && currentErrorLocation.pieceId === index) {
-      return stl.errorColor;
+      return errorColor;
     }
 
-    return stl.placeholder.fillColor;
+    return defaultColor;
   };
 
   return (
@@ -96,10 +102,10 @@ function NodeLabel({
             y={positions[i].y}
             width={placeholderWidth}
             height={fontSize}
-            fill={computeColor(i, nodeStyle)}
-            stroke={nodeStyle.placeholder.strokeColor}
-            strokeWidth={nodeStyle.placeholder.strokeSize}
-            cornerRadius={nodeStyle.placeholder.radius}
+            fill={computeColor(placeholderFillColor, placeholderErrorColor, i)}
+            stroke={placeholderStrokeColor}
+            strokeWidth={placeholderStrokeWidth}
+            cornerRadius={placeholderRadius}
             draggable={!isFullDisabled}
             onMouseOver={handleMouseOver}
             onDragStart={(e) => handlePlaceholderConnectorDragStart(e, nodeId)}
@@ -114,12 +120,12 @@ function NodeLabel({
             x={positions[i].circleX}
             y={positions[i].circleY}
             draggable={!isFullDisabled}
-            radius={connectorStyle.parent.radiusSize}
-            fill={connectorStyle.parent.color}
-            stroke={connectorStyle.parent.strokeColor}
-            strokeWidth={connectorStyle.parent.strokeSize}
+            radius={connectorRadiusSize}
+            fill={connectorFillColor}
+            stroke={connectorStrokeColor}
+            strokeWidth={connectorStrokeWidth}
             onMouseOver={handleMouseOver}
-            visible={hasOutgoingEdges[i]}
+            visible={hasParentEdges[i]}
             onDragStart={(e) => handlePlaceholderConnectorDragStart(e, nodeId)}
             onTouchStart={((e) => handlePlaceholderConnectorDragStart(e, nodeId))}
             onDragMove={handleConnectorDragMove}
@@ -132,7 +138,7 @@ function NodeLabel({
           key={computeTextPieceKey(i)}
           x={positions[i].x}
           y={positions[i].y}
-          fill={nodeStyle.textColor}
+          fill={nodeTextColor}
           fontFamily={fontFamily}
           fontSize={fontSize}
           text={pieceText}
@@ -156,7 +162,7 @@ NodeLabel.propTypes = {
     nodeId: PropTypes.string,
     pieceId: PropTypes.number,
   }),
-  hasOutgoingEdges: PropTypes.arrayOf(PropTypes.bool),
+  hasParentEdges: PropTypes.arrayOf(PropTypes.bool),
   isFullDisabled: PropTypes.bool,
   handlePlaceholderConnectorDragStart: PropTypes.func,
   handleConnectorDragMove: PropTypes.func,
@@ -164,87 +170,44 @@ NodeLabel.propTypes = {
   setCursor: PropTypes.func,
   fontSize: PropTypes.number,
   fontFamily: PropTypes.string,
-  nodeStyle: PropTypes.exact({
-    paddingX: PropTypes.number,
-    paddingY: PropTypes.number,
-    radius: PropTypes.number,
-    strokeColor: PropTypes.string,
-    strokeWidth: PropTypes.number,
-    strokeSelectedWidth: PropTypes.number,
-    fillColor: PropTypes.string,
-    errorColor: PropTypes.string,
-    selectedColor: PropTypes.string,
-    finalColor: PropTypes.string,
-    textColor: PropTypes.string,
-    deleteButtonColor: PropTypes.string,
-    placeholder: PropTypes.exact({
-      width: PropTypes.number,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-      fillColor: PropTypes.string,
-      radius: PropTypes.number,
-    }),
-    star: PropTypes.exact({
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-      numPoints: PropTypes.number,
-      innerRadius: PropTypes.number,
-      outerRadius: PropTypes.number,
-    }),
-    delete: PropTypes.exact({
-      paddingX: PropTypes.number,
-      paddingY: PropTypes.number,
-      fontSize: PropTypes.number,
-      text: PropTypes.string,
-      textColor: PropTypes.string,
-      overTextColor: PropTypes.string,
-    }),
-    typeValue: PropTypes.exact({
-      fontSize: PropTypes.number,
-      fillColor: PropTypes.string,
-      strokeColor: PropTypes.string,
-      strokeSize: PropTypes.string,
-      pointerDirection: PropTypes.string,
-      pointerWidth: PropTypes.number,
-      pointerHeight: PropTypes.number,
-      radius: PropTypes.number,
-      textColor: PropTypes.string,
-      padding: PropTypes.number,
-    }),
-  }),
-  connectorStyle: PropTypes.exact({
-    child: PropTypes.exact({
-      radiusSize: PropTypes.number,
-      color: PropTypes.string,
-      emptyColor: PropTypes.string,
-      draggingColor: PropTypes.string,
-      errorColor: PropTypes.string,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-    }),
-    parent: PropTypes.exact({
-      radiusSize: PropTypes.number,
-      color: PropTypes.string,
-      draggingColor: PropTypes.string,
-      errorColor: PropTypes.string,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-    }),
-  }),
+  nodePaddingX: PropTypes.number,
+  nodePaddingY: PropTypes.number,
+  nodeTextColor: PropTypes.string,
+  placeholderWidth: PropTypes.number,
+  placeholderStrokeWidth: PropTypes.number,
+  placeholderStrokeColor: PropTypes.string,
+  placeholderFillColor: PropTypes.string,
+  placeholderErrorColor: PropTypes.string,
+  placeholderRadius: PropTypes.number,
+  connectorRadiusSize: PropTypes.number,
+  connectorStrokeWidth: PropTypes.number,
+  connectorFillColor: PropTypes.string,
+  connectorStrokeColor: PropTypes.string,
 };
 
 NodeLabel.defaultProps = {
   currentErrorLocation: null,
-  hasOutgoingEdges: [],
+  hasParentEdges: [],
   isFullDisabled: false,
   handlePlaceholderConnectorDragStart: () => {},
   handleConnectorDragMove: () => {},
   handleConnectorDragEnd: () => {},
   setCursor: () => {},
-  fontSize: defaultStyle.fontSize,
-  fontFamily: defaultStyle.fontFamily,
-  nodeStyle: defaultStyle.node,
-  connectorStyle: defaultStyle.edge.connector,
+  fontSize: 24,
+  fontFamily: 'Roboto Mono, Courier',
+  nodePaddingX: 12,
+  nodePaddingY: 12,
+  nodeTextColor: '#FFFFFF',
+  placeholderWidth: 16,
+  placeholderStrokeWidth: 1,
+  placeholderStrokeColor: '#000000',
+  placeholderFillColor: '#104020',
+  placeholderErrorColor: '#FF0000',
+  placeholderRadius: 3,
+  connectorRadiusSize: 6,
+  connectorStrokeWidth: 1,
+  connectorFillColor: '#555555',
+  connectorStrokeColor: '#000000',
 };
 
 export default NodeLabel;

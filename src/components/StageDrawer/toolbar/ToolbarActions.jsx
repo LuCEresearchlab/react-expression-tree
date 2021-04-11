@@ -35,6 +35,9 @@ const useStyles = makeStyles(() => ({
     backgroundColor: '#ffffff',
     borderBottom: '1px solid #aaa',
     overflowX: 'auto',
+    '@media print': {
+      display: 'none',
+    },
   },
   toolbarButton: {
     backgroundColor: '#fff',

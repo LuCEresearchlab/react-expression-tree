@@ -43,14 +43,25 @@ const reducers = {
     };
   },
 
-  setIsDraggingNode: (state, payload) => {
+  setNodePaddingX: (state, payload) => {
     const {
-      isDraggingNode,
+      nodePaddingX,
     } = payload;
 
     return {
       ...state,
-      isDraggingNode,
+      nodePaddingX,
+    };
+  },
+
+  setNodePaddingY: (state, payload) => {
+    const {
+      nodePaddingY,
+    } = payload;
+
+    return {
+      ...state,
+      nodePaddingY,
     };
   },
 };

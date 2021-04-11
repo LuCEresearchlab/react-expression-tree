@@ -7,17 +7,27 @@ import {
   Text,
 } from 'react-konva';
 
-import defaultStyle from '../../../style/default.json';
-
 function NodeTypeValue({
+  nodeWidth,
   typeText,
   valueText,
-  nodeWidth,
   fontFamily,
-  style,
+  fontSize,
+  strokeWidth,
+  radius,
+  padding,
+  textColor,
+  fillColor,
+  strokeColor,
+  pointerDirection,
+  pointerWidth,
+  pointerHeight,
 }) {
   const x = useMemo(() => (nodeWidth / 2), [nodeWidth]);
-  const y = useMemo(() => (-style.fontSize / 2), [style.fontSize]);
+  const y = useMemo(() => (-fontSize / 2), [fontSize]);
+  const text = useMemo(() => (
+    typeText + (typeText !== '' && valueText !== '' ? ': ' : '') + valueText
+  ), [typeText, valueText]);
 
   // Handle node remove click
   return (
@@ -28,20 +38,20 @@ function NodeTypeValue({
       {typeText !== '' || valueText !== '' ? (
         <>
           <Tag
-            fill={style.fillColor}
-            stroke={style.strokeColor}
-            strokeWidth={style.strokeSize}
-            pointerDirection={style.pointerDirection}
-            pointerWidth={style.pointerWidth}
-            pointerHeight={style.pointerHeight}
-            cornerRadius={style.radius}
+            fill={fillColor}
+            stroke={strokeColor}
+            strokeWidth={strokeWidth}
+            pointerDirection={pointerDirection}
+            pointerWidth={pointerWidth}
+            pointerHeight={pointerHeight}
+            cornerRadius={radius}
           />
           <Text
-            fill={style.textColor}
+            fill={textColor}
             fontFamily={fontFamily}
-            fontSize={style.fontSize}
-            text={typeText + (typeText !== '' && valueText !== '' ? ': ' : '') + valueText}
-            padding={style.padding}
+            fontSize={fontSize}
+            text={text}
+            padding={padding}
           />
         </>
       ) : null}
@@ -50,29 +60,36 @@ function NodeTypeValue({
 }
 
 NodeTypeValue.propTypes = {
+  nodeWidth: PropTypes.number.isRequired,
   typeText: PropTypes.string,
   valueText: PropTypes.string,
-  nodeWidth: PropTypes.number.isRequired,
   fontFamily: PropTypes.string,
-  style: PropTypes.exact({
-    fontSize: PropTypes.number,
-    fillColor: PropTypes.string,
-    strokeSize: PropTypes.string,
-    strokeColor: PropTypes.string,
-    pointerDirection: PropTypes.string,
-    pointerWidth: PropTypes.number,
-    pointerHeight: PropTypes.number,
-    radius: PropTypes.number,
-    textColor: PropTypes.string,
-    padding: PropTypes.number,
-  }),
+  fontSize: PropTypes.number,
+  strokeWidth: PropTypes.number,
+  radius: PropTypes.number,
+  padding: PropTypes.number,
+  textColor: PropTypes.string,
+  fillColor: PropTypes.string,
+  strokeColor: PropTypes.string,
+  pointerDirection: PropTypes.string,
+  pointerWidth: PropTypes.number,
+  pointerHeight: PropTypes.number,
 };
 
 NodeTypeValue.defaultProps = {
   typeText: '',
   valueText: '',
-  fontFamily: defaultStyle.fontFamily,
-  style: defaultStyle.node.typeValue,
+  fontFamily: 'Roboto Mono, Courier',
+  fontSize: 12,
+  fillColor: '#3f51b5',
+  strokeWidth: 1,
+  strokeColor: '#000000',
+  pointerDirection: 'down',
+  pointerWidth: 3,
+  pointerHeight: 4,
+  radius: 3,
+  textColor: '#ffffff',
+  padding: 5,
 };
 
 export default NodeTypeValue;

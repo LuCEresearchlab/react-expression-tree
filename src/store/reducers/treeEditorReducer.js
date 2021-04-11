@@ -1,98 +1,604 @@
 /* eslint-disable arrow-body-style */
 import {
-  maxEdgeId,
-  orderWalk,
+  createUniqueId,
 } from '../../utils/state';
-import { nodeById } from '../../utils/tree';
 
 const reducers = {
-  // Move the selected node to the event coordinates
-  moveNodeTo: (state, payload) => {
+  setNodes: (state, payload) => {
     const {
-      nodeId,
-      x,
-      y,
+      nodes,
     } = payload;
 
-    const { nodes } = state;
     return {
       ...state,
-      nodes: nodes.map((node) => (node.id === nodeId
-        ? {
-          ...node,
-          x,
-          y,
-        }
-        : node)),
+      nodes,
     };
   },
 
-  // Move the selected node to the final event coordinates,
-  // (different action to be able to filter all the previous
-  // moving actions to allow undo/redo working)
-  moveNodeToEnd: (state, payload) => {
+  createNode: (state, payload) => {
     const {
-      nodeId,
+      id,
+      pieces,
+      piecesPosition,
       x,
       y,
+      width,
+      height,
+      type,
+      value,
+      isFinal,
+      isSelected,
+      childEdges,
+      parentEdges,
     } = payload;
 
     const { nodes } = state;
 
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        [id]: {
+          id,
+          pieces,
+          piecesPosition,
+          x,
+          y,
+          width,
+          height,
+          type,
+          value,
+          isFinal,
+          isSelected,
+          childEdges,
+          parentEdges,
+        },
+      },
+      isCreatingNode: false,
+    };
+  },
+
+  removeNode: (state, payload) => {
+    const {
+      nodeId,
+    } = payload;
+
+    const {
+      undoState,
+      nodes,
+      edges,
+      selectedNode,
+      selectedRootNode,
+      isSelectedNodeEditable,
+      updateLabelInputValue,
+      updateTypeInputValue,
+      updateValueInputValue,
+    } = state;
+
+    // Remove node
+    const {
+      [nodeId]: toRemove,
+      ...remainingNodes
+    } = nodes;
+
+    // Check which edges need to be removed
+    const { childEdges: childEdgesToRemove, parentEdges: parentEdgesToRemove } = nodes[nodeId];
+    const parentFlatEdgesToRemove = parentEdgesToRemove.flat();
+    const edgesToRemove = childEdgesToRemove.concat(parentFlatEdgesToRemove);
+
+    // Compute the new edges
+    const newEdges = Object.keys(edges).reduce((accumulator, id) => {
+      if (edgesToRemove.includes(id)) {
+        return accumulator;
+      }
+
+      accumulator[id] = edges[id];
+      return accumulator;
+    }, {});
+
+    const updatedNodes = {};
+    childEdgesToRemove.forEach((id) => {
+      const {
+        parentNodeId,
+        parentPieceId,
+      } = edges[id];
+
+      const parentNode = remainingNodes[parentNodeId];
+      const { parentEdges } = parentNode;
+      const updatedParentEdges = [...parentEdges];
+      updatedParentEdges[parentPieceId] = updatedParentEdges[parentPieceId].filter(
+        (edgeId) => !edgesToRemove.includes(edgeId),
+      );
+
+      updatedNodes[parentNodeId] = {
+        ...parentNode,
+        parentEdges: updatedParentEdges,
+      };
+    });
+    parentFlatEdgesToRemove.forEach((id) => {
+      const {
+        childNodeId,
+      } = edges[id];
+
+      const childNode = remainingNodes[childNodeId];
+      const { childEdges } = childNode;
+      updatedNodes[childNodeId] = {
+        ...childNode,
+        childEdges: childEdges.filter(
+          (edgeId) => !edgesToRemove.includes(edgeId),
+        ),
+      };
+    });
+
+    const newUndoState = {
+      nodes,
+      edges,
+      isSelectedNodeEditable,
+      updateLabelInputValue,
+      updateTypeInputValue,
+      updateValueInputValue,
+      selectedNode,
+      selectedRootNode,
+    };
+
+    return {
+      ...state,
+      undoState: [
+        ...undoState,
+        newUndoState,
+      ],
+      redoState: [],
+      nodes: {
+        ...remainingNodes,
+        ...updatedNodes,
+      },
+      edges: newEdges,
+      isSelectedNodeEditable: selectedNode ? {
+        label: false,
+        type: false,
+        value: false,
+      } : isSelectedNodeEditable,
+      updateLabelInputValue: selectedNode ? '' : updateLabelInputValue,
+      updateTypeInputValue: selectedNode ? '' : updateTypeInputValue,
+      updateValueInputValue: selectedNode ? '' : updateValueInputValue,
+      selectedNode: undefined,
+      selectedRootNode:
+        selectedRootNode === nodeId
+          ? null
+          : selectedRootNode,
+    };
+  },
+
+  updateNode: (state, payload) => {
+    const {
+      updatedEdges,
+      pieces,
+      piecesPosition,
+      width,
+    } = payload;
+
+    const { nodes, edges, selectedNode } = state;
+    const node = nodes[selectedNode];
+
+    const edgesToUpdate = Object.keys(updatedEdges);
+    const edgesToRemove = nodes[selectedNode].parentEdges.flat();
+    const newEdges = Object.keys(edges).reduce((accumulator, id) => {
+      if (edgesToRemove.includes(id)) {
+        return accumulator;
+      }
+
+      if (edgesToUpdate.includes(id)) {
+        accumulator[id] = {
+          ...edges[id],
+          ...updatedEdges[id],
+        };
+        return accumulator;
+      }
+
+      accumulator[id] = edges[id];
+      return accumulator;
+    }, {});
+
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        [selectedNode]: {
+          ...node,
+          pieces,
+          piecesPosition,
+          width,
+        },
+      },
+      edges: newEdges,
+    };
+  },
+
+  updateNodeCoordinates: (state, payload) => {
+    const {
+      updatedEdges,
+      nodeId,
+      updatedNode,
+    } = payload;
+
+    const { nodes, edges } = state;
+    const oldNode = nodes[nodeId];
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        [nodeId]: {
+          ...oldNode,
+          ...updatedNode,
+        },
+      },
+      edges: {
+        ...edges,
+        ...updatedEdges,
+      },
+    };
+  },
+
+  updateNodeCoordinatesAndFinishDragging: (state, payload) => {
+    const {
+      updatedEdges,
+      nodeId,
+      updatedNode,
+    } = payload;
+
+    const { nodes, edges } = state;
+    const oldNode = nodes[nodeId];
     return {
       ...state,
       isDraggingNode: false,
-      nodes: nodes.map((node) => (node.id === nodeId
-        ? {
-          ...node,
-          x,
-          y,
-        }
-        : node)),
+      nodes: {
+        ...nodes,
+        [nodeId]: {
+          ...oldNode,
+          ...updatedNode,
+        },
+      },
+      edges: {
+        ...edges,
+        ...updatedEdges,
+      },
     };
   },
 
-  // Add the new edge to the array of edges
-  addEdge: (state, payload) => {
+  updateNodeType: (state, payload) => {
     const {
-      edge,
+      type,
     } = payload;
 
-    const { edges } = state;
+    const { nodes, selectedNode } = state;
+    const node = nodes[selectedNode];
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        [selectedNode]: {
+          ...node,
+          type,
+        },
+      },
+      updateTypeInputValue: type,
+    };
+  },
 
-    const addingEdgeId = maxEdgeId(edges) + 1;
-    const addingEdge = {
-      ...edge,
-      id: addingEdgeId,
+  updateNodeValue: (state, payload) => {
+    const {
+      value,
+    } = payload;
+
+    const { nodes, selectedNode } = state;
+    const node = nodes[selectedNode];
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        [selectedNode]: {
+          ...node,
+          value,
+        },
+      },
+      updateValueInputValue: value,
+    };
+  },
+
+  setSelectedNode: (state, payload) => {
+    const {
+      selectedNode,
+    } = payload;
+
+    const { nodes } = state;
+    const node = nodes[selectedNode];
+    const isSelectedNodeEditable = {
+      label: !node.isFinal,
+      type: true,
+      value: true,
     };
 
     return {
       ...state,
-      edges: [...edges, addingEdge],
+      selectedNode,
+      selectedEdge: undefined,
+      isSelectedNodeEditable,
+      updateLabelInputValue: node.pieces.join(''),
+      updateTypeInputValue: node.type,
+      updateValueInputValue: node.value,
+    };
+  },
+
+  clearSelectedNode: (state) => ({
+    ...state,
+    selectedNode: undefined,
+    isSelectedNodeEditable: {
+      label: false,
+      type: false,
+      value: false,
+    },
+    updateLabelInputValue: '',
+    updateTypeInputValue: '',
+    updateValueInputValue: '',
+  }),
+
+  setSelectedRootNode: (state, payload) => {
+    const {
+      selectedRootNode,
+    } = payload;
+
+    return {
+      ...state,
+      selectedRootNode,
+    };
+  },
+
+  clearSelectedRootNode: (state) => ({
+    ...state,
+    selectedRootNode: undefined,
+  }),
+
+  setEdges: (state, payload) => {
+    const {
+      edges,
+    } = payload;
+
+    return {
+      ...state,
+      edges,
+    };
+  },
+
+  createEdge: (state, payload) => {
+    const {
+      childNodeId,
+      parentNodeId,
+      parentPieceId,
+      childX,
+      childY,
+      parentX,
+      parentY,
+    } = payload;
+
+    const { nodes, edges } = state;
+
+    const addingEdgeId = createUniqueId();
+    const addingEdge = {
+      id: addingEdgeId,
+      childNodeId,
+      parentNodeId,
+      parentPieceId,
+      childX,
+      childY,
+      parentX,
+      parentY,
+    };
+
+    const childNode = nodes[childNodeId];
+    const { childEdges } = childNode;
+    const parentNode = nodes[parentNodeId];
+    const { parentEdges } = parentNode;
+    const newParentEdges = [...parentEdges];
+    const pieceEdges = newParentEdges[parentPieceId];
+    newParentEdges[parentPieceId] = [
+      ...pieceEdges,
+      addingEdgeId,
+    ];
+
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        [childNodeId]: {
+          ...childNode,
+          childEdges: [
+            ...childEdges,
+            addingEdgeId,
+          ],
+        },
+        [parentNodeId]: {
+          ...parentNode,
+          parentEdges: [
+            ...newParentEdges,
+          ],
+        },
+      },
+      edges: {
+        ...edges,
+        [addingEdgeId]: addingEdge,
+      },
       dragEdge: null,
     };
   },
 
-  // Update the selected edge to the new node/hole connector
-  updateEdge: (state, payload) => {
+  removeEdge: (state, payload) => {
+    const {
+      edgeId,
+    } = payload;
+
+    const { nodes, edges } = state;
+    const {
+      [edgeId]: toRemove,
+      ...remainingEdges
+    } = edges;
+
+    const {
+      childNodeId,
+      parentNodeId,
+      parentPieceId,
+    } = edges[edgeId];
+
+    const childNode = nodes[childNodeId];
+    const parentNode = nodes[parentNodeId];
+    const { parentEdges } = parentNode;
+    const updatedParentNodes = [...parentEdges];
+    updatedParentNodes[parentPieceId] = updatedParentNodes[parentPieceId].filter(
+      (id) => id !== edgeId,
+    );
+
+    const updatedNodes = {};
+    updatedNodes[childNodeId] = {
+      ...childNode,
+      childEdges: childNode.childEdges.filter((id) => id !== edgeId),
+    };
+    updatedNodes[parentNodeId] = {
+      ...parentNode,
+      parentEdges: updatedParentNodes,
+    };
+
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        ...updatedNodes,
+      },
+      edges: {
+        ...remainingEdges,
+      },
+      dragEdge: undefined,
+      selectedEdge: undefined,
+    };
+  },
+
+  updateChildEdge: (state, payload) => {
     const {
       newEdge,
       edgeId,
     } = payload;
 
-    const { edges } = state;
+    const { nodes, edges } = state;
+
+    const oldEdge = edges[edgeId];
+    const {
+      childNodeId: oldChildNodeId,
+    } = oldEdge;
+    const oldChildNode = nodes[oldChildNodeId];
+
+    const {
+      childNodeId: newChildNodeId,
+    } = newEdge;
+    const newChildNode = nodes[newChildNodeId];
+
     return {
       ...state,
-      edges: [
-        ...edges.filter((edge) => edge.id !== edgeId),
-        newEdge,
-      ],
+      nodes: {
+        ...nodes,
+        [oldChildNodeId]: {
+          ...oldChildNode,
+          childEdges: oldChildNode.childEdges.filter((id) => id !== edgeId),
+        },
+        [newChildNodeId]: {
+          ...newChildNode,
+          childEdges: [
+            ...newChildNode.childEdges,
+            edgeId,
+          ],
+        },
+      },
+      edges: {
+        ...edges,
+        [edgeId]: newEdge,
+      },
       dragEdge: null,
     };
   },
 
-  // Select the selecting edge
-  selectEdge: (state, payload) => {
+  updateParentEdge: (state, payload) => {
+    const {
+      newEdge,
+      edgeId,
+    } = payload;
+
+    const { nodes, edges } = state;
+
+    const oldEdge = edges[edgeId];
+    const {
+      parentNodeId: oldParentNodeId,
+      parentPieceId: oldParentPieceId,
+    } = oldEdge;
+
+    const {
+      parentNodeId: newParentNodeId,
+      parentPieceId: newParentPieceId,
+    } = newEdge;
+
+    const oldParentNode = nodes[oldParentNodeId];
+    const { parentEdges: oldParentEdges } = oldParentNode;
+    const newParentNode = nodes[newParentNodeId];
+    const { parentEdges: newParentEdges } = newParentNode;
+
+    const updatedNodes = {};
+    if (oldParentNodeId === newParentNodeId) {
+      const updatedParentEdges = [...oldParentEdges];
+      updatedParentEdges[oldParentPieceId] = updatedParentEdges[oldParentPieceId].filter(
+        (id) => id !== edgeId,
+      );
+      updatedParentEdges[newParentPieceId] = [
+        ...updatedParentEdges[newParentPieceId],
+        edgeId,
+      ];
+
+      updatedNodes[oldParentNodeId] = {
+        ...oldParentNode,
+        parentEdges: updatedParentEdges,
+      };
+    } else {
+      const updatedOldParentEdges = [...oldParentEdges];
+      updatedOldParentEdges[oldParentPieceId] = updatedOldParentEdges[oldParentPieceId].filter(
+        (id) => id !== edgeId,
+      );
+
+      const updatedNewParentEdges = [...newParentEdges];
+      updatedNewParentEdges[newParentPieceId] = [
+        ...updatedNewParentEdges[newParentPieceId],
+        edgeId,
+      ];
+
+      updatedNodes[oldParentNodeId] = {
+        ...oldParentNode,
+        parentEdges: updatedOldParentEdges,
+      };
+      updatedNodes[newParentNodeId] = {
+        ...newParentNode,
+        parentEdges: updatedNewParentEdges,
+      };
+    }
+
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        ...updatedNodes,
+      },
+      edges: {
+        ...edges,
+        [edgeId]: newEdge,
+      },
+      dragEdge: null,
+    };
+  },
+
+  setSelectedEdge: (state, payload) => {
     const {
       selectedEdge,
     } = payload;
@@ -100,10 +606,23 @@ const reducers = {
     return {
       ...state,
       selectedEdge,
+      selectedNode: undefined,
+      isSelectedNodeEditable: {
+        label: false,
+        type: false,
+        value: false,
+      },
+      updateLabelInputValue: '',
+      updateTypeInputValue: '',
+      updateValueInputValue: '',
     };
   },
 
-  // Set up the DragEdge
+  clearSelectedEdge: (state) => ({
+    ...state,
+    selectedEdge: undefined,
+  }),
+
   setDragEdge: (state, payload) => {
     const { dragEdge } = payload;
     return {
@@ -112,7 +631,6 @@ const reducers = {
     };
   },
 
-  // Clear the DragEdge
   clearDragEdge: (state) => {
     return {
       ...state,
@@ -120,8 +638,7 @@ const reducers = {
     };
   },
 
-  // Update the DragEdge hole end to the event coordinates
-  moveDragEdgeParentEndTo: (state, payload) => {
+  updateDragEdgeParentCoordinates: (state, payload) => {
     const {
       x,
       y,
@@ -138,8 +655,7 @@ const reducers = {
     };
   },
 
-  // Update the DragEdge node end to the event coordinates
-  moveDragEdgeChildEndTo: (state, payload) => {
+  updateDragEdgeChildCoordinates: (state, payload) => {
     const {
       x,
       y,
@@ -157,275 +673,6 @@ const reducers = {
     };
   },
 
-  // Edit the selected node type, if the selected node is the selected root node,
-  // update the selected root node type too
-  nodeTypeEdit: (state, payload) => {
-    const {
-      type,
-      selectedNodeId,
-    } = payload;
-
-    const { nodes, selectedNode, selectedRootNode } = state;
-    return {
-      ...state,
-      nodes: nodes.map((node) => (node.id === selectedNodeId
-        ? {
-          ...node,
-          type,
-        }
-        : node)),
-      selectedNode: {
-        ...selectedNode,
-        type,
-      },
-      selectedRootNode:
-        selectedRootNode
-        && selectedNodeId === selectedRootNode.id
-          ? { ...selectedRootNode, type }
-          : selectedRootNode,
-    };
-  },
-
-  // Edit the selected node value, if the selected node is the selected root node,
-  // update the selected root node value too
-  nodeValueEdit: (state, payload) => {
-    const {
-      value,
-      selectedNodeId,
-    } = payload;
-
-    const { nodes, selectedNode, selectedRootNode } = state;
-    return {
-      ...state,
-      nodes: nodes.map((node) => (node.id === selectedNodeId
-        ? {
-          ...node,
-          value,
-        }
-        : node)),
-      selectedNode: {
-        ...selectedNode,
-        value,
-      },
-      selectedRootNode:
-        selectedRootNode
-        && selectedNodeId === selectedRootNode.id
-          ? { ...selectedRootNode, value }
-          : selectedRootNode,
-    };
-  },
-
-  // Set the editor state to a previously downloaded editor state
-  uploadState: (state, payload) => {
-    const {
-      nodes,
-      edges,
-      selectedRootNode,
-    } = payload;
-
-    return {
-      ...state,
-      nodes,
-      edges,
-      selectedNode: null,
-      selectedEdge: null,
-      dragEdge: null,
-      selectedRootNode,
-    };
-  },
-
-  // Set the editor state to the initial state passed using the initialState prop
-  setInitialState: (state, payload) => {
-    const {
-      initialNodes,
-      initialEdges,
-    } = payload;
-
-    return {
-      ...state,
-      nodes: initialNodes,
-      edges: initialEdges,
-    };
-  },
-
-  // Move the multiple nodes selection to the event coordinates
-  moveSelectedNodesTo: (state, payload) => {
-    const {
-      nodes,
-      delta,
-    } = payload;
-
-    const { nodes: previousNodesState } = state;
-    return {
-      ...state,
-      nodes: previousNodesState.map((node) => {
-        const foundNode = nodes.find(
-          (payloadNode) => payloadNode.attrs.id === node.id,
-        );
-        if (foundNode !== undefined) {
-          return {
-            ...node,
-            x: node.x + delta.x,
-            y: node.y + delta.y,
-          };
-        }
-        return { ...node };
-      }),
-    };
-  },
-
-  // Move the multiple nodes selection to the final event coordinates,
-  // (different action to be able to filter all the previous
-  // moving actions to allow undo/redo working)
-  moveSelectedNodesToEnd: (state, payload) => {
-    const {
-      nodes,
-      delta,
-    } = payload;
-
-    const { nodes: previousNodesState } = state;
-    return {
-      ...state,
-      nodes: previousNodesState.map((node) => {
-        const foundNode = nodes.find(
-          (payloadNode) => payloadNode.attrs.id === node.id,
-        );
-        if (foundNode !== undefined) {
-          return {
-            ...node,
-            x: node.x + delta.x,
-            y: node.y + delta.y,
-          };
-        }
-        return { ...node };
-      }),
-    };
-  },
-
-
-
-
-
-
-
-
-
-
-  // Remove the selected node from the array of nodes,
-  // remove all the edges connected to the removing node,
-  // if the removing node is the selected root node,
-  // clear the root node selection
-  // Add the new node to the array of nodes
-  setNodes: (state, payload) => {
-    const {
-      nodes,
-    } = payload;
-
-    return {
-      ...state,
-      nodes,
-    };
-  },
-
-  setEdges: (state, payload) => {
-    const {
-      edges,
-    } = payload;
-
-    return {
-      ...state,
-      edges,
-    };
-  },
-
-  createNode: (state, payload) => {
-    const {
-      id,
-      pieces,
-      x,
-      y,
-      width,
-      type,
-      value,
-      isFinal,
-    } = payload;
-
-    const { nodes } = state;
-
-    const addingNode = {
-      id,
-      pieces,
-      x,
-      y,
-      width,
-      type,
-      value,
-      isFinal,
-    };
-
-    return {
-      ...state,
-      nodes: [...nodes, addingNode],
-      isCreatingNode: false,
-    };
-  },
-  removeNode: (state, payload) => {
-    const {
-      nodeId,
-    } = payload;
-
-    const {
-      nodes,
-      edges,
-      selectedNode,
-      selectedRootNode,
-      isSelectedNodeEditable,
-      editLabelInputValue,
-      editTypeInputValue,
-      editValueInputValue,
-    } = state;
-
-    return {
-      ...state,
-      nodes: nodes.filter((node) => node.id !== nodeId),
-      edges: edges.filter(
-        (edge) => edge.parentNodeId !== nodeId
-          && edge.childNodeId !== nodeId,
-      ),
-
-      isSelectedNodeEditable: selectedNode ? {
-        label: false,
-        type: false,
-        value: false,
-      } : isSelectedNodeEditable,
-      editLabelInputValue: selectedNode ? '' : editLabelInputValue,
-      editTypeInputValue: selectedNode ? '' : editTypeInputValue,
-      editValueInputValue: selectedNode ? '' : editValueInputValue,
-      selectedNode: undefined,
-      selectedRootNode:
-        selectedRootNode
-        && selectedRootNode.id === nodeId
-          ? null
-          : selectedRootNode,
-    };
-  },
-
-  // Remove the selected edge from the array of edges
-  removeEdge: (state, payload) => {
-    const {
-      edgeId,
-    } = payload;
-
-    const { edges } = state;
-    return {
-      ...state,
-      edges: edges.filter((edge) => edge.id !== edgeId),
-      dragEdge: undefined,
-      selectedEdge: undefined,
-    };
-  },
-
-  // Reset the editor state to the initial state
   stageReset: (state, payload) => {
     const {
       nodes,
@@ -452,15 +699,30 @@ const reducers = {
     };
   },
 
-  // Select the selecting node
-  setSelectedNode: (state, payload) => {
+  setOrderedNodes: (state, payload) => {
     const {
-      selectedNode,
+      nodes,
+      edges,
+      stagePos,
+      stageScale,
+    } = payload;
+
+    return {
+      ...state,
+      nodes,
+      edges,
+      stagePos,
+      stageScale,
+    };
+  },
+
+  setIsDraggingNode: (state, payload) => {
+    const {
+      nodeId,
     } = payload;
 
     const { nodes } = state;
-
-    const node = nodeById(selectedNode, nodes);
+    const node = nodes[nodeId];
     const isSelectedNodeEditable = {
       label: !node.isFinal,
       type: true,
@@ -469,132 +731,13 @@ const reducers = {
 
     return {
       ...state,
-      selectedNode,
-      isSelectedNodeEditable,
+      isDraggingNode: true,
+      selectedNode: nodeId,
       selectedEdge: undefined,
-      editLabelInputValue: node.pieces.join(''),
-      editTypeInputValue: node.type,
-      editValueInputValue: node.value,
-    };
-  },
-
-  clearSelectedNode: (state) => ({
-    ...state,
-    selectedNode: undefined,
-    isSelectedNodeEditable: {
-      label: false,
-      type: false,
-      value: false,
-    },
-    editLabelInputValue: '',
-    editTypeInputValue: '',
-    editValueInputValue: '',
-  }),
-
-  setSelectedEdge: (state, payload) => {
-    const {
-      selectedEdge,
-    } = payload;
-
-    return {
-      ...state,
-      selectedEdge,
-      selectedNode: undefined,
-    };
-  },
-
-  clearSelectedEdge: (state) => ({
-    ...state,
-    selectedEdge: undefined,
-  }),
-
-  setSelectedRootNode: (state, payload) => {
-    const {
-      selectedRootNode,
-    } = payload;
-
-    return {
-      ...state,
-      selectedRootNode,
-    };
-  },
-
-  clearSelectedRootNode: (state) => ({
-    ...state,
-    selectedRootNode: undefined,
-  }),
-
-  // Edit the selected node pieces, remove all the edges
-  // that are connected to a hole connector of the selected node
-  editNode: (state, payload) => {
-    const {
-      pieces,
-      width,
-    } = payload;
-
-    const { nodes, edges, selectedNode } = state;
-    return {
-      ...state,
-      nodes: nodes.map((node) => (node.id === selectedNode
-        ? {
-          ...node,
-          pieces,
-          width,
-        }
-        : node)),
-      edges: edges.filter(
-        (edge) => edge.parentNodeId !== selectedNode,
-      ),
-    };
-  },
-  // Edit the selected node type
-  editNodeType: (state, payload) => {
-    const {
-      type,
-    } = payload;
-
-    const { nodes, selectedNode } = state;
-    return {
-      ...state,
-      nodes: nodes.map((node) => (node.id === selectedNode
-        ? {
-          ...node,
-          type,
-        }
-        : node)),
-      editTypeInputValue: type,
-    };
-  },
-  // Edit the selected node value
-  editNodeValue: (state, payload) => {
-    const {
-      value,
-    } = payload;
-
-    const { nodes, selectedNode } = state;
-    return {
-      ...state,
-      nodes: nodes.map((node) => (node.id === selectedNode
-        ? {
-          ...node,
-          value,
-        }
-        : node)),
-      editValueInputValue: value,
-    };
-  },
-  setOrderedNodes: (state, payload) => {
-    const {
-      nodes,
-      stagePos,
-      stageScale,
-    } = payload;
-
-    return {
-      ...state,
-      nodes,
-      stagePos,
-      stageScale,
+      isSelectedNodeEditable,
+      updateLabelInputValue: node.pieces.join(''),
+      updateTypeInputValue: node.type,
+      updateValueInputValue: node.value,
     };
   },
 };

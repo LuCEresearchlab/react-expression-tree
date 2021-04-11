@@ -22,8 +22,11 @@ import {
   AddRounded,
   ExpandMore,
   InfoOutlined,
-  UpdateRounded,
+  Check,
 } from '@material-ui/icons';
+
+import { Layer, Stage } from 'react-konva';
+import Node from '../../Node/Node';
 
 // Width of the side drawer
 const drawerWidth = 300;
@@ -33,11 +36,22 @@ const useStyles = makeStyles((theme) => ({
   drawer: {
     width: drawerWidth,
     position: 'absolute',
-    top: '50px',
-    maxHeight: '92%',
     overflowY: 'auto',
-    marginLeft: '1px',
-    // border: '1px solid black',
+    '@media print': {
+      display: 'none',
+    },
+    '& .MuiDrawer-paperAnchorLeft': {
+      border: '0px',
+      backgroundColor: 'rgba(0,0,0,0)',
+    },
+  },
+  drawerContainer: {
+    overflowX: 'hidden',
+    overflowY: 'auto',
+    backgroundColor: '#fafafa',
+    borderRadius: '0px 0px 15px 0px',
+    borderRight: '1px solid #dedede',
+    borderBottom: '1px solid #dedede',
   },
   drawerInfo: {
     display: 'flex',
@@ -50,9 +64,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     margin: '0 0 10px 10px',
-  },
-  editText: {
-    margin: '10px 0 10px 10px',
   },
   infoPopover: {
     marginLeft: '5px',
@@ -100,20 +111,20 @@ const useStyles = makeStyles((theme) => ({
     maxHeight: '200px',
     overflowY: 'scroll',
   },
+  textField: {
+    paddingRight: '10px',
+  },
+  input: {
+    backgroundColor: 'white',
+  },
   typeField: {
     margin: '10px 10px 10px 10px',
   },
-  typeButtonContainer: {
-    maxHeight: '150px',
-    overflowY: 'scroll',
-    borderRadius: '3px',
-    marginTop: '10px',
-    paddingTop: '10px',
-    padding: '5px 20px 5px 20px',
-    boxShadow: '0 0 1px 1px #ddd',
-  },
   typeButton: {
-    marginRight: '30px',
+    textTransform: 'none',
+  },
+  valueButton: {
+    textTransform: 'none',
   },
 }));
 
@@ -123,33 +134,36 @@ function EditorDrawer({
   showDrawerSections,
   toggleIsCreatingNode,
   templateNodes,
-  handleEditLabelPiecesChange,
-  handleEditNodeTypeChange,
-  handleEditNodeValueChange,
-  allowFreeTypeEdit,
-  allowFreeValueEdit,
+  handleUpdateLabelPiecesChange,
+  handleUpdateNodeTypeChange,
+  handleUpdateNodeValueChange,
+  allowFreeTypeUpdate,
+  allowFreeValueUpdate,
   templateNodeTypesAndValues,
   isDrawerOpen,
   isCreatingNode,
   isSelectedNodeEditable,
+  createNodeDescription,
   createNodeInputValue,
-  editLabelInputValue,
-  editTypeInputValue,
-  editValueInputValue,
+  updateLabelInputValue,
+  updateTypeInputValue,
+  updateValueInputValue,
   setCreateNodeInputValue,
-  setEditLabelInputValue,
+  setUpdateLabelInputValue,
+  nodeFontSize,
+  nodeFontFamily,
+  nodePaddingX,
+  nodePaddingY,
+  nodeStyle,
 }) {
   const classes = useStyles();
 
   const [addAnchorEl, setAddAnchorEl] = useState(null);
   const isAddInfoOpen = !!addAnchorEl;
-  const [editAnchorEl, setEditAnchorEl] = useState(null);
-  const isEditInfoOpen = !!editAnchorEl;
 
   const handleTemplateClick = (value) => {
     setCreateNodeInputValue(value);
   };
-
   return (
     <Drawer
       className={classes.drawer}
@@ -165,11 +179,10 @@ function EditorDrawer({
       anchor="left"
       open={isDrawerOpen}
     >
-      <div>
+      <div className={classes.drawerContainer}>
         {showDrawerSections.addNodeField && (
           <>
             <div className={classes.drawerInfo}>
-              <Typography variant="h6">Create a new node:</Typography>
               <div>
                 <IconButton
                   size="small"
@@ -189,38 +202,31 @@ function EditorDrawer({
                     className={classes.infoPopoverText}
                     variant="body2"
                   >
-                    Describe the node pieces in the textfield below. Holes are
-                    represented by the special
-                    {' '}
-                    {connectorPlaceholder}
-                    {' '}
-                    character
-                    combination. Alternatively you can choose a template node
-                    from the list below.
+                    {`Describe the node content in the textfield below. Holes are represented by the special ${connectorPlaceholder} character.`}
                   </Typography>
                 </Popover>
               </div>
+              <Typography variant="h6">Create a new node:</Typography>
             </div>
             <div className={classes.drawerField}>
               <TextField
+                className={classes.textField}
                 id="addField"
                 type="search"
                 variant="outlined"
                 fullWidth
                 size="medium"
-                label="Insert the node's pieces"
+                // label="Insert the node's pieces"
                 InputLabelProps={{
                   shrink: true,
                 }}
-                placeholder={
-                  `ex: ${
-                    connectorPlaceholder
-                  }.append(${
-                    connectorPlaceholder
-                  })`
-                }
+                InputProps={{
+                  className: classes.input,
+                }}
+                placeholder={`example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
                 margin="dense"
                 value={createNodeInputValue}
+                autoComplete="off"
                 onChange={(e) => setCreateNodeInputValue(e.target.value)}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
@@ -246,6 +252,50 @@ function EditorDrawer({
                 </Tooltip>
               </div>
             </div>
+            {createNodeDescription !== undefined && (
+              <div className={classes.drawerField}>
+                <Stage
+                  width={300}
+                  height={20 + createNodeDescription.height}
+                >
+                  <Layer>
+                    <Node
+                      id="create-node"
+                      positionX={5}
+                      positionY={10}
+                      labelPieces={createNodeDescription.pieces}
+                      labelPiecesPosition={createNodeDescription.piecesPosition}
+                      typeText={createNodeDescription.type}
+                      valueText={createNodeDescription.value}
+                      nodeWidth={createNodeDescription.width}
+                      nodeHeight={createNodeDescription.height}
+                      childEdges={createNodeDescription.childEdges}
+                      parentEdges={createNodeDescription.parentEdges}
+                      isFinal={createNodeDescription.isFinal}
+                      isSelected={createNodeDescription.isSelected}
+                      connectorPlaceholder={connectorPlaceholder}
+                      fontSize={nodeFontSize}
+                      fontFamily={nodeFontFamily}
+                      nodePaddingX={nodePaddingX}
+                      nodePaddingY={nodePaddingY}
+                      nodeStrokeColor={nodeStyle.nodeStrokeColor}
+                      nodeStrokeWidth={nodeStyle.nodeStrokeWidth}
+                      nodeSelectedStrokeWidth={nodeStyle.nodeSelectedStrokeWidth}
+                      nodeCornerRadius={nodeStyle.nodeCornerRadius}
+                      nodeFillColor={nodeStyle.nodeFillColor}
+                      nodeErrorColor={nodeStyle.nodeErrorColor}
+                      nodeSelectedColor={nodeStyle.nodeSelectedColor}
+                      nodeFinalColor={nodeStyle.nodeFinalColor}
+                      labelStyle={nodeStyle.labelStyle}
+                      topConnectorStyle={nodeStyle.topConnectorStyle}
+                      deleteButtonStyle={nodeStyle.deleteButtonStyle}
+                      typeValueStyle={nodeStyle.typeValueStyle}
+                      isFullDisabled
+                    />
+                  </Layer>
+                </Stage>
+              </div>
+            )}
           </>
         )}
         {showDrawerSections.templateDropdown && templateNodes && (
@@ -258,7 +308,7 @@ function EditorDrawer({
                 <Accordion>
                   <AccordionSummary expandIcon={<ExpandMore />}>
                     <Typography variant="body1">
-                      Or select a template node:
+                      Suggested nodes:
                     </Typography>
                   </AccordionSummary>
                   <Divider />
@@ -281,76 +331,53 @@ function EditorDrawer({
             </div>
           </div>
         )}
-        {showDrawerSections.editLabelField && isSelectedNodeEditable.label && (
-          <>
+        {(isSelectedNodeEditable.label
+          || isSelectedNodeEditable.type
+          || isSelectedNodeEditable.value)
+          && (showDrawerSections.updateLabelField
+            || showDrawerSections.updateTypeField
+            || showDrawerSections.updateValueField) && (
             <div className={classes.drawerInfo}>
               <Typography variant="h6">Edit an existing node:</Typography>
-              <div>
-                <IconButton
-                  size="small"
-                  color="primary"
-                  onClick={(e) => setEditAnchorEl(e.target)}
-                >
-                  <InfoOutlined />
-                </IconButton>
-                <Popover
-                  className={classes.infoPopover}
-                  anchorEl={editAnchorEl}
-                  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                  open={isEditInfoOpen}
-                  onClose={() => setEditAnchorEl(null)}
-                >
-                  <Typography
-                    className={classes.infoPopoverText}
-                    variant="body2"
-                  >
-                    Describe the node pieces in the textfield below. Holes are
-                    represented by the special
-                    {' '}
-                    {connectorPlaceholder}
-                    {' '}
-                    character
-                    combination. Final nodes cannot be modified or removed.
-                  </Typography>
-                </Popover>
-              </div>
             </div>
+        )}
+        {showDrawerSections.updateLabelField && isSelectedNodeEditable.label && (
+          <>
             <div className={classes.drawerField}>
               <TextField
-                id="editField"
+                className={classes.textField}
+                id="updateField"
                 variant="outlined"
                 type="search"
                 fullWidth
                 size="medium"
-                label="Insert the node's label"
+                label="Edit the node's content"
                 InputLabelProps={{
                   shrink: true,
                 }}
-                placeholder={
-                  `ex: ${
-                    connectorPlaceholder
-                  }.append(${
-                    connectorPlaceholder
-                  })`
-                }
-                value={editLabelInputValue}
+                InputProps={{
+                  className: classes.input,
+                }}
+                placeholder={`example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
+                value={updateLabelInputValue}
                 margin="dense"
-                onChange={(e) => setEditLabelInputValue(e.target.value)}
+                autoComplete="off"
+                onChange={(e) => setUpdateLabelInputValue(e.target.value)}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
-                    handleEditLabelPiecesChange(e.target.value);
+                    handleUpdateLabelPiecesChange(e.target.value);
                   }
                 }}
               />
               <div>
-                <Tooltip title="Update node pieces" placement="top">
+                <Tooltip title="Confirm edit" placement="top">
                   <span>
                     <IconButton
                       size="medium"
                       color="primary"
-                      onClick={handleEditLabelPiecesChange}
+                      onClick={handleUpdateLabelPiecesChange}
                     >
-                      <UpdateRounded />
+                      <Check />
                     </IconButton>
                   </span>
                 </Tooltip>
@@ -358,26 +385,30 @@ function EditorDrawer({
             </div>
           </>
         )}
-        {showDrawerSections.editTypeField && isSelectedNodeEditable.type && (
+        {showDrawerSections.updateTypeField && isSelectedNodeEditable.type && (
           <>
             <div className={classes.drawerField}>
               {/* <Typography variant="h6">Edit the type:</Typography> */}
-              {allowFreeTypeEdit && (
+              {allowFreeTypeUpdate && (
                 <>
                   <TextField
+                    className={classes.textField}
                     id="typeField"
                     variant="outlined"
                     fullWidth
                     size="medium"
-                    placeholder="ex: 1234567890"
+                    placeholder="String"
                     margin="dense"
-                    label="Insert the node's type"
+                    label="Edit the node's type"
                     InputLabelProps={{
                       shrink: true,
                     }}
+                    InputProps={{
+                      className: classes.input,
+                    }}
                     autoComplete="off"
-                    value={editTypeInputValue}
-                    onChange={(e) => handleEditNodeTypeChange(e.target.value)}
+                    value={updateTypeInputValue}
+                    onChange={(e) => handleUpdateNodeTypeChange(e.target.value)}
                   />
                 </>
               )}
@@ -389,9 +420,10 @@ function EditorDrawer({
                 <div>
                   {Object.keys(templateNodeTypesAndValues).map((nodeType) => (
                     <Button
+                      size="large"
                       key={nodeType}
                       className={classes.typeButton}
-                      onClick={() => handleEditNodeTypeChange(nodeType)}
+                      onClick={() => handleUpdateNodeTypeChange(nodeType)}
                     >
                       {nodeType}
                     </Button>
@@ -401,42 +433,47 @@ function EditorDrawer({
             )}
           </>
         )}
-        {showDrawerSections.editValueField && isSelectedNodeEditable.value && (
+        {showDrawerSections.updateValueField && isSelectedNodeEditable.value && (
           <>
             <div className={classes.drawerField}>
               {/* <Typography variant="h6">Edit the type:</Typography> */}
-              {allowFreeValueEdit && (
+              {allowFreeValueUpdate && (
                 <>
                   <TextField
+                    className={classes.textField}
                     id="valueField"
                     variant="outlined"
                     fullWidth
                     size="medium"
-                    placeholder="ex: 1234567890"
+                    placeholder={'example: "Hello World"'}
                     margin="dense"
-                    label="Insert the node's value"
+                    label="Edit the node's value"
                     InputLabelProps={{
                       shrink: true,
                     }}
+                    InputProps={{
+                      className: classes.input,
+                    }}
                     autoComplete="off"
-                    value={editValueInputValue}
-                    onChange={(e) => handleEditNodeValueChange(e.target.value)}
+                    value={updateValueInputValue}
+                    onChange={(e) => handleUpdateNodeValueChange(e.target.value)}
                   />
                 </>
               )}
             </div>
 
             {templateNodeTypesAndValues
-              && templateNodeTypesAndValues[editTypeInputValue]
-              && templateNodeTypesAndValues[editTypeInputValue].length > 0 && (
+              && templateNodeTypesAndValues[updateTypeInputValue]
+              && templateNodeTypesAndValues[updateTypeInputValue].length > 0 && (
                 <div className={classes.typeField}>
-                  <FormLabel>Suggested node types:</FormLabel>
+                  <FormLabel>Suggested node values:</FormLabel>
                   <div>
-                    {templateNodeTypesAndValues[editTypeInputValue].map((nodeValue) => (
+                    {templateNodeTypesAndValues[updateTypeInputValue].map((nodeValue) => (
                       <Button
+                        size="large"
                         key={nodeValue}
-                        className={classes.typeButton}
-                        onClick={() => handleEditNodeValueChange(nodeValue)}
+                        className={classes.valueButton}
+                        onClick={() => handleUpdateNodeValueChange(nodeValue)}
                       >
                         {nodeValue}
                       </Button>
@@ -455,49 +492,122 @@ EditorDrawer.propTypes = {
   containerRef: PropTypes.element.isRequired,
   connectorPlaceholder: PropTypes.string,
   templateNodes: PropTypes.arrayOf(PropTypes.string),
-  allowFreeTypeEdit: PropTypes.bool,
-  allowFreeValueEdit: PropTypes.bool,
+  allowFreeTypeUpdate: PropTypes.bool,
+  allowFreeValueUpdate: PropTypes.bool,
   templateNodeTypesAndValues: PropTypes.shape({}),
   showDrawerSections: PropTypes.shape({
     addNodeField: PropTypes.bool,
     templateDropdown: PropTypes.bool,
-    editLabelField: PropTypes.bool,
-    editValueField: PropTypes.bool,
-    editTypeField: PropTypes.bool,
+    updateLabelField: PropTypes.bool,
+    updateValueField: PropTypes.bool,
+    updateTypeField: PropTypes.bool,
   }),
   toggleIsCreatingNode: PropTypes.func,
-  handleEditLabelPiecesChange: PropTypes.func,
-  handleEditNodeTypeChange: PropTypes.func,
-  handleEditNodeValueChange: PropTypes.func,
+  handleUpdateLabelPiecesChange: PropTypes.func,
+  handleUpdateNodeTypeChange: PropTypes.func,
+  handleUpdateNodeValueChange: PropTypes.func,
 
   isDrawerOpen: PropTypes.bool,
   isCreatingNode: PropTypes.bool,
   isSelectedNodeEditable: PropTypes.bool,
 
+  createNodeDescription: PropTypes.shape({
+    height: PropTypes.number,
+    width: PropTypes.number,
+    pieces: PropTypes.arrayOf(PropTypes.string),
+    piecesPosition: PropTypes.arrayOf(PropTypes.number),
+    type: PropTypes.string,
+    value: PropTypes.string,
+    isFinal: PropTypes.bool,
+    isSelected: PropTypes.bool,
+    childEdges: PropTypes.arrayOf(PropTypes.string),
+    parentEdges: PropTypes.arrayOf(PropTypes.string),
+  }),
   createNodeInputValue: PropTypes.string,
-  editLabelInputValue: PropTypes.string,
-  editTypeInputValue: PropTypes.string,
-  editValueInputValue: PropTypes.string,
+  updateLabelInputValue: PropTypes.string,
+  updateTypeInputValue: PropTypes.string,
+  updateValueInputValue: PropTypes.string,
   setCreateNodeInputValue: PropTypes.func,
-  setEditLabelInputValue: PropTypes.func,
+  setUpdateLabelInputValue: PropTypes.func,
+  nodeFontSize: PropTypes.number,
+  nodeFontFamily: PropTypes.string,
+  nodePaddingX: PropTypes.number,
+  nodePaddingY: PropTypes.number,
+  nodeStyle: PropTypes.exact({
+    nodeStrokeColor: PropTypes.string,
+    nodeStrokeWidth: PropTypes.number,
+    nodeSelectedStrokeWidth: PropTypes.number,
+    nodeCornerRadius: PropTypes.number,
+    nodeFillColor: PropTypes.string,
+    nodeErrorColor: PropTypes.string,
+    nodeSelectedColor: PropTypes.string,
+    nodeFinalColor: PropTypes.string,
+    labelStyle: PropTypes.exact({
+      nodeTextColor: PropTypes.string,
+      placeholderStrokeWidth: PropTypes.number,
+      placeholderStrokeColor: PropTypes.string,
+      placeholderFillColor: PropTypes.string,
+      placeholderErrorColor: PropTypes.string,
+      placeholderRadius: PropTypes.number,
+      connectorRadiusSize: PropTypes.number,
+      connectorStrokeWidth: PropTypes.number,
+      connectorFillColor: PropTypes.string,
+      connectorStrokeColor: PropTypes.string,
+    }),
+    topConnectorStyle: PropTypes.exact({
+      starNumPoints: PropTypes.number,
+      starInnerRadius: PropTypes.number,
+      starOuterRadius: PropTypes.number,
+      starStrokeColor: PropTypes.string,
+      starStrokeWidth: PropTypes.number,
+      connectorRadius: PropTypes.number,
+      connectorStrokeColor: PropTypes.string,
+      connectorStrokeWidth: PropTypes.number,
+      connectorFillColor: PropTypes.string,
+      connectorErrorColor: PropTypes.string,
+      connectorSelectedColor: PropTypes.string,
+      connectorEmptyFillColor: PropTypes.string,
+    }),
+    deleteButtonStyle: PropTypes.exact({
+      strokeWidth: PropTypes.number,
+      radius: PropTypes.number,
+      strokeColor: PropTypes.string,
+      fillColor: PropTypes.string,
+      textColor: PropTypes.string,
+      overStrokeColor: PropTypes.string,
+      overFillColor: PropTypes.string,
+      overTextColor: PropTypes.string,
+    }),
+    typeValueStyle: PropTypes.exact({
+      strokeWidth: PropTypes.number,
+      radius: PropTypes.number,
+      padding: PropTypes.number,
+      textColor: PropTypes.string,
+      fillColor: PropTypes.string,
+      strokeColor: PropTypes.string,
+      pointerDirection: PropTypes.string,
+      pointerWidth: PropTypes.number,
+      pointerHeight: PropTypes.number,
+    }),
+  }),
 };
 
 EditorDrawer.defaultProps = {
   connectorPlaceholder: '{{}}',
   templateNodes: undefined,
-  allowFreeTypeEdit: true,
-  allowFreeValueEdit: true,
+  allowFreeTypeUpdate: true,
+  allowFreeValueUpdate: true,
   templateNodeTypesAndValues: undefined,
   showDrawerSections: {
     addNodeField: true,
     templateDropdown: true,
-    editLabelField: true,
-    editValueField: true,
-    editTypeField: true,
+    updateLabelField: true,
+    updateValueField: true,
+    updateTypeField: true,
   },
-  handleEditLabelPiecesChange: () => {},
-  handleEditNodeTypeChange: () => {},
-  handleEditNodeValueChange: () => {},
+  handleUpdateLabelPiecesChange: () => {},
+  handleUpdateNodeTypeChange: () => {},
+  handleUpdateNodeValueChange: () => {},
   toggleIsCreatingNode: () => {},
 
   isDrawerOpen: true,
@@ -507,12 +617,19 @@ EditorDrawer.defaultProps = {
     type: false,
     value: false,
   },
+  createNodeDescription: undefined,
   createNodeInputValue: '',
-  editLabelInputValue: '',
-  editTypeInputValue: '',
-  editValueInputValue: '',
-  setEditLabelInputValue: () => {},
+  updateLabelInputValue: '',
+  updateTypeInputValue: '',
+  updateValueInputValue: '',
+  setUpdateLabelInputValue: () => {},
   setCreateNodeInputValue: () => {},
+
+  nodeFontSize: 24,
+  nodeFontFamily: 'Roboto Mono, Courier',
+  nodePaddingX: 12,
+  nodePaddingY: 12,
+  nodeStyle: {},
 };
 
 export default EditorDrawer;

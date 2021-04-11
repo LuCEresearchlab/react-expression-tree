@@ -104,9 +104,8 @@ module.exports = {
         root: 'ReactDOM',
       },
     },
-    /@material-ui\/core\/.*/,
-    /@material-ui\/icons\/.*/,
-    /@material-ui\/lab\/.*/,
+    /@material-ui/,
+    /konva/,
   ],
 
   optimization: {

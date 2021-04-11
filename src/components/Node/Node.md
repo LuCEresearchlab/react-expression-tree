@@ -4,17 +4,17 @@ import Konva from 'konva';
 import { Stage, Layer } from 'react-konva';
 import createPositionUtils from '../../utils/position';
 import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
-import defaultStyle from '../../style/default.json'
 
 const { 
   computeNodeWidth,
   computeLabelPiecesXCoordinatePositions,
-} = createPositionUtils(24, defaultStyle.fontFamily, "{{}}", 24)
+} = createPositionUtils(24, 'Roboto Mono, Courier', "{{}}", 20, 12, 12)
 
 const containerRef = useRef();
 const width = useContainerWidthOnWindowResize(containerRef);
 const height = 120;
-const labelPieces = ["Hello ", "{{}}", "World"];
+const labelPieces = ["Hello ", "{{}}", " World"];
+const labelPiecesPosition = computeLabelPiecesXCoordinatePositions(labelPieces)
 
 ;<div
   ref={containerRef}
@@ -27,6 +27,7 @@ const labelPieces = ["Hello ", "{{}}", "World"];
       <Node
         id={1}
         labelPieces={labelPieces}
+        labelPiecesPosition={labelPiecesPosition}
         positionX={25}
         positionY={50}
         typeText={"String"}
@@ -36,7 +37,7 @@ const labelPieces = ["Hello ", "{{}}", "World"];
         stageWidth={width}
         stageHeight={height}
         nodeWidth={computeNodeWidth(labelPieces)}
-        computeLabelPiecesXCoordinatePositions={computeLabelPiecesXCoordinatePositions}
+        nodeHeight={48}
         isFullDisabled={true}
       />
     </Layer>

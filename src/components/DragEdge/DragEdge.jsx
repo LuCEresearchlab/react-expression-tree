@@ -2,75 +2,94 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Line, Circle } from 'react-konva';
 
-import defaultStyle from '../../style/default.json';
-
 /**
- *
  * The DragEdge component represent the Edge that is being dragged
- *
  */
 function DragEdge({
   childX,
   childY,
   parentX,
   parentY,
-  style,
+  lineStrokeWidth,
+  lineStrokeColor,
+  childConnectorRadiusSize,
+  childConnectorFillColor,
+  childConnectorStrokeWidth,
+  childConnectorStrokeColor,
+  parentConnectorRadiusSize,
+  parentConnectorFillColor,
+  parentConnectorStrokeWidth,
+  parentConnectorStrokeColor,
+
 }) {
   return (
     // DragEdge is composed of a Line and two Circles
     <>
       <Line
         points={[childX, childY, parentX, parentY]}
-        stroke={style.color}
-        strokeWidth={style.strokeSize}
+        stroke={lineStrokeColor}
+        strokeWidth={lineStrokeWidth}
       />
       <Circle
         x={childX}
         y={childY}
-        radius={style.connector.child.radiusSize}
-        fill={style.connector.child.color}
-        stroke={style.connector.child.strokeColor}
-        strokeWidth={style.connector.child.strokeSize}
+        radius={childConnectorRadiusSize}
+        fill={childConnectorFillColor}
+        stroke={childConnectorStrokeColor}
+        strokeWidth={childConnectorStrokeWidth}
       />
       <Circle
         x={parentX}
         y={parentY}
-        radius={style.connector.parent.radiusSize}
-        fill={style.connector.parent.color}
-        stroke={style.connector.parent.strokeColor}
-        strokeWidth={style.connector.parent.strokeSize}
+        radius={parentConnectorRadiusSize}
+        fill={parentConnectorFillColor}
+        stroke={parentConnectorStrokeColor}
+        strokeWidth={parentConnectorStrokeWidth}
       />
     </>
   );
 }
 
 DragEdge.propTypes = {
+  /**
+   * X coordinate of the child connector
+   */
   childX: PropTypes.number.isRequired,
+  /**
+   * Y coordinate of the child connector
+   */
   childY: PropTypes.number.isRequired,
+  /**
+   * X coordinate of the parent connector
+   */
   parentX: PropTypes.number.isRequired,
+  /**
+   * Y coordinate of the parent connector
+   */
   parentY: PropTypes.number.isRequired,
-  style: PropTypes.exact({
-    strokeSize: PropTypes.number,
-    color: PropTypes.string,
-    connector: PropTypes.exact({
-      child: PropTypes.exact({
-        radiusSize: PropTypes.number,
-        color: PropTypes.string,
-        strokeSize: PropTypes.number,
-        strokeColor: PropTypes.string,
-      }),
-      parent: PropTypes.exact({
-        radiusSize: PropTypes.number,
-        color: PropTypes.string,
-        strokeSize: PropTypes.number,
-        strokeColor: PropTypes.string,
-      }),
-    }),
-  }),
+  lineStrokeWidth: PropTypes.number,
+  lineStrokeColor: PropTypes.string,
+  childConnectorRadiusSize: PropTypes.number,
+  childConnectorFillColor: PropTypes.string,
+  childConnectorStrokeWidth: PropTypes.number,
+  childConnectorStrokeColor: PropTypes.string,
+  parentConnectorRadiusSize: PropTypes.number,
+  parentConnectorFillColor: PropTypes.string,
+  parentConnectorStrokeWidth: PropTypes.number,
+  parentConnectorStrokeColor: PropTypes.string,
 };
 
 DragEdge.defaultProps = {
-  style: defaultStyle.dragEdge,
+  lineStrokeWidth: 6,
+  lineStrokeColor: '#000000',
+  childConnectorRadiusSize: 6,
+  childConnectorFillColor: '#ff2f2f',
+  childConnectorStrokeWidth: 1,
+  childConnectorStrokeColor: '#000000',
+  parentConnectorRadiusSize: 6,
+  parentConnectorFillColor: '#ff2f2f',
+  parentConnectorStrokeWidth: 1,
+  parentConnectorStrokeColor: '#000000',
 };
 
 export default DragEdge;

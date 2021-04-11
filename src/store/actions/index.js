@@ -1,88 +1,344 @@
-/* eslint-disable arrow-body-style */
 const actions = [
   {
-    name: 'moveNodeTo',
-    action: (payload) => { return { type: 'moveNodeTo', payload }; },
+    name: 'setNodes',
+    action: (nodes) => ({
+      type: 'setNodes',
+      payload: {
+        nodes,
+      },
+    }),
   },
+  {
+    name: 'createNode',
+    action: ({
+      id,
+      pieces,
+      piecesPosition,
+      x,
+      y,
+      width,
+      height,
+      type,
+      value,
+      isFinal,
+      isSelected,
+      childEdges,
+      parentEdges,
+    }) => ({
+      type: 'createNode',
+      payload: {
+        id,
+        pieces,
+        piecesPosition,
+        x,
+        y,
+        width,
+        height,
+        type,
+        value,
+        isFinal,
+        isSelected,
+        childEdges,
+        parentEdges,
+      },
+    }),
+  },
+  {
+    name: 'removeNode',
+    action: (nodeId) => ({
+      type: 'removeNode',
+      payload: {
+        nodeId,
+      },
+    }),
+  },
+  {
+    name: 'updateNode',
+    action: ({
+      updatedEdges,
+      pieces,
+      piecesPosition,
+      width,
+    }) => ({
+      type: 'updateNode',
+      payload: {
+        updatedEdges,
+        pieces,
+        piecesPosition,
+        width,
+      },
+    }),
+  },
+  {
+    name: 'updateNodeCoordinates',
+    action: ({
+      updatedEdges,
+      nodeId,
+      updatedNode,
+    }) => ({
+      type: 'updateNodeCoordinates',
+      payload: {
+        updatedEdges,
+        nodeId,
+        updatedNode,
+      },
+    }),
+  },
+  {
+    name: 'updateNodeCoordinatesAndFinishDragging',
+    action: ({
+      updatedEdges,
+      nodeId,
+      updatedNode,
+    }) => ({
+      type: 'updateNodeCoordinatesAndFinishDragging',
+      payload: {
+        updatedEdges,
+        nodeId,
+        updatedNode,
+      },
+    }),
+  },
+  {
+    name: 'updateNodeType',
+    action: (type) => ({
+      type: 'updateNodeType',
+      payload: {
+        type,
+      },
+    }),
+  },
+  {
+    name: 'updateNodeValue',
+    action: (value) => ({
+      type: 'updateNodeValue',
+      payload: {
+        value,
+      },
+    }),
+  },
+  {
+    name: 'setSelectedNode',
+    action: (selectedNode) => ({
+      type: 'setSelectedNode',
+      payload: {
+        selectedNode,
+      },
+    }),
+  },
+  {
+    name: 'clearSelectedNode',
+    action: () => ({
+      type: 'clearSelectedNode',
+    }),
+  },
+  {
+    name: 'setSelectedRootNode',
+    action: (selectedRootNode) => ({
+      type: 'setSelectedRootNode',
+      payload: {
+        selectedRootNode,
+      },
+    }),
+  },
+  {
+    name: 'clearSelectedRootNode',
+    action: () => ({
+      type: 'clearSelectedRootNode',
+    }),
+  },
+  {
+    name: 'setEdges',
+    action: (edges) => ({
+      type: 'setEdges',
+      payload: {
+        edges,
+      },
+    }),
+  },
+  {
+    name: 'createEdge',
+    action: ({
+      childNodeId,
+      parentNodeId,
+      parentPieceId,
+      childX,
+      childY,
+      parentX,
+      parentY,
+    }) => ({
+      type: 'createEdge',
+      payload: {
+        childNodeId,
+        parentNodeId,
+        parentPieceId,
+        childX,
+        childY,
+        parentX,
+        parentY,
+      },
+    }),
+  },
+  {
+    name: 'removeEdge',
+    action: (edgeId) => ({
+      type: 'removeEdge',
+      payload: {
+        edgeId,
+      },
+    }),
+  },
+  {
+    name: 'updateChildEdge',
+    action: ({
+      edgeId,
+      newEdge,
+    }) => ({
+      type: 'updateChildEdge',
+      payload: {
+        edgeId,
+        newEdge,
+      },
+    }),
+  },
+  {
+    name: 'updateParentEdge',
+    action: ({
+      edgeId,
+      newEdge,
+    }) => ({
+      type: 'updateParentEdge',
+      payload: {
+        edgeId,
+        newEdge,
+      },
+    }),
+  },
+  {
+    name: 'setSelectedEdge',
+    action: (selectedEdge) => ({
+      type: 'setSelectedEdge',
+      payload: {
+        selectedEdge,
+      },
+    }),
+  },
+  {
+    name: 'clearSelectedEdge',
+    action: () => ({
+      type: 'clearSelectedEdge',
+    }),
+  },
+  {
+    name: 'setDragEdge',
+    action: (dragEdge) => ({
+      type: 'setDragEdge',
+      payload: {
+        dragEdge,
+      },
+    }),
+  },
+  {
+    name: 'clearDragEdge',
+    action: () => ({
+      type: 'clearDragEdge',
+    }),
+  },
+  {
+    name: 'updateDragEdgeParentCoordinates',
+    action: ({
+      x,
+      y,
+    }) => ({
+      type: 'updateDragEdgeParentCoordinates',
+      payload: {
+        x,
+        y,
+      },
+    }),
+  },
+  {
+    name: 'updateDragEdgeChildCoordinates',
+    action: ({
+      x,
+      y,
+    }) => ({
+      type: 'updateDragEdgeChildCoordinates',
+      payload: {
+        x,
+        y,
+      },
+    }),
+  },
+  {
+    name: 'stageReset',
+    action: ({
+      nodes,
+      selectedNode,
+      edges,
+      selectedEdge,
+      selectedRootNode,
+      stagePos,
+      stageScale,
+      connectorPlaceholder,
+    }) => ({
+      type: 'stageReset',
+      payload: {
+        nodes,
+        selectedNode,
+        edges,
+        selectedEdge,
+        selectedRootNode,
+        stagePos,
+        stageScale,
+        connectorPlaceholder,
+      },
+    }),
+  },
+  {
+    name: 'setOrderedNodes',
+    action: ({
+      nodes,
+      edges,
+      stagePos,
+      stageScale,
+    }) => ({
+      type: 'setOrderedNodes',
+      payload: {
+        nodes,
+        edges,
+        stagePos,
+        stageScale,
+      },
+    }),
+  },
+  {
+    name: 'setIsDraggingNode',
+    action: (nodeId) => ({
+      type: 'setIsDraggingNode',
+      payload: {
+        nodeId,
+      },
+    }),
+  },
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+
   {
     name: 'moveNodeToEnd',
     action: (payload) => { return { type: 'moveNodeToEnd', payload }; },
   },
   {
-    name: 'setDragEdge',
-    action: (payload) => { return { type: 'setDragEdge', payload }; },
-  },
-  {
-    name: 'moveDragEdgeParentEndTo',
-    action: (payload) => { return { type: 'moveDragEdgeParentEndTo', payload }; },
-  },
-  {
-    name: 'moveDragEdgeChildEndTo',
-    action: (payload) => { return { type: 'moveDragEdgeChildEndTo', payload }; },
-  },
-  {
-    name: 'addEdge',
-    action: (payload) => { return { type: 'addEdge', payload }; },
-  },
-  {
-    name: 'updateEdge',
-    action: (payload) => { return { type: 'updateEdge', payload }; },
-  },
-  {
-    name: 'clearDragEdge',
-    action: (payload) => { return { type: 'clearDragEdge', payload }; },
-  },
-  {
-    name: 'clearNodeSelection',
-    action: (payload) => { return { type: 'clearNodeSelection', payload }; },
-  },
-  {
-    name: 'typeValueChange',
-    action: (payload) => { return { type: 'typeValueChange', payload }; },
-  },
-  {
     name: 'nodeValueChange',
     action: (payload) => { return { type: 'nodeValueChange', payload }; },
-  },
-  {
-    name: 'selectEdge',
-    action: (payload) => { return { type: 'selectEdge', payload }; },
-  },
-  {
-    name: 'clearEdgeSelection',
-    action: (payload) => { return { type: 'clearEdgeSelection', payload }; },
-  },
-  {
-    name: 'selectRootNode',
-    action: (payload) => { return { type: 'selectRootNode', payload }; },
-  },
-  {
-    name: 'clearRootSelection',
-    action: (payload) => { return { type: 'clearRootSelection', payload }; },
-  },
-  {
-    name: 'setInitialState',
-    action: (payload) => { return { type: 'setInitialState', payload }; },
-  },
-  {
-    name: 'moveSelectedNodesTo',
-    action: (payload) => { return { type: 'moveSelectedNodesTo', payload }; },
-  },
-  {
-    name: 'moveSelectedNodesToEnd',
-    action: (payload) => { return { type: 'moveSelectedNodesToEnd', payload }; },
-  },
-  {
-    name: 'uploadState',
-    action: (payload) => { return { type: 'uploadState', payload }; },
-  },
-  {
-    name: 'setNodes',
-    action: (payload) => { return { type: 'setNodes', payload }; },
-  },
-  {
-    name: 'setEdges',
-    action: (payload) => { return { type: 'setEdges', payload }; },
   },
   {
     name: 'setConnectorPlaceholder',
@@ -92,22 +348,41 @@ const actions = [
     name: 'setPlaceholderWidth',
     action: (payload) => { return { type: 'setPlaceholderWidth', payload }; },
   },
+
+  // Globals
   {
     name: 'setFontSize',
-    action: (payload) => { return { type: 'setFontSize', payload }; },
+    action: (fontSize) => ({
+      type: 'setFontSize',
+      payload: {
+        fontSize,
+      },
+    }),
   },
   {
     name: 'setFontFamily',
-    action: (payload) => { return { type: 'setFontFamily', payload }; },
-  },
-
-  // Global
-  {
-    name: 'setIsDraggingNode',
-    action: (isDraggingNode) => ({
-      type: 'setIsDraggingNode',
+    action: (fontFamily) => ({
+      type: 'setFontFamily',
       payload: {
-        isDraggingNode,
+        fontFamily,
+      },
+    }),
+  },
+  {
+    name: 'setNodePaddingX',
+    action: (nodePaddingX) => ({
+      type: 'setNodePaddingX',
+      payload: {
+        nodePaddingX,
+      },
+    }),
+  },
+  {
+    name: 'setNodePaddingY',
+    action: (nodePaddingY) => ({
+      type: 'setNodePaddingY',
+      payload: {
+        nodePaddingY,
       },
     }),
   },
@@ -155,29 +430,20 @@ const actions = [
     }),
   },
   {
-    name: 'setEditLabelInputValue',
-    action: (editLabelInputValue) => ({
-      type: 'setEditLabelInputValue',
+    name: 'setUpdateLabelInputValue',
+    action: (updateLabelInputValue) => ({
+      type: 'setUpdateLabelInputValue',
       payload: {
-        editLabelInputValue,
+        updateLabelInputValue,
       },
     }),
   },
   {
-    name: 'setEditTypeInputValue',
-    action: (editTypeInputValue) => ({
-      type: 'setEditTypeInputValue',
+    name: 'setCreateNodeDescription',
+    action: (createNodeDescription) => ({
+      type: 'setCreateNodeDescription',
       payload: {
-        editTypeInputValue,
-      },
-    }),
-  },
-  {
-    name: 'setEditValueInputValue',
-    action: (editValueInputValue) => ({
-      type: 'setEditValueInputValue',
-      payload: {
-        editValueInputValue,
+        createNodeDescription,
       },
     }),
   },
@@ -247,163 +513,6 @@ const actions = [
       },
     }),
   },
-  // Tree
-  {
-    name: 'removeEdge',
-    action: (edgeId) => ({
-      type: 'removeEdge',
-      payload: {
-        edgeId,
-      },
-    }),
-  },
-  {
-    name: 'createNode',
-    action: ({
-      id,
-      pieces,
-      x,
-      y,
-      width,
-      type,
-      value,
-      isFinal,
-    }) => ({
-      type: 'createNode',
-      payload: {
-        id,
-        pieces,
-        x,
-        y,
-        width,
-        type,
-        value,
-        isFinal,
-      },
-    }),
-  },
-  {
-    name: 'removeNode',
-    action: (nodeId) => ({
-      type: 'removeNode',
-      payload: {
-        nodeId,
-      },
-    }),
-  },
-  {
-    name: 'stageReset',
-    action: ({
-      nodes,
-      selectedNode,
-      edges,
-      selectedEdge,
-      selectedRootNode,
-      stagePos,
-      stageScale,
-      connectorPlaceholder,
-    }) => ({
-      type: 'stageReset',
-      payload: {
-        nodes,
-        selectedNode,
-        edges,
-        selectedEdge,
-        selectedRootNode,
-        stagePos,
-        stageScale,
-        connectorPlaceholder,
-      },
-    }),
-  },
-  {
-    name: 'setSelectedNode',
-    action: (selectedNode) => ({
-      type: 'setSelectedNode',
-      payload: {
-        selectedNode,
-      },
-    }),
-  },
-  {
-    name: 'clearSelectedNode',
-    action: () => ({
-      type: 'clearSelectedNode',
-    }),
-  },
-  {
-    name: 'setSelectedEdge',
-    action: (selectedEdge) => ({
-      type: 'setSelectedEdge',
-      payload: {
-        selectedEdge,
-      },
-    }),
-  },
-  {
-    name: 'clearSelectedEdge',
-    action: () => ({
-      type: 'clearSelectedEdge',
-    }),
-  },
-  {
-    name: 'setSelectedRootNode',
-    action: (selectedRootNode) => ({
-      type: 'setSelectedRootNode',
-      payload: {
-        selectedRootNode,
-      },
-    }),
-  },
-  {
-    name: 'clearSelectedRootNode',
-    action: () => ({
-      type: 'clearSelectedRootNode',
-    }),
-  },
-  {
-    name: 'editNode',
-    action: ({ pieces, width }) => ({
-      type: 'editNode',
-      payload: {
-        pieces,
-        width,
-      },
-    }),
-  },
-  {
-    name: 'editNodeType',
-    action: (type) => ({
-      type: 'editNodeType',
-      payload: {
-        type,
-      },
-    }),
-  },
-  {
-    name: 'editNodeValue',
-    action: (value) => ({
-      type: 'editNodeValue',
-      payload: {
-        value,
-      },
-    }),
-  },
-  {
-    name: 'setOrderedNodes',
-    action: ({
-      nodes,
-      stagePos,
-      stageScale,
-    }) => ({
-      type: 'setOrderedNodes',
-      payload: {
-        nodes,
-        stagePos,
-        stageScale,
-      },
-    }),
-  },
   // Errors
   {
     name: 'setValidationErrors',
@@ -430,6 +539,19 @@ const actions = [
     name: 'setNextError',
     action: () => ({
       type: 'setNextError',
+    }),
+  },
+  // Undo - Redo
+  {
+    name: 'undo',
+    action: () => ({
+      type: 'undo',
+    }),
+  },
+  {
+    name: 'redo',
+    action: () => ({
+      type: 'redo',
     }),
   },
 ];

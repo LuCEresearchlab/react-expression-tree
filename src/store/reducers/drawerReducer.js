@@ -23,36 +23,20 @@ const reducers = {
     };
   },
 
-  // Handle addValue changes
   setCreateNodeInputValue: (state, payload) => {
     const { createNodeInputValue } = payload;
+
     return {
       ...state,
       createNodeInputValue,
     };
   },
 
-  setEditLabelInputValue: (state, payload) => {
-    const { editLabelInputValue } = payload;
+  setUpdateLabelInputValue: (state, payload) => {
+    const { updateLabelInputValue } = payload;
     return {
       ...state,
-      editLabelInputValue,
-    };
-  },
-
-  setEditTypeInputValue: (state, payload) => {
-    const { editTypeInputValue } = payload;
-    return {
-      ...state,
-      editTypeInputValue,
-    };
-  },
-
-  setEditValueInputValue: (state, payload) => {
-    const { editValueInputValue } = payload;
-    return {
-      ...state,
-      editValueInputValue,
+      updateLabelInputValue,
     };
   },
 
@@ -70,6 +54,59 @@ const reducers = {
     ...state,
     isAddEdgeErrorSnackbarOpen: false,
   }),
+
+  setCreateNodeDescription: (state, payload) => {
+    const { createNodeDescription } = payload;
+
+    return {
+      ...state,
+      createNodeDescription,
+    };
+  },
+
+  undo: (state) => {
+    const { undoState, redoState } = state;
+
+    const lastUndoState = undoState[undoState.length - 1];
+    const changedKeys = Object.keys(lastUndoState);
+
+    const currentState = {};
+    changedKeys.forEach((key) => {
+      currentState[key] = state[key];
+    });
+
+    return {
+      ...state,
+      undoState: undoState.slice(0, -1),
+      redoState: [
+        ...redoState,
+        currentState,
+      ],
+      ...lastUndoState,
+    };
+  },
+
+  redo: (state) => {
+    const { undoState, redoState } = state;
+
+    const lastRedoState = redoState[redoState.length - 1];
+    const changedKeys = Object.keys(lastRedoState);
+
+    const currentState = {};
+    changedKeys.forEach((key) => {
+      currentState[key] = state[key];
+    });
+
+    return {
+      ...state,
+      redoState: redoState.slice(0, -1),
+      undoState: [
+        ...undoState,
+        currentState,
+      ],
+      ...lastRedoState,
+    };
+  },
 };
 
 export default reducers;

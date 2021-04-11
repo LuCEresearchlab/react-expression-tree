@@ -8,35 +8,30 @@ import {
   Rect,
 } from 'react-konva';
 
-import {
-  edgeByChildNode,
-  edgeByParentPiece,
-} from '../../utils/tree';
-
 import NodeLabel from './NodeLabel/NodeLabel';
 import NodeDeleteButton from './NodeDeleteButton/NodeDeleteButton';
 import NodeTopConnector from './NodeTopConnector/NodeTopConnector';
 import NodeTypeValue from './NodeTypeValue/NodeTypeValue';
 
-import defaultStyle from '../../style/default.json';
-
 function Node({
   id,
   labelPieces,
+  labelPiecesPosition,
   positionX,
   positionY,
   typeText,
   valueText,
+  childEdges,
+  parentEdges,
   connectorPlaceholder,
   placeholderWidth,
   stageRef,
   stageWidth,
   stageHeight,
   nodeWidth,
-  edges,
+  nodeHeight,
   currentErrorLocation,
   removeNode,
-  computeLabelPiecesXCoordinatePositions,
   setCursor,
   isDraggingSelectionRect,
   isFinal,
@@ -53,29 +48,27 @@ function Node({
   handleConnectorDragEnd,
   fontSize,
   fontFamily,
-  nodeStyle,
-  connectorStyle,
+  nodePaddingX,
+  nodePaddingY,
+  nodeStrokeColor,
+  nodeStrokeWidth,
+  nodeSelectedStrokeWidth,
+  nodeCornerRadius,
+  nodeFillColor,
+  nodeErrorColor,
+  nodeSelectedColor,
+  nodeFinalColor,
+  labelStyle,
+  topConnectorStyle,
+  deleteButtonStyle,
+  typeValueStyle,
 }) {
-  const { paddingX, paddingY } = nodeStyle;
+  const hasChildEdges = useMemo(() => childEdges.length > 0, [childEdges]);
 
-  const hasIncomingEdge = useMemo(
-    () => (edgeByChildNode(id, edges).length > 0),
-    [edges],
+  const hasParentEdges = useMemo(
+    () => parentEdges.map((pieceEdges) => pieceEdges.length > 0),
+    [parentEdges],
   );
-
-  const hasOutgoingEdges = useMemo(
-    () => (labelPieces.map((label, index) => (edgeByParentPiece(id, index, edges).length > 0))),
-    [labelPieces, edges],
-  );
-
-  const nodeHeight = useMemo(
-    () => 2 * nodeStyle.paddingY + fontSize,
-    [paddingY, fontSize],
-  );
-
-  const labelPiecesPosition = useMemo(() => computeLabelPiecesXCoordinatePositions(
-    labelPieces,
-  ), [labelPieces]);
 
   const checkDragBound = (pos) => {
     const stageScale = stageRef.current.scale();
@@ -111,13 +104,13 @@ function Node({
       e.target.parent.parent.parent.x()
         + e.target.parent.parent.x()
         + e.target.parent.x()
-        + paddingX
+        + nodePaddingX
         + labelPiecesPosition[pieceId]
         + placeholderWidth / 2,
       e.target.parent.parent.parent.y()
         + e.target.parent.parent.y()
         + e.target.parent.y()
-        + paddingY
+        + nodePaddingY
         + fontSize / 2,
       pieceId,
     );
@@ -160,19 +153,19 @@ function Node({
    *
    * @param {Object} stl
    */
-  const computeColor = (stl) => {
+  const computeColor = (defaultColor, errorColor, selectedColor, finalColor) => {
     if (currentErrorLocation
       && currentErrorLocation.node
       && currentErrorLocation.nodeId === id) {
-      return stl.errorColor;
+      return errorColor;
     }
     if (isSelected) {
-      return stl.selectedColor;
+      return selectedColor;
     }
     if (isFinal) {
-      return stl.finalColor;
+      return finalColor;
     }
-    return stl.fillColor;
+    return defaultColor;
   };
 
   return (
@@ -209,16 +202,21 @@ function Node({
         key={`NodeRect-${id}`}
         width={nodeWidth}
         height={nodeHeight}
-        fill={computeColor(nodeStyle)}
-        stroke={nodeStyle.strokeColor}
-        strokeWidth={isSelected ? nodeStyle.strokeSelectedWidth : nodeStyle.strokeWidth}
-        cornerRadius={nodeStyle.radius}
+        fill={computeColor(
+          nodeFillColor,
+          nodeErrorColor,
+          nodeSelectedColor,
+          nodeFinalColor,
+        )}
+        stroke={nodeStrokeColor}
+        strokeWidth={isSelected ? nodeSelectedStrokeWidth : nodeStrokeWidth}
+        cornerRadius={nodeCornerRadius}
       />
       <NodeTopConnector
         nodeId={id}
         nodeWidth={nodeWidth}
         currentErrorLocation={currentErrorLocation}
-        hasIncomingEdge={hasIncomingEdge}
+        hasChildEdges={hasChildEdges}
         isSelectedRoot={isSelectedRoot}
         isFullDisabled={isFullDisabled}
         isSelected={isSelected}
@@ -226,8 +224,18 @@ function Node({
         handleConnectorDragMove={handleConnectorDragMove}
         handleConnectorDragEnd={handleConnectorDragEnd}
         setCursor={setCursor}
-        nodeStyle={nodeStyle}
-        connectorStyle={connectorStyle}
+        starNumPoints={topConnectorStyle.starNumPoints}
+        starInnerRadius={topConnectorStyle.starInnerRadius}
+        starOuterRadius={topConnectorStyle.starOuterRadius}
+        starStrokeColor={topConnectorStyle.starStrokeColor}
+        starStrokeWidth={topConnectorStyle.starStrokeWidth}
+        connectorRadius={topConnectorStyle.connectorRadius}
+        connectorStrokeColor={topConnectorStyle.connectorStrokeColor}
+        connectorStrokeWidth={topConnectorStyle.connectorStrokeWidth}
+        connectorFillColor={topConnectorStyle.connectorFillColor}
+        connectorErrorColor={topConnectorStyle.connectorErrorColor}
+        connectorSelectedColor={topConnectorStyle.connectorSelectedColor}
+        connectorEmptyFillColor={topConnectorStyle.connectorEmptyFillColor}
       />
       <NodeLabel
         nodeId={id}
@@ -236,33 +244,61 @@ function Node({
         labelPiecesPosition={labelPiecesPosition}
         nodeHeight={nodeHeight}
         currentErrorLocation={currentErrorLocation}
-        hasOutgoingEdges={hasOutgoingEdges}
+        hasParentEdges={hasParentEdges}
         isFullDisabled={isFullDisabled}
         handlePlaceholderConnectorDragStart={handlePlaceholderConnectorDragStart}
         handleConnectorDragMove={handleConnectorDragMove}
         handleConnectorDragEnd={handleConnectorDragEnd}
         setCursor={setCursor}
-        fontFamily={fontFamily}
         fontSize={fontSize}
-        nodeStyle={nodeStyle}
-        connectorStyle={connectorStyle}
+        fontFamily={fontFamily}
+        paddingX={nodePaddingX}
+        paddingY={nodePaddingY}
+        placeholderWidth={placeholderWidth}
+        nodeTextColor={labelStyle.nodeTextColor}
+        placeholderStrokeWidth={labelStyle.placeholderStrokeWidth}
+        placeholderStrokeColor={labelStyle.placeholderStrokeColor}
+        placeholderFillColor={labelStyle.placeholderFillColor}
+        placeholderErrorColor={labelStyle.placeholderErrorColor}
+        placeholderRadius={labelStyle.placeholderRadius}
+        connectorRadiusSize={labelStyle.connectorRadiusSize}
+        connectorStrokeWidth={labelStyle.connectorStrokeWidth}
+        connectorFillColor={labelStyle.connectorFillColor}
+        connectorStrokeColor={labelStyle.connectorStrokeColor}
       />
       <NodeDeleteButton
         nodeId={id}
         nodeWidth={nodeWidth}
+        nodeHeight={nodeHeight}
+        isSelected={isSelected}
         isFinal={isFinal}
         isFullDisabled={isFullDisabled}
         isDraggingSelectionRect={isDraggingSelectionRect}
         removeNode={removeNode}
-        fontFamily={fontFamily}
-        style={nodeStyle.delete}
+        strokeWidth={deleteButtonStyle.strokeWidth}
+        radius={deleteButtonStyle.radius}
+        strokeColor={deleteButtonStyle.strokeColor}
+        fillColor={deleteButtonStyle.fillColor}
+        textColor={deleteButtonStyle.textColor}
+        overStrokeColor={deleteButtonStyle.overStrokeColor}
+        overFillColor={deleteButtonStyle.overFillColor}
+        overTextColor={deleteButtonStyle.overTextColor}
       />
       <NodeTypeValue
+        nodeWidth={nodeWidth}
         typeText={typeText}
         valueText={valueText}
-        nodeWidth={nodeWidth}
         fontFamily={fontFamily}
-        style={nodeStyle.typeValue}
+        fontSize={typeValueStyle.fontSize}
+        strokeWidth={typeValueStyle.strokeWidth}
+        radius={typeValueStyle.radius}
+        padding={typeValueStyle.padding}
+        textColor={typeValueStyle.textColor}
+        fillColor={typeValueStyle.fillColor}
+        strokeColor={typeValueStyle.strokeColor}
+        pointerDirection={typeValueStyle.pointerDirection}
+        pointerWidth={typeValueStyle.pointerWidth}
+        pointerHeight={typeValueStyle.pointerHeight}
       />
     </Group>
   );
@@ -271,10 +307,13 @@ function Node({
 Node.propTypes = {
   id: PropTypes.number.isRequired,
   labelPieces: PropTypes.arrayOf(PropTypes.string).isRequired,
+  labelPiecesPosition: PropTypes.arrayOf(PropTypes.number).isRequired,
   positionX: PropTypes.number.isRequired,
   positionY: PropTypes.number.isRequired,
   typeText: PropTypes.string,
   valueText: PropTypes.string,
+  childEdges: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+  parentEdges: PropTypes.arrayOf(PropTypes.string),
   connectorPlaceholder: PropTypes.string.isRequired,
   placeholderWidth: PropTypes.number.isRequired,
   stageRef: PropTypes.shape({
@@ -284,19 +323,13 @@ Node.propTypes = {
   }).isRequired,
   stageWidth: PropTypes.number.isRequired,
   stageHeight: PropTypes.number.isRequired,
-  transformerRef: PropTypes.shape({
-    current: PropTypes.shape({
-      nodes: PropTypes.func,
-    }),
-  }),
   nodeWidth: PropTypes.number.isRequired,
-  edges: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.number)),
+  nodeHeight: PropTypes.number.isRequired,
   currentErrorLocation: PropTypes.shape({
     node: PropTypes.string,
     nodeId: PropTypes.number,
   }),
   removeNode: PropTypes.func,
-  computeLabelPiecesXCoordinatePositions: PropTypes.func.isRequired,
   setCursor: PropTypes.func,
   isDraggingSelectionRect: PropTypes.bool,
   isFinal: PropTypes.bool,
@@ -313,80 +346,71 @@ Node.propTypes = {
   handleConnectorDragEnd: PropTypes.func,
   fontSize: PropTypes.number,
   fontFamily: PropTypes.string,
-  nodeStyle: PropTypes.exact({
-    paddingX: PropTypes.number,
-    paddingY: PropTypes.number,
+  nodePaddingX: PropTypes.number,
+  nodePaddingY: PropTypes.number,
+  nodeStrokeColor: PropTypes.string,
+  nodeStrokeWidth: PropTypes.number,
+  nodeSelectedStrokeWidth: PropTypes.number,
+  nodeCornerRadius: PropTypes.number,
+  nodeFillColor: PropTypes.string,
+  nodeErrorColor: PropTypes.string,
+  nodeSelectedColor: PropTypes.string,
+  nodeFinalColor: PropTypes.string,
+  labelStyle: PropTypes.exact({
+    nodeTextColor: PropTypes.string,
+    placeholderStrokeWidth: PropTypes.number,
+    placeholderStrokeColor: PropTypes.string,
+    placeholderFillColor: PropTypes.string,
+    placeholderErrorColor: PropTypes.string,
+    placeholderRadius: PropTypes.number,
+    connectorRadiusSize: PropTypes.number,
+    connectorStrokeWidth: PropTypes.number,
+    connectorFillColor: PropTypes.string,
+    connectorStrokeColor: PropTypes.string,
+  }),
+  topConnectorStyle: PropTypes.exact({
+    starNumPoints: PropTypes.number,
+    starInnerRadius: PropTypes.number,
+    starOuterRadius: PropTypes.number,
+    starStrokeColor: PropTypes.string,
+    starStrokeWidth: PropTypes.number,
+    connectorRadius: PropTypes.number,
+    connectorStrokeColor: PropTypes.string,
+    connectorStrokeWidth: PropTypes.number,
+    connectorFillColor: PropTypes.string,
+    connectorErrorColor: PropTypes.string,
+    connectorSelectedColor: PropTypes.string,
+    connectorEmptyFillColor: PropTypes.string,
+  }),
+  deleteButtonStyle: PropTypes.exact({
+    strokeWidth: PropTypes.number,
     radius: PropTypes.number,
     strokeColor: PropTypes.string,
-    strokeWidth: PropTypes.number,
-    strokeSelectedWidth: PropTypes.number,
     fillColor: PropTypes.string,
-    errorColor: PropTypes.string,
-    selectedColor: PropTypes.string,
-    finalColor: PropTypes.string,
     textColor: PropTypes.string,
-    deleteButtonColor: PropTypes.string,
-    placeholder: PropTypes.exact({
-      width: PropTypes.number,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-      fillColor: PropTypes.string,
-      radius: PropTypes.number,
-    }),
-    star: PropTypes.exact({
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-      numPoints: PropTypes.number,
-      innerRadius: PropTypes.number,
-      outerRadius: PropTypes.number,
-    }),
-    delete: PropTypes.exact({
-      paddingX: PropTypes.number,
-      paddingY: PropTypes.number,
-      fontSize: PropTypes.number,
-      text: PropTypes.string,
-      textColor: PropTypes.string,
-      overTextColor: PropTypes.string,
-    }),
-    typeValue: PropTypes.exact({
-      fontSize: PropTypes.number,
-      fillColor: PropTypes.string,
-      strokeColor: PropTypes.string,
-      strokeSize: PropTypes.string,
-      pointerDirection: PropTypes.string,
-      pointerWidth: PropTypes.number,
-      pointerHeight: PropTypes.number,
-      radius: PropTypes.number,
-      textColor: PropTypes.string,
-      padding: PropTypes.number,
-    }),
+    overStrokeColor: PropTypes.string,
+    overFillColor: PropTypes.string,
+    overTextColor: PropTypes.string,
   }),
-  connectorStyle: PropTypes.exact({
-    child: PropTypes.exact({
-      radiusSize: PropTypes.number,
-      color: PropTypes.string,
-      emptyColor: PropTypes.string,
-      draggingColor: PropTypes.string,
-      errorColor: PropTypes.string,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-    }),
-    parent: PropTypes.exact({
-      radiusSize: PropTypes.number,
-      color: PropTypes.string,
-      draggingColor: PropTypes.string,
-      errorColor: PropTypes.string,
-      strokeSize: PropTypes.number,
-      strokeColor: PropTypes.string,
-    }),
+  typeValueStyle: PropTypes.exact({
+    fontSize: PropTypes.number,
+    strokeWidth: PropTypes.number,
+    radius: PropTypes.number,
+    padding: PropTypes.number,
+    textColor: PropTypes.string,
+    fillColor: PropTypes.string,
+    strokeColor: PropTypes.string,
+    pointerDirection: PropTypes.string,
+    pointerWidth: PropTypes.number,
+    pointerHeight: PropTypes.number,
   }),
 };
 
 Node.defaultProps = {
   typeText: '',
   valueText: '',
-  transformerRef: null,
-  edges: [],
+  childEdges: [],
+  parentEdges: [],
   currentErrorLocation: null,
   isDraggingSelectionRect: false,
   isFinal: false,
@@ -403,10 +427,22 @@ Node.defaultProps = {
   handleConnectorDragStart: () => {},
   handleConnectorDragMove: () => {},
   handleConnectorDragEnd: () => {},
-  fontSize: defaultStyle.fontSize,
-  fontFamily: defaultStyle.fontFamily,
-  nodeStyle: defaultStyle.node,
-  connectorStyle: defaultStyle.edge.connector,
+  fontSize: 24,
+  fontFamily: 'Roboto Mono, Courier',
+  nodePaddingX: 12,
+  nodePaddingY: 12,
+  nodeStrokeColor: '#000000',
+  nodeStrokeWidth: 1,
+  nodeSelectedStrokeWidth: 2,
+  nodeCornerRadius: 5,
+  nodeFillColor: '#208020',
+  nodeErrorColor: '#ff2f2f',
+  nodeSelectedColor: '#3f51b5',
+  nodeFinalColor: '#208080',
+  labelStyle: {},
+  topConnectorStyle: {},
+  deleteButtonStyle: {},
+  typeValueStyle: {},
 };
 
 export default Node;

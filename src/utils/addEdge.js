@@ -1,9 +1,3 @@
-import {
-  edgeByParentPiece,
-  edgeByChildNode,
-  nodeById,
-} from './tree';
-
 function checkHasLoop(
   currentNode,
   oldVisitedNodes,
@@ -18,12 +12,13 @@ function checkHasLoop(
 
   let hasLoop = false;
 
-  currentNode.pieces.forEach((piece, i) => {
+  currentNode.pieces.forEach((piece) => {
     if (piece === connectorPlaceholder) {
-      const childEdges = edgeByParentPiece(currentNode.id, i, edges);
+      const childEdgeIds = nodes[currentNode.id].childEdges;
+      const childEdges = childEdgeIds.map((id) => edges[id]);
 
       childEdges.forEach((edge) => {
-        const childNode = nodeById(edge.childNodeId, nodes);
+        const childNode = nodes[edge.childNodeId];
         if (currentVisitedNodes.find((e) => e === childNode.id) !== undefined) {
           hasLoop = true;
         } else {
@@ -79,25 +74,22 @@ export function checkIsCreatingLoop(
   });
 }
 
-export function checkIsMultiEdgeOnHoleConnector(
+export function checkIsMultiEdgeOnParentConnector(
   allowMultiEdgeOnHoleConnector,
   parentPiece,
-  edges,
+  nodes,
 ) {
   return new Promise((resolve, reject) => {
     if (allowMultiEdgeOnHoleConnector) {
       resolve();
     }
+    const {
+      parentNodeId,
+      parentPieceId,
+    } = parentPiece;
 
-    // If it points to a valid and different target, check if there are multiple edges
-    const currentlyConnectedEdges = edgeByParentPiece(
-      parentPiece.parentNodeId,
-      parentPiece.parentPieceId,
-      edges,
-    );
-
-    // If we cannot add the edge, don't add the edge and notify
-    if (currentlyConnectedEdges.length > 0) {
+    const parentPieceEdges = nodes[parentNodeId].parentEdges[parentPieceId];
+    if (parentPieceEdges.length > 0) {
       reject(new Error('Multiple edges pointing to the same target'));
     } else {
       resolve();
@@ -105,21 +97,17 @@ export function checkIsMultiEdgeOnHoleConnector(
   });
 }
 
-export function checkIsMultiEdgeOnNodeConnector(
+export function checkIsMultiEdgeOnChildConnector(
   allowMultiEdgeOnNodeConnector,
   targetChildId,
-  edges,
+  nodes,
 ) {
   return new Promise((resolve, reject) => {
     if (allowMultiEdgeOnNodeConnector) {
       resolve();
     }
-
-    // If it points to a valid and different target, check if there are multiple edges
-    const currentlyConnectedEdges = edgeByChildNode(targetChildId, edges);
-
-    // If we cannot add the edge, don't add the edge and notify
-    if (currentlyConnectedEdges.length > 0) {
+    const { childEdges } = nodes[targetChildId];
+    if (childEdges.length > 0) {
       reject(new Error('Multiple edges pointing to the same target'));
     } else {
       resolve();

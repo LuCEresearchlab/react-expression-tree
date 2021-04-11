@@ -21,8 +21,8 @@ Example with initial state and final nodes:
     showDrawerButton: true,
     showEditorInfoButton: true,
     showStateResetButton: true,
-    showUndoButton: false,
-    showRedoButton: false,
+    showUndoButton: true,
+    showRedoButton: true,
     showZoomOutButton: true,
     showZoomInButton: true,
     showZoomToFitButton: true,
@@ -36,156 +36,145 @@ Example with initial state and final nodes:
   showDrawerSections={{
     addNodeField: true,
     templateDropdown: true,
-    editLabelField: true,
-    editTypeField: true,
-    editValueField: true,
+    updateLabelField: true,
+    updateTypeField: true,
+    updateValueField: true,
   }}
-
-  fullDisabled={false}
   allowedErrors={{
-    loop: false,
-    multiEdgeOnHoleConnector: false,
-    multiEdgeOnNodeConnector: false,
+    loop: true,
+    multiEdgeOnHoleConnector: true,
+    multiEdgeOnNodeConnector: true,
   }}
-  connectorPlaceholder="{{}}"
+  connectorPlaceholder="#"
   templateNodes={[
-    '{{}}?{{}}:{{}}',
-    '{{}}[{{}}]',
+    '#?#:#',
+    '#[#]',
   ]}
-  allowFreeTypeEdit={true}
-  allowFreeValueEdit={true}
+  allowFreeTypeUpdate={true}
+  allowFreeValueUpdate={true}
   templateNodeTypesAndValues={{
     String: ['"Hello"', '"World!"', '" "', '"Hello World!"'],
     Number: ['1', '2'],
     Boolean: ['true', 'false'],
     Object: [],
-    Undefined: ['undefiend'],
+    Undefined: ['undefined'],
     Null: ['null'],
   }}
-  nodes={[
-    {
-      id: 0,
-      pieces: ['{{}}', '+', '{{}}'],
-      x: 320,
-      y: 90,
-      type: 'Number',
-      value: '10',
-      isFinal: true,
+  nodes={{
+    "n0": {
+      "pieces": ["#", "+", "#"],
+      "x": 320,
+      "y": 90,
+      "type": "Number",
+      "value": "10",
+      "isFinal": false,
     },
-    {
-      id: 1,
-      pieces: ['{{}}', '-', '{{}}'],
-      x: 320,
-      y: 120,
-      type: 'Boolean',
-      value: 'true',
-      isFinal: true,
+    "n1": {
+      "pieces": ["#", "-", "#"],
+      "x": 320,
+      "y": 120,
+      "type": "Boolean",
+      "value": "true",
+      "isFinal": false,
     },
-    {
-      id: 2,
-      pieces: ['{{}}', '/', '{{}}'],
-      x: 320,
-      y: 150,
-      type: 'Object',
-      value: '',
-      isFinal: true,
+    "n2": {
+      "pieces": ["#", "/", "#"],
+      "x": 320,
+      "y": 150,
+      "type": "Object",
+      "value": "",
+      "isFinal": false,
     },
-    {
-      id: 3,
-      pieces: ['1'],
-      x: 320,
-      y: 190,
-      type: '',
-      value: '',
-      isFinal: true,
+    "n3": {
+      "pieces": ["1"],
+      "x": 320,
+      "y": 190,
+      "type": "",
+      "value": "",
+      "isFinal": false,
     },
-    {
-      id: 4,
-      pieces: ['2'],
-      x: 320,
-      y: 190,
-      type: '',
-      value: '',
-      isFinal: true,
+    "n4": {
+      "pieces": ["2"],
+      "x": 320,
+      "y": 190,
+      "type": "",
+      "value": "",
+      "isFinal": false,
     },
-    {
-      id: 5,
-      pieces: ['3'],
-      x: 460,
-      y: 230,
-      type: '',
-      value: '',
-      isFinal: false,
+    "n5": {
+      "pieces": ["3"],
+      "x": 460,
+      "y": 230,
+      "type": "",
+      "value": "",
+      "isFinal": false,
     },
-    {
-      id: 6,
-      pieces: ['{{}}', '+', '{{}}'],
-      x: 320,
-      y: 190,
-      type: '',
-      value: '',
-      isFinal: true,
+    "n6": {
+      "pieces": ["#", "+", "#"],
+      "x": 320,
+      "y": 190,
+      "type": "",
+      "value": "",
+      "isFinal": false,
     },
-    {
-      id: 7,
-      pieces: ['5'],
-      x: 520,
-      y: 190,
-      type: '',
-      value: 'Not connected',
+    "n7": {
+      "pieces": ["5"],
+      "x": 520,
+      "y": 190,
+      "type": "",
+      "value": "Not connected",
     },
-    {
-      id: 8,
-      pieces: ['6'],
-      x: 520,
-      y: 190,
-      type: '',
-      value: 'Not connected',
+    "n8": {
+      "pieces": ["6"],
+      "x": 520,
+      "y": 190,
+      "type": "",
+      "value": "Not connected",
     },
-    {
-      id: 9,
-      pieces: ['7'],
-      x: 520,
-      y: 190,
-      type: '',
-      value: 'Not connected',
+    "n9": {
+      "pieces": ["7"],
+      "x": 520,
+      "y": 190,
+      "type": "",
+      "value": "Not connected",
     },
-  ]}
-  edges={[{
-      parentNodeId: 0,
-      childNodeId: 1,
+  }}
+  edges={{
+    "e0": {
+      parentNodeId: "n0",
+      childNodeId: "n1",
       parentPieceId: 0,
     },
-    {
-      parentNodeId: 0,
-      childNodeId: 2,
+    "e1": {
+      parentNodeId: "n0",
+      childNodeId: "n2",
       parentPieceId: 2,
     },
-    {
-      parentNodeId: 1,
-      childNodeId: 3,
+    "e2": {
+      parentNodeId: "n1",
+      childNodeId: "n3",
       parentPieceId: 0,
     },
-    {
-      parentNodeId: 1,
-      childNodeId: 4,
+    "e3": {
+      parentNodeId: "n1",
+      childNodeId: "n4",
       parentPieceId: 2,
     },
-    {
-      parentNodeId: 2,
-      childNodeId: 5,
+    "e4": {
+      parentNodeId: "n2",
+      childNodeId: "n5",
       parentPieceId: 0,
     },
-    {
-      parentNodeId: 2,
-      childNodeId: 6,
+    "e5": {
+      parentNodeId: "n2",
+      childNodeId: "n6",
       parentPieceId: 2,
     },
-  ]}
+  }}
   stageScale={{x: 1.2, y: 1.2}}
   stagePos={{x:40, y: 200}}
-  selectedRootNode={0}
-  // selectedNode={2}
+  selectedRootNode={'n0'}
+  selectedNode={'n2'}
   // selectedEdge={0}
 />
 ```
@@ -195,7 +184,6 @@ Example without initial state:
 ```js
 <ExpressionTreeEditor 
   height={700}
-  drawerFields={{ addField: true, editField: true }}
   fullDisabled={false}
   allowedErrors={{
     loop: true,
@@ -214,7 +202,7 @@ Example without initial state:
       missingNodeValue: true,
     },
   }}
-  connectorPlaceholder="{{}}"
+  connectorPlaceholder="#"
   nodeTypes={[
     {
       type: 'String',

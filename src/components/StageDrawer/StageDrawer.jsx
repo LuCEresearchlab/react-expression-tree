@@ -25,16 +25,16 @@ function StageDrawer({
   isValidationDialogOpen,
   isSelectedNodeEditable,
   createNodeInputValue,
-  editLabelInputValue,
-  editTypeInputValue,
-  editValueInputValue,
+  updateLabelInputValue,
+  updateTypeInputValue,
+  updateValueInputValue,
   showToolbar,
   showToolbarButtons,
   showDrawer,
   showDrawerSections,
   templateNodes,
-  allowFreeTypeEdit,
-  allowFreeValueEdit,
+  allowFreeTypeUpdate,
+  allowFreeValueUpdate,
   templateNodeTypesAndValues,
   hasStateToUndo,
   hasStateToRedo,
@@ -46,13 +46,11 @@ function StageDrawer({
   toggleIsCreatingNode,
   toggleIsAddEdgeErrorSnackbarOpen,
   setCreateNodeInputValue,
-  setEditLabelInputValue,
-  setEditTypeInputValue,
-  setEditValueInputValue,
+  setUpdateLabelInputValue,
   handleResetState,
-  handleEditLabelPiecesChange,
-  handleEditNodeTypeChange,
-  handleEditNodeValueChange,
+  handleUpdateLabelPiecesChange,
+  handleUpdateNodeTypeChange,
+  handleUpdateNodeValueChange,
   handleUndoButtonAction,
   handleRedoButtonAction,
   handleZoomOutButtonAction,
@@ -65,8 +63,13 @@ function StageDrawer({
   handleFullScreenButtonAction,
   setPreviousError,
   setNextError,
+  createNodeDescription,
+  nodeFontSize,
+  nodeFontFamily,
+  nodePaddingX,
+  nodePaddingY,
+  nodeStyle,
 }) {
-  // State hooks
   const [isDialogConfigResetOpen, setIsDialogConfigResetOpen] = useState(false);
   const [isDialogEditorInfoOpen, setIsDialogEditorInfoOpen] = useState(false);
 
@@ -143,21 +146,25 @@ function StageDrawer({
               isSelectedNodeEditable={isSelectedNodeEditable}
               templateNodes={templateNodes}
               showDrawerSections={showDrawerSections}
-              handleEditLabelPiecesChange={handleEditLabelPiecesChange}
-              handleEditNodeTypeChange={handleEditNodeTypeChange}
-              handleEditNodeValueChange={handleEditNodeValueChange}
+              handleUpdateLabelPiecesChange={handleUpdateLabelPiecesChange}
+              handleUpdateNodeTypeChange={handleUpdateNodeTypeChange}
+              handleUpdateNodeValueChange={handleUpdateNodeValueChange}
               templateNodeTypesAndValues={templateNodeTypesAndValues}
               createNodeInputValue={createNodeInputValue}
-              editLabelInputValue={editLabelInputValue}
-              editTypeInputValue={editTypeInputValue}
-              editValueInputValue={editValueInputValue}
+              updateLabelInputValue={updateLabelInputValue}
+              updateTypeInputValue={updateTypeInputValue}
+              updateValueInputValue={updateValueInputValue}
               toggleIsCreatingNode={toggleIsCreatingNode}
               setCreateNodeInputValue={setCreateNodeInputValue}
-              setEditLabelInputValue={setEditLabelInputValue}
-              setEditTypeInputValue={setEditTypeInputValue}
-              setEditValueInputValue={setEditValueInputValue}
-              allowFreeTypeEdit={allowFreeTypeEdit}
-              allowFreeValueEdit={allowFreeValueEdit}
+              setUpdateLabelInputValue={setUpdateLabelInputValue}
+              allowFreeTypeUpdate={allowFreeTypeUpdate}
+              allowFreeValueUpdate={allowFreeValueUpdate}
+              createNodeDescription={createNodeDescription}
+              nodeFontSize={nodeFontSize}
+              nodeFontFamily={nodeFontFamily}
+              nodePaddingX={nodePaddingX}
+              nodePaddingY={nodePaddingY}
+              nodeStyle={nodeStyle}
             />
           )}
           <DialogConfirmReset
@@ -211,9 +218,9 @@ StageDrawer.propTypes = {
     value: PropTypes.bool,
   }),
   createNodeInputValue: PropTypes.string,
-  editLabelInputValue: PropTypes.string,
-  editTypeInputValue: PropTypes.string,
-  editValueInputValue: PropTypes.string,
+  updateLabelInputValue: PropTypes.string,
+  updateTypeInputValue: PropTypes.string,
+  updateValueInputValue: PropTypes.string,
   showToolbar: PropTypes.bool,
   showToolbarButtons: PropTypes.shape({
     showDrawerButton: PropTypes.bool,
@@ -234,13 +241,13 @@ StageDrawer.propTypes = {
   showDrawerSections: PropTypes.shape({
     addNodeField: PropTypes.bool,
     templateDropdown: PropTypes.bool,
-    editLabelField: PropTypes.bool,
-    editValueField: PropTypes.bool,
-    editTypeField: PropTypes.bool,
+    updateLabelField: PropTypes.bool,
+    updateValueField: PropTypes.bool,
+    updateTypeField: PropTypes.bool,
   }),
   templateNodes: PropTypes.arrayOf(PropTypes.string),
-  allowFreeTypeEdit: PropTypes.bool,
-  allowFreeValueEdit: PropTypes.bool,
+  allowFreeTypeUpdate: PropTypes.bool,
+  allowFreeValueUpdate: PropTypes.bool,
   templateNodeTypesAndValues: PropTypes.shape({}),
   hasStateToUndo: PropTypes.bool,
   hasStateToRedo: PropTypes.bool,
@@ -257,13 +264,11 @@ StageDrawer.propTypes = {
   toggleDrawer: PropTypes.func,
   toggleIsCreatingNode: PropTypes.func,
   setCreateNodeInputValue: PropTypes.func,
-  setEditLabelInputValue: PropTypes.func,
-  setEditTypeInputValue: PropTypes.func,
-  setEditValueInputValue: PropTypes.func,
+  setUpdateLabelInputValue: PropTypes.func,
   handleResetState: PropTypes.func,
-  handleEditLabelPiecesChange: PropTypes.func,
-  handleEditNodeTypeChange: PropTypes.func,
-  handleEditNodeValueChange: PropTypes.func,
+  handleUpdateLabelPiecesChange: PropTypes.func,
+  handleUpdateNodeTypeChange: PropTypes.func,
+  handleUpdateNodeValueChange: PropTypes.func,
   handleUndoButtonAction: PropTypes.func,
   handleRedoButtonAction: PropTypes.func,
   handleZoomOutButtonAction: PropTypes.func,
@@ -276,6 +281,77 @@ StageDrawer.propTypes = {
   handleFullScreenButtonAction: PropTypes.func,
   setPreviousError: PropTypes.func,
   setNextError: PropTypes.func,
+  createNodeDescription: PropTypes.shape({
+    height: PropTypes.number,
+    width: PropTypes.number,
+    pieces: PropTypes.arrayOf(PropTypes.string),
+    piecesPosition: PropTypes.arrayOf(PropTypes.number),
+    type: PropTypes.string,
+    value: PropTypes.string,
+    isFinal: PropTypes.bool,
+    isSelected: PropTypes.bool,
+  }),
+  nodeFontSize: PropTypes.number,
+  nodeFontFamily: PropTypes.string,
+  nodePaddingX: PropTypes.number,
+  nodePaddingY: PropTypes.number,
+  nodeStyle: PropTypes.exact({
+    nodeStrokeColor: PropTypes.string,
+    nodeStrokeWidth: PropTypes.number,
+    nodeSelectedStrokeWidth: PropTypes.number,
+    nodeCornerRadius: PropTypes.number,
+    nodeFillColor: PropTypes.string,
+    nodeErrorColor: PropTypes.string,
+    nodeSelectedColor: PropTypes.string,
+    nodeFinalColor: PropTypes.string,
+    labelStyle: PropTypes.exact({
+      nodeTextColor: PropTypes.string,
+      placeholderStrokeWidth: PropTypes.number,
+      placeholderStrokeColor: PropTypes.string,
+      placeholderFillColor: PropTypes.string,
+      placeholderErrorColor: PropTypes.string,
+      placeholderRadius: PropTypes.number,
+      connectorRadiusSize: PropTypes.number,
+      connectorStrokeWidth: PropTypes.number,
+      connectorFillColor: PropTypes.string,
+      connectorStrokeColor: PropTypes.string,
+    }),
+    topConnectorStyle: PropTypes.exact({
+      starNumPoints: PropTypes.number,
+      starInnerRadius: PropTypes.number,
+      starOuterRadius: PropTypes.number,
+      starStrokeColor: PropTypes.string,
+      starStrokeWidth: PropTypes.number,
+      connectorRadius: PropTypes.number,
+      connectorStrokeColor: PropTypes.string,
+      connectorStrokeWidth: PropTypes.number,
+      connectorFillColor: PropTypes.string,
+      connectorErrorColor: PropTypes.string,
+      connectorSelectedColor: PropTypes.string,
+      connectorEmptyFillColor: PropTypes.string,
+    }),
+    deleteButtonStyle: PropTypes.exact({
+      strokeWidth: PropTypes.number,
+      radius: PropTypes.number,
+      strokeColor: PropTypes.string,
+      fillColor: PropTypes.string,
+      textColor: PropTypes.string,
+      overStrokeColor: PropTypes.string,
+      overFillColor: PropTypes.string,
+      overTextColor: PropTypes.string,
+    }),
+    typeValueStyle: PropTypes.exact({
+      strokeWidth: PropTypes.number,
+      radius: PropTypes.number,
+      padding: PropTypes.number,
+      textColor: PropTypes.string,
+      fillColor: PropTypes.string,
+      strokeColor: PropTypes.string,
+      pointerDirection: PropTypes.string,
+      pointerWidth: PropTypes.number,
+      pointerHeight: PropTypes.number,
+    }),
+  }),
 };
 
 StageDrawer.defaultProps = {
@@ -294,9 +370,9 @@ StageDrawer.defaultProps = {
     value: false,
   },
   createNodeInputValue: '',
-  editLabelInputValue: '',
-  editTypeInputValue: '',
-  editValueInputValue: '',
+  updateLabelInputValue: '',
+  updateTypeInputValue: '',
+  updateValueInputValue: '',
   showToolbar: true,
   showToolbarButtons: {
     showDrawerButton: true,
@@ -317,13 +393,13 @@ StageDrawer.defaultProps = {
   showDrawerSections: {
     addNodeField: true,
     templateDropdown: true,
-    editLabelField: true,
-    editValueField: true,
-    editTypeField: true,
+    updateLabelField: true,
+    updateValueField: true,
+    updateTypeField: true,
   },
   templateNodes: undefined,
-  allowFreeTypeEdit: true,
-  allowFreeValueEdit: true,
+  allowFreeTypeUpdate: true,
+  allowFreeValueUpdate: true,
   templateNodeTypesAndValues: undefined,
   hasStateToUndo: false,
   hasStateToRedo: false,
@@ -335,13 +411,11 @@ StageDrawer.defaultProps = {
   toggleDrawer: () => {},
   toggleIsCreatingNode: () => {},
   setCreateNodeInputValue: () => {},
-  setEditLabelInputValue: () => {},
-  setEditTypeInputValue: () => {},
-  setEditValueInputValue: () => {},
+  setUpdateLabelInputValue: () => {},
   handleResetState: () => {},
-  handleEditLabelPiecesChange: () => {},
-  handleEditNodeTypeChange: () => {},
-  handleEditNodeValueChange: () => {},
+  handleUpdateLabelPiecesChange: () => {},
+  handleUpdateNodeTypeChange: () => {},
+  handleUpdateNodeValueChange: () => {},
   handleUndoButtonAction: () => {},
   handleRedoButtonAction: () => {},
   handleZoomOutButtonAction: () => {},
@@ -354,6 +428,12 @@ StageDrawer.defaultProps = {
   handleFullScreenButtonAction: () => {},
   setPreviousError: () => {},
   setNextError: () => {},
+  createNodeDescription: undefined,
+  nodeFontSize: 24,
+  nodeFontFamily: 'Roboto Mono, Courier',
+  nodePaddingX: 12,
+  nodePaddingY: 12,
+  nodeStyle: {},
 };
 
 export default StageDrawer;

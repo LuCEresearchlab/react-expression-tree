@@ -2,7 +2,7 @@ import { useReducer, useMemo, useEffect } from 'react';
 
 import actions from '../store/actions';
 import reducer from '../store/reducers';
-import createInitialState from '../store/initialState';
+import { createSanitizedUtilsProps, createInitialState } from '../store/initialState';
 
 import createPositionUtils from '../utils/position';
 
@@ -18,43 +18,86 @@ function useStore({
   propPlaceholderWidth,
   propFontSize,
   propFontFamily,
+  propNodePaddingX,
+  propNodePaddingY,
 }) {
-  const utils = useMemo(() => createPositionUtils(
+  const {
+    sanitizedFontSize,
+    sanitizedFontFamily,
+    sanitizedConnectorPlaceholder,
+    sanitizedPlaceholderWidth,
+    sanitizedNodePaddingX,
+    sanitizedNodePaddingY,
+  } = useMemo(() => (createSanitizedUtilsProps(
     propFontSize,
     propFontFamily,
     propConnectorPlaceholder,
     propPlaceholderWidth,
-  ), [propFontSize, propFontFamily, propConnectorPlaceholder, propPlaceholderWidth]);
+    propNodePaddingX,
+    propNodePaddingY,
+  )), [
+    propFontSize,
+    propFontFamily,
+    propConnectorPlaceholder,
+    propPlaceholderWidth,
+    propNodePaddingX,
+    propNodePaddingY,
+  ]);
+
+  const utils = useMemo(() => createPositionUtils(
+    sanitizedFontSize,
+    sanitizedFontFamily,
+    sanitizedConnectorPlaceholder,
+    sanitizedPlaceholderWidth,
+    sanitizedNodePaddingX,
+    sanitizedNodePaddingY,
+  ), [
+    sanitizedFontSize,
+    sanitizedFontFamily,
+    sanitizedConnectorPlaceholder,
+    sanitizedPlaceholderWidth,
+    sanitizedNodePaddingX,
+    sanitizedNodePaddingY,
+  ]);
+
+  const {
+    sanitizedNodes,
+    sanitizedEdges,
+  } = useMemo(() => (
+    utils.sanitizeNodesAndEdges(propNodes, propEdges)
+  ), [propNodes, propEdges, utils.sanitizeNodesAndEdges]);
 
   const [store, dispatch] = useReducer(reducer, createInitialState(
-    utils.sanitizeNodes(propNodes),
+    sanitizedNodes,
     propSelectedNode,
-    utils.sanitizeEdges(propEdges),
+    sanitizedEdges,
     propSelectedEdge,
     propSelectedRootNode,
     propStagePos,
     propStageScale,
-    propConnectorPlaceholder,
-    propPlaceholderWidth,
-    propFontSize,
-    propFontFamily,
+    sanitizedConnectorPlaceholder,
+    sanitizedPlaceholderWidth,
+    sanitizedFontSize,
+    sanitizedFontFamily,
+    sanitizedNodePaddingX,
+    sanitizedNodePaddingY,
   ));
 
   const storeActions = useMemo(() => {
-    const temp = {};
-    actions.forEach((item) => {
-      temp[item.name] = (payload) => {
+    const temp = actions.reduce((accumulator, item) => {
+      accumulator[item.name] = (payload) => {
         dispatch(item.action(payload));
       };
-    });
+      return accumulator;
+    }, {});
     return temp;
   }, [dispatch]);
 
   useEffect(() => {
-    if (propNodes !== undefined && propNodes !== null) {
-      storeActions.setNodes({ nodes: utils.sanitizeNodes(propNodes) });
+    if (sanitizedNodes !== undefined && sanitizedNodes !== null) {
+      storeActions.setNodes(sanitizedNodes);
     }
-  }, [dispatch, propNodes, utils.sanitizeNodes]);
+  }, [storeActions, sanitizedNodes]);
 
   useEffect(() => {
     if (propSelectedNode !== undefined && propSelectedNode !== null) {
@@ -62,13 +105,13 @@ function useStore({
     } else {
       storeActions.clearSelectedNode();
     }
-  }, [dispatch, propSelectedNode]);
+  }, [storeActions, propSelectedNode]);
 
   useEffect(() => {
-    if (propEdges !== undefined && propEdges !== null) {
-      storeActions.setEdges({ edges: utils.sanitizeEdges(propEdges) });
+    if (sanitizedEdges !== undefined && sanitizedEdges !== null) {
+      storeActions.setEdges(sanitizedEdges);
     }
-  }, [dispatch, propEdges, utils.sanitizeEdges]);
+  }, [storeActions, sanitizedEdges]);
 
   useEffect(() => {
     if (propSelectedEdge !== undefined && propSelectedEdge !== null) {
@@ -76,7 +119,7 @@ function useStore({
     } else {
       storeActions.clearSelectedEdge();
     }
-  }, [dispatch, propSelectedEdge]);
+  }, [storeActions, propSelectedEdge]);
 
   useEffect(() => {
     if (propSelectedRootNode !== undefined && propSelectedRootNode !== null) {
@@ -84,43 +127,55 @@ function useStore({
     } else {
       storeActions.clearSelectedRootNode();
     }
-  }, [dispatch, propSelectedRootNode]);
+  }, [storeActions, propSelectedRootNode]);
 
   useEffect(() => {
     if (propStagePos !== undefined && propStagePos !== null) {
       storeActions.setStagePos(propStagePos);
     }
-  }, [dispatch, propStagePos]);
+  }, [storeActions, propStagePos]);
 
   useEffect(() => {
     if (propStageScale !== undefined && propStageScale !== null) {
       storeActions.setStageScale(propStageScale);
     }
-  }, [dispatch, propStageScale]);
+  }, [storeActions, propStageScale]);
 
   useEffect(() => {
-    if (propConnectorPlaceholder !== undefined && propConnectorPlaceholder !== null) {
-      storeActions.setConnectorPlaceholder({ connectorPlaceholder: propConnectorPlaceholder });
+    if (sanitizedConnectorPlaceholder !== undefined && sanitizedConnectorPlaceholder !== null) {
+      storeActions.setConnectorPlaceholder({ connectorPlaceholder: sanitizedConnectorPlaceholder });
     }
-  }, [dispatch, propConnectorPlaceholder]);
+  }, [storeActions, sanitizedConnectorPlaceholder]);
 
   useEffect(() => {
-    if (propPlaceholderWidth !== undefined && propPlaceholderWidth !== null) {
-      storeActions.setPlaceholderWidth({ placeholderWidth: propPlaceholderWidth });
+    if (sanitizedPlaceholderWidth !== undefined && sanitizedPlaceholderWidth !== null) {
+      storeActions.setPlaceholderWidth({ placeholderWidth: sanitizedPlaceholderWidth });
     }
-  }, [dispatch, propPlaceholderWidth]);
+  }, [storeActions, sanitizedPlaceholderWidth]);
 
   useEffect(() => {
-    if (propFontSize !== undefined && propFontSize !== null) {
-      storeActions.setFontSize({ fontSize: propFontSize });
+    if (sanitizedFontSize !== undefined && sanitizedFontSize !== null) {
+      storeActions.setFontSize(sanitizedFontSize);
     }
-  }, [dispatch, propFontSize]);
+  }, [storeActions, sanitizedFontSize]);
 
   useEffect(() => {
-    if (propFontFamily !== undefined && propFontFamily !== null) {
-      storeActions.setFontFamily({ fontFamily: propFontFamily });
+    if (sanitizedFontFamily !== undefined && sanitizedFontFamily !== null) {
+      storeActions.setFontFamily(sanitizedFontFamily);
     }
-  }, [dispatch, propFontFamily]);
+  }, [storeActions, sanitizedFontFamily]);
+
+  useEffect(() => {
+    if (sanitizedNodePaddingX !== undefined && sanitizedNodePaddingX !== null) {
+      storeActions.setNodePaddingX(sanitizedNodePaddingX);
+    }
+  }, [storeActions, sanitizedNodePaddingX]);
+
+  useEffect(() => {
+    if (sanitizedNodePaddingY !== undefined && sanitizedNodePaddingY !== null) {
+      storeActions.setNodePaddingY(sanitizedNodePaddingY);
+    }
+  }, [storeActions, sanitizedNodePaddingY]);
 
   return [store, storeActions, utils];
 }
