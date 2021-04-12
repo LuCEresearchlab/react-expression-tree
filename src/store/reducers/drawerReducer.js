@@ -42,10 +42,17 @@ const reducers = {
 
   setAddEdgeErrorSnackbarMessage: (state, payload) => {
     const { addEdgeErrorMessage } = payload;
+
+    const {
+      currentAddEdgeErrorMessage,
+      currentIsAddEdgeErrorSnackbarOpen,
+    } = state;
+    const isUndefined = addEdgeErrorMessage === undefined;
+
     return {
       ...state,
-      addEdgeErrorMessage,
-      isAddEdgeErrorSnackbarOpen: true,
+      addEdgeErrorMessage: isUndefined ? currentAddEdgeErrorMessage : addEdgeErrorMessage,
+      isAddEdgeErrorSnackbarOpen: isUndefined ? currentIsAddEdgeErrorSnackbarOpen : true,
       dragEdge: null,
     };
   },

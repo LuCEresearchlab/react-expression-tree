@@ -59,6 +59,7 @@ const actions = [
       pieces,
       piecesPosition,
       width,
+      parentEdges,
     }) => ({
       type: 'updateNode',
       payload: {
@@ -66,6 +67,7 @@ const actions = [
         pieces,
         piecesPosition,
         width,
+        parentEdges,
       },
     }),
   },

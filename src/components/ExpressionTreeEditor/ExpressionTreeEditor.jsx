@@ -234,6 +234,10 @@ function ExpressionTreeEditor({
     const pieces = parseLabelPieces(updateLabelInputValue);
     const piecesPosition = computeLabelPiecesXCoordinatePositions(pieces);
     const nodeWidth = computeNodeWidth(pieces);
+    const parentEdges = pieces.reduce((accumulator) => {
+      accumulator.push([]);
+      return accumulator;
+    }, []);
 
     const connectedEdgesIds = nodes[selectedNode].childEdges;
     const tempNode = {
@@ -248,6 +252,7 @@ function ExpressionTreeEditor({
       piecesPosition,
       width: nodeWidth,
       updatedEdges,
+      parentEdges,
     });
   });
 
@@ -734,7 +739,11 @@ function ExpressionTreeEditor({
     }
 
     const rejectCallback = (error) => {
-      setAddEdgeErrorSnackbarMessage(error.message);
+      if (error.message !== 'No update, target did not change') {
+        setAddEdgeErrorSnackbarMessage(error.message);
+      } else {
+        setAddEdgeErrorSnackbarMessage();
+      }
     };
 
     const fulfillUpdate = (edgeId, edge, isParentUpdate) => {

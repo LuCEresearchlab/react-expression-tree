@@ -175,6 +175,7 @@ const reducers = {
       pieces,
       piecesPosition,
       width,
+      parentEdges,
     } = payload;
 
     const { nodes, edges, selectedNode } = state;
@@ -208,6 +209,7 @@ const reducers = {
           pieces,
           piecesPosition,
           width,
+          parentEdges,
         },
       },
       edges: newEdges,
