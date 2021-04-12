@@ -1,5 +1,6 @@
 /* eslint-disable no-loop-func */
 import Konva from 'konva';
+import { createUniqueId } from './state';
 
 function distance(x1, y1, x2, y2) {
   return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
@@ -538,7 +539,60 @@ const createPositionUtils = (
     }, {})
   );
 
+  const convertArrayNodesToObject = (nodes) => {
+    const objectNodes = {};
+    nodes.forEach((node) => {
+      const id = `_${node.id}`;
+      const {
+        pieces,
+        x,
+        y,
+        type,
+        value,
+        isFinal,
+      } = node;
+
+      console.log(pieces)
+
+      objectNodes[id] = {
+        id,
+        x,
+        y,
+        type,
+        value,
+        isFinal,
+        pieces,
+      };
+    });
+    return objectNodes;
+  };
+
+  const convertArrayEdgesToObject = (edges) => {
+    const objectEdges = {};
+    edges.forEach((edge) => {
+      const id = createUniqueId();
+
+      const {
+        parentNodeId,
+        parentPieceId,
+        childNodeId,
+      } = edge;
+
+      objectEdges[id] = {
+        parentNodeId: `_${parentNodeId}`,
+        parentPieceId,
+        childNodeId: `_${childNodeId}`,
+      };
+    });
+
+    return objectEdges;
+  };
+
   const sanitizeNodesAndEdges = (nodes, edges) => {
+    if (Array.isArray(nodes)) {
+      nodes = convertArrayNodesToObject(nodes);
+    }
+
     const sanitizedNodes = Object.keys(nodes).reduce((accumulator, id) => {
       accumulator[id] = {
         ...nodes[id],
@@ -553,6 +607,10 @@ const createPositionUtils = (
       nodes[id].pieces.forEach(() => accumulator[id].parentEdges.push([]));
       return accumulator;
     }, {});
+
+    if (Array.isArray(edges)) {
+      edges = convertArrayEdgesToObject(edges);
+    }
 
     const sanitizedEdges = computeEdgesCoordinates(edges, sanitizedNodes);
 

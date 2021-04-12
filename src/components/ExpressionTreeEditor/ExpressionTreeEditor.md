@@ -1,4 +1,4 @@
-Example with initial state and final nodes:
+Example with initial object state and final nodes:
 
 ```js
 <ExpressionTreeEditor
@@ -175,7 +175,151 @@ Example with initial state and final nodes:
   stagePos={{x:40, y: 200}}
   selectedRootNode={'n0'}
   selectedNode={'n2'}
-  // selectedEdge={0}
+/>
+```
+
+Example with initial array state:
+
+```js
+<ExpressionTreeEditor
+  height={700}
+  reportErrorConfig={{
+    structureErrors: {
+      loop: true,
+      multiEdgeOnHoleConnector: true,
+      multiEdgeOnNodeConnector: true,
+    },
+    completenessErrors: {
+      emptyPieceConnector: true,
+      missingNodeType: true,
+      missingNodeValue: true,
+    },
+  }}
+  isFullDisabled={false}
+  showToolbar={true}
+  showToolbarButtons={{
+    showDrawerButton: true,
+    showEditorInfoButton: true,
+    showStateResetButton: true,
+    showUndoButton: true,
+    showRedoButton: true,
+    showZoomOutButton: true,
+    showZoomInButton: true,
+    showZoomToFitButton: true,
+    showReorderNodesButton: true,
+    showValidateTreeButton: true,
+    showUploadStateButton: true,
+    showTakeScreenshotButton: true,
+    showFullScreenButton: true,
+  }} 
+  showDrawer={true}
+  showDrawerSections={{
+    addNodeField: true,
+    templateDropdown: true,
+    updateLabelField: true,
+    updateTypeField: true,
+    updateValueField: true,
+  }}
+  allowedErrors={{
+    loop: true,
+    multiEdgeOnHoleConnector: true,
+    multiEdgeOnNodeConnector: true,
+  }}
+  connectorPlaceholder="#"
+  templateNodes={[
+    '#?#:#',
+    '#[#]',
+  ]}
+  allowFreeTypeUpdate={true}
+  allowFreeValueUpdate={true}
+  templateNodeTypesAndValues={{
+    String: ['"Hello"', '"World!"', '" "', '"Hello World!"'],
+    Number: ['1', '2'],
+    Boolean: ['true', 'false'],
+    Object: [],
+    Undefined: ['undefined'],
+    Null: ['null'],
+  }}
+  nodes={[
+    {
+    "id": 1,
+    "pieces": ["1"],
+    "x": 424.597500066782,
+    "y": 299,
+    "width": 38.40234375,
+    "type": "",
+    "value": "",
+    "isFinal": false
+    },
+    {
+    "id": 2,
+    "pieces": ["2"],
+    "x": 553.9999470992326,
+    "y": 300,
+    "width": 38.40234375,
+    "type": "",
+    "value": "",
+    "isFinal": false
+    },
+    {
+    "id": 3,
+    "pieces": ["3"],
+    "x": 600.5999999999999,
+    "y": 200,
+    "width": 38.40234375,
+    "type": "",
+    "value": "",
+    "isFinal": false
+    },
+    {
+    "id": 4,
+    "pieces": ["", "#", "+", "#", ""],
+    "x": 460.99765625,
+    "y": 200,
+    "width": 89.60234375,
+    "type": "",
+    "value": "",
+    "isFinal": false
+    },
+    {
+    "id": 5,
+    "pieces": ["", "#", "+", "#", ""],
+    "x": 503.65468061056725,
+    "y": 84.77273559570312,
+    "width": 89.60234375,
+    "type": "",
+    "value": "",
+    "isFinal": false
+    }
+  ]}
+  edges={[
+    {
+      "parentNodeId": 4,
+      "parentPieceId": 1,
+      "childNodeId": 1,
+      "id": 5
+    },
+    {
+      "parentNodeId": 4,
+      "parentPieceId": 3,
+      "childNodeId": 2,
+      "id": 6
+    },
+    {
+      "parentNodeId": 5,
+      "parentPieceId": 1,
+      "childNodeId": 4,
+      "id": 7
+    },
+    {
+      "parentNodeId": 5,
+      "parentPieceId": 3,
+      "childNodeId": 3,
+      "id": 8
+    }
+  ]}
+  stageScale={{x: 1.2, y: 1.2}}
+  stagePos={{x:40, y: 200}}
 />
 ```
 
