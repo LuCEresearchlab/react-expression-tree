@@ -552,8 +552,6 @@ const createPositionUtils = (
         isFinal,
       } = node;
 
-      console.log(pieces)
-
       objectNodes[id] = {
         id,
         x,
