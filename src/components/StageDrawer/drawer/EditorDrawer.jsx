@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import {
   Drawer,
   IconButton,
+  InputAdornment,
   Popover,
   Typography,
   TextField,
@@ -229,22 +230,25 @@ function EditorDrawer({
                   classes: {
                     adornedEnd: classes.endAdornment,
                   },
-                  endAdornment: 
-                  <Tooltip
-                    title={isCreatingNode ? 'Clear adding' : 'Add node'}
-                    placement="right"
-                  >
-                    <span>
-                      <IconButton
-                        size="medium"
-                        color={isCreatingNode ? 'secondary' : 'primary'}
-                        //  disabled={isAddEmpty}
-                        onClick={toggleIsCreatingNode}
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Tooltip
+                        title={isCreatingNode ? 'Clear adding' : 'Add node'}
+                        placement="right"
                       >
-                        <AddRounded />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
+                        <span>
+                          <IconButton
+                            size="medium"
+                            color={isCreatingNode ? 'secondary' : 'primary'}
+                            //  disabled={isAddEmpty}
+                            onClick={toggleIsCreatingNode}
+                          >
+                            <AddRounded />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </InputAdornment>
+                  )
                 }}
                 placeholder={`example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
                 margin="dense"
