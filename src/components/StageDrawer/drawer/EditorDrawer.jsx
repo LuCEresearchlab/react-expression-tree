@@ -117,6 +117,7 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     backgroundColor: 'white',
+    fontFamily: 'monospace',
   },
   typeField: {
     margin: '10px 10px 10px 10px',
@@ -351,7 +352,7 @@ function EditorDrawer({
                 type="search"
                 fullWidth
                 size="medium"
-                label="Edit the node's content"
+                label="Structure of this node"
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -399,7 +400,7 @@ function EditorDrawer({
                     size="medium"
                     placeholder="String"
                     margin="dense"
-                    label="Edit the node's type"
+                    label="Type of this node"
                     InputLabelProps={{
                       shrink: true,
                     }}
@@ -444,9 +445,9 @@ function EditorDrawer({
                     variant="outlined"
                     fullWidth
                     size="medium"
-                    placeholder={'example: "Hello World"'}
+                    placeholder={'42, "Hello", ...'}
                     margin="dense"
-                    label="Edit the node's value"
+                    label="Value of this node"
                     InputLabelProps={{
                       shrink: true,
                     }}
