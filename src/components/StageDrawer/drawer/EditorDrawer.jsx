@@ -127,8 +127,8 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'monospace',
   },
   endAdornment: {
-    paddingRight: 0
-  }
+    paddingRight: 0,
+  },
 }));
 
 function EditorDrawer({
@@ -431,7 +431,6 @@ function EditorDrawer({
                 <div>
                   {Object.keys(templateNodeTypesAndValues).map((nodeType) => (
                     <Chip
-                      size="large"
                       key={nodeType}
                       label={nodeType}
                       className={classes.suggestionChip}
@@ -480,7 +479,6 @@ function EditorDrawer({
                   <div>
                     {templateNodeTypesAndValues[updateTypeInputValue].map((nodeValue) => (
                       <Chip
-                        size="large"
                         key={nodeValue}
                         label={nodeValue}
                         className={classes.suggestionChip}

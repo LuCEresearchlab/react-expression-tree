@@ -23,7 +23,7 @@ import DragEdge from '../DragEdge/DragEdge';
 import StageDrawer from '../StageDrawer/StageDrawer';
 
 import {
-  createUniqueId,
+  arraysAreEqual,
   exportState,
 } from '../../utils/state';
 
@@ -237,28 +237,30 @@ function ExpressionTreeEditor({
 
   const handleUpdateLabelPiecesChange = useCallback(() => {
     const pieces = parseLabelPieces(updateLabelInputValue);
-    const piecesPosition = computeLabelPiecesXCoordinatePositions(pieces);
-    const nodeWidth = computeNodeWidth(pieces);
-    const parentEdges = pieces.reduce((accumulator) => {
-      accumulator.push([]);
-      return accumulator;
-    }, []);
+    if (!arraysAreEqual(pieces, nodes[selectedNode].pieces)) {
+      const piecesPosition = computeLabelPiecesXCoordinatePositions(pieces);
+      const nodeWidth = computeNodeWidth(pieces);
+      const parentEdges = pieces.reduce((accumulator) => {
+        accumulator.push([]);
+        return accumulator;
+      }, []);
 
-    const connectedEdgesIds = nodes[selectedNode].childEdges;
-    const tempNode = {
-      ...nodes[selectedNode],
-      pieces,
-      piecesPosition,
-      width: nodeWidth,
-    };
-    const updatedEdges = updateEdgeChildCoordinates(connectedEdgesIds, edges, tempNode);
-    updateNode({
-      pieces,
-      piecesPosition,
-      width: nodeWidth,
-      updatedEdges,
-      parentEdges,
-    });
+      const connectedEdgesIds = nodes[selectedNode].childEdges;
+      const tempNode = {
+        ...nodes[selectedNode],
+        pieces,
+        piecesPosition,
+        width: nodeWidth,
+      };
+      const updatedEdges = updateEdgeChildCoordinates(connectedEdgesIds, edges, tempNode);
+      updateNode({
+        pieces,
+        piecesPosition,
+        width: nodeWidth,
+        updatedEdges,
+        parentEdges,
+      });
+    }
   });
 
   const handleUpdateNodeTypeChange = useCallback((value) => {
@@ -283,8 +285,10 @@ function ExpressionTreeEditor({
     });
   };
 
-  const hasStateToUndo = undoState.length > 0;
-  const hasStateToRedo = redoState.length > 0;
+  // const hasStateToUndo = undoState.length > 0;
+  // const hasStateToRedo = redoState.length > 0;
+  const hasStateToUndo = false;
+  const hasStateToRedo = false;
   const handleUndoButtonAction = useCallback(() => {
     undo();
   });
