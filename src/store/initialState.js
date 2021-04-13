@@ -36,6 +36,8 @@ export const defaultProps = {
   },
   createNodeInputValue: '',
   createNodeDescription: undefined,
+  templateNodes: undefined,
+  templateNodesDescription: undefined,
   updateLabelInputValue: '',
   updateTypeInputValue: '',
   updateValueInputValue: '',
@@ -43,6 +45,9 @@ export const defaultProps = {
   isValidationDialogOpen: false,
   validationErrors: [],
   currentError: undefined,
+  // Undo - Redo
+  undoState: [],
+  redoState: [],
 };
 
 export const createSanitizedUtilsProps = (
@@ -75,6 +80,8 @@ export const createInitialState = (
   fontFamily,
   nodePaddingX,
   nodePaddingY,
+  templateNodes,
+  templateNodesDescription,
 ) => ({
   // Global
   fontSize: fontSize || defaultProps.fontSize,
@@ -107,6 +114,8 @@ export const createInitialState = (
   },
   createNodeInputValue: defaultProps.createNodeInputValue,
   createNodeDescription: defaultProps.createNodeDescrpiton,
+  templateNodes: templateNodes || defaultProps.templateNodes,
+  templateNodesDescription: templateNodesDescription || defaultProps.templateNodesDescription,
   updateLabelInputValue: defaultProps.updateLabelInputValue,
   updateTypeInputValue: defaultProps.updateTypeInputValue,
   updateValueInputValue: defaultProps.updateValueInputValue,
@@ -115,6 +124,6 @@ export const createInitialState = (
   validationErrors: defaultProps.validationErrors,
   currentError: defaultProps.currentError,
   // Undo - Redo
-  undoState: [],
-  redoState: [],
+  undoState: defaultProps.undoState,
+  redoState: defaultProps.redoState,
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -27,6 +27,7 @@ import {
 
 import { Layer, Stage } from 'react-konva';
 import Node from '../../Node/Node';
+import Konva from 'konva';
 
 // Width of the side drawer
 const drawerWidth = 300;
@@ -164,6 +165,7 @@ function EditorDrawer({
   const handleTemplateClick = (value) => {
     setCreateNodeInputValue(value);
   };
+
   return (
     <Drawer
       className={classes.drawer}
@@ -256,7 +258,7 @@ function EditorDrawer({
               <div className={classes.drawerField}>
                 <Stage
                   width={300}
-                  height={20 + createNodeDescription.height}
+                  height={60}
                 >
                   <Layer>
                     <Node

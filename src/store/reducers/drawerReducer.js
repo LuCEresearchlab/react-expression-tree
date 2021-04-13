@@ -71,6 +71,24 @@ const reducers = {
     };
   },
 
+  setTemplateNodes: (state, payload) => {
+    const { templateNodesDescription } = payload;
+
+    return {
+      ...state,
+      templateNodesDescription,
+    };
+  },
+
+  setTemplateNodesDescription: (state, payload) => {
+    const { templateNodesDescription } = payload;
+
+    return {
+      ...state,
+      templateNodesDescription,
+    };
+  },
+
   undo: (state) => {
     const { undoState, redoState } = state;
 

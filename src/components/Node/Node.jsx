@@ -70,7 +70,7 @@ function Node({
     [parentEdges],
   );
 
-  const checkDragBound = (pos) => {
+  const checkDragBound = useCallback((pos) => {
     const stageScale = stageRef.current.scale();
     let newX = pos.x;
     let newY = pos.y;
@@ -88,7 +88,7 @@ function Node({
       x: newX,
       y: newY,
     };
-  };
+  });
 
   const handlePlaceholderConnectorDragStart = useCallback((e, nodeId) => {
     e.cancelBubble = true;
@@ -178,6 +178,7 @@ function Node({
      */
     <Group
       key={`Node-${id}`}
+      id={id}
       nodeId={id}
       x={positionX}
       y={positionY}
@@ -198,7 +199,6 @@ function Node({
     >
       <Rect
         name="Node"
-        id={id}
         key={`NodeRect-${id}`}
         width={nodeWidth}
         height={nodeHeight}

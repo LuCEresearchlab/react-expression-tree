@@ -57,7 +57,7 @@ function ExpressionTreeEditor({
   showDrawer,
   showDrawerSections,
   reportErrorConfig,
-  templateNodes,
+  templateNodes: propTemplateNodes,
   allowFreeTypeUpdate,
   allowFreeValueUpdate,
   templateNodeTypesAndValues,
@@ -105,6 +105,7 @@ function ExpressionTreeEditor({
   const selectionRectRef = useRef();
   const selectedRectRef = useRef();
   const transformerRef = useRef();
+  const createNodeStageRef = useRef();
 
   const [store, actions, utils] = useStore({
     propNodes,
@@ -120,6 +121,7 @@ function ExpressionTreeEditor({
     propFontFamily,
     propNodePaddingX,
     propNodePaddingY,
+    propTemplateNodes,
   });
 
   const {
@@ -139,6 +141,8 @@ function ExpressionTreeEditor({
     dragEdge,
     selectedEdge,
     selectedRootNode,
+    templateNodes,
+    templateNodesDescription,
     isDrawerOpen,
     isCreatingNode,
     addEdgeErrorMessage,
@@ -226,6 +230,7 @@ function ExpressionTreeEditor({
     computeEdgeParentCoordinates,
     reorderNodes,
     validateTree,
+    createNodeFromPieces,
   } = utils;
 
   const computeStageWidth = () => width || containerWidth;
@@ -278,7 +283,6 @@ function ExpressionTreeEditor({
     });
   };
 
-  // TODO undo / redo
   const hasStateToUndo = undoState.length > 0;
   const hasStateToRedo = redoState.length > 0;
   const handleUndoButtonAction = useCallback(() => {
@@ -290,31 +294,10 @@ function ExpressionTreeEditor({
 
   const handleCreateNode = useCallback(() => {
     const pointerPos = stageRef.current.getPointerPosition();
-    const labelPieces = parseLabelPieces(createNodeInputValue);
-    const labelPiecesPosition = computeLabelPiecesXCoordinatePositions(labelPieces);
-    const nodeWidth = computeNodeWidth(labelPieces);
-    const nodeHeight = computeNodeHeight(false);
-    const parentEdges = labelPieces.reduce((accumulator) => {
-      accumulator.push([]);
-      return accumulator;
-    }, []);
-
-    const id = createUniqueId();
-    createNode({
-      id,
-      pieces: labelPieces,
-      piecesPosition: labelPiecesPosition,
-      x: (pointerPos.x - stagePos.x) / stageScale.x,
-      y: (pointerPos.y - stagePos.y) / stageScale.y,
-      width: nodeWidth,
-      height: nodeHeight,
-      type: '',
-      value: '',
-      isFinal: false,
-      isSelected: false,
-      childEdges: [],
-      parentEdges,
-    });
+    const newNode = createNodeFromPieces(createNodeInputValue);
+    newNode.x = (pointerPos.x - stagePos.x) / stageScale.x;
+    newNode.y = (pointerPos.y - stagePos.y) / stageScale.y;
+    createNode(newNode);
   });
 
   const handleZoomOutButtonAction = useCallback(() => {
@@ -524,30 +507,39 @@ function ExpressionTreeEditor({
   });
 
   useEffect(() => {
+    if (createNodeDescription && createNodeStageRef.current) {
+      const node = createNodeStageRef.current.findOne('#create-node');
+      if (node) {
+        const imageBase64 = node.toCanvas({
+          pixelRatio: 2,
+        }).toDataURL();
+      }
+    }
+  }, [createNodeDescription]);
+
+  useMemo(() => {
+    if (templateNodesDescription && createNodeStageRef.current) {
+      templateNodesDescription.forEach((templateNode) => {
+        // const node = createNodeStageRef.current.findOne(`#${templateNode.id}`);
+        const node = createNodeStageRef.current.findOne((n) => {
+          console.log(n)
+        });
+        if (node) {
+          const imageBase64 = node.toCanvas({
+            pixelRatio: 2,
+          }).toDataURL();
+
+          console.log(imageBase64);
+        }
+      });
+    }
+  }, [templateNodesDescription]);
+
+  useEffect(() => {
     if (createNodeInputValue === '') {
       setCreateNodeDescription(undefined);
     } else {
-      const labelPieces = parseLabelPieces(createNodeInputValue);
-      const labelPiecesPosition = computeLabelPiecesXCoordinatePositions(labelPieces);
-      const nodeWidth = computeNodeWidth(labelPieces);
-      const nodeHeight = computeNodeHeight(false);
-      const parentEdges = labelPieces.reduce((accumulator) => {
-        accumulator.push([]);
-        return accumulator;
-      }, []);
-
-      setCreateNodeDescription({
-        height: nodeHeight,
-        width: nodeWidth,
-        pieces: labelPieces,
-        piecesPosition: labelPiecesPosition,
-        type: '',
-        value: '',
-        isFinal: false,
-        isSelected: false,
-        childEdges: [],
-        parentEdges,
-      });
+      setCreateNodeDescription(createNodeFromPieces(createNodeInputValue));
     }
   }, [createNodeInputValue]);
 
@@ -1423,6 +1415,85 @@ function ExpressionTreeEditor({
             </Layer>
           </Stage>
         </div>
+      </div>
+      <div style={{ display: 'none' }}>
+        <Stage
+          ref={createNodeStageRef}
+          width={0}
+          height={0}
+        >
+          <Layer>
+            {createNodeDescription ? (
+              <Node
+                id="create-node"
+                positionX={5}
+                positionY={10}
+                labelPieces={createNodeDescription.pieces}
+                labelPiecesPosition={createNodeDescription.piecesPosition}
+                typeText={createNodeDescription.type}
+                valueText={createNodeDescription.value}
+                nodeWidth={createNodeDescription.width}
+                nodeHeight={createNodeDescription.height}
+                childEdges={createNodeDescription.childEdges}
+                parentEdges={createNodeDescription.parentEdges}
+                isFinal={createNodeDescription.isFinal}
+                isSelected={createNodeDescription.isSelected}
+                connectorPlaceholder={connectorPlaceholder}
+                fontSize={fontSize}
+                fontFamily={fontFamily}
+                nodePaddingX={nodePaddingX}
+                nodePaddingY={nodePaddingY}
+                nodeStrokeColor={nodeStyle.nodeStrokeColor}
+                nodeStrokeWidth={nodeStyle.nodeStrokeWidth}
+                nodeSelectedStrokeWidth={nodeStyle.nodeSelectedStrokeWidth}
+                nodeCornerRadius={nodeStyle.nodeCornerRadius}
+                nodeFillColor={nodeStyle.nodeFillColor}
+                nodeErrorColor={nodeStyle.nodeErrorColor}
+                nodeSelectedColor={nodeStyle.nodeSelectedColor}
+                nodeFinalColor={nodeStyle.nodeFinalColor}
+                labelStyle={nodeStyle.labelStyle}
+                topConnectorStyle={nodeStyle.topConnectorStyle}
+                deleteButtonStyle={nodeStyle.deleteButtonStyle}
+                typeValueStyle={nodeStyle.typeValueStyle}
+              />
+            ) : null}
+            {templateNodesDescription && templateNodesDescription.map((templateNode) => (
+              <Node
+                key={templateNode.id}
+                id={templateNode.id}
+                positionX={5}
+                positionY={10}
+                labelPieces={templateNode.pieces}
+                labelPiecesPosition={templateNode.piecesPosition}
+                typeText={templateNode.type}
+                valueText={templateNode.value}
+                nodeWidth={templateNode.width}
+                nodeHeight={templateNode.height}
+                childEdges={templateNode.childEdges}
+                parentEdges={templateNode.parentEdges}
+                isFinal={templateNode.isFinal}
+                isSelected={templateNode.isSelected}
+                connectorPlaceholder={connectorPlaceholder}
+                fontSize={fontSize}
+                fontFamily={fontFamily}
+                nodePaddingX={nodePaddingX}
+                nodePaddingY={nodePaddingY}
+                nodeStrokeColor={nodeStyle.nodeStrokeColor}
+                nodeStrokeWidth={nodeStyle.nodeStrokeWidth}
+                nodeSelectedStrokeWidth={nodeStyle.nodeSelectedStrokeWidth}
+                nodeCornerRadius={nodeStyle.nodeCornerRadius}
+                nodeFillColor={nodeStyle.nodeFillColor}
+                nodeErrorColor={nodeStyle.nodeErrorColor}
+                nodeSelectedColor={nodeStyle.nodeSelectedColor}
+                nodeFinalColor={nodeStyle.nodeFinalColor}
+                labelStyle={nodeStyle.labelStyle}
+                topConnectorStyle={nodeStyle.topConnectorStyle}
+                deleteButtonStyle={nodeStyle.deleteButtonStyle}
+                typeValueStyle={nodeStyle.typeValueStyle}
+              />
+            ))}
+          </Layer>
+        </Stage>
       </div>
     </ThemeProvider>
   );

@@ -449,6 +449,24 @@ const actions = [
       },
     }),
   },
+  {
+    name: 'setTemplateNodes',
+    action: (templateNodes) => ({
+      type: 'setTemplateNodes',
+      payload: {
+        templateNodes,
+      },
+    }),
+  },
+  {
+    name: 'setTemplateNodesDescription',
+    action: (templateNodesDescription) => ({
+      type: 'setTemplateNodesDescription',
+      payload: {
+        templateNodesDescription,
+      },
+    }),
+  },
   // Stage
   {
     name: 'toggleFullScreen',

@@ -70,7 +70,6 @@ function NodeTopConnector({
         <Star
           key={`NodeConnector-${nodeId}`}
           ref={starRef}
-          id={nodeId}
           x={x}
           y={0}
           numPoints={starNumPoints}
@@ -96,7 +95,6 @@ function NodeTopConnector({
         <Circle
           key={`NodeConnector-${nodeId}`}
           ref={circleRef}
-          id={nodeId}
           x={x}
           y={0}
           radius={connectorRadius}

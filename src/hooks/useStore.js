@@ -20,6 +20,7 @@ function useStore({
   propFontFamily,
   propNodePaddingX,
   propNodePaddingY,
+  propTemplateNodes,
 }) {
   const {
     sanitizedFontSize,
@@ -67,6 +68,13 @@ function useStore({
     utils.sanitizeNodesAndEdges(propNodes, propEdges)
   ), [propNodes, propEdges, utils.sanitizeNodesAndEdges]);
 
+  const templateNodesDescription = useMemo(() => {
+    if (propTemplateNodes !== undefined && propTemplateNodes !== null) {
+      return propTemplateNodes.map(utils.createNodeFromPieces);
+    }
+    return null;
+  }, []);
+
   const [store, dispatch] = useReducer(reducer, createInitialState(
     sanitizedNodes,
     propSelectedNode,
@@ -81,6 +89,8 @@ function useStore({
     sanitizedFontFamily,
     sanitizedNodePaddingX,
     sanitizedNodePaddingY,
+    propTemplateNodes,
+    templateNodesDescription,
   ));
 
   const storeActions = useMemo(() => {

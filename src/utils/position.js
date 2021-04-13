@@ -650,7 +650,33 @@ const createPositionUtils = (
     return updatedEdges;
   };
 
+  const createNodeFromPieces = (pieces, id) => {
+    const labelPieces = parseLabelPieces(pieces);
+    const labelPiecesPosition = computeLabelPiecesXCoordinatePositions(labelPieces);
+    const nodeWidth = computeNodeWidth(labelPieces);
+    const nodeHeight = computeNodeHeight(false);
+    const parentEdges = labelPieces.reduce((accumulator) => {
+      accumulator.push([]);
+      return accumulator;
+    }, []);
+
+    return {
+      id: id || createUniqueId(),
+      height: nodeHeight,
+      width: nodeWidth,
+      pieces: labelPieces,
+      piecesPosition: labelPiecesPosition,
+      type: '',
+      value: '',
+      isFinal: false,
+      isSelected: false,
+      childEdges: [],
+      parentEdges,
+    };
+  };
+
   return {
+    createNodeFromPieces,
     closestChildId,
     closestParentPiece,
     computeEdgeChildPos,
