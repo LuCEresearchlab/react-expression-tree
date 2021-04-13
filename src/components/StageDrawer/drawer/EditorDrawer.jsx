@@ -9,7 +9,7 @@ import {
   Typography,
   TextField,
   Divider,
-  Button,
+  Chip,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -121,11 +121,9 @@ const useStyles = makeStyles((theme) => ({
   typeField: {
     margin: '10px 10px 10px 10px',
   },
-  typeButton: {
-    textTransform: 'none',
-  },
-  valueButton: {
-    textTransform: 'none',
+  suggestionChip: {
+    margin: theme.spacing(0.5),
+    fontFamily: 'monospace',
   },
 }));
 
@@ -418,17 +416,16 @@ function EditorDrawer({
 
             {templateNodeTypesAndValues && (
               <div className={classes.typeField}>
-                <FormLabel>Suggested node types:</FormLabel>
+                <FormLabel>Suggested types:</FormLabel>
                 <div>
                   {Object.keys(templateNodeTypesAndValues).map((nodeType) => (
-                    <Button
+                    <Chip
                       size="large"
                       key={nodeType}
-                      className={classes.typeButton}
+                      label={nodeType}
+                      className={classes.suggestionChip}
                       onClick={() => handleUpdateNodeTypeChange(nodeType)}
-                    >
-                      {nodeType}
-                    </Button>
+                    />
                   ))}
                 </div>
               </div>
@@ -468,17 +465,16 @@ function EditorDrawer({
               && templateNodeTypesAndValues[updateTypeInputValue]
               && templateNodeTypesAndValues[updateTypeInputValue].length > 0 && (
                 <div className={classes.typeField}>
-                  <FormLabel>Suggested node values:</FormLabel>
+                  <FormLabel>Suggested values:</FormLabel>
                   <div>
                     {templateNodeTypesAndValues[updateTypeInputValue].map((nodeValue) => (
-                      <Button
+                      <Chip
                         size="large"
                         key={nodeValue}
-                        className={classes.valueButton}
+                        label={nodeValue}
+                        className={classes.suggestionChip}
                         onClick={() => handleUpdateNodeValueChange(nodeValue)}
-                      >
-                        {nodeValue}
-                      </Button>
+                      />
                     ))}
                   </div>
                 </div>
