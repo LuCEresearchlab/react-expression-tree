@@ -1786,8 +1786,8 @@ ExpressionTreeEditor.defaultProps = {
   toolbarStyle: {},
   nodeStyle: {},
   selectionRectangleStyle: {},
-  toolbarPrimaryColor: '#90caf9',
-  toolbarSecondaryColor: '##f48fb1',
+  toolbarPrimaryColor: '#3F51B5',
+  toolbarSecondaryColor: '#F44336',
 };
 
 export default ExpressionTreeEditor;
