@@ -348,14 +348,14 @@ function EditorDrawer({
         {(isSelectedNodeEditable.label
           || isSelectedNodeEditable.type
           || isSelectedNodeEditable.value)
-          && (showDrawerSections.updateLabelField
-            || showDrawerSections.updateTypeField
-            || showDrawerSections.updateValueField) && (
+          && (showDrawerSections.editLabelField
+            || showDrawerSections.editTypeField
+            || showDrawerSections.editValueField) && (
             <div className={classes.drawerInfo}>
               <Typography variant="h6">Edit an existing node:</Typography>
             </div>
         )}
-        {showDrawerSections.updateLabelField && isSelectedNodeEditable.label && (
+        {showDrawerSections.editLabelField && isSelectedNodeEditable.label && (
           <>
             <div className={classes.drawerField}>
               <TextField
@@ -404,7 +404,7 @@ function EditorDrawer({
             </div>
           </>
         )}
-        {showDrawerSections.updateTypeField && isSelectedNodeEditable.type && (
+        {showDrawerSections.editTypeField && isSelectedNodeEditable.type && (
           <>
             <div className={classes.drawerField}>
               {/* <Typography variant="h6">Edit the type:</Typography> */}
@@ -450,7 +450,7 @@ function EditorDrawer({
             )}
           </>
         )}
-        {showDrawerSections.updateValueField && isSelectedNodeEditable.value && (
+        {showDrawerSections.editValueField && isSelectedNodeEditable.value && (
           <>
             <div className={classes.drawerField}>
               {/* <Typography variant="h6">Edit the type:</Typography> */}
@@ -513,9 +513,9 @@ EditorDrawer.propTypes = {
   showDrawerSections: PropTypes.shape({
     addNodeField: PropTypes.bool,
     templateDropdown: PropTypes.bool,
-    updateLabelField: PropTypes.bool,
-    updateValueField: PropTypes.bool,
-    updateTypeField: PropTypes.bool,
+    editLabelField: PropTypes.bool,
+    editValueField: PropTypes.bool,
+    editTypeField: PropTypes.bool,
   }),
   toggleIsCreatingNode: PropTypes.func,
   handleUpdateLabelPiecesChange: PropTypes.func,
@@ -616,9 +616,9 @@ EditorDrawer.defaultProps = {
   showDrawerSections: {
     addNodeField: true,
     templateDropdown: true,
-    updateLabelField: true,
-    updateValueField: true,
-    updateTypeField: true,
+    editLabelField: true,
+    editValueField: true,
+    editTypeField: true,
   },
   handleUpdateLabelPiecesChange: () => {},
   handleUpdateNodeTypeChange: () => {},
