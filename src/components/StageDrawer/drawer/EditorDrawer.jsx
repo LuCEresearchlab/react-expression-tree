@@ -28,7 +28,6 @@ import {
 
 import { Layer, Stage } from 'react-konva';
 import Node from '../../Node/Node';
-import Konva from 'konva';
 
 // Width of the side drawer
 const drawerWidth = 300;
@@ -42,10 +41,14 @@ const useStyles = makeStyles((theme) => ({
     '@media print': {
       display: 'none',
     },
-    '& .MuiDrawer-paperAnchorLeft': {
-      border: '0px',
-      backgroundColor: 'rgba(0,0,0,0)',
-    },
+    // '& .MuiDrawer-paperAnchorLeft': {
+    //   border: '0px',
+    //   backgroundColor: 'rgba(0,0,0,0)',
+    // },
+  },
+  drawerAnchorLeft: {
+    border: '0px',
+    backgroundColor: 'rgba(0,0,0,0)',
   },
   drawerContainer: {
     overflowX: 'hidden',
@@ -172,6 +175,7 @@ function EditorDrawer({
   return (
     <Drawer
       className={classes.drawer}
+      classes={{ paper: classes.drawerAnchorLeft }}
       PaperProps={{ style: { position: 'relative' } }}
       BackdropProps={{ style: { position: 'relative' } }}
       ModalProps={{
