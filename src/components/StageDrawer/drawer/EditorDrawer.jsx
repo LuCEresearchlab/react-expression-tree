@@ -126,6 +126,9 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(0.5),
     fontFamily: 'monospace',
   },
+  endAdornment: {
+    paddingRight: 0
+  }
 }));
 
 function EditorDrawer({
@@ -223,6 +226,25 @@ function EditorDrawer({
                 }}
                 InputProps={{
                   className: classes.input,
+                  classes: {
+                    adornedEnd: classes.endAdornment,
+                  },
+                  endAdornment: 
+                  <Tooltip
+                    title={isCreatingNode ? 'Clear adding' : 'Add node'}
+                    placement="right"
+                  >
+                    <span>
+                      <IconButton
+                        size="medium"
+                        color={isCreatingNode ? 'secondary' : 'primary'}
+                        //  disabled={isAddEmpty}
+                        onClick={toggleIsCreatingNode}
+                      >
+                        <AddRounded />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
                 }}
                 placeholder={`example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
                 margin="dense"
@@ -235,23 +257,6 @@ function EditorDrawer({
                   }
                 }}
               />
-              <div>
-                <Tooltip
-                  title={isCreatingNode ? 'Clear adding' : 'Add node'}
-                  placement="top"
-                >
-                  <span>
-                    <IconButton
-                      size="medium"
-                      color={isCreatingNode ? 'secondary' : 'primary'}
-                      //  disabled={isAddEmpty}
-                      onClick={toggleIsCreatingNode}
-                    >
-                      <AddRounded />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              </div>
             </div>
             {createNodeDescription !== undefined && (
               <div className={classes.drawerField}>
@@ -358,6 +363,21 @@ function EditorDrawer({
                 }}
                 InputProps={{
                   className: classes.input,
+                  classes: {
+                    adornedEnd: classes.endAdornment
+                  },
+                  endAdornment:
+                    <Tooltip title="Confirm change" placement="right">
+                      <span>
+                        <IconButton
+                          size="medium"
+                          color="primary"
+                          onClick={handleUpdateLabelPiecesChange}
+                        >
+                          <Check />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
                 }}
                 placeholder={`example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
                 value={updateLabelInputValue}
@@ -371,17 +391,7 @@ function EditorDrawer({
                 }}
               />
               <div>
-                <Tooltip title="Confirm edit" placement="top">
-                  <span>
-                    <IconButton
-                      size="medium"
-                      color="primary"
-                      onClick={handleUpdateLabelPiecesChange}
-                    >
-                      <Check />
-                    </IconButton>
-                  </span>
-                </Tooltip>
+                
               </div>
             </div>
           </>
