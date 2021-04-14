@@ -569,7 +569,7 @@ function ExpressionTreeEditor({
 
   useEffect(() => {
     stageRef.current.find('.Edge').toArray().forEach((edge) => {
-      if (edge.attrs.id === selectedEdge) {
+      if (edge.attrs && edge.attrs.id === selectedEdge) {
         edge.moveToTop();
       } else {
         edge.moveToBottom();
