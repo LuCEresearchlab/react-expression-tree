@@ -13,10 +13,10 @@ import {
   FullscreenRounded,
   InfoOutlined,
   MenuRounded,
-  NoteAddRounded,
   PhotoCameraRounded,
   PublishRounded,
   RedoRounded,
+  Replay,
   UndoRounded,
   ViewModuleRounded,
   ZoomInRounded,
@@ -149,7 +149,7 @@ function ToolbarActions({
             color="primary"
             onClick={handleStateResetButtonAction}
           >
-            <NoteAddRounded />
+            <Replay />
           </IconButton>
         </Tooltip>
       )}
