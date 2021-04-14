@@ -162,7 +162,7 @@ NodeTopConnector.defaultProps = {
   starInnerRadius: 5,
   starOuterRadius: 10,
   starStrokeColor: '#000000',
-  starStrokeWidth: 2,
+  starStrokeWidth: 1,
   connectorRadius: 6,
   connectorStrokeColor: '#000000',
   connectorStrokeWidth: 1,
