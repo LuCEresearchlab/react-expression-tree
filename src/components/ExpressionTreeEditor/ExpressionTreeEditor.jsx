@@ -642,73 +642,70 @@ function ExpressionTreeEditor({
 
   const {
     isBackpasceOrDeleteKeyPressed,
-    isMetaOrShiftKeyPressed,
     isEscapedKeyPressed,
   } = useKeypress(containerRef, isFullDisabled);
 
   const handleConnectorDragStart = useCallback((isParent, nodeId, x, y, pieceId) => {
-    if (!isMetaOrShiftKeyPressed) {
-      if (!isParent) {
-        const edgeId = nodes[nodeId].childEdges[0];
-        const edge = edges[edgeId];
-        if (edge) {
-          const parentPieceX = computeLabelPiecesXCoordinatePositions(
-            nodes[edge.parentNodeId].pieces,
-          )[edge.parentPieceId];
-          const parentPos = computeEdgeParentPos(
-            edge.parentNodeId,
-            parentPieceX,
-            nodes,
-            fontSize,
-            placeholderWidth,
-          );
-          setDragEdge({
-            originalEdgeId: edge.id,
-            updateParent: false,
-            parentNodeId: edge.parentNodeId,
-            parentPieceId: edge.parentPieceId,
-            parentX: parentPos.x,
-            parentY: parentPos.y - fontSize / 2,
-            childX: x,
-            childY: y,
-          });
-        } else {
-          setDragEdge({
-            originalEdgeId: null,
-            updateParent: true,
-            childNodeId: nodeId,
-            childX: x,
-            childY: y,
-            parentX: x,
-            parentY: y,
-          });
-        }
+    if (!isParent) {
+      const edgeId = nodes[nodeId].childEdges[0];
+      const edge = edges[edgeId];
+      if (edge) {
+        const parentPieceX = computeLabelPiecesXCoordinatePositions(
+          nodes[edge.parentNodeId].pieces,
+        )[edge.parentPieceId];
+        const parentPos = computeEdgeParentPos(
+          edge.parentNodeId,
+          parentPieceX,
+          nodes,
+          fontSize,
+          placeholderWidth,
+        );
+        setDragEdge({
+          originalEdgeId: edge.id,
+          updateParent: false,
+          parentNodeId: edge.parentNodeId,
+          parentPieceId: edge.parentPieceId,
+          parentX: parentPos.x,
+          parentY: parentPos.y - fontSize / 2,
+          childX: x,
+          childY: y,
+        });
       } else {
-        const edgeId = nodes[nodeId].parentEdges[pieceId][0];
-        const edge = edges[edgeId];
-        if (edge) {
-          const childPos = computeEdgeChildPos(edge.childNodeId, nodes);
-          setDragEdge({
-            originalEdgeId: edge.id,
-            updateParent: true,
-            childNodeId: edge.childNodeId,
-            childX: childPos.x,
-            childY: childPos.y,
-            parentX: x,
-            parentY: y,
-          });
-        } else {
-          setDragEdge({
-            originalEdgeId: null,
-            updateParent: false,
-            parentNodeId: nodeId,
-            parentPieceId: pieceId,
-            parentX: x,
-            parentY: y,
-            childX: x,
-            childY: y,
-          });
-        }
+        setDragEdge({
+          originalEdgeId: null,
+          updateParent: true,
+          childNodeId: nodeId,
+          childX: x,
+          childY: y,
+          parentX: x,
+          parentY: y,
+        });
+      }
+    } else {
+      const edgeId = nodes[nodeId].parentEdges[pieceId][0];
+      const edge = edges[edgeId];
+      if (edge) {
+        const childPos = computeEdgeChildPos(edge.childNodeId, nodes);
+        setDragEdge({
+          originalEdgeId: edge.id,
+          updateParent: true,
+          childNodeId: edge.childNodeId,
+          childX: childPos.x,
+          childY: childPos.y,
+          parentX: x,
+          parentY: y,
+        });
+      } else {
+        setDragEdge({
+          originalEdgeId: null,
+          updateParent: false,
+          parentNodeId: nodeId,
+          parentPieceId: pieceId,
+          parentX: x,
+          parentY: y,
+          childX: x,
+          childY: y,
+        });
       }
     }
   });
@@ -951,13 +948,9 @@ function ExpressionTreeEditor({
       return;
     }
 
-    if (!isMetaOrShiftKeyPressed) {
-      transformerRef.current.nodes([]);
-      e.currentTarget.moveToTop();
-      setIsDraggingNode(nodeId);
-    } else {
-      e.target.stopDrag();
-    }
+    transformerRef.current.nodes([]);
+    e.currentTarget.moveToTop();
+    setIsDraggingNode(nodeId);
   });
 
   const handleNodeDragMove = useCallback((e, nodeId) => {
@@ -1031,30 +1024,20 @@ function ExpressionTreeEditor({
     }
   }, [isEscapedKeyPressed]);
 
-  useEffect(() => {
-    if (isMetaOrShiftKeyPressed) {
-      setCursor('grab');
-    } else {
-      setCursor('move');
-    }
-  }, [isMetaOrShiftKeyPressed]);
-
   const handleNodeClick = useCallback((e, nodeId) => {
     e.cancelBubble = true;
     if (isFullDisabled) {
       return;
     }
 
-    if (!isMetaOrShiftKeyPressed) {
-      transformerRef.current.nodes([]);
-      if (isCreatingNode) {
-        handleCreateNode();
-      } else {
-        e.currentTarget.moveToTop();
-        const selectingNode = nodes[nodeId];
-        if (selectedNode !== selectingNode.id) {
-          setSelectedNode(selectingNode.id);
-        }
+    transformerRef.current.nodes([]);
+    if (isCreatingNode) {
+      handleCreateNode();
+    } else {
+      e.currentTarget.moveToTop();
+      const selectingNode = nodes[nodeId];
+      if (selectedNode !== selectingNode.id) {
+        setSelectedNode(selectingNode.id);
       }
     }
   });
@@ -1093,23 +1076,6 @@ function ExpressionTreeEditor({
     if (isFullDisabled) {
       return;
     }
-
-    if (isDraggingSelectionRect && isMetaOrShiftKeyPressed) {
-      setCursor('move');
-      setIsSelectingRectVisible(false);
-      setIsDraggingSelectionRect(false);
-      const allNodes = stageRef.current.find('.Node').toArray();
-      const box = selectionRectRef.current.getClientRect();
-      const intersectingNodes = allNodes.filter((node) => Konva.Util.haveIntersection(box, node.getClientRect()));
-      intersectingNodes.map((intersectingNode) => intersectingNode.parent.moveToTop());
-      selectedRectRef.current.moveToTop();
-      transformerRef.current.nodes(intersectingNodes);
-      setIsSelectedRectVisible(true);
-      selectedRectRef.current.moveToTop();
-    } else {
-      const newStagePos = stageRef.current.absolutePosition();
-      setStagePos(newStagePos);
-    }
   };
 
   // Handle stage click event, if the adding node button has been pressed,
@@ -1138,23 +1104,6 @@ function ExpressionTreeEditor({
   const handleStageMouseDown = useCallback((e) => {
     if (isFullDisabled) {
       return;
-    }
-
-    if (isMetaOrShiftKeyPressed) {
-      e.cancelBubble = true;
-      const pointerPos = stageRef.current.getPointerPosition();
-      setSelectionRectStartPos({
-        x: (pointerPos.x - stagePos.x) / stageScale.x,
-        y: (pointerPos.y - stagePos.y) / stageScale.y,
-      });
-      setSelectionRectEndPos({
-        x: (pointerPos.x - stagePos.x) / stageScale.x,
-        y: (pointerPos.y - stagePos.y) / stageScale.y,
-      });
-      setIsSelectingRectVisible(true);
-      setIsSelectedRectVisible(false);
-      setIsDraggingSelectionRect(true);
-      selectionRectRef.current.moveToTop();
     }
   });
 
@@ -1251,7 +1200,7 @@ function ExpressionTreeEditor({
             onTouchEnd={handleStageMouseUp}
             onClick={handleStageClick}
             onTouchStart={handleStageClick}
-            draggable={!isMetaOrShiftKeyPressed && !isFullDisabled}
+            draggable={!isFullDisabled}
             onMouseDown={handleStageMouseDown}
             onDragStart={
               !isFullDisabled
@@ -1348,7 +1297,6 @@ function ExpressionTreeEditor({
                   isSelected={id === selectedNode}
                   isSelectedRoot={id === selectedRootNode}
                   isHighlighted={nodes[id].isHighlighted}
-                  isMetaOrShiftKeyPressed={isMetaOrShiftKeyPressed}
                   isFullDisabled={isFullDisabled}
                   handleNodeClick={(e) => handleNodeClick(e, id)}
                   handleNodeDblClick={() => handleNodeDblClick(id)}

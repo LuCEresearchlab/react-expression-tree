@@ -2,7 +2,6 @@ import { useEffect, useReducer } from 'react';
 
 const initState = {
   isBackpasceOrDeleteKeyPressed: false,
-  isMetaOrShiftKeyPressed: false,
   isEscapedKeyPressed: false,
 };
 
@@ -18,10 +17,6 @@ function reducer(state, action) {
     setIsEscapedKeyPressed: (previousState, payload) => ({
       ...previousState,
       isEscapedKeyPressed: payload,
-    }),
-    setIsMetaOrShiftKeyPressed: (previousState, payload) => ({
-      ...previousState,
-      isMetaOrShiftKeyPressed: payload,
     }),
   };
 
@@ -52,9 +47,6 @@ function useKeypress(targetRef, isFullDisabled) {
             break;
           case 'Meta':
           case 'Shift':
-            if (!store.isMetaOrShiftKeyPressed) {
-              dispatch({ type: 'setIsMetaOrShiftKeyPressed', payload: true });
-            }
             break;
           default:
             break;
@@ -73,7 +65,6 @@ function useKeypress(targetRef, isFullDisabled) {
             break;
           case 'Meta':
           case 'Shift':
-            dispatch({ type: 'setIsMetaOrShiftKeyPressed', payload: false });
             break;
           default:
             break;
