@@ -182,7 +182,7 @@ const reducers = {
     const node = nodes[selectedNode];
 
     const edgesToUpdate = Object.keys(updatedEdges);
-    const edgesToRemove = nodes[selectedNode].parentEdges.flat();
+    const edgesToRemove = node.parentEdges.flat();
     const newEdges = Object.keys(edges).reduce((accumulator, id) => {
       if (edgesToRemove.includes(id)) {
         return accumulator;
@@ -200,6 +200,23 @@ const reducers = {
       return accumulator;
     }, {});
 
+    const nodesToUpdate = Object.keys(nodes).reduce((accumulator, id) => {
+      const childNode = nodes[id];
+      const { childEdges } = childNode;
+
+      if (childEdges.some((edgeId) => edgesToRemove.includes(edgeId))) {
+        const updatedChildEdges = childNode.childEdges.filter(
+          (edgeId) => !edgesToRemove.includes(edgeId),
+        );
+        accumulator[id] = {
+          ...childNode,
+          childEdges: updatedChildEdges,
+        };
+      }
+
+      return accumulator;
+    }, {});
+
     return {
       ...state,
       nodes: {
@@ -211,6 +228,7 @@ const reducers = {
           width,
           parentEdges,
         },
+        ...nodesToUpdate,
       },
       edges: newEdges,
     };
