@@ -217,7 +217,6 @@ function EditorDrawer({
               <TextField
                 className={classes.textField}
                 id="addField"
-                type="search"
                 variant="outlined"
                 fullWidth
                 size="medium"
@@ -358,7 +357,6 @@ function EditorDrawer({
                 className={classes.textField}
                 id="updateField"
                 variant="outlined"
-                type="search"
                 fullWidth
                 size="medium"
                 label="Structure of this node"
