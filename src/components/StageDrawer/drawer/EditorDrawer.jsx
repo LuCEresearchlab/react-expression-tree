@@ -220,7 +220,6 @@ function EditorDrawer({
             <div className={classes.drawerField}>
               <TextField
                 className={classes.textField}
-                id="addField"
                 variant="outlined"
                 fullWidth
                 size="medium"
@@ -273,7 +272,7 @@ function EditorDrawer({
                 >
                   <Layer>
                     <Node
-                      id="create-node"
+                      id="example-node"
                       positionX={5}
                       positionY={10}
                       labelPieces={createNodeDescription.pieces}
@@ -359,7 +358,6 @@ function EditorDrawer({
             <div className={classes.drawerField}>
               <TextField
                 className={classes.textField}
-                id="updateField"
                 variant="outlined"
                 fullWidth
                 size="medium"
@@ -410,7 +408,6 @@ function EditorDrawer({
                 <>
                   <TextField
                     className={classes.textField}
-                    id="typeField"
                     variant="outlined"
                     fullWidth
                     size="medium"
@@ -456,7 +453,6 @@ function EditorDrawer({
                 <>
                   <TextField
                     className={classes.textField}
-                    id="valueField"
                     variant="outlined"
                     fullWidth
                     size="medium"

@@ -21,6 +21,8 @@ function useStore({
   propNodePaddingX,
   propNodePaddingY,
   propTemplateNodes,
+  propHighlightedNodes,
+  propHighlightedEdges,
 }) {
   const {
     sanitizedFontSize,
@@ -91,6 +93,8 @@ function useStore({
     sanitizedNodePaddingY,
     propTemplateNodes,
     templateNodesDescription,
+    propHighlightedNodes,
+    propHighlightedEdges,
   ));
 
   const storeActions = useMemo(() => {
@@ -186,6 +190,18 @@ function useStore({
       storeActions.setNodePaddingY(sanitizedNodePaddingY);
     }
   }, [storeActions, sanitizedNodePaddingY]);
+
+  useEffect(() => {
+    if (propHighlightedNodes !== undefined && propHighlightedNodes !== null) {
+      storeActions.setHighlightedNodes(propHighlightedNodes);
+    }
+  }, [storeActions, propHighlightedNodes]);
+
+  useEffect(() => {
+    if (propHighlightedEdges !== undefined && propHighlightedEdges !== null) {
+      storeActions.setHighlightedEdges(propHighlightedEdges);
+    }
+  }, [storeActions, propHighlightedEdges]);
 
   return [store, storeActions, utils];
 }

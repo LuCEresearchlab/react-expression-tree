@@ -67,7 +67,7 @@ Example with initial object state and final nodes:
       "y": 90,
       "type": "Number",
       "value": "10",
-      "isFinal": false,
+      "isFinal": true,
     },
     "n1": {
       "pieces": ["#", "-", "#"],
@@ -174,7 +174,8 @@ Example with initial object state and final nodes:
   stageScale={{x: 1.2, y: 1.2}}
   stagePos={{x:40, y: 200}}
   selectedRootNode={'n0'}
-  selectedNode={'n2'}
+  highlightedNodes={['n4', 'n5', 'does not exist', 'n6']}
+  highlightedEdges={['e0', 'e1', 'e2']}
 />
 ```
 

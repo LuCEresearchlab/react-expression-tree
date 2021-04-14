@@ -1,6 +1,6 @@
 /* eslint-disable no-loop-func */
 import Konva from 'konva';
-import { createUniqueId } from './state';
+import { createEmptyEdge, createEmptyNode } from './state';
 
 function distance(x1, y1, x2, y2) {
   return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
@@ -568,7 +568,8 @@ const createPositionUtils = (
   const convertArrayEdgesToObject = (edges) => {
     const objectEdges = {};
     edges.forEach((edge) => {
-      const id = createUniqueId();
+      const newEdge = createEmptyEdge(edge.id);
+      const { id } = newEdge;
 
       const {
         parentNodeId,
@@ -577,6 +578,7 @@ const createPositionUtils = (
       } = edge;
 
       objectEdges[id] = {
+        ...newEdge,
         parentNodeId: `_${parentNodeId}`,
         parentPieceId,
         childNodeId: `_${childNodeId}`,
@@ -592,9 +594,10 @@ const createPositionUtils = (
     }
 
     const sanitizedNodes = Object.keys(nodes).reduce((accumulator, id) => {
+      const newNode = createEmptyNode(id);
       accumulator[id] = {
+        ...newNode,
         ...nodes[id],
-        id,
         height: computeNodeHeight(nodes[id].isEquation),
         width: computeNodeWidth(nodes[id].pieces),
         piecesPosition: computeLabelPiecesXCoordinatePositions(nodes[id].pieces),
@@ -651,6 +654,8 @@ const createPositionUtils = (
   };
 
   const createNodeFromPieces = (pieces, id) => {
+    const newNode = createEmptyNode(id);
+
     const labelPieces = parseLabelPieces(pieces);
     const labelPiecesPosition = computeLabelPiecesXCoordinatePositions(labelPieces);
     const nodeWidth = computeNodeWidth(labelPieces);
@@ -661,16 +666,11 @@ const createPositionUtils = (
     }, []);
 
     return {
-      id: id || createUniqueId(),
+      ...newNode,
       height: nodeHeight,
       width: nodeWidth,
       pieces: labelPieces,
       piecesPosition: labelPiecesPosition,
-      type: '',
-      value: '',
-      isFinal: false,
-      isSelected: false,
-      childEdges: [],
       parentEdges,
     };
   };

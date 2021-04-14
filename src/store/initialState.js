@@ -1,17 +1,11 @@
-const defaultFontSize = 24;
-const defaultFontFamily = 'Roboto Mono, Courier';
-const defaultNodePaddingX = 12;
-const defaultNodePaddingY = 12;
-const defaultPlaceholderWidth = 16;
-
 export const defaultProps = {
   // Global
-  fontSize: defaultFontSize,
-  fontFamily: defaultFontFamily,
-  nodePaddingX: defaultNodePaddingX,
-  nodePaddingY: defaultNodePaddingY,
+  fontSize: 24,
+  fontFamily: 'Roboto Mono, Courier',
+  nodePaddingX: 12,
+  nodePaddingY: 12,
   connectorPlaceholder: '#',
-  placeholderWidth: defaultPlaceholderWidth,
+  placeholderWidth: 16,
   isDraggingNode: false,
   // Stage
   isFullScreen: false,
@@ -24,6 +18,8 @@ export const defaultProps = {
   selectedNode: null,
   selectedEdge: null,
   selectedRootNode: null,
+  highlightedNodes: [],
+  highlightedEdges: [],
   // Drawer
   isDrawerOpen: true,
   addEdgeErrorMessage: '',
@@ -62,8 +58,8 @@ export const createSanitizedUtilsProps = (
   sanitizedFontFamily: propFontFamily || defaultProps.fontFamily,
   sanitizedConnectorPlaceholder: propConnectorPlaceholder || defaultProps.connectorPlaceholder,
   sanitizedPlaceholderWidth: propPlaceholderWidth || defaultProps.placeholderWidth,
-  sanitizedNodePaddingX: propNodePaddingX || defaultNodePaddingX,
-  sanitizedNodePaddingY: propNodePaddingY || defaultNodePaddingY,
+  sanitizedNodePaddingX: propNodePaddingX || defaultProps.defaultNodePaddingX,
+  sanitizedNodePaddingY: propNodePaddingY || defaultProps.defaultNodePaddingY,
 });
 
 export const createInitialState = (
@@ -82,12 +78,14 @@ export const createInitialState = (
   nodePaddingY,
   templateNodes,
   templateNodesDescription,
+  highlightedNodes,
+  highlightedEdges,
 ) => ({
   // Global
   fontSize: fontSize || defaultProps.fontSize,
   fontFamily: fontFamily || defaultProps.fontFamily,
-  nodePaddingX: nodePaddingX || defaultNodePaddingX,
-  nodePaddingY: nodePaddingY || defaultNodePaddingY,
+  nodePaddingX: nodePaddingX || defaultProps.defaultNodePaddingX,
+  nodePaddingY: nodePaddingY || defaultProps.defaultNodePaddingY,
   connectorPlaceholder: connectorPlaceholder || defaultProps.connectorPlaceholder,
   placeholderWidth: placeholderWidth || defaultProps.placeholderWidth,
   isDraggingNode: defaultProps.isDraggingNode,
@@ -98,10 +96,12 @@ export const createInitialState = (
   // Tree
   nodes: nodes || defaultProps.nodes,
   edges: edges || defaultProps.edges,
-  dragEdge: null,
+  dragEdge: defaultProps.dragEdge,
   selectedNode: selectedNode || defaultProps.selectedNode,
   selectedEdge: selectedEdge || defaultProps.selectedEdge,
   selectedRootNode: selectedRootNode || defaultProps.selectedRootNode,
+  highlightedNodes: highlightedNodes || defaultProps.highlightedNodes,
+  highlightedEdges: highlightedEdges || defaultProps.highlightedEdges,
   // Drawer
   isDrawerOpen: defaultProps.isDrawerOpen,
   addEdgeErrorMessage: defaultProps.addEdgeErrorMessage,

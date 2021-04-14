@@ -36,3 +36,34 @@ export function arraysAreEqual(a, b) {
 
   return isEqual;
 }
+
+export function createEmptyNode(id) {
+  return {
+    id: id || createUniqueId(),
+    height: 0,
+    width: 0,
+    pieces: [''],
+    piecesPosition: [0],
+    type: '',
+    value: '',
+    isFinal: false,
+    isSelected: false,
+    isHighlighted: false,
+    childEdges: [],
+    parentEdges: [[]],
+  };
+}
+
+export function createEmptyEdge(id) {
+  return {
+    id: id || createUniqueId(),
+    parentNodeId: undefined,
+    parentPieceId: undefined,
+    childNodeId: undefined,
+    childX: 0,
+    childY: 0,
+    parentX: 0,
+    parentY: 0,
+    isHighlighted: false,
+  };
+}

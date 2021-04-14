@@ -150,6 +150,15 @@ const actions = [
     }),
   },
   {
+    name: 'setHighlightedNodes',
+    action: (highlightedNodes) => ({
+      type: 'setHighlightedNodes',
+      payload: {
+        highlightedNodes,
+      },
+    }),
+  },
+  {
     name: 'setEdges',
     action: (edges) => ({
       type: 'setEdges',
@@ -229,6 +238,15 @@ const actions = [
     name: 'clearSelectedEdge',
     action: () => ({
       type: 'clearSelectedEdge',
+    }),
+  },
+  {
+    name: 'setHighlightedEdges',
+    action: (highlightedEdges) => ({
+      type: 'setHighlightedEdges',
+      payload: {
+        highlightedEdges,
+      },
     }),
   },
   {

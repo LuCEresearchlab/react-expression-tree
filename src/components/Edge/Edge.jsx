@@ -14,6 +14,7 @@ function Edge({
   isDragged,
   isFullDisabled,
   isSelected,
+  isHighlighted,
   currentErrorLocation,
   handleEdgeClick,
   handleConnectorDragStart,
@@ -26,6 +27,7 @@ function Edge({
   lineSelectedStrokeColor,
   lineDraggingStrokeColor,
   lineErrorStrokeColor,
+  lineHighlightColor,
   childConnectorRadiusSize,
   childConnectorStrokeColor,
   childConnectorStrokeWidth,
@@ -33,6 +35,7 @@ function Edge({
   childConnectorSelectedFillColor,
   childConnectorDraggingFillColor,
   childConnectorErrorFillColor,
+  childConnectorHighlightFillColor,
   parentConnectorRadiusSize,
   parentConnectorStrokeColor,
   parentConnectorStrokeWidth,
@@ -40,6 +43,7 @@ function Edge({
   parentConnectorSelectedFillColor,
   parentConnectorDraggingFillColor,
   parentConnectorErrorFillColor,
+  parentConnectorHighlightFillColor,
 }) {
   const handleNodeConnectorDragStart = useCallback((e) => {
     e.cancelBubble = true;
@@ -96,7 +100,7 @@ function Edge({
    * Compute color given a style object
    * @param {Object} stl
    */
-  const computeColor = (defaultColor, selectedColor, draggingColor, errorColor) => {
+  const computeColor = (defaultColor, selectedColor, draggingColor, errorColor, highlightColor) => {
     if (isDragged) {
       return draggingColor;
     }
@@ -107,6 +111,9 @@ function Edge({
     }
     if (isSelected) {
       return selectedColor;
+    }
+    if (isHighlighted) {
+      return highlightColor;
     }
     return defaultColor;
   };
@@ -127,6 +134,7 @@ function Edge({
           lineSelectedStrokeColor,
           lineDraggingStrokeColor,
           lineErrorStrokeColor,
+          lineHighlightColor,
         )}
         strokeWidth={lineStrokeWidth}
         hitStrokeWidth={10}
@@ -141,6 +149,7 @@ function Edge({
           childConnectorSelectedFillColor,
           childConnectorDraggingFillColor,
           childConnectorErrorFillColor,
+          childConnectorHighlightFillColor,
         )}
         stroke={childConnectorStrokeColor}
         strokeWidth={childConnectorStrokeWidth}
@@ -160,6 +169,7 @@ function Edge({
           parentConnectorSelectedFillColor,
           parentConnectorDraggingFillColor,
           parentConnectorErrorFillColor,
+          parentConnectorHighlightFillColor,
         )}
         stroke={parentConnectorStrokeColor}
         strokeWidth={parentConnectorStrokeWidth}
@@ -186,6 +196,7 @@ Edge.propTypes = {
   isDragged: PropTypes.bool,
   isFullDisabled: PropTypes.bool,
   isSelected: PropTypes.bool,
+  isHighlighted: PropTypes.bool,
   currentErrorLocation: PropTypes.shape({
     edge: PropTypes.string,
     edgeId: PropTypes.string,
@@ -202,6 +213,7 @@ Edge.propTypes = {
   lineErrorStrokeColor: PropTypes.string,
   lineSelectedStrokeColor: PropTypes.string,
   lineDraggingStrokeColor: PropTypes.string,
+  lineHighlightColor: PropTypes.string,
   childConnectorRadiusSize: PropTypes.number,
   childConnectorStrokeColor: PropTypes.string,
   childConnectorStrokeWidth: PropTypes.number,
@@ -209,6 +221,7 @@ Edge.propTypes = {
   childConnectorSelectedFillColor: PropTypes.string,
   childConnectorDraggingFillColor: PropTypes.string,
   childConnectorErrorFillColor: PropTypes.string,
+  childConnectorHighlightFillColor: PropTypes.string,
   parentConnectorRadiusSize: PropTypes.number,
   parentConnectorStrokeColor: PropTypes.string,
   parentConnectorStrokeWidth: PropTypes.number,
@@ -216,12 +229,14 @@ Edge.propTypes = {
   parentConnectorSelectedFillColor: PropTypes.string,
   parentConnectorDraggingFillColor: PropTypes.string,
   parentConnectorErrorFillColor: PropTypes.string,
+  parentConnectorHighlightFillColor: PropTypes.string,
 };
 
 Edge.defaultProps = {
   isDragged: false,
   isFullDisabled: false,
   isSelected: false,
+  isHighlighted: false,
   currentErrorLocation: null,
   handleEdgeClick: () => {},
   handleConnectorDragStart: () => {},
@@ -233,6 +248,7 @@ Edge.defaultProps = {
   lineErrorStrokeColor: '#ff2f2f',
   lineSelectedStrokeColor: '#f2d200',
   lineDraggingStrokeColor: '#f2d280',
+  lineHighlightColor: '#cc78c5',
   childConnectorRadiusSize: 6,
   childConnectorStrokeColor: '#000000',
   childConnectorStrokeWidth: 1,
@@ -240,6 +256,7 @@ Edge.defaultProps = {
   childConnectorSelectedFillColor: '#f2a200',
   childConnectorDraggingFillColor: '#f2d280',
   childConnectorErrorFillColor: '#ff2f2f',
+  childConnectorHighlightFillColor: '#cc78c5',
   parentConnectorRadiusSize: 6,
   parentConnectorStrokeColor: '#000000',
   parentConnectorStrokeWidth: 1,
@@ -247,6 +264,7 @@ Edge.defaultProps = {
   parentConnectorSelectedFillColor: '#f2a200',
   parentConnectorDraggingFillColor: '#f2d280',
   parentConnectorErrorFillColor: '#ff2f2f',
+  parentConnectorHighlightFillColor: '#cc78c5',
 };
 
 export default Edge;

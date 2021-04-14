@@ -1,6 +1,6 @@
 /* eslint-disable arrow-body-style */
 import {
-  createUniqueId,
+  createEmptyEdge,
 } from '../../utils/state';
 
 const reducers = {
@@ -360,6 +360,41 @@ const reducers = {
     selectedRootNode: undefined,
   }),
 
+  setHighlightedNodes: (state, payload) => {
+    const { highlightedNodes } = payload;
+    const { nodes, highlightedNodes: currentHighlightedNodes } = state;
+
+    const oldHighlightedNodes = currentHighlightedNodes.reduce((accumulator, id) => {
+      const node = nodes[id];
+      if (node) {
+        accumulator[id] = {
+          ...node,
+          isHighlighted: false,
+        };
+      }
+      return accumulator;
+    }, {});
+    const newHighlightedNodes = highlightedNodes.reduce((accumulator, id) => {
+      const node = nodes[id];
+      if (node) {
+        accumulator[id] = {
+          ...node,
+          isHighlighted: true,
+        };
+      }
+      return accumulator;
+    }, {});
+
+    return {
+      ...state,
+      nodes: {
+        ...nodes,
+        ...oldHighlightedNodes,
+        ...newHighlightedNodes,
+      },
+    };
+  },
+
   setEdges: (state, payload) => {
     const {
       edges,
@@ -384,9 +419,11 @@ const reducers = {
 
     const { nodes, edges } = state;
 
-    const addingEdgeId = createUniqueId();
+    const newEdge = createEmptyEdge();
+    const { id: addingEdgeId } = newEdge;
+
     const addingEdge = {
-      id: addingEdgeId,
+      ...newEdge,
       childNodeId,
       parentNodeId,
       parentPieceId,
@@ -624,6 +661,41 @@ const reducers = {
     ...state,
     selectedEdge: undefined,
   }),
+
+  setHighlightedEdges: (state, payload) => {
+    const { highlightedEdges } = payload;
+    const { edges, highlightedEdges: currentHighlightedEdges } = state;
+
+    const oldHighlightedEdges = currentHighlightedEdges.reduce((accumulator, id) => {
+      const node = edges[id];
+      if (node) {
+        accumulator[id] = {
+          ...node,
+          isHighlighted: false,
+        };
+      }
+      return accumulator;
+    }, {});
+    const newHighlightedEdges = highlightedEdges.reduce((accumulator, id) => {
+      const node = edges[id];
+      if (node) {
+        accumulator[id] = {
+          ...node,
+          isHighlighted: true,
+        };
+      }
+      return accumulator;
+    }, {});
+
+    return {
+      ...state,
+      edges: {
+        ...edges,
+        ...oldHighlightedEdges,
+        ...newHighlightedEdges,
+      },
+    };
+  },
 
   setDragEdge: (state, payload) => {
     const { dragEdge } = payload;

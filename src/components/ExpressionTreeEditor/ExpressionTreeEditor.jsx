@@ -69,6 +69,8 @@ function ExpressionTreeEditor({
   selectedRootNode: propSelectedRootNode,
   stagePos: propStagePos,
   stageScale: propStageScale,
+  highlightedEdges: propHighlightedEdges,
+  highlightedNodes: propHighlightedNodes,
   // onNodeAdd,
   // onNodeDelete,
   // onNodeSelect,
@@ -122,6 +124,8 @@ function ExpressionTreeEditor({
     propNodePaddingX,
     propNodePaddingY,
     propTemplateNodes,
+    propHighlightedNodes,
+    propHighlightedEdges,
   });
 
   const {
@@ -141,6 +145,8 @@ function ExpressionTreeEditor({
     dragEdge,
     selectedEdge,
     selectedRootNode,
+    highlightedNodes,
+    highlightedEdges,
     templateNodes,
     templateNodesDescription,
     isDrawerOpen,
@@ -1278,6 +1284,7 @@ function ExpressionTreeEditor({
                   isFullDisabled={isFullDisabled}
                   isDraggingSelectionRect={isDraggingSelectionRect}
                   isSelected={id === selectedEdge}
+                  isHighlighted={edges[id].isHighlighted}
                   clearEdgeSelection={clearSelectedEdge}
                   // Event Listeners
                   handleEdgeClick={handleEdgeClick}
@@ -1293,6 +1300,7 @@ function ExpressionTreeEditor({
                   lineErrorStrokeColor={edgeStyle.lineErrorStrokeColor}
                   lineSelectedStrokeColor={edgeStyle.lineSelectedStrokeColor}
                   lineDraggingStrokeColor={edgeStyle.lineDraggingStrokeColor}
+                  lineHighlightColor={edgeStyle.lineHighlightColor}
                   childConnectorRadiusSize={edgeStyle.childConnectorRadiusSize}
                   childConnectorStrokeColor={edgeStyle.childConnectorStrokeColor}
                   childConnectorStrokeWidth={edgeStyle.childConnectorStrokeWidth}
@@ -1300,6 +1308,7 @@ function ExpressionTreeEditor({
                   childConnectorSelectedFillColor={edgeStyle.childConnectorSelectedFillColor}
                   childConnectorDraggingFillColor={edgeStyle.childConnectorDraggingFillColor}
                   childConnectorErrorFillColor={edgeStyle.childConnectorErrorFillColor}
+                  childConnectorHighlightFillColor={edgeStyle.childConnectorHighlightFillColor}
                   parentConnectorRadiusSize={edgeStyle.parentConnectorRadiusSize}
                   parentConnectorStrokeColor={edgeStyle.parentConnectorStrokeColor}
                   parentConnectorStrokeWidth={edgeStyle.parentConnectorStrokeWidth}
@@ -1307,6 +1316,7 @@ function ExpressionTreeEditor({
                   parentConnectorSelectedFillColor={edgeStyle.parentConnectorSelectedFillColor}
                   parentConnectorDraggingFillColor={edgeStyle.parentConnectorDraggingFillColor}
                   parentConnectorErrorFillColor={edgeStyle.parentConnectorErrorFillColor}
+                  parentConnectorHighlightFillColor={edgeStyle.parentConnectorHighlightFillColor}
                 />
               ))}
               {/* Map all the state nodes */}
@@ -1337,6 +1347,7 @@ function ExpressionTreeEditor({
                   isFinal={nodes[id].isFinal}
                   isSelected={id === selectedNode}
                   isSelectedRoot={id === selectedRootNode}
+                  isHighlighted={nodes[id].isHighlighted}
                   isMetaOrShiftKeyPressed={isMetaOrShiftKeyPressed}
                   isFullDisabled={isFullDisabled}
                   handleNodeClick={(e) => handleNodeClick(e, id)}
@@ -1354,11 +1365,13 @@ function ExpressionTreeEditor({
                   nodeStrokeColor={nodeStyle.nodeStrokeColor}
                   nodeStrokeWidth={nodeStyle.nodeStrokeWidth}
                   nodeSelectedStrokeWidth={nodeStyle.nodeSelectedStrokeWidth}
+                  nodeHighlightedStrokeWidth={nodeStyle.nodeHighlightedStrokeWidth}
                   nodeCornerRadius={nodeStyle.nodeCornerRadius}
                   nodeFillColor={nodeStyle.nodeFillColor}
                   nodeErrorColor={nodeStyle.nodeErrorColor}
                   nodeSelectedColor={nodeStyle.nodeSelectedColor}
                   nodeFinalColor={nodeStyle.nodeFinalColor}
+                  nodeHighlightedColor={nodeStyle.nodeHighlightedColor}
                   labelStyle={nodeStyle.labelStyle}
                   topConnectorStyle={nodeStyle.topConnectorStyle}
                   deleteButtonStyle={nodeStyle.deleteButtonStyle}
@@ -1430,8 +1443,8 @@ function ExpressionTreeEditor({
             {createNodeDescription ? (
               <Node
                 id="create-node"
-                positionX={5}
-                positionY={10}
+                positionX={0}
+                positionY={0}
                 labelPieces={createNodeDescription.pieces}
                 labelPiecesPosition={createNodeDescription.piecesPosition}
                 typeText={createNodeDescription.type}
@@ -1450,11 +1463,13 @@ function ExpressionTreeEditor({
                 nodeStrokeColor={nodeStyle.nodeStrokeColor}
                 nodeStrokeWidth={nodeStyle.nodeStrokeWidth}
                 nodeSelectedStrokeWidth={nodeStyle.nodeSelectedStrokeWidth}
+                nodeHighlightedStrokeWidth={nodeStyle.nodeHighlightedStrokeWidth}
                 nodeCornerRadius={nodeStyle.nodeCornerRadius}
                 nodeFillColor={nodeStyle.nodeFillColor}
                 nodeErrorColor={nodeStyle.nodeErrorColor}
                 nodeSelectedColor={nodeStyle.nodeSelectedColor}
                 nodeFinalColor={nodeStyle.nodeFinalColor}
+                nodeHighlightedColor={nodeStyle.nodeHighlightedColor}
                 labelStyle={nodeStyle.labelStyle}
                 topConnectorStyle={nodeStyle.topConnectorStyle}
                 deleteButtonStyle={nodeStyle.deleteButtonStyle}
@@ -1465,8 +1480,8 @@ function ExpressionTreeEditor({
               <Node
                 key={templateNode.id}
                 id={templateNode.id}
-                positionX={5}
-                positionY={10}
+                positionX={0}
+                positionY={0}
                 labelPieces={templateNode.pieces}
                 labelPiecesPosition={templateNode.piecesPosition}
                 typeText={templateNode.type}
@@ -1485,11 +1500,13 @@ function ExpressionTreeEditor({
                 nodeStrokeColor={nodeStyle.nodeStrokeColor}
                 nodeStrokeWidth={nodeStyle.nodeStrokeWidth}
                 nodeSelectedStrokeWidth={nodeStyle.nodeSelectedStrokeWidth}
+                nodeHighlightedStrokeWidth={nodeStyle.nodeHighlightedStrokeWidth}
                 nodeCornerRadius={nodeStyle.nodeCornerRadius}
                 nodeFillColor={nodeStyle.nodeFillColor}
                 nodeErrorColor={nodeStyle.nodeErrorColor}
                 nodeSelectedColor={nodeStyle.nodeSelectedColor}
                 nodeFinalColor={nodeStyle.nodeFinalColor}
+                nodeHighlightedColor={nodeStyle.nodeHighlightedColor}
                 labelStyle={nodeStyle.labelStyle}
                 topConnectorStyle={nodeStyle.topConnectorStyle}
                 deleteButtonStyle={nodeStyle.deleteButtonStyle}
@@ -1552,6 +1569,7 @@ ExpressionTreeEditor.propTypes = {
   allowFreeTypeUpdate: PropTypes.bool,
   allowFreeValueUpdate: PropTypes.bool,
   templateNodeTypesAndValues: PropTypes.shape({}),
+  connectorPlaceholder: PropTypes.string,
   nodes: PropTypes.objectOf(PropTypes.shape({
     pieces: PropTypes.arrayOf(PropTypes.string),
     x: PropTypes.number,
@@ -1574,7 +1592,8 @@ ExpressionTreeEditor.propTypes = {
     x: PropTypes.number,
     y: PropTypes.number,
   }),
-  connectorPlaceholder: PropTypes.string,
+  highlightedEdges: PropTypes.arrayOf(PropTypes.string),
+  highlightedNodes: PropTypes.arrayOf(PropTypes.string),
   // onNodeAdd: PropTypes.func,
   // onNodeDelete: PropTypes.func,
   // onNodeSelect: PropTypes.func,
@@ -1622,6 +1641,7 @@ ExpressionTreeEditor.propTypes = {
     lineErrorStrokeColor: PropTypes.string,
     lineSelectedStrokeColor: PropTypes.string,
     lineDraggingStrokeColor: PropTypes.string,
+    lineHighlightColor: PropTypes.string,
     childConnectorRadiusSize: PropTypes.number,
     childConnectorStrokeColor: PropTypes.string,
     childConnectorStrokeWidth: PropTypes.number,
@@ -1630,6 +1650,7 @@ ExpressionTreeEditor.propTypes = {
     childConnectorSelectedFillColor: PropTypes.string,
     childConnectorDraggingFillColor: PropTypes.string,
     childConnectorErrorFillColor: PropTypes.string,
+    childConnectorHighlightFillColor: PropTypes.string,
     parentConnectorRadiusSize: PropTypes.number,
     parentConnectorStrokeColor: PropTypes.string,
     parentConnectorStrokeWidth: PropTypes.number,
@@ -1638,16 +1659,19 @@ ExpressionTreeEditor.propTypes = {
     parentConnectorSelectedFillColor: PropTypes.string,
     parentConnectorDraggingFillColor: PropTypes.string,
     parentConnectorErrorFillColor: PropTypes.string,
+    parentConnectorHighlightFillColor: PropTypes.string,
   }),
-  nodeStyle: {
+  nodeStyle: PropTypes.exact({
     nodeStrokeColor: PropTypes.string,
     nodeStrokeWidth: PropTypes.number,
     nodeSelectedStrokeWidth: PropTypes.number,
+    nodeHighlightedStrokeWidth: PropTypes.number,
     nodeCornerRadius: PropTypes.number,
     nodeFillColor: PropTypes.string,
     nodeErrorColor: PropTypes.string,
     nodeSelectedColor: PropTypes.string,
     nodeFinalColor: PropTypes.string,
+    nodeHighlightedColor: PropTypes.string,
     labelStyle: PropTypes.exact({
       nodeTextColor: PropTypes.string,
       placeholderStrokeWidth: PropTypes.number,
@@ -1695,7 +1719,7 @@ ExpressionTreeEditor.propTypes = {
       pointerWidth: PropTypes.number,
       pointerHeight: PropTypes.number,
     }),
-  },
+  }),
   selectionRectangleStyle: PropTypes.exact({
     fillColor: PropTypes.string,
   }),
@@ -1760,6 +1784,8 @@ ExpressionTreeEditor.defaultProps = {
   selectedRootNode: undefined,
   stagePos: defaultProps.stagePos,
   stageScale: defaultProps.stageScale,
+  highlightedEdges: [],
+  highlightedNodes: [],
   // onNodeAdd: null,
   // onNodeDelete: null,
   // onNodeSelect: null,

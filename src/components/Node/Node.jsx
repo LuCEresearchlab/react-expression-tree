@@ -37,6 +37,7 @@ function Node({
   isFinal,
   isSelected,
   isSelectedRoot,
+  isHighlighted,
   isFullDisabled,
   handleNodeClick,
   handleNodeDblClick,
@@ -53,11 +54,13 @@ function Node({
   nodeStrokeColor,
   nodeStrokeWidth,
   nodeSelectedStrokeWidth,
+  nodeHighlightedStrokeWidth,
   nodeCornerRadius,
   nodeFillColor,
   nodeErrorColor,
   nodeSelectedColor,
   nodeFinalColor,
+  nodeHighlightedColor,
   labelStyle,
   topConnectorStyle,
   deleteButtonStyle,
@@ -153,7 +156,7 @@ function Node({
    *
    * @param {Object} stl
    */
-  const computeColor = (defaultColor, errorColor, selectedColor, finalColor) => {
+  const computeColor = (defaultColor, errorColor, selectedColor, finalColor, highlightColor) => {
     if (currentErrorLocation
       && currentErrorLocation.node
       && currentErrorLocation.nodeId === id) {
@@ -162,10 +165,23 @@ function Node({
     if (isSelected) {
       return selectedColor;
     }
+    if (isHighlighted) {
+      return highlightColor;
+    }
     if (isFinal) {
       return finalColor;
     }
     return defaultColor;
+  };
+
+  const computeStrokeWidth = (defaultStrokeWidth, selectedStrokeWidth, highlightedStrokeWidth) => {
+    if (isSelected) {
+      return selectedStrokeWidth;
+    }
+    if (isHighlighted) {
+      return highlightedStrokeWidth;
+    }
+    return defaultStrokeWidth;
   };
 
   return (
@@ -207,9 +223,14 @@ function Node({
           nodeErrorColor,
           nodeSelectedColor,
           nodeFinalColor,
+          nodeHighlightedColor,
         )}
         stroke={nodeStrokeColor}
-        strokeWidth={isSelected ? nodeSelectedStrokeWidth : nodeStrokeWidth}
+        strokeWidth={computeStrokeWidth(
+          nodeStrokeWidth,
+          nodeSelectedStrokeWidth,
+          nodeHighlightedStrokeWidth,
+        )}
         cornerRadius={nodeCornerRadius}
       />
       <NodeTopConnector
@@ -335,6 +356,7 @@ Node.propTypes = {
   isFinal: PropTypes.bool,
   isSelected: PropTypes.bool,
   isSelectedRoot: PropTypes.bool,
+  isHighlighted: PropTypes.bool,
   isFullDisabled: PropTypes.bool,
   handleNodeClick: PropTypes.func,
   handleNodeDblClick: PropTypes.func,
@@ -351,11 +373,13 @@ Node.propTypes = {
   nodeStrokeColor: PropTypes.string,
   nodeStrokeWidth: PropTypes.number,
   nodeSelectedStrokeWidth: PropTypes.number,
+  nodeHighlightedStrokeWidth: PropTypes.string,
   nodeCornerRadius: PropTypes.number,
   nodeFillColor: PropTypes.string,
   nodeErrorColor: PropTypes.string,
   nodeSelectedColor: PropTypes.string,
   nodeFinalColor: PropTypes.string,
+  nodeHighlightedColor: PropTypes.string,
   labelStyle: PropTypes.exact({
     nodeTextColor: PropTypes.string,
     placeholderStrokeWidth: PropTypes.number,
@@ -416,6 +440,7 @@ Node.defaultProps = {
   isFinal: false,
   isSelected: false,
   isSelectedRoot: false,
+  isHighlighted: false,
   isFullDisabled: false,
   removeNode: () => {},
   setCursor: () => {},
@@ -434,11 +459,13 @@ Node.defaultProps = {
   nodeStrokeColor: '#000000',
   nodeStrokeWidth: 1,
   nodeSelectedStrokeWidth: 2,
+  nodeHighlightedStrokeWidth: 2,
   nodeCornerRadius: 5,
   nodeFillColor: '#208020',
   nodeErrorColor: '#ff2f2f',
   nodeSelectedColor: '#3f51b5',
   nodeFinalColor: '#208080',
+  nodeHighlightedColor: '#cc78c5',
   labelStyle: {},
   topConnectorStyle: {},
   deleteButtonStyle: {},
