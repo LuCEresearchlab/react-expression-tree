@@ -589,7 +589,7 @@ function ExpressionTreeEditor({
           .find('.Node')
           .toArray()
           .find(
-            (node) => node.attrs.id === errorType.nodeId,
+            (node) => node.attrs && node.attrs.id === errorType.nodeId,
           );
         currentNode.parent.moveToTop();
       } else if (errorType.edge) {
@@ -597,7 +597,7 @@ function ExpressionTreeEditor({
           .find('.Edge')
           .toArray()
           .find(
-            (edge) => edge.attrs.id === errorType.edgeId,
+            (edge) => edge.attrs && edge.attrs.id === errorType.edgeId,
           );
         currentEdge.moveToTop();
       }
