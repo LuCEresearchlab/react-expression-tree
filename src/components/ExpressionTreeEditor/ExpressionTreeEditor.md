@@ -36,9 +36,9 @@ Example with initial object state and final nodes:
   showDrawerSections={{
     addNodeField: true,
     templateDropdown: true,
-    updateLabelField: true,
-    updateTypeField: true,
-    updateValueField: true,
+    editLabelField: true,
+    editTypeField: true,
+    editValueField: true,
   }}
   allowedErrors={{
     loop: true,
@@ -216,9 +216,9 @@ Example with initial array state:
   showDrawerSections={{
     addNodeField: true,
     templateDropdown: true,
-    updateLabelField: true,
-    updateTypeField: true,
-    updateValueField: true,
+    editLabelField: true,
+    editTypeField: true,
+    editValueField: true,
   }}
   allowedErrors={{
     loop: true,
