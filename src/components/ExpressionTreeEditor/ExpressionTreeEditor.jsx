@@ -1076,6 +1076,9 @@ function ExpressionTreeEditor({
     if (isFullDisabled) {
       return;
     }
+    
+    const newStagePos = stageRef.current.absolutePosition();
+    setStagePos(newStagePos);
   };
 
   // Handle stage click event, if the adding node button has been pressed,
