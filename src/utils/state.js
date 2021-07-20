@@ -40,6 +40,8 @@ export function arraysAreEqual(a, b) {
 export function createEmptyNode(id) {
   return {
     id: id || createUniqueId(),
+    x: 0,
+    y: 0,
     height: 0,
     width: 0,
     pieces: [''],
