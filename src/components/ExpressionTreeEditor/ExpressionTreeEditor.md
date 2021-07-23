@@ -380,7 +380,7 @@ import {
   Alert
 } from '@material-ui/lab';
 
-import { 
+import {
   ET_BASE_URL,
   ET_PARSE_URL,
   EXPR_TREE_EXAMPLE_CODE
@@ -561,7 +561,7 @@ const viewNextExpression = () => {
 
   <Grid item xs={12}>
     <ExpressionTreeEditor
-      height={700}
+      height={500}
       isFullDisabled={false}
       showToolbar={true}
       showToolbarButtons={{
@@ -587,7 +587,220 @@ const viewNextExpression = () => {
       connectorPlaceholder="#"
       nodes={data[dataIndex].diagram.nodes}
       edges={data[dataIndex].diagram.edges}
-      stageScale={{x: 1.2, y: 1.2}}
+      stageScale={{x: 1, y: 1}}
+      stagePos={{x:40, y: 200}}
+      selectedRootNode={data[dataIndex].diagram.selectedRootNode} />
+  </Grid>
+</Grid>
+```
+
+```jsx
+import axios from 'axios';
+import { useState } from 'react';
+
+import { 
+  Box, Button, Grid, Paper, 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Typography,
+} from '@material-ui/core';
+import {
+  Alert
+} from '@material-ui/lab';
+import { ET_PARSE_URL } from '../../../tests/config';
+
+const emptyData = [{
+  'diagram': {},
+  'typingMap': {},
+  'location': { 'start': 0, 'end': 0 },
+}];
+const [data, setData] = useState(emptyData);
+const [dataIndex, setDataIndex] = useState(0);
+const [sourceCode, setSourceCode] = useState('');
+
+const onFileUploaded = (e) => {
+  if (!e.target.files || e.target.files.length == 0) {
+    setSourceCode('');
+  } else {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onerror = (err) => {
+      console.error(err);
+      setSourceCode('');
+    };
+    reader.onload = (event) => {
+      const sc = event.target.result;
+      // Generate diagram
+      axios.post(ET_PARSE_URL, { 'sourceCode': sc })
+        .then((res) => {
+          setDataIndex(0);
+          if (res.data && res.data.length > 0) {
+            const sortedData = [...res.data].sort((a, b) => 
+                a.location.end < b.location.start ? -1 : 1);
+            setData(sortedData);
+            setSourceCode(sc);
+          } else {
+            console.error('sad no expressions')
+            setData(emptyData);
+            setSourceCode('');
+          }
+        })
+        .catch((err) => {
+          setData(emptyData);
+          setSourceCode('');
+        })
+    };
+    // Read text file
+    reader.readAsText(file);
+  }
+};
+
+const getExprView = (text, ranges) => {
+  const builder = [];
+  let i = 0;
+  let rangeIndex = 0;
+  let builderIndex = 0;
+
+  while (i < text.length && rangeIndex < ranges.length) {
+    const rangeStart = ranges[rangeIndex].start;
+    const rangeEnd = ranges[rangeIndex].end;
+      // Begin new highlight block
+    if (i === rangeStart) {
+      if (i !== 0) {
+        builderIndex++;
+      }
+      builder[builderIndex] = {
+        'highlight': true,
+        'text': '',
+        'index': rangeIndex,
+      };
+    }
+    // Ensure we have something to build
+    if (!builder[builderIndex]) {
+      builder[builderIndex] = {
+      'highlight': false,
+      'text': '',
+      };
+    }
+    // Append current char
+    builder[builderIndex].text += text.charAt(i);
+    // End highlight block
+    if (i + 1 === rangeEnd) {
+      builderIndex++;
+      rangeIndex++;
+    }
+    i++;
+  }
+  if (i < text.length) {
+    builder.push({
+      'highlight': false, 
+      'text': text.substring(i, text.length),
+    })
+  }
+
+  return (
+    <Paper
+      style={{ 'padding': '16px' }}
+      variant="outlined">
+      <Typography
+        style={{ 
+          'fontFamily': 'monospace',
+          'maxHeight': 200,
+          'overflow': 'auto',
+          'whiteSpace': 'pre-wrap',
+        }}>
+        { builder.map((it) => (it.highlight ?
+            <Box
+              key={`higlight_${it.index}`}
+              onClick={(e) => setDataIndex(it.index)}
+              style={{ 
+                'background': it.index === dataIndex ? '#e5f4ff' : '#fff4e5',
+                'cursor': 'pointer',
+                'display': 'inline',
+              }}>{it.text}</Box> :
+            it.text
+        ))}
+      </Typography>
+    </Paper>
+  );
+}
+
+;
+<Grid container spacing={2}>
+  <input
+    id="upload-file-button"
+    onChange={onFileUploaded}
+    style={{ 'display': 'none' }}
+    type="file" />
+
+  <Typography variant="h4">Upload <code>.java</code> file to generate ET diagrams</Typography>
+
+  <Grid item xs={12}>
+    <label htmlFor="upload-file-button">
+      <Button
+        component="span"
+        color="primary"
+        variant="contained">Upload</Button>
+    </label>
+  </Grid>
+
+  <Grid item xs={8}>
+    <Typography variant="h5">Click to select</Typography>
+    {getExprView(sourceCode, data.map(it => it.location))}
+  </Grid>
+
+  <Grid item xs={4}>
+    <Typography variant="h5">Typing map</Typography>
+    <TableContainer
+      component={Paper}
+      variant="outlined">
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Type</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+        { Object.keys(data[dataIndex].typingMap).map(name => (
+          <TableRow key={`typing_map_${name}`}>
+            <TableCell component="th" scope="row">{name}</TableCell>
+            <TableCell>{data[dataIndex].typingMap[name]}</TableCell>
+          </TableRow>
+        ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </Grid>
+
+  <Grid item xs={12}>
+    <ExpressionTreeEditor
+      height={500}
+      isFullDisabled={false}
+      showToolbar={true}
+      showToolbarButtons={{
+        showDrawerButton: true,
+        showEditorInfoButton: true,
+        showStateResetButton: true,
+        showUndoButton: true,
+        showRedoButton: true,
+        showZoomOutButton: true,
+        showZoomInButton: true,
+        showZoomToFitButton: true,
+        showReorderNodesButton: true,
+        showTakeScreenshotButton: true,
+        showFullScreenButton: true,
+      }} 
+      showDrawer={true}
+      showDrawerSections={{
+        templateDropdown: true,
+        editLabelField: true,
+        editTypeField: true,
+        editValueField: true,
+      }}
+      connectorPlaceholder="#"
+      nodes={data[dataIndex].diagram.nodes}
+      edges={data[dataIndex].diagram.edges}
+      stageScale={{x: 1, y: 1}}
       stagePos={{x:40, y: 200}}
       selectedRootNode={data[dataIndex].diagram.selectedRootNode} />
   </Grid>
