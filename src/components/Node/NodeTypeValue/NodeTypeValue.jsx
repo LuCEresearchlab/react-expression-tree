@@ -33,6 +33,7 @@ function NodeTypeValue({
       fontSize,
     }).getTextWidth()
   ), [typeText, fontFamily, fontSize]);
+
   const valueWidth = useMemo(() => (
     new Konva.Text({
       text: valueText,
@@ -40,16 +41,51 @@ function NodeTypeValue({
       fontSize,
     }).getTextWidth()
   ), [valueText, fontFamily, fontSize]);
-  const labelWidth = useMemo(() => (valueWidth + typeWidth + 4 * padding),
-    [valueWidth, typeWidth, padding]);
 
-  const typeX = useMemo(() => ((nodeWidth - labelWidth) / 2), [nodeWidth, labelWidth]);
+  const labelWidth = useMemo(() => {
+    if (typeText && valueText) {
+      return (valueWidth + typeWidth + 4 * padding);
+    }
+    if (typeText) {
+      return (typeWidth + 2 * padding);
+    }
+    if (valueText) {
+      return (valueWidth + 2 * padding);
+    }
+    return 0;
+  }, [valueWidth, typeWidth, padding]);
+
+  const typeX = useMemo(() => {
+    const middle = (nodeWidth - labelWidth) / 2;
+    if (typeText && valueText) {
+      return ((valueWidth + 2 * padding) + middle);
+    }
+    return middle;
+  }, [nodeWidth, valueWidth, labelWidth, padding]);
   const typeY = useMemo(() => (-(padding + fontSize) * 2), [fontSize]);
-  const valueX = useMemo(() => ((typeWidth + padding * 2) + (nodeWidth - labelWidth) / 2),
-    [nodeWidth, typeWidth, labelWidth, padding]);
+
+  const valueX = useMemo(() => {
+    const middle = (nodeWidth - labelWidth) / 2;
+    return middle;
+  }, [nodeWidth, labelWidth]);
   const valueY = useMemo(() => (-(padding + fontSize) * 2), [fontSize]);
+
   const pointerX = useMemo(() => (nodeWidth / 2), [nodeWidth]);
-  const pointerY = useMemo(() => (-(fontSize)), [fontSize, padding]);
+  const pointerY = useMemo(() => (-(fontSize)), [fontSize]);
+
+  const typeCornerRadius = useMemo(() => {
+    if (typeText && valueText) {
+      return [0, radius, radius, 0];
+    }
+    return [radius, radius, radius, radius];
+  }, [typeText, valueText]);
+
+  const valueCornerRadius = useMemo(() => {
+    if (typeText && valueText) {
+      return [radius, 0, 0, radius];
+    }
+    return [radius, radius, radius, radius];
+  }, [typeText, valueText]);
 
   return (
     <>
@@ -76,7 +112,7 @@ function NodeTypeValue({
             fill={fillTypeColor}
             stroke={strokeColor}
             strokeWidth={strokeWidth}
-            cornerRadius={[radius, 0, 0, radius]}
+            cornerRadius={typeCornerRadius}
           />
           <Text
             fill={textTypeColor}
@@ -96,7 +132,7 @@ function NodeTypeValue({
             fill={fillValueColor}
             stroke={strokeColor}
             strokeWidth={strokeWidth}
-            cornerRadius={[0, radius, radius, 0]}
+            cornerRadius={valueCornerRadius}
           />
           <Text
             fill={textValueColor}
