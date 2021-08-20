@@ -6,6 +6,7 @@ import { getMetadata } from 'meta-png';
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
+  AccountTreeRounded,
   AspectRatioRounded,
   CheckRounded,
   ChevronLeftRounded,
@@ -18,7 +19,6 @@ import {
   RedoRounded,
   Replay,
   UndoRounded,
-  ViewModuleRounded,
   ZoomInRounded,
   ZoomOutRounded,
 } from '@material-ui/icons';
@@ -215,13 +215,13 @@ function ToolbarActions({
         </Tooltip>
       )}
       {showReorderNodesButton && (
-        <Tooltip title="Reorder nodes" placement="bottom">
+        <Tooltip title="Layout nodes" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
             onClick={handleReorderNodesButtonAction}
           >
-            <ViewModuleRounded />
+            <AccountTreeRounded />
           </IconButton>
         </Tooltip>
       )}
