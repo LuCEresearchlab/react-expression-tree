@@ -19,7 +19,7 @@ export function exportState(state) {
 }
 
 export function createUniqueId() {
-  return `_${Math.random().toString(12).substr(2, 9)}`;
+  return `_${Math.random().toString(10).substr(2, 10)}`;
 }
 
 export function arraysAreEqual(a, b) {
