@@ -215,19 +215,19 @@ export function computeTreeHeight(rootId, nodes, edges) {
 
 // --- Layout functions (they mutate the nodes!)
 export function layoutTree(rootId, nodes, edges, x, y) {
-  console.log("layoutTree", rootId, x, y);
+  //console.log("layoutTree", rootId, x, y);
   const rootWidth = computeNodeWidth(rootId, nodes);
-  console.log("  rootWidth", rootWidth);
+  //console.log("  rootWidth", rootWidth);
   const rootHeight = computeNodeHeight(rootId, nodes);
-  console.log("  rootHeight", rootHeight);
+  //console.log("  rootHeight", rootHeight);
   const descendantsWidth = computeDescendantsWidth(rootId, nodes, edges);
-  console.log("  descendantsWidth", descendantsWidth);
+  //console.log("  descendantsWidth", descendantsWidth);
   const rootIndent = rootWidth > descendantsWidth ? 0 : (descendantsWidth - rootWidth) / 2;
   const descendantsIndent = rootWidth > descendantsWidth ? (rootWidth - descendantsWidth) / 2 : 0;
   let dx = x + descendantsIndent;
   const dy = y + rootHeight + nodeVerticalGap;
   const childIds = getChildIds(rootId, nodes, edges);
-  console.log("  childIds", childIds);
+  //console.log("  childIds", childIds);
   childIds.forEach((childId, index) => {
     const [dw, dh] = layoutTree(childId, nodes, edges, dx, dy);
     dx += dw + (index < childIds.length - 1 ? nodeHorizontalGap : 0);

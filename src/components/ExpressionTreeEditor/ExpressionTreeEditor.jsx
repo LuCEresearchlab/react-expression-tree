@@ -393,7 +393,7 @@ function ExpressionTreeEditor({
       edges,
       selectedRootNode,
     );
-    console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
+    //console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
 
     const orderedEdges = computeEdgesCoordinates(edges, orderedNodes);
     const position = { x: 0, y: 0 };
