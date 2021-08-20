@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {
   Circle,
   Group,
-  Text,
+  Line,
 } from 'react-konva';
 
 function NodeDeleteButton({
@@ -25,7 +25,8 @@ function NodeDeleteButton({
   overFillColor,
   overTextColor,
 }) {
-  const textRef = useRef();
+  const line1Ref = useRef();
+  const line2Ref = useRef();
 
   const handleMouseOver = (e) => {
     if (!isDraggingSelectionRect) {
@@ -33,8 +34,10 @@ function NodeDeleteButton({
       e.target.attrs.fill = overFillColor;
       e.target.attrs.stroke = overStrokeColor;
       e.target.draw();
-      textRef.current.attrs.fill = overTextColor;
-      textRef.current.draw();
+      line1Ref.current.attrs.stroke = overTextColor;
+      line1Ref.current.draw();
+      line2Ref.current.attrs.stroke = overTextColor;
+      line2Ref.current.draw();
     }
   };
 
@@ -44,11 +47,13 @@ function NodeDeleteButton({
       e.target.attrs.fill = fillColor;
       e.target.attrs.stroke = strokeColor;
       e.target.draw();
-      textRef.current.attrs.fill = textColor;
-      textRef.current.draw();
+      line1Ref.current.attrs.stroke = textColor;
+      line1Ref.current.draw();
+      line2Ref.current.attrs.stroke = textColor;
+      line2Ref.current.draw();
     }
   };
-
+  const cross = (radius - 2 * strokeWidth) / Math.sqrt(2);
   return (
     <Group>
       { !isFinal && !isFullDisabled && isSelected && (
@@ -65,13 +70,20 @@ function NodeDeleteButton({
             onMouseOver={handleMouseOver}
             onMouseLeave={handleMouseLeave}
           />
-          <Text
-            ref={textRef}
-            x={nodeWidth - 3.5}
-            y={-7}
-            fill={textColor}
-            fontSize={14}
-            text="x"
+          <Line
+            ref={line1Ref}
+            stroke={textColor}
+            strokeWidth={2}
+            points={[nodeWidth - cross, -cross, nodeWidth + cross, cross]}
+            listening={false}
+            onDragMove={() => {}}
+            onDragEnd={() => {}}
+          />
+          <Line
+            ref={line2Ref}
+            stroke={textColor}
+            strokeWidth={2}
+            points={[nodeWidth - cross, cross, nodeWidth + cross, -cross]}
             listening={false}
             onDragMove={() => {}}
             onDragEnd={() => {}}
@@ -107,14 +119,14 @@ NodeDeleteButton.defaultProps = {
   isFullDisabled: false,
   isDraggingSelectionRect: false,
   removeNode: () => {},
-  strokeWidth: 1,
-  radius: 6,
-  strokeColor: '#000000',
+  strokeWidth: 2,
+  radius: 10,
+  strokeColor: '#ffffff',
   fillColor: '#FF605C',
-  textColor: '#FF605C',
-  overStrokeColor: '#000000',
-  overFillColor: '#FF605C',
-  overTextColor: '#000000',
+  textColor: '#ffffff',
+  overStrokeColor: '#ffffff',
+  overFillColor: '#ff0000',
+  overTextColor: '#ffffff',
 };
 
 export default NodeDeleteButton;

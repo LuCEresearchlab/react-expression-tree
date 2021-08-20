@@ -122,21 +122,21 @@ Example with initial object state and final nodes:
       "x": 520,
       "y": 190,
       "type": "",
-      "value": "Not connected",
+      "value": "5",
     },
     "n8": {
       "pieces": ["6"],
       "x": 520,
       "y": 190,
       "type": "",
-      "value": "Not connected",
+      "value": "6",
     },
     "n9": {
       "pieces": ["7"],
       "x": 520,
       "y": 190,
       "type": "",
-      "value": "Not connected",
+      "value": "7",
     },
   }}
   edges={{

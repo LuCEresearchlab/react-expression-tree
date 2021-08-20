@@ -162,14 +162,14 @@ NodeTopConnector.defaultProps = {
   starInnerRadius: 5,
   starOuterRadius: 10,
   starStrokeColor: '#000000',
-  starStrokeWidth: 1,
+  starStrokeWidth: 0,
   connectorRadius: 6,
   connectorStrokeColor: '#000000',
-  connectorStrokeWidth: 1,
-  connectorFillColor: '#555555',
+  connectorStrokeWidth: 0,
+  connectorFillColor: '#000000',
   connectorErrorColor: '#ff2f2f',
-  connectorSelectedColor: '#f2a200',
-  connectorEmptyFillColor: '#000000',
+  connectorSelectedColor: '#000000',
+  connectorEmptyFillColor: '#104020',
 };
 
 export default NodeTopConnector;

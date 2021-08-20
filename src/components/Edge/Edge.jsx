@@ -246,7 +246,7 @@ Edge.defaultProps = {
   lineStrokeWidth: 6,
   lineStrokeColor: '#000000',
   lineErrorStrokeColor: '#ff2f2f',
-  lineSelectedStrokeColor: '#f2d200',
+  lineSelectedStrokeColor: '#f2a200',
   lineDraggingStrokeColor: '#f2d280',
   lineHighlightColor: '#cc78c5',
   childConnectorRadiusSize: 6,

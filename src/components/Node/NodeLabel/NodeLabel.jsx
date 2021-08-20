@@ -199,14 +199,14 @@ NodeLabel.defaultProps = {
   nodePaddingY: 12,
   nodeTextColor: '#FFFFFF',
   placeholderWidth: 16,
-  placeholderStrokeWidth: 1,
+  placeholderStrokeWidth: 0,
   placeholderStrokeColor: '#000000',
   placeholderFillColor: '#104020',
   placeholderErrorColor: '#FF0000',
   placeholderRadius: 3,
   connectorRadiusSize: 6,
-  connectorStrokeWidth: 1,
-  connectorFillColor: '#555555',
+  connectorStrokeWidth: 0,
+  connectorFillColor: '#000000',
   connectorStrokeColor: '#000000',
 };
 
