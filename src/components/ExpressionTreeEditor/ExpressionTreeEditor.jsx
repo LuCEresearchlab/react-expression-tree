@@ -379,34 +379,32 @@ function ExpressionTreeEditor({
   };
 
   const handleReorderNodesButtonAction = useCallback(() => {
-    if (selectedRootNode) {
-      //TODO: Matthias to complete this!
-      /*
-      const orderedNodes = reorderNodes(
-        nodes,
-        edges,
-        selectedRootNode,
-      );
-      */
-      const orderedNodes = nodes; // TODO: clone nodes before calling layout?
-      const [diagramWidth, diagramHeight] = layout(
-        nodes,
-        edges,
-        selectedRootNode,
-      );
-      console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
+    //TODO: Matthias to complete this!
+    /*
+    const orderedNodes = reorderNodes(
+      nodes,
+      edges,
+      selectedRootNode,
+    );
+    */
+    const orderedNodes = nodes; // TODO: clone nodes before calling layout?
+    const [diagramWidth, diagramHeight] = layout(
+      nodes,
+      edges,
+      selectedRootNode,
+    );
+    console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
 
-      const orderedEdges = computeEdgesCoordinates(edges, orderedNodes);
-      const position = { x: 0, y: 0 };
-      const scale = { x: 1, y: 1 };
+    const orderedEdges = computeEdgesCoordinates(edges, orderedNodes);
+    const position = { x: 0, y: 0 };
+    const scale = { x: 1, y: 1 };
 
-      setOrderedNodes({
-        nodes: orderedNodes,
-        edges: orderedEdges,
-        stagePos: position,
-        stageScale: scale,
-      });
-    }
+    setOrderedNodes({
+      nodes: orderedNodes,
+      edges: orderedEdges,
+      stagePos: position,
+      stageScale: scale,
+    });
   });
 
   const handleValidateTreeButtonAction = useCallback(() => {
