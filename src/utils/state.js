@@ -19,7 +19,7 @@ export function exportState(state) {
 }
 
 export function createUniqueId() {
-  return `_${Math.random().toString(12).substr(2, 9)}`;
+  return `_${Math.random().toString(10).substr(2, 9)}`;
 }
 
 export function arraysAreEqual(a, b) {
@@ -40,6 +40,8 @@ export function arraysAreEqual(a, b) {
 export function createEmptyNode(id) {
   return {
     id: id || createUniqueId(),
+    x: 0,
+    y: 0,
     height: 0,
     width: 0,
     pieces: [''],
