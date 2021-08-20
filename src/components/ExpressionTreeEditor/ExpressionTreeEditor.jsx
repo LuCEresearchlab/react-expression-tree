@@ -36,6 +36,10 @@ import {
   checkSamePreviousChild,
 } from '../../utils/addEdge';
 
+import {
+  layout,
+} from '../../utils/layout';
+
 import useStore from '../../hooks/useStore';
 import useKeypress from '../../hooks/useKeypress';
 import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWindowResize';
@@ -376,11 +380,21 @@ function ExpressionTreeEditor({
 
   const handleReorderNodesButtonAction = useCallback(() => {
     if (selectedRootNode) {
+      //TODO: Matthias to complete this!
+      /*
       const orderedNodes = reorderNodes(
         nodes,
         edges,
         selectedRootNode,
       );
+      */
+      const orderedNodes = nodes; // TODO: clone nodes before calling layout?
+      const [diagramWidth, diagramHeight] = layout(
+        nodes,
+        edges,
+        selectedRootNode,
+      );
+      console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
 
       const orderedEdges = computeEdgesCoordinates(edges, orderedNodes);
       const position = { x: 0, y: 0 };
@@ -1559,9 +1573,6 @@ ExpressionTreeEditor.propTypes = {
   // onValidate: PropTypes.func,
   onStateChange: PropTypes.func,
 
-  /**
-   * Style object for the dragEdge element
-   */
   fontSize: PropTypes.number,
   fontFamily: PropTypes.string,
   nodePaddingX: PropTypes.number,
@@ -1574,6 +1585,9 @@ ExpressionTreeEditor.propTypes = {
     primaryColor: PropTypes.string,
     secondaryColor: PropTypes.string,
   }),
+  /**
+   * Style object for the dragEdge element
+   */
   dragEdgeStyle: PropTypes.exact({
     lineStrokeWidth: PropTypes.number,
     lineStrokeColor: PropTypes.string,
