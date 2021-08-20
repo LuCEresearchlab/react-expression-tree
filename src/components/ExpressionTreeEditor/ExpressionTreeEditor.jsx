@@ -315,11 +315,11 @@ function ExpressionTreeEditor({
   });
 
   const handleZoomOutButtonAction = useCallback(() => {
-    zoomStage(0.8);
+    zoomStage(1 / 1.1);
   });
 
   const handleZoomInButtonAction = useCallback(() => {
-    zoomStage(1.2);
+    zoomStage(1.1);
   });
 
   const handleStageWheel = (e) => {
@@ -330,7 +330,7 @@ function ExpressionTreeEditor({
 
     const { current } = stageRef;
 
-    const zoomMultiplier = e.evt.deltaY < 0 ? 1.10 : 0.90;
+    const zoomMultiplier = e.evt.deltaY < 0 ? 1.05 : (1 / 1.05);
     const oldScale = current.scaleX();
     const newScale = oldScale * zoomMultiplier;
 
@@ -358,20 +358,30 @@ function ExpressionTreeEditor({
   // then the stage will be repositioned,
   // in order to have all the nodes inside the viewport
   const handleZoomToFitButtonAction = () => {
-    const padding = 100;
+    const paddingLeft = 330;
+    const paddingRight = 30;
+    const paddingTop = 30;
+    const paddingBottom = 30;
 
+    console.log('stageRef.current:', stageRef.current);
+    console.log('layerRef.current:', layerRef.current);
+
+    // get the bounding box of layer contents
     const box = layerRef.current.getClientRect({
       relativeTo: stageRef.current,
     });
+    console.log('box:', box);
 
-    const scale = Math.min(
-      stageRef.current.width() / (box.width + padding * 2),
-      stageRef.current.height() / (box.height + padding * 2),
+    let scale = Math.min(
+      (stageRef.current.width() - paddingLeft - paddingRight) / box.width,
+      (stageRef.current.height() - paddingTop - paddingBottom) / box.height,
     );
+    //scale = 2;
 
-    const x = -box.x * scale + padding * scale;
-    const y = -box.y * scale + padding * scale;
-
+    const x = paddingLeft - box.x * scale;
+    const y = paddingTop - box.y * scale;
+    
+    console.log('scale:', scale, 'x:', x, 'y:', y);
     setStagePositionAndScale({
       stageScale: { x: scale, y: scale },
       stagePos: { x, y },
