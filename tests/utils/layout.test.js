@@ -2,7 +2,7 @@
 
 import {
   isHolePiece,
-  getChildIds,
+  getSortedChildIds,
   isRootId,
   isSingletonId,
 } from '../../src/utils/layout';
@@ -61,18 +61,18 @@ describe('isHolePiece', () => {
   });
 });
 
-describe('getChildIds', () => {
+describe('getSortedChildIds', () => {
   it('should return empty array when no edges', () => {
     const nodes = {};
     const edges = {};
-    expect(getChildIds('n0', nodes, edges)).toStrictEqual([]);
+    expect(getSortedChildIds('n0', nodes, edges)).toStrictEqual([]);
   });
   it('should return empty array when no edges', () => {
     const nodes = {
       node: { pieces: [hole, '+', hole] },
     };
     const edges = {};
-    expect(getChildIds('node', nodes, edges)).toStrictEqual([]);
+    expect(getSortedChildIds('node', nodes, edges)).toStrictEqual([]);
   });
   it('should work for one child', () => {
     const myNodes = {
@@ -86,7 +86,7 @@ describe('getChildIds', () => {
         childNodeId: 'child',
       },
     };
-    expect(getChildIds('parent', myNodes, myEdges)).toStrictEqual(['child']);
+    expect(getSortedChildIds('parent', myNodes, myEdges)).toStrictEqual(['child']);
   });
   it('should work for two children', () => {
     const myNodes = {
@@ -106,7 +106,7 @@ describe('getChildIds', () => {
         childNodeId: 'child1',
       },
     };
-    expect(getChildIds('parent', myNodes, myEdges)).toStrictEqual(['child0', 'child1']);
+    expect(getSortedChildIds('parent', myNodes, myEdges)).toStrictEqual(['child0', 'child1']);
   });
 });
 
