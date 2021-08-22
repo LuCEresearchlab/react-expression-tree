@@ -124,9 +124,19 @@ export function isHolePiece(piece) {
   return piece === connectorPlaceholder;
 }
 
-export function getChildIds(nodeId, nodes, edges) {
+/**
+ * Return an array of node IDs for all children of the given parent node ID,
+ * sorted in the order of the parent's hole pieces.
+ *
+ * @param {*} nodeId the parent node ID
+ * @param {*} nodes all nodes
+ * @param {*} edges all edges
+ * @returns the ordered array of child node IDs for the given parent
+ */
+export function getSortedChildIds(nodeId, nodes, edges) {
   return Object.keys(edges)
     .filter(edgeId => edges[edgeId].parentNodeId === nodeId)
+    .sort((edgeId1, edgeId2) => edges[edgeId1].parentPieceId - edges[edgeId2].parentPieceId)
     .map(edgeId => edges[edgeId].childNodeId);
 }
 
@@ -188,7 +198,7 @@ export function computeNodeHeight(nodeId, nodes) {
 }
 
 export function computeDescendantsWidth(rootId, nodes, edges) {
-  return getChildIds(rootId, nodes, edges)
+  return getSortedChildIds(rootId, nodes, edges)
     .reduce(
       (width, childId, index) =>
         (width + computeTreeWidth(childId, nodes, edges) + (index > 0 ? nodeHorizontalGap : 0)),
@@ -204,7 +214,7 @@ export function computeTreeWidth(rootId, nodes, edges) {
 
 export function computeTreeHeight(rootId, nodes, edges) {
   const myHeight = computeNodeHeight(rootId, nodes);
-  const descendantsHeight = getChildIds(rootId, nodes, edges)
+  const descendantsHeight = getSortedChildIds(rootId, nodes, edges)
     .reduce(
       (height, childId) =>
         Math.max(height, computeTreeHeight(childId, nodes, edges)),
@@ -226,7 +236,7 @@ export function layoutTree(rootId, nodes, edges, x, y) {
   const descendantsIndent = rootWidth > descendantsWidth ? (rootWidth - descendantsWidth) / 2 : 0;
   let dx = x + descendantsIndent;
   const dy = y + rootHeight + nodeVerticalGap;
-  const childIds = getChildIds(rootId, nodes, edges);
+  const childIds = getSortedChildIds(rootId, nodes, edges);
   //console.log("  childIds", childIds);
   childIds.forEach((childId, index) => {
     const [dw, dh] = layoutTree(childId, nodes, edges, dx, dy);
