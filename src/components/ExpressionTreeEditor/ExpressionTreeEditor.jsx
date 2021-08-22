@@ -422,6 +422,33 @@ function ExpressionTreeEditor({
     });
   };
 
+  const handleZoomToActualSizeButtonAction = () => {
+    console.log('handleZoomToActualSizeButtonAction()');
+    //console.log('isDrawerOpen:', isDrawerOpen);
+    const paddingLeft = isDrawerOpen ? 330 : 30;
+    const paddingTop = 30;
+
+    //console.log('stageRef.current:', stageRef.current);
+    //console.log('layerRef.current:', layerRef.current);
+
+    // get the bounding box of layer contents
+    const box = layerRef.current.getClientRect({
+      relativeTo: stageRef.current,
+    });
+    //console.log('box:', box);
+
+    let scale = 1;
+
+    const x = paddingLeft - box.x;
+    const y = paddingTop - box.y;
+
+    //console.log('scale:', scale, 'x:', x, 'y:', y);
+    setStagePositionAndScale({
+      stageScale: { x: scale, y: scale },
+      stagePos: { x, y },
+    });
+  };
+
   const handleReorderNodesButtonAction = useCallback(() => {
     //TODO: Determine whether need to clone nodes before calling layout
     /*
@@ -1237,6 +1264,7 @@ function ExpressionTreeEditor({
           handleZoomOutButtonAction={handleZoomOutButtonAction}
           handleZoomInButtonAction={handleZoomInButtonAction}
           handleZoomToFitButtonAction={handleZoomToFitButtonAction}
+          handleZoomToActualSizeButtonAction={handleZoomToActualSizeButtonAction}
           handleReorderNodesButtonAction={handleReorderNodesButtonAction}
           handleValidateTreeButtonAction={handleValidateTreeButtonAction}
           handleUploadStateButtonAction={handleUploadStateButtonAction}
@@ -1587,6 +1615,7 @@ ExpressionTreeEditor.propTypes = {
     showZoomOutButton: PropTypes.bool,
     showZoomInButton: PropTypes.bool,
     showZoomToFitButton: PropTypes.bool,
+    showZoomToAcualSizeButton: PropTypes.bool,
     showReorderNodesButton: PropTypes.bool,
     showValidateTreeButton: PropTypes.bool,
     showUploadStateButton: PropTypes.bool,
@@ -1794,6 +1823,7 @@ ExpressionTreeEditor.defaultProps = {
     showZoomOutButton: true,
     showZoomInButton: true,
     showZoomToFitButton: true,
+    showZoomToActualSizeButton: true,
     showReorderNodesButton: true,
     showValidateTreeButton: true,
     showUploadStateButton: true,

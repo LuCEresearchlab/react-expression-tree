@@ -56,6 +56,7 @@ function StageDrawer({
   handleZoomOutButtonAction,
   handleZoomInButtonAction,
   handleZoomToFitButtonAction,
+  handleZoomToActualSizeButtonAction,
   handleReorderNodesButtonAction,
   handleValidateTreeButtonAction,
   handleUploadStateButtonAction,
@@ -82,6 +83,7 @@ function StageDrawer({
     showZoomOutButton,
     showZoomInButton,
     showZoomToFitButton,
+    showZoomToActualSizeButton,
     showReorderNodesButton,
     showValidateTreeButton,
     showUploadStateButton,
@@ -115,6 +117,7 @@ function StageDrawer({
               showZoomOutButton={showZoomOutButton}
               showZoomInButton={showZoomInButton}
               showZoomToFitButton={showZoomToFitButton}
+              showZoomToActualSizeButton={showZoomToActualSizeButton}
               showReorderNodesButton={showReorderNodesButton}
               showValidateTreeButton={showValidateTreeButton}
               showUploadStateButton={showUploadStateButton}
@@ -128,6 +131,7 @@ function StageDrawer({
               handleZoomOutButtonAction={handleZoomOutButtonAction}
               handleZoomInButtonAction={handleZoomInButtonAction}
               handleZoomToFitButtonAction={handleZoomToFitButtonAction}
+              handleZoomToActualSizeButtonAction={handleZoomToActualSizeButtonAction}
               handleReorderNodesButtonAction={handleReorderNodesButtonAction}
               handleValidateTreeButtonAction={handleValidateTreeButtonAction}
               handleUploadStateButtonAction={handleUploadStateButtonAction}
@@ -231,6 +235,7 @@ StageDrawer.propTypes = {
     showZoomOutButton: PropTypes.bool,
     showZoomInButton: PropTypes.bool,
     showZoomToFitButton: PropTypes.bool,
+    showZoomToActualSizeButton: PropTypes.bool,
     showReorderNodesButton: PropTypes.bool,
     showValidateTreeButton: PropTypes.bool,
     showUploadStateButton: PropTypes.bool,
@@ -274,6 +279,7 @@ StageDrawer.propTypes = {
   handleZoomOutButtonAction: PropTypes.func,
   handleZoomInButtonAction: PropTypes.func,
   handleZoomToFitButtonAction: PropTypes.func,
+  handleZoomToActualSizeButtonAction: PropTypes.func,
   handleReorderNodesButtonAction: PropTypes.func,
   handleValidateTreeButtonAction: PropTypes.func,
   handleUploadStateButtonAction: PropTypes.func,
@@ -383,6 +389,7 @@ StageDrawer.defaultProps = {
     showZoomOutButton: true,
     showZoomInButton: true,
     showZoomToFitButton: true,
+    showZoomToActualSizeButton: true,
     showReorderNodesButton: true,
     showValidateTreeButton: true,
     showUploadStateButton: true,
@@ -421,6 +428,7 @@ StageDrawer.defaultProps = {
   handleZoomOutButtonAction: () => {},
   handleZoomInButtonAction: () => {},
   handleZoomToFitButtonAction: () => {},
+  handleZoomToActualSizeButtonAction: () => {},
   handleReorderNodesButtonAction: () => {},
   handleValidateTreeButtonAction: () => {},
   handleUploadStateButtonAction: () => {},

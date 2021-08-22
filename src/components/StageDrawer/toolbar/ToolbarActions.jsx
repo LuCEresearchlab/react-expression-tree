@@ -10,6 +10,7 @@ import {
   AspectRatioRounded,
   CheckRounded,
   ChevronLeftRounded,
+  CropLandscapeRounded,
   FullscreenExitRounded,
   FullscreenRounded,
   InfoOutlined,
@@ -63,6 +64,7 @@ function ToolbarActions({
   showZoomOutButton,
   showZoomInButton,
   showZoomToFitButton,
+  showZoomToActualSizeButton,
   showReorderNodesButton,
   showValidateTreeButton,
   showUploadStateButton,
@@ -76,6 +78,7 @@ function ToolbarActions({
   handleZoomOutButtonAction,
   handleZoomInButtonAction,
   handleZoomToFitButtonAction,
+  handleZoomToActualSizeButtonAction,
   handleReorderNodesButtonAction,
   handleValidateTreeButtonAction,
   handleUploadStateButtonAction,
@@ -182,7 +185,7 @@ function ToolbarActions({
         </Tooltip>
       )}
       {showZoomOutButton && (
-        <Tooltip title="Zoom-out" placement="bottom">
+        <Tooltip title="Zoom out" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
@@ -193,7 +196,7 @@ function ToolbarActions({
         </Tooltip>
       )}
       {showZoomInButton && (
-        <Tooltip title="Zoom-in" placement="bottom">
+        <Tooltip title="Zoom in" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
@@ -211,6 +214,17 @@ function ToolbarActions({
             onClick={handleZoomToFitButtonAction}
           >
             <AspectRatioRounded />
+          </IconButton>
+        </Tooltip>
+      )}
+      {showZoomToActualSizeButton && (
+        <Tooltip title="Zoom to actual size" placement="bottom">
+          <IconButton
+            className={classes.toolbarButton}
+            color="primary"
+            onClick={handleZoomToActualSizeButtonAction}
+          >
+            <CropLandscapeRounded />
           </IconButton>
         </Tooltip>
       )}
@@ -308,6 +322,7 @@ ToolbarActions.propTypes = {
   showZoomOutButton: PropTypes.bool,
   showZoomInButton: PropTypes.bool,
   showZoomToFitButton: PropTypes.bool,
+  showZoomToActualSizeButton: PropTypes.bool,
   showReorderNodesButton: PropTypes.bool,
   showValidateTreeButton: PropTypes.bool,
   showUploadStateButton: PropTypes.bool,
@@ -321,6 +336,7 @@ ToolbarActions.propTypes = {
   handleZoomOutButtonAction: PropTypes.func,
   handleZoomInButtonAction: PropTypes.func,
   handleZoomToFitButtonAction: PropTypes.func,
+  handleZoomToActualSizeButtonAction: PropTypes.func,
   handleReorderNodesButtonAction: PropTypes.func,
   handleValidateTreeButtonAction: PropTypes.func,
   handleUploadStateButtonAction: PropTypes.func,
@@ -343,6 +359,7 @@ ToolbarActions.defaultProps = {
   showZoomOutButton: true,
   showZoomInButton: true,
   showZoomToFitButton: true,
+  showZoomToActualSizeButton: true,
   showReorderNodesButton: true,
   showValidateTreeButton: true,
   showUploadStateButton: true,
@@ -356,6 +373,7 @@ ToolbarActions.defaultProps = {
   handleZoomOutButtonAction: () => {},
   handleZoomInButtonAction: () => {},
   handleZoomToFitButtonAction: () => {},
+  handleZoomToActualSizeButtonAction: () => {},
   handleReorderNodesButtonAction: () => {},
   handleValidateTreeButtonAction: () => {},
   handleUploadStateButtonAction: () => {},
