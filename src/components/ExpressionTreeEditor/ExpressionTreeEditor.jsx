@@ -314,23 +314,56 @@ function ExpressionTreeEditor({
     createNode(newNode);
   });
 
+  // --- Zoom actions
+
   const handleZoomOutButtonAction = useCallback(() => {
-    zoomStage(1 / 1.1);
+    const zoomFactor = 1.1;
+    //zoomStage(1 / zoomFactor); TODO: remove zoomStage function
+    const { current } = stageRef;
+    const oldScale = current.scaleX();
+    const oldX = current.x();
+    const oldY = current.y();
+    const w = current.width();
+    const h = current.height();
+    //console.log("oldScale:", oldScale, "oldX:", oldX, "oldY:", oldY, "w:", w, "h:", h);
+    const newScale = oldScale / zoomFactor;
+    const newX = (oldX - w / 2) / zoomFactor + w / 2;
+    const newY = (oldY - h / 2) / zoomFactor + h / 2;
+    //console.log("newScale:", newScale, "newX:", newX, "newY:", newY);
+    setStagePositionAndScale({
+      stageScale: { x: newScale, y: newScale },
+      stagePos: { x: newX, y: newY },
+    });
   });
 
   const handleZoomInButtonAction = useCallback(() => {
-    zoomStage(1.1);
+    const zoomFactor = 1.1;
+    //zoomStage(zoomFactor); TODO: remove zoomStage function
+    const { current } = stageRef;
+    const oldScale = current.scaleX();
+    const oldX = current.x();
+    const oldY = current.y();
+    const w = current.width();
+    const h = current.height();
+    //console.log("oldScale:", oldScale, "oldX:", oldX, "oldY:", oldY, "w:", w, "h:", h);
+    const newScale = oldScale * zoomFactor;
+    const newX = (oldX - w / 2) * zoomFactor + w / 2;
+    const newY = (oldY - h / 2) * zoomFactor + h / 2;
+    //console.log("newScale:", newScale, "newX:", newX, "newY:", newY);
+    setStagePositionAndScale({
+      stageScale: { x: newScale, y: newScale },
+      stagePos: { x: newX, y: newY },
+    });
   });
 
   const handleStageWheel = (e) => {
+    const zoomFactor = 1.05;
     e.evt.preventDefault();
     if (isFullDisabled) {
-      return;
+      return; //TODO: What's the connection between mouse wheel zoom and full screen?
     }
-
     const { current } = stageRef;
-
-    const zoomMultiplier = e.evt.deltaY < 0 ? 1.05 : (1 / 1.05);
+    const zoomMultiplier = e.evt.deltaY < 0 ? zoomFactor : (1 / zoomFactor);
     const oldScale = current.scaleX();
     const newScale = oldScale * zoomMultiplier;
 
@@ -358,30 +391,31 @@ function ExpressionTreeEditor({
   // then the stage will be repositioned,
   // in order to have all the nodes inside the viewport
   const handleZoomToFitButtonAction = () => {
-    const paddingLeft = 330;
+    //console.log('handleZoomToFitButtonAction()');
+    //console.log('isDrawerOpen:', isDrawerOpen);
+    const paddingLeft = isDrawerOpen ? 330 : 30;
     const paddingRight = 30;
     const paddingTop = 30;
     const paddingBottom = 30;
 
-    console.log('stageRef.current:', stageRef.current);
-    console.log('layerRef.current:', layerRef.current);
+    //console.log('stageRef.current:', stageRef.current);
+    //console.log('layerRef.current:', layerRef.current);
 
     // get the bounding box of layer contents
     const box = layerRef.current.getClientRect({
       relativeTo: stageRef.current,
     });
-    console.log('box:', box);
+    //console.log('box:', box);
 
     let scale = Math.min(
       (stageRef.current.width() - paddingLeft - paddingRight) / box.width,
       (stageRef.current.height() - paddingTop - paddingBottom) / box.height,
     );
-    //scale = 2;
 
     const x = paddingLeft - box.x * scale;
     const y = paddingTop - box.y * scale;
-    
-    console.log('scale:', scale, 'x:', x, 'y:', y);
+
+    //console.log('scale:', scale, 'x:', x, 'y:', y);
     setStagePositionAndScale({
       stageScale: { x: scale, y: scale },
       stagePos: { x, y },
@@ -389,15 +423,16 @@ function ExpressionTreeEditor({
   };
 
   const handleReorderNodesButtonAction = useCallback(() => {
-    //TODO: Matthias to complete this!
+    //TODO: Determine whether need to clone nodes before calling layout
     /*
+    // Call old layout (reorder) code
     const orderedNodes = reorderNodes(
       nodes,
       edges,
       selectedRootNode,
     );
     */
-    const orderedNodes = nodes; // TODO: clone nodes before calling layout?
+    const orderedNodes = nodes;
     const [diagramWidth, diagramHeight] = layout(
       nodes,
       edges,
@@ -416,6 +451,8 @@ function ExpressionTreeEditor({
       stageScale: scale,
     });
   });
+
+  // --- Validation
 
   const handleValidateTreeButtonAction = useCallback(() => {
     if (selectedRootNode !== undefined && selectedRootNode !== null) {
@@ -1243,6 +1280,32 @@ function ExpressionTreeEditor({
             onWheel={handleStageWheel}
           >
             <Layer ref={layerRef}>
+              {/* Uncomment for zoom debugging:
+              <Rect
+                x={0}
+                y={0}
+                width={200}
+                height={100}
+                fill="#f0f0f0"
+                stroke="black"
+              />
+              <Circle
+                x={0}
+                y={0}
+                radius={20}
+                fill="red"
+                stroke="black"
+                strokeWidth={1}
+              />
+              <Circle
+                x={902}
+                y={700}
+                radius={10}
+                fill="blue"
+                stroke="black"
+                strokeWidth={1}
+              />
+              */}
               {Object.keys(edges).map((id) => (
                 <Edge
                   key={`Edge-${id}`}
