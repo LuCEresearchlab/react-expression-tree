@@ -18,6 +18,10 @@
     {
       "name": "Luca Chiodini",
       "email": "luca.chiodini@usi.ch"
+    },
+    {
+      "name": "Matthias Hauswirth",
+      "email": "matthias.hauswirth@usi.ch"
     }
   ],
   "main": "dist/index.js",
