@@ -2,7 +2,7 @@
 
 # Expression Tree
 
-This is the core React component used in [expressiontutor.org](expressiontutor.org).
+This is the core React component used in [expressiontutor.org](https://expressiontutor.org).
 
 See `src/components/ExpressionTreeEditor/` for up-to-date usage information.
 
