@@ -325,11 +325,9 @@ function ExpressionTreeEditor({
     const oldY = current.y();
     const w = current.width();
     const h = current.height();
-    //console.log("oldScale:", oldScale, "oldX:", oldX, "oldY:", oldY, "w:", w, "h:", h);
     const newScale = oldScale / zoomFactor;
     const newX = (oldX - w / 2) / zoomFactor + w / 2;
     const newY = (oldY - h / 2) / zoomFactor + h / 2;
-    //console.log("newScale:", newScale, "newX:", newX, "newY:", newY);
     setStagePositionAndScale({
       stageScale: { x: newScale, y: newScale },
       stagePos: { x: newX, y: newY },
@@ -345,11 +343,9 @@ function ExpressionTreeEditor({
     const oldY = current.y();
     const w = current.width();
     const h = current.height();
-    //console.log("oldScale:", oldScale, "oldX:", oldX, "oldY:", oldY, "w:", w, "h:", h);
     const newScale = oldScale * zoomFactor;
     const newX = (oldX - w / 2) * zoomFactor + w / 2;
     const newY = (oldY - h / 2) * zoomFactor + h / 2;
-    //console.log("newScale:", newScale, "newX:", newX, "newY:", newY);
     setStagePositionAndScale({
       stageScale: { x: newScale, y: newScale },
       stagePos: { x: newX, y: newY },
@@ -362,6 +358,8 @@ function ExpressionTreeEditor({
     if (isFullDisabled) {
       return; //TODO: What's the connection between mouse wheel zoom and full screen?
     }
+    // don't zoom if small Y change
+    if (Math.abs(e.evt.deltaY) < 5) return;
     const { current } = stageRef;
     const zoomMultiplier = e.evt.deltaY < 0 ? zoomFactor : (1 / zoomFactor);
     const oldScale = current.scaleX();
@@ -378,8 +376,8 @@ function ExpressionTreeEditor({
       x: pointerPos.x - mousePointTo.x * newScale,
       y: pointerPos.y - mousePointTo.y * newScale,
     };
-
-    zoomStageWheel({
+    // zoomStageWheel(...); // TODO remove zoomStageWheel function
+    setStagePositionAndScale({
       stageScale: { x: newScale, y: newScale },
       stagePos: newPosition,
     });
@@ -391,31 +389,20 @@ function ExpressionTreeEditor({
   // then the stage will be repositioned,
   // in order to have all the nodes inside the viewport
   const handleZoomToFitButtonAction = () => {
-    //console.log('handleZoomToFitButtonAction()');
-    //console.log('isDrawerOpen:', isDrawerOpen);
     const paddingLeft = isDrawerOpen ? 330 : 30;
     const paddingRight = 30;
     const paddingTop = 30;
     const paddingBottom = 30;
-
-    //console.log('stageRef.current:', stageRef.current);
-    //console.log('layerRef.current:', layerRef.current);
-
     // get the bounding box of layer contents
     const box = layerRef.current.getClientRect({
       relativeTo: stageRef.current,
     });
-    //console.log('box:', box);
-
-    let scale = Math.min(
+    const scale = Math.min(
       (stageRef.current.width() - paddingLeft - paddingRight) / box.width,
       (stageRef.current.height() - paddingTop - paddingBottom) / box.height,
     );
-
     const x = paddingLeft - box.x * scale;
     const y = paddingTop - box.y * scale;
-
-    //console.log('scale:', scale, 'x:', x, 'y:', y);
     setStagePositionAndScale({
       stageScale: { x: scale, y: scale },
       stagePos: { x, y },
@@ -423,26 +410,15 @@ function ExpressionTreeEditor({
   };
 
   const handleZoomToActualSizeButtonAction = () => {
-    console.log('handleZoomToActualSizeButtonAction()');
-    //console.log('isDrawerOpen:', isDrawerOpen);
     const paddingLeft = isDrawerOpen ? 330 : 30;
     const paddingTop = 30;
-
-    //console.log('stageRef.current:', stageRef.current);
-    //console.log('layerRef.current:', layerRef.current);
-
     // get the bounding box of layer contents
     const box = layerRef.current.getClientRect({
       relativeTo: stageRef.current,
     });
-    //console.log('box:', box);
-
-    let scale = 1;
-
+    const scale = 1;
     const x = paddingLeft - box.x;
     const y = paddingTop - box.y;
-
-    //console.log('scale:', scale, 'x:', x, 'y:', y);
     setStagePositionAndScale({
       stageScale: { x: scale, y: scale },
       stagePos: { x, y },

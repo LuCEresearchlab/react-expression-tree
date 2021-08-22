@@ -43,6 +43,7 @@ const reducers = {
     };
   },
 
+  // TODO: Unused. Remove, or design with all logic in here and richer payload.
   zoomStage: (state, payload) => {
     const {
       zoomMultiplier,
@@ -61,6 +62,7 @@ const reducers = {
     };
   },
 
+  // TODO: Unused. Remove, or design with all logic in here and richer payload.
   zoomStageWheel: (state, payload) => {
     const {
       stageScale,
