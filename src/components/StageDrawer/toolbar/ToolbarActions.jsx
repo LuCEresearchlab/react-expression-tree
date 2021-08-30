@@ -66,7 +66,6 @@ function ToolbarActions({
   showZoomToFitButton,
   showZoomToActualSizeButton,
   showReorderNodesButton,
-  showValidateTreeButton,
   showUploadStateButton,
   showTakeScreenshotButton,
   showFullScreenButton,
@@ -80,7 +79,6 @@ function ToolbarActions({
   handleZoomToFitButtonAction,
   handleZoomToActualSizeButtonAction,
   handleReorderNodesButtonAction,
-  handleValidateTreeButtonAction,
   handleUploadStateButtonAction,
   handleTakeScreenshotButtonAction,
   handleFullScreenButtonAction,
@@ -146,7 +144,7 @@ function ToolbarActions({
         </Tooltip>
       )}
       {showStateResetButton && (
-        <Tooltip title="Reset state" placement="bottom">
+        <Tooltip title="Reset to initial state" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
@@ -156,7 +154,8 @@ function ToolbarActions({
           </IconButton>
         </Tooltip>
       )}
-      {showUndoButton && (
+      {/* TODO: uncomment after fixing undo/redo */}
+      {/*showUndoButton && (
         <Tooltip title="Undo action" placement="bottom">
           <span>
             <IconButton
@@ -169,8 +168,8 @@ function ToolbarActions({
             </IconButton>
           </span>
         </Tooltip>
-      )}
-      {showRedoButton && (
+      )*/}
+      {/*showRedoButton && (
         <Tooltip title="Redo action" placement="bottom">
           <span>
             <IconButton
@@ -183,7 +182,7 @@ function ToolbarActions({
             </IconButton>
           </span>
         </Tooltip>
-      )}
+      )*/}
       {showZoomOutButton && (
         <Tooltip title="Zoom out" placement="bottom">
           <IconButton
@@ -239,22 +238,8 @@ function ToolbarActions({
           </IconButton>
         </Tooltip>
       )}
-      {showValidateTreeButton && (
-        <Tooltip title="Validate tree" placement="bottom">
-          <span>
-            <IconButton
-              className={classes.toolbarButton}
-              color="primary"
-              disabled={selectedRootNode === undefined || selectedRootNode === null}
-              onClick={handleValidateTreeButtonAction}
-            >
-              <CheckRounded />
-            </IconButton>
-          </span>
-        </Tooltip>
-      )}
       {showUploadStateButton && (
-        <Tooltip title="Restore state" placement="bottom">
+        <Tooltip title="Import" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
@@ -273,7 +258,7 @@ function ToolbarActions({
         onChange={handleFileChange}
       />
       {showTakeScreenshotButton && (
-        <Tooltip title="Save state image" placement="bottom">
+        <Tooltip title="Export as image" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
@@ -324,7 +309,6 @@ ToolbarActions.propTypes = {
   showZoomToFitButton: PropTypes.bool,
   showZoomToActualSizeButton: PropTypes.bool,
   showReorderNodesButton: PropTypes.bool,
-  showValidateTreeButton: PropTypes.bool,
   showUploadStateButton: PropTypes.bool,
   showTakeScreenshotButton: PropTypes.bool,
   showFullScreenButton: PropTypes.bool,
@@ -338,7 +322,6 @@ ToolbarActions.propTypes = {
   handleZoomToFitButtonAction: PropTypes.func,
   handleZoomToActualSizeButtonAction: PropTypes.func,
   handleReorderNodesButtonAction: PropTypes.func,
-  handleValidateTreeButtonAction: PropTypes.func,
   handleUploadStateButtonAction: PropTypes.func,
   handleTakeScreenshotButtonAction: PropTypes.func,
   handleFullScreenButtonAction: PropTypes.func,
@@ -361,7 +344,6 @@ ToolbarActions.defaultProps = {
   showZoomToFitButton: true,
   showZoomToActualSizeButton: true,
   showReorderNodesButton: true,
-  showValidateTreeButton: true,
   showUploadStateButton: true,
   showTakeScreenshotButton: true,
   showFullScreenButton: true,
@@ -375,7 +357,6 @@ ToolbarActions.defaultProps = {
   handleZoomToFitButtonAction: () => {},
   handleZoomToActualSizeButtonAction: () => {},
   handleReorderNodesButtonAction: () => {},
-  handleValidateTreeButtonAction: () => {},
   handleUploadStateButtonAction: () => {},
   handleTakeScreenshotButtonAction: () => {},
   handleFullScreenButtonAction: () => {},
