@@ -144,7 +144,7 @@ function ToolbarActions({
         </Tooltip>
       )}
       {showStateResetButton && (
-        <Tooltip title="Reset state" placement="bottom">
+        <Tooltip title="Reset to initial state" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
@@ -154,7 +154,8 @@ function ToolbarActions({
           </IconButton>
         </Tooltip>
       )}
-      {showUndoButton && (
+      {/* TODO: uncomment after fixing undo/redo */}
+      {/*showUndoButton && (
         <Tooltip title="Undo action" placement="bottom">
           <span>
             <IconButton
@@ -167,8 +168,8 @@ function ToolbarActions({
             </IconButton>
           </span>
         </Tooltip>
-      )}
-      {showRedoButton && (
+      )*/}
+      {/*showRedoButton && (
         <Tooltip title="Redo action" placement="bottom">
           <span>
             <IconButton
@@ -181,7 +182,7 @@ function ToolbarActions({
             </IconButton>
           </span>
         </Tooltip>
-      )}
+      )*/}
       {showZoomOutButton && (
         <Tooltip title="Zoom out" placement="bottom">
           <IconButton
@@ -238,7 +239,7 @@ function ToolbarActions({
         </Tooltip>
       )}
       {showUploadStateButton && (
-        <Tooltip title="Restore state" placement="bottom">
+        <Tooltip title="Import" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
@@ -257,7 +258,7 @@ function ToolbarActions({
         onChange={handleFileChange}
       />
       {showTakeScreenshotButton && (
-        <Tooltip title="Save state image" placement="bottom">
+        <Tooltip title="Export as image" placement="bottom">
           <IconButton
             className={classes.toolbarButton}
             color="primary"
