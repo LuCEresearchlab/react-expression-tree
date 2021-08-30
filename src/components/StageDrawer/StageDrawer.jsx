@@ -8,7 +8,6 @@ import EditorDrawer from './drawer/EditorDrawer';
 import DialogEditorInfo from './dialogs/DialogEditorInfo';
 import DialogConfirmReset from './dialogs/DialogConfirmReset';
 
-import ValidationSnackbar from './snackbars/ValidationSnackbar';
 import CreatingNodeSnackbar from './snackbars/CreatingNodeSnackbar';
 import AddEdgeErrorSnackbar from './snackbars/AddEdgeErrorSnackbar';
 
@@ -22,7 +21,6 @@ function StageDrawer({
   isFullDisabled,
   isDrawerOpen,
   isFullScreen,
-  isValidationDialogOpen,
   isSelectedNodeEditable,
   createNodeInputValue,
   updateLabelInputValue,
@@ -38,9 +36,7 @@ function StageDrawer({
   templateNodeTypesAndValues,
   hasStateToUndo,
   hasStateToRedo,
-  validationErrors,
   currentError,
-  closeValidationDialog,
   toggleDrawer,
   addEdgeErrorMessage,
   toggleIsCreatingNode,
@@ -58,12 +54,9 @@ function StageDrawer({
   handleZoomToFitButtonAction,
   handleZoomToActualSizeButtonAction,
   handleReorderNodesButtonAction,
-  handleValidateTreeButtonAction,
   handleUploadStateButtonAction,
   handleTakeScreenshotButtonAction,
   handleFullScreenButtonAction,
-  setPreviousError,
-  setNextError,
   createNodeDescription,
   nodeFontSize,
   nodeFontFamily,
@@ -85,7 +78,6 @@ function StageDrawer({
     showZoomToFitButton,
     showZoomToActualSizeButton,
     showReorderNodesButton,
-    showValidateTreeButton,
     showUploadStateButton,
     showTakeScreenshotButton,
     showFullScreenButton,
@@ -119,7 +111,6 @@ function StageDrawer({
               showZoomToFitButton={showZoomToFitButton}
               showZoomToActualSizeButton={showZoomToActualSizeButton}
               showReorderNodesButton={showReorderNodesButton}
-              showValidateTreeButton={showValidateTreeButton}
               showUploadStateButton={showUploadStateButton}
               showTakeScreenshotButton={showTakeScreenshotButton}
               showFullScreenButton={showFullScreenButton}
@@ -133,7 +124,6 @@ function StageDrawer({
               handleZoomToFitButtonAction={handleZoomToFitButtonAction}
               handleZoomToActualSizeButtonAction={handleZoomToActualSizeButtonAction}
               handleReorderNodesButtonAction={handleReorderNodesButtonAction}
-              handleValidateTreeButtonAction={handleValidateTreeButtonAction}
               handleUploadStateButtonAction={handleUploadStateButtonAction}
               handleTakeScreenshotButtonAction={handleTakeScreenshotButtonAction}
               handleFullScreenButtonAction={handleFullScreenButtonAction}
@@ -191,14 +181,6 @@ function StageDrawer({
             isCreatingNode={isCreatingNode}
             toggleIsCreatingNode={toggleIsCreatingNode}
           />
-          <ValidationSnackbar
-            isValidationDialogOpen={isValidationDialogOpen}
-            closeValidationDialog={closeValidationDialog}
-            validationErrors={validationErrors}
-            currentError={currentError}
-            setPreviousError={setPreviousError}
-            setNextError={setNextError}
-          />
         </>
       )}
     </>
@@ -215,7 +197,6 @@ StageDrawer.propTypes = {
   isFullDisabled: PropTypes.bool,
   isDrawerOpen: PropTypes.bool,
   isFullScreen: PropTypes.bool,
-  isValidationDialogOpen: PropTypes.bool,
   isSelectedNodeEditable: PropTypes.shape({
     label: PropTypes.bool,
     type: PropTypes.bool,
@@ -237,7 +218,6 @@ StageDrawer.propTypes = {
     showZoomToFitButton: PropTypes.bool,
     showZoomToActualSizeButton: PropTypes.bool,
     showReorderNodesButton: PropTypes.bool,
-    showValidateTreeButton: PropTypes.bool,
     showUploadStateButton: PropTypes.bool,
     showTakeScreenshotButton: PropTypes.bool,
     showFullScreenButton: PropTypes.bool,
@@ -256,15 +236,8 @@ StageDrawer.propTypes = {
   templateNodeTypesAndValues: PropTypes.shape({}),
   hasStateToUndo: PropTypes.bool,
   hasStateToRedo: PropTypes.bool,
-  validationErrors: PropTypes.arrayOf({
-    currentErrorLocation: PropTypes.shape({}),
-    type: PropTypes.string,
-    location: PropTypes.string,
-    problem: PropTypes.string,
-  }),
   currentError: PropTypes.number,
   addEdgeErrorMessage: PropTypes.string,
-  closeValidationDialog: PropTypes.func,
   toggleIsAddEdgeErrorSnackbarOpen: PropTypes.func,
   toggleDrawer: PropTypes.func,
   toggleIsCreatingNode: PropTypes.func,
@@ -281,12 +254,9 @@ StageDrawer.propTypes = {
   handleZoomToFitButtonAction: PropTypes.func,
   handleZoomToActualSizeButtonAction: PropTypes.func,
   handleReorderNodesButtonAction: PropTypes.func,
-  handleValidateTreeButtonAction: PropTypes.func,
   handleUploadStateButtonAction: PropTypes.func,
   handleTakeScreenshotButtonAction: PropTypes.func,
   handleFullScreenButtonAction: PropTypes.func,
-  setPreviousError: PropTypes.func,
-  setNextError: PropTypes.func,
   createNodeDescription: PropTypes.shape({
     height: PropTypes.number,
     width: PropTypes.number,
@@ -369,7 +339,6 @@ StageDrawer.defaultProps = {
   isFullDisabled: false,
   isDrawerOpen: true,
   isFullScreen: false,
-  isValidationDialogOpen: false,
   isSelectedNodeEditable: {
     label: false,
     type: false,
@@ -391,7 +360,6 @@ StageDrawer.defaultProps = {
     showZoomToFitButton: true,
     showZoomToActualSizeButton: true,
     showReorderNodesButton: true,
-    showValidateTreeButton: true,
     showUploadStateButton: true,
     showTakeScreenshotButton: true,
     showFullScreenButton: true,
@@ -410,10 +378,8 @@ StageDrawer.defaultProps = {
   templateNodeTypesAndValues: undefined,
   hasStateToUndo: false,
   hasStateToRedo: false,
-  validationErrors: undefined,
   currentError: undefined,
   addEdgeErrorMessage: '',
-  closeValidationDialog: () => {},
   toggleIsAddEdgeErrorSnackbarOpen: () => {},
   toggleDrawer: () => {},
   toggleIsCreatingNode: () => {},
@@ -430,12 +396,9 @@ StageDrawer.defaultProps = {
   handleZoomToFitButtonAction: () => {},
   handleZoomToActualSizeButtonAction: () => {},
   handleReorderNodesButtonAction: () => {},
-  handleValidateTreeButtonAction: () => {},
   handleUploadStateButtonAction: () => {},
   handleTakeScreenshotButtonAction: () => {},
   handleFullScreenButtonAction: () => {},
-  setPreviousError: () => {},
-  setNextError: () => {},
   createNodeDescription: undefined,
   nodeFontSize: 24,
   nodeFontFamily: 'Roboto Mono, Courier',

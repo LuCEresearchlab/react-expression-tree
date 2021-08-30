@@ -3,18 +3,6 @@ Example with initial object state and final nodes:
 ```js
 <ExpressionTreeEditor
   height={700}
-  reportErrorConfig={{
-    structureErrors: {
-      loop: true,
-      multiEdgeOnHoleConnector: true,
-      multiEdgeOnNodeConnector: true,
-    },
-    completenessErrors: {
-      emptyPieceConnector: true,
-      missingNodeType: true,
-      missingNodeValue: true,
-    },
-  }}
   isFullDisabled={false}
   showToolbar={true}
   showToolbarButtons={{
@@ -27,7 +15,6 @@ Example with initial object state and final nodes:
     showZoomInButton: true,
     showZoomToFitButton: true,
     showReorderNodesButton: true,
-    showValidateTreeButton: true,
     showUploadStateButton: true,
     showTakeScreenshotButton: true,
     showFullScreenButton: true,
@@ -184,18 +171,6 @@ Example with initial array state:
 ```js
 <ExpressionTreeEditor
   height={700}
-  reportErrorConfig={{
-    structureErrors: {
-      loop: true,
-      multiEdgeOnHoleConnector: true,
-      multiEdgeOnNodeConnector: true,
-    },
-    completenessErrors: {
-      emptyPieceConnector: true,
-      missingNodeType: true,
-      missingNodeValue: true,
-    },
-  }}
   isFullDisabled={false}
   showToolbar={true}
   showToolbarButtons={{
@@ -208,7 +183,6 @@ Example with initial array state:
     showZoomInButton: true,
     showZoomToFitButton: true,
     showReorderNodesButton: true,
-    showValidateTreeButton: true,
     showUploadStateButton: true,
     showTakeScreenshotButton: true,
     showFullScreenButton: true,
@@ -334,18 +308,6 @@ Example without initial state:
     loop: true,
     multiEdgeOnHoleConnector: true,
     multiEdgeOnNodeConnector: true,
-  }}
-  reportedErrors={{
-    structureErrors: {
-      loop: true,
-      multiEdgeOnHoleConnector: true,
-      multiEdgeOnNodeConnector: true,
-    },
-    completenessErrors: {
-      emptyPieceConnector: true,
-      missingNodeType: true,
-      missingNodeValue: true,
-    },
   }}
   connectorPlaceholder="#"
   nodeTypes={[
