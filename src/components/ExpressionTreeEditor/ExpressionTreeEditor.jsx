@@ -60,7 +60,6 @@ function ExpressionTreeEditor({
   showToolbarButtons,
   showDrawer,
   showDrawerSections,
-  reportErrorConfig,
   templateNodes: propTemplateNodes,
   allowFreeTypeUpdate,
   allowFreeValueUpdate,
@@ -86,7 +85,6 @@ function ExpressionTreeEditor({
   // onEdgeDelete,
   // onEdgeUpdate,
   // onEdgeSelect,
-  // onValidate,
   containerBorder,
   containerBorderRadius,
   containerBackgroundColor,
@@ -163,8 +161,6 @@ function ExpressionTreeEditor({
     updateLabelInputValue,
     updateTypeInputValue,
     updateValueInputValue,
-    isValidationDialogOpen,
-    validationErrors,
     currentError,
     undoState,
     redoState,
@@ -213,11 +209,6 @@ function ExpressionTreeEditor({
     updateNodeType,
     updateNodeValue,
     setOrderedNodes,
-    // Errors
-    closeValidationDialog,
-    setValidationErrors,
-    setPreviousError,
-    setNextError,
     // Undo - Redo
     undo,
     redo,
@@ -239,7 +230,6 @@ function ExpressionTreeEditor({
     computeEdgeChildCoordinates,
     computeEdgeParentCoordinates,
     reorderNodes,
-    validateTree,
     createNodeFromPieces,
   } = utils;
 
@@ -455,21 +445,6 @@ function ExpressionTreeEditor({
     });
   });
 
-  // --- Validation
-
-  const handleValidateTreeButtonAction = useCallback(() => {
-    if (selectedRootNode !== undefined && selectedRootNode !== null) {
-      const rootNode = nodes[selectedRootNode];
-      const [errors] = validateTree(
-        reportErrorConfig,
-        rootNode,
-        nodes,
-        edges,
-      );
-      setValidationErrors(errors);
-    }
-  });
-
   const handleUploadStateButtonAction = useCallback(({
     nodes: uploadNodes,
     edges: uploadEdges,
@@ -638,33 +613,6 @@ function ExpressionTreeEditor({
       }
     });
   }, [selectedEdge]);
-
-  useEffect(() => {
-    if (validationErrors.length > 0
-        && currentError !== undefined
-        && currentError !== null) {
-      const errorType = validationErrors[currentError].currentErrorLocation;
-      if (errorType.node
-          || errorType.pieceConnector
-          || errorType.nodeConnector) {
-        const currentNode = stageRef.current
-          .find('.Node')
-          .toArray()
-          .find(
-            (node) => node.attrs && node.attrs.id === errorType.nodeId,
-          );
-        currentNode.parent.moveToTop();
-      } else if (errorType.edge) {
-        const currentEdge = stageRef.current
-          .find('.Edge')
-          .toArray()
-          .find(
-            (edge) => edge.attrs && edge.attrs.id === errorType.edgeId,
-          );
-        currentEdge.moveToTop();
-      }
-    }
-  }, [validationErrors, currentError]);
 
   // Set the theme primary and secondary colors according to the received props
   const theme = useMemo(() => createMuiTheme({
@@ -1206,7 +1154,6 @@ function ExpressionTreeEditor({
           isFullDisabled={isFullDisabled}
           isDrawerOpen={isDrawerOpen}
           isFullScreen={isFullScreen}
-          isValidationDialogOpen={isValidationDialogOpen}
           isSelectedNodeEditable={isSelectedNodeEditable}
           createNodeInputValue={createNodeInputValue}
           updateLabelInputValue={updateLabelInputValue}
@@ -1222,10 +1169,8 @@ function ExpressionTreeEditor({
           templateNodeTypesAndValues={templateNodeTypesAndValues}
           hasStateToUndo={hasStateToUndo}
           hasStateToRedo={hasStateToRedo}
-          validationErrors={validationErrors}
           currentError={currentError}
           addEdgeErrorMessage={addEdgeErrorMessage}
-          closeValidationDialog={closeValidationDialog}
           toggleDrawer={toggleDrawer}
           toggleIsCreatingNode={toggleIsCreatingNode}
           toggleIsAddEdgeErrorSnackbarOpen={toggleIsAddEdgeErrorSnackbarOpen}
@@ -1242,12 +1187,9 @@ function ExpressionTreeEditor({
           handleZoomToFitButtonAction={handleZoomToFitButtonAction}
           handleZoomToActualSizeButtonAction={handleZoomToActualSizeButtonAction}
           handleReorderNodesButtonAction={handleReorderNodesButtonAction}
-          handleValidateTreeButtonAction={handleValidateTreeButtonAction}
           handleUploadStateButtonAction={handleUploadStateButtonAction}
           handleTakeScreenshotButtonAction={handleTakeScreenshotButtonAction}
           handleFullScreenButtonAction={handleFullScreenButtonAction}
-          setPreviousError={setPreviousError}
-          setNextError={setNextError}
           createNodeDescription={createNodeDescription}
           nodeFontSize={fontSize}
           nodeFontFamily={fontFamily}
@@ -1593,7 +1535,6 @@ ExpressionTreeEditor.propTypes = {
     showZoomToFitButton: PropTypes.bool,
     showZoomToAcualSizeButton: PropTypes.bool,
     showReorderNodesButton: PropTypes.bool,
-    showValidateTreeButton: PropTypes.bool,
     showUploadStateButton: PropTypes.bool,
     showTakeScreenshotButton: PropTypes.bool,
     showFullScreenButton: PropTypes.bool,
@@ -1646,7 +1587,6 @@ ExpressionTreeEditor.propTypes = {
   // onEdgeDelete: PropTypes.func,
   // onEdgeUpdate: PropTypes.func,
   // onEdgeSelect: PropTypes.func,
-  // onValidate: PropTypes.func,
   onStateChange: PropTypes.func,
 
   fontSize: PropTypes.number,
@@ -1777,18 +1717,6 @@ ExpressionTreeEditor.defaultProps = {
     multiEdgeOnNodeConnector: true,
   },
   isFullDisabled: false,
-  reportErrorConfig: {
-    structureErrors: {
-      loop: true,
-      multiEdgeOnHoleConnector: true,
-      multiEdgeOnNodeConnector: true,
-    },
-    completenessErrors: {
-      emptyPieceConnector: true,
-      missingNodeType: true,
-      missingNodeValue: true,
-    },
-  },
   showToolbar: true,
   showToolbarButtons: {
     showDrawerButton: true,
@@ -1801,7 +1729,6 @@ ExpressionTreeEditor.defaultProps = {
     showZoomToFitButton: true,
     showZoomToActualSizeButton: true,
     showReorderNodesButton: true,
-    showValidateTreeButton: true,
     showUploadStateButton: true,
     showTakeScreenshotButton: true,
     showFullScreenButton: true,
@@ -1839,7 +1766,6 @@ ExpressionTreeEditor.defaultProps = {
   // onEdgeDelete: null,
   // onEdgeUpdate: null,
   // onEdgeSelect: null,
-  // onValidate: null,
   onStateChange: null,
   fontSize: 24,
   fontFamily: 'Roboto Mono, Courier',

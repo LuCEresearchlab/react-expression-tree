@@ -76,8 +76,7 @@ function DialogEditorInfo({
           <br />
           <li>
             <b>Node double click: </b>
-            Select/Deselect a root node to
-            activate/deactivate the tree validation button.
+            Mark/Unmark a node as a root.
           </li>
           <br />
           <li>
@@ -85,12 +84,6 @@ function DialogEditorInfo({
             If a root node is selected, all its
             children nodes will be reordered as a tree, the remaining nodes
             will be reordered as compact rows.
-          </li>
-          <br />
-          <li>
-            <b>Tree validation: </b>
-            Select a root node to activate the
-            validation button for the tree starting at the selected root node.
           </li>
           <br />
           <li>

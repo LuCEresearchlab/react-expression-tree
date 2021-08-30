@@ -19,7 +19,6 @@ const height = 600;
       undo: true,
       redo: true,
       reorder: true,
-      validate: true,
       upload: true,
       screenshot: true,
       zoomIn: true,

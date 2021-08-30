@@ -551,34 +551,6 @@ const actions = [
       },
     }),
   },
-  // Errors
-  {
-    name: 'setValidationErrors',
-    action: (validationErrors) => ({
-      type: 'setValidationErrors',
-      payload: {
-        validationErrors,
-      },
-    }),
-  },
-  {
-    name: 'closeValidationDialog',
-    action: () => ({
-      type: 'closeValidationDialog',
-    }),
-  },
-  {
-    name: 'setPreviousError',
-    action: () => ({
-      type: 'setPreviousError',
-    }),
-  },
-  {
-    name: 'setNextError',
-    action: () => ({
-      type: 'setNextError',
-    }),
-  },
   // Undo - Redo
   {
     name: 'undo',

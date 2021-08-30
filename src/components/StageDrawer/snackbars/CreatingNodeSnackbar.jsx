@@ -9,7 +9,7 @@ import {
   Alert,
 } from '@material-ui/lab';
 
-function ValidationSnackbar({
+function CreatingNodeSnackbar({
   isCreatingNode,
   toggleIsCreatingNode,
 }) {
@@ -31,14 +31,14 @@ function ValidationSnackbar({
   );
 }
 
-ValidationSnackbar.propTypes = {
+CreatingNodeSnackbar.propTypes = {
   isCreatingNode: PropTypes.bool,
   toggleIsCreatingNode: PropTypes.func,
 };
 
-ValidationSnackbar.defaultProps = {
+CreatingNodeSnackbar.defaultProps = {
   isCreatingNode: false,
   toggleIsCreatingNode: () => {},
 };
 
-export default ValidationSnackbar;
+export default CreatingNodeSnackbar;

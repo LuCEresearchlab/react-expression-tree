@@ -2,14 +2,12 @@ import treeReducers from './treeEditorReducer';
 import globalsReducers from './globalsReducer';
 import strageReducers from './stageReducer';
 import drawerReducers from './drawerReducer';
-import errorsReducers from './errorsReducer';
 
 export const reducers = {
   ...globalsReducers,
   ...strageReducers,
   ...treeReducers,
   ...drawerReducers,
-  ...errorsReducers,
 };
 
 function reducer(state, action) {

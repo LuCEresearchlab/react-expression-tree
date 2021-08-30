@@ -37,9 +37,6 @@ export const defaultProps = {
   updateLabelInputValue: '',
   updateTypeInputValue: '',
   updateValueInputValue: '',
-  // Errors
-  isValidationDialogOpen: false,
-  validationErrors: [],
   currentError: undefined,
   // Undo - Redo
   undoState: [],
@@ -119,10 +116,6 @@ export const createInitialState = (
   updateLabelInputValue: defaultProps.updateLabelInputValue,
   updateTypeInputValue: defaultProps.updateTypeInputValue,
   updateValueInputValue: defaultProps.updateValueInputValue,
-  // Errors
-  isValidationDialogOpen: defaultProps.isValidationDialogOpen,
-  validationErrors: defaultProps.validationErrors,
-  currentError: defaultProps.currentError,
   // Undo - Redo
   undoState: defaultProps.undoState,
   redoState: defaultProps.redoState,
