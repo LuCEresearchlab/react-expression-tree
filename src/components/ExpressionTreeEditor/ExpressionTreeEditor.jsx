@@ -46,6 +46,7 @@ import useContainerWidthOnWindowResize from '../../hooks/useContainerWidthOnWind
 
 import { defaultProps } from '../../store/initialState';
 
+import FontFaceObserver from 'fontfaceobserver';
 import '@fontsource/roboto-mono/300.css';
 
 // Key used to store and retrieve metadata in PNG files.
@@ -234,6 +235,14 @@ function ExpressionTreeEditor({
   } = utils;
 
   const computeStageWidth = () => width || containerWidth;
+
+  const [robotoFontAvailable, setRobotoFontAvailable] = useState(false);
+  const fontFaceObserver = new FontFaceObserver('Roboto Mono');
+  useEffect(() => {
+    fontFaceObserver.load().then(() => {
+      setRobotoFontAvailable(true);
+    })
+  }, [robotoFontAvailable]);
 
   const handleUpdateLabelPiecesChange = useCallback(() => {
     const pieces = parseLabelPieces(updateLabelInputValue);
