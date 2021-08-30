@@ -85,7 +85,6 @@ function NodeTopConnector({
           strokeWidth={starStrokeWidth}
           draggable={!isFullDisabled}
           onMouseOver={handleMouseOver}
-          onTouchStart={handleNodeConnectorDragStart}
           onDragStart={handleNodeConnectorDragStart}
           onDragMove={handleConnectorDragMove}
           onDragEnd={handleConnectorDragEnd}
@@ -109,7 +108,6 @@ function NodeTopConnector({
           draggable={!isFullDisabled}
           onMouseOver={handleMouseOver}
           onDragStart={handleNodeConnectorDragStart}
-          onTouchStart={handleNodeConnectorDragStart}
           onDragMove={handleConnectorDragMove}
           onDragEnd={handleConnectorDragEnd}
           dragBoundFunc={() => circleRef.current.getAbsolutePosition()}

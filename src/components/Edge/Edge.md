@@ -17,6 +17,7 @@ const height = 50;
   >
     <Layer>
       <Edge
+        id="e1"
         childX={25}
         childY={25}
         parentX={100}

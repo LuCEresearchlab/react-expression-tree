@@ -97,7 +97,8 @@ function NodeLabel({
         <Group key={computePlaceholderPieceKey(i)}>
           <Rect
             ref={(element) => { rectRef.current[i] = element; }}
-            id={i}
+            id={`placeholder-${i}`}
+            plugId={i}
             x={positions[i].x}
             y={positions[i].y}
             width={placeholderWidth}
@@ -109,14 +110,14 @@ function NodeLabel({
             draggable={!isFullDisabled}
             onMouseOver={handleMouseOver}
             onDragStart={(e) => handlePlaceholderConnectorDragStart(e, nodeId)}
-            onTouchStart={(e) => handlePlaceholderConnectorDragStart(e, nodeId)}
             onDragMove={handleConnectorDragMove}
             onDragEnd={handleConnectorDragEnd}
             dragBoundFunc={() => rectRef.current[i].getAbsolutePosition()}
           />
           <Circle
             ref={(element) => { circleRef.current[i] = element; }}
-            id={i}
+            id={`placeholder-${i}`}
+            plugId={i}
             x={positions[i].circleX}
             y={positions[i].circleY}
             draggable={!isFullDisabled}
@@ -127,7 +128,6 @@ function NodeLabel({
             onMouseOver={handleMouseOver}
             visible={hasParentEdges[i]}
             onDragStart={(e) => handlePlaceholderConnectorDragStart(e, nodeId)}
-            onTouchStart={((e) => handlePlaceholderConnectorDragStart(e, nodeId))}
             onDragMove={handleConnectorDragMove}
             onDragEnd={handleConnectorDragEnd}
             dragBoundFunc={() => circleRef.current[i].getAbsolutePosition()}

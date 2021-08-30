@@ -26,7 +26,7 @@ const labelPiecesPosition = computeLabelPiecesXCoordinatePositions(labelPieces)
   >
     <Layer>
       <Node
-        id={1}
+        id={"n1"}
         labelPieces={labelPieces}
         labelPiecesPosition={labelPiecesPosition}
         positionX={25}

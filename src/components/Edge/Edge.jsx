@@ -155,7 +155,6 @@ function Edge({
         strokeWidth={childConnectorStrokeWidth}
         draggable={!isFullDisabled}
         onDragStart={handleNodeConnectorDragStart}
-        onTouchStart={handleNodeConnectorDragStart}
         onMouseOver={handleMouseOverCircle}
         onDragMove={handleConnectorDragMove}
         onDragEnd={handleConnectorDragEnd}
@@ -175,7 +174,6 @@ function Edge({
         strokeWidth={parentConnectorStrokeWidth}
         draggable={!isFullDisabled}
         onDragStart={handlePlaceholderConnectorDragStart}
-        onTouchStart={handleNodeConnectorDragStart}
         onMouseOver={handleMouseOverCircle}
         onDragMove={handleConnectorDragMove}
         onDragEnd={handleConnectorDragEnd}

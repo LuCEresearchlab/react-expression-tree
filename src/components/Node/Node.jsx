@@ -100,7 +100,7 @@ function Node({
       return;
     }
 
-    const pieceId = e.target.id();
+    const pieceId = e.target.getAttr('plugId');
     handleConnectorDragStart(
       true,
       nodeId,
@@ -204,11 +204,8 @@ function Node({
       onDblClick={handleNodeDblClick}
       onDblTap={handleNodeDblClick}
       onDragStart={handleNodeDragStart}
-      onTouchStart={handleNodeDragStart}
       onDragMove={handleNodeDragMove}
-      onTouchMove={handleNodeDragMove}
       onDragEnd={handleNodeDragEnd}
-      onTouchEnd={handleNodeDragEnd}
       dragBoundFunc={checkDragBound}
       onMouseOver={handleMouseOver}
       onMouseLeave={handleMouseLeave}

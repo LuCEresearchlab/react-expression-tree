@@ -72,7 +72,7 @@ function useStore({
 
   const templateNodesDescription = useMemo(() => {
     if (propTemplateNodes !== undefined && propTemplateNodes !== null) {
-      return propTemplateNodes.map(utils.createNodeFromPieces);
+      return propTemplateNodes.map((pieces) => utils.createNodeFromPieces(pieces));
     }
     return null;
   }, []);

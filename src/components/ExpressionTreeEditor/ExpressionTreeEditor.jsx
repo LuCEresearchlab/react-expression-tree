@@ -16,7 +16,7 @@ import fscreen from 'fscreen';
 
 import { addMetadataFromBase64DataURI } from 'meta-png';
 
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import Node from '../Node/Node';
 import Edge from '../Edge/Edge';
 import DragEdge from '../DragEdge/DragEdge';
@@ -492,7 +492,7 @@ function ExpressionTreeEditor({
   // Should be called with inverse is false (default behavior) before downloading,
   // and with inverse === true after the download to reset the status.
   const handlePrepareUIForImageDownload = useCallback((inverse = false) => {
-    stageRef.current.find('.deleteButton').visible(inverse);
+    stageRef.current.find('.deleteButton').forEach((shape) => shape.visible(inverse));
   });
 
   // downloading the image of the current visible stage portion
@@ -594,14 +594,14 @@ function ExpressionTreeEditor({
       templateNodesDescription.forEach((templateNode) => {
         // const node = createNodeStageRef.current.findOne(`#${templateNode.id}`);
         const node = createNodeStageRef.current.findOne((n) => {
-          console.log(n)
+          // console.log(n);
         });
         if (node) {
           const imageBase64 = node.toCanvas({
             pixelRatio: 2,
           }).toDataURL();
 
-          console.log(imageBase64);
+          // console.log(imageBase64);
         }
       });
     }
@@ -630,7 +630,7 @@ function ExpressionTreeEditor({
   }, [stagePos]);
 
   useEffect(() => {
-    stageRef.current.find('.Edge').toArray().forEach((edge) => {
+    stageRef.current.find('.Edge').forEach((edge) => {
       if (edge.attrs && edge.attrs.id === selectedEdge) {
         edge.moveToTop();
       } else {
@@ -649,7 +649,6 @@ function ExpressionTreeEditor({
           || errorType.nodeConnector) {
         const currentNode = stageRef.current
           .find('.Node')
-          .toArray()
           .find(
             (node) => node.attrs && node.attrs.id === errorType.nodeId,
           );
@@ -657,7 +656,6 @@ function ExpressionTreeEditor({
       } else if (errorType.edge) {
         const currentEdge = stageRef.current
           .find('.Edge')
-          .toArray()
           .find(
             (edge) => edge.attrs && edge.attrs.id === errorType.edgeId,
           );
@@ -667,7 +665,7 @@ function ExpressionTreeEditor({
   }, [validationErrors, currentError]);
 
   // Set the theme primary and secondary colors according to the received props
-  const theme = useMemo(() => createMuiTheme({
+  const theme = useMemo(() => createTheme({
     palette: {
       primary: { main: toolbarPrimaryColor },
       secondary: { main: toolbarSecondaryColor },
@@ -1131,18 +1129,6 @@ function ExpressionTreeEditor({
     }
   });
 
-  // Handle stage mouse up event adding/updating an edge if we were dragging a DragEdge,
-  // otherwise set up the multiple selection created dragging the selection rectangle
-  const handleStageMouseUp = (e) => {
-    e.cancelBubble = true;
-    if (isFullDisabled) {
-      return;
-    }
-    
-    const newStagePos = stageRef.current.absolutePosition();
-    setStagePos(newStagePos);
-  };
-
   // Handle stage click event, if the adding node button has been pressed,
   // add the new node at the clicked location, otherwise clear all selections
   const handleStageClick = () => {
@@ -1163,14 +1149,6 @@ function ExpressionTreeEditor({
       }
     }
   };
-
-  // Handle stage mouse down event if we are pressing a meta key,
-  // setting up the starting coordinates of the multiple selection rectangle
-  const handleStageMouseDown = useCallback((e) => {
-    if (isFullDisabled) {
-      return;
-    }
-  });
 
   // Handle stage drag move event, updating the stage position to the event coordinates
   const handleStageDragMove = (e) => {
@@ -1262,12 +1240,9 @@ function ExpressionTreeEditor({
             width={computeStageWidth()}
             height={height}
             style={{ cursor: isCreatingNode && 'crosshair' }}
-            onMouseUp={handleStageMouseUp}
-            onTouchEnd={handleStageMouseUp}
             onClick={handleStageClick}
-            onTouchStart={handleStageClick}
+            onTap={handleStageClick}
             draggable={!isFullDisabled}
-            onMouseDown={handleStageMouseDown}
             onDragStart={
               !isFullDisabled
               && (() => {
@@ -1278,6 +1253,8 @@ function ExpressionTreeEditor({
             onDragEnd={
               !isFullDisabled
               && (() => {
+                const newStagePos = stageRef.current.absolutePosition();
+                setStagePos(newStagePos);
                 setCursor('move');
               })
             }

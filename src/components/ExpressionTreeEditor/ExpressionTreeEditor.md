@@ -243,7 +243,7 @@ Example with initial array state:
   }}
   nodes={[
     {
-    "id": 1,
+    "id": "_1",
     "pieces": ["1"],
     "x": 424.597500066782,
     "y": 299,
@@ -253,7 +253,7 @@ Example with initial array state:
     "isFinal": false
     },
     {
-    "id": 2,
+    "id": "_2",
     "pieces": ["2"],
     "x": 553.9999470992326,
     "y": 300,
@@ -263,7 +263,7 @@ Example with initial array state:
     "isFinal": false
     },
     {
-    "id": 3,
+    "id": "_3",
     "pieces": ["3"],
     "x": 600.5999999999999,
     "y": 200,
@@ -273,7 +273,7 @@ Example with initial array state:
     "isFinal": false
     },
     {
-    "id": 4,
+    "id": "_4",
     "pieces": ["", "#", "+", "#", ""],
     "x": 460.99765625,
     "y": 200,
@@ -283,7 +283,7 @@ Example with initial array state:
     "isFinal": false
     },
     {
-    "id": 5,
+    "id": "_5",
     "pieces": ["", "#", "+", "#", ""],
     "x": 503.65468061056725,
     "y": 84.77273559570312,
@@ -295,28 +295,28 @@ Example with initial array state:
   ]}
   edges={[
     {
-      "parentNodeId": 4,
+      "parentNodeId": "_4",
       "parentPieceId": 1,
-      "childNodeId": 1,
-      "id": 5
+      "childNodeId": "_1",
+      "id": "e5"
     },
     {
-      "parentNodeId": 4,
+      "parentNodeId": "_4",
       "parentPieceId": 3,
-      "childNodeId": 2,
-      "id": 6
+      "childNodeId": "_2",
+      "id": "e6"
     },
     {
-      "parentNodeId": 5,
+      "parentNodeId": "_5",
       "parentPieceId": 1,
-      "childNodeId": 4,
-      "id": 7
+      "childNodeId": "_4",
+      "id": "e7"
     },
     {
-      "parentNodeId": 5,
+      "parentNodeId": "_5",
       "parentPieceId": 3,
-      "childNodeId": 3,
-      "id": 8
+      "childNodeId": "_3",
+      "id": "e8"
     }
   ]}
   stageScale={{x: 1.2, y: 1.2}}

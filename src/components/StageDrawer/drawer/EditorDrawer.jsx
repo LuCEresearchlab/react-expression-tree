@@ -328,7 +328,7 @@ function EditorDrawer({
                     {templateNodes.map((templateValue, i) => (
                       <AccordionDetails key={templateValue}>
                         <Typography
-                          id={i}
+                          id={`Template-${i}`}
                           className={classes.templateElement}
                           variant="h6"
                           onClick={() => handleTemplateClick(templateValue)}
