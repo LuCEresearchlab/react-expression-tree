@@ -572,9 +572,10 @@ function ExpressionTreeEditor({
 
   useEffect(() => {
     if (autolayout) {
-      handleReorderNodesButtonAction();
+      const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges);
+      handleReorderNodesButtonAction({ nodes: sanitizedNodes, edges: sanitizedEdges });
     }
-  }, []);
+  }, [propNodes, propEdges]);
 
   useEffect(() => {
     if (createNodeDescription && createNodeStageRef.current) {
