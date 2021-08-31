@@ -1058,7 +1058,6 @@ function ExpressionTreeEditor({
   }, [isEscapedKeyPressed]);
 
   const handleNodeClick = useCallback((e, nodeId) => {
-    e.cancelBubble = true;
     if (isFullDisabled) {
       return;
     }
@@ -1075,7 +1074,7 @@ function ExpressionTreeEditor({
     }
   });
 
-  const handleNodeDblClick = useCallback((nodeId) => {
+  const handleNodeDblClick = useCallback((e, nodeId) => {
     if (isFullDisabled) {
       return;
     }
@@ -1085,6 +1084,8 @@ function ExpressionTreeEditor({
     } else {
       setSelectedRootNode(nodeId);
     }
+
+    e.cancelBubble = true;
   });
 
   const handleEdgeClick = useCallback((e, edgeId) => {
@@ -1104,8 +1105,13 @@ function ExpressionTreeEditor({
 
   // Handle stage click event, if the adding node button has been pressed,
   // add the new node at the clicked location, otherwise clear all selections
-  const handleStageClick = () => {
+  const handleStageClick = (e) => {
     if (isFullDisabled) {
+      return;
+    }
+
+    // If the event is propagated from another target, return
+    if (e.target !== stageRef.current) {
       return;
     }
 
@@ -1335,7 +1341,7 @@ function ExpressionTreeEditor({
                   isHighlighted={nodes[id].isHighlighted}
                   isFullDisabled={isFullDisabled}
                   handleNodeClick={(e) => handleNodeClick(e, id)}
-                  handleNodeDblClick={() => handleNodeDblClick(id)}
+                  handleNodeDblClick={(e) => handleNodeDblClick(e, id)}
                   handleNodeDragStart={(e) => handleNodeDragStart(e, id)}
                   handleNodeDragMove={(e) => handleNodeDragMove(e, id)}
                   handleNodeDragEnd={(e) => handleNodeDragEnd(e, id)}
