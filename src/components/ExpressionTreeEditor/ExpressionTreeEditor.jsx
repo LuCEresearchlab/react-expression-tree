@@ -55,6 +55,7 @@ const ET_KEY = 'expressiontutor';
 function ExpressionTreeEditor({
   width,
   height,
+  autolayout,
   allowedErrors,
   isFullDisabled,
   showToolbar,
@@ -280,20 +281,6 @@ function ExpressionTreeEditor({
     updateNodeValue(value);
   });
 
-  const handleResetState = () => {
-    const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges);
-    stageReset({
-      nodes: sanitizedNodes,
-      selectedNode: propSelectedNode,
-      edges: sanitizedEdges,
-      selectedEdge: propSelectedEdge,
-      selectedRootNode: propSelectedRootNode,
-      stagePos: propStagePos || defaultProps.stagePos,
-      stageScale: propStageScale || defaultProps.stageScale,
-      connectorPlaceholder: propConnectorPlaceholder || defaultProps.connectorPlaceholder,
-    });
-  };
-
   // const hasStateToUndo = undoState.length > 0;
   // const hasStateToRedo = redoState.length > 0;
   const hasStateToUndo = false;
@@ -424,7 +411,7 @@ function ExpressionTreeEditor({
     });
   };
 
-  const handleReorderNodesButtonAction = useCallback(() => {
+  const handleReorderNodesButtonAction = useCallback((nds = nodes, edgs = edges) => {
     //TODO: Determine whether need to clone nodes before calling layout
     /*
     // Call old layout (reorder) code
@@ -434,15 +421,15 @@ function ExpressionTreeEditor({
       selectedRootNode,
     );
     */
-    const orderedNodes = nodes;
+    const orderedNodes = nds;
     const [diagramWidth, diagramHeight] = layout(
-      nodes,
-      edges,
+      nds,
+      edgs,
       selectedRootNode,
     );
     //console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
 
-    const orderedEdges = computeEdgesCoordinates(edges, orderedNodes);
+    const orderedEdges = computeEdgesCoordinates(edgs, orderedNodes);
     const position = { x: 0, y: 0 };
     const scale = { x: 1, y: 1 };
 
@@ -561,6 +548,30 @@ function ExpressionTreeEditor({
       updatedNode,
     };
   });
+
+  const handleResetState = () => {
+    const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges);
+    stageReset({
+      nodes: sanitizedNodes,
+      selectedNode: propSelectedNode,
+      edges: sanitizedEdges,
+      selectedEdge: propSelectedEdge,
+      selectedRootNode: propSelectedRootNode,
+      stagePos: propStagePos || defaultProps.stagePos,
+      stageScale: propStageScale || defaultProps.stageScale,
+      connectorPlaceholder: propConnectorPlaceholder || defaultProps.connectorPlaceholder,
+    });
+
+    if (autolayout) {
+      handleReorderNodesButtonAction(sanitizedNodes, sanitizedEdges);
+    }
+  };
+
+  useEffect(() => {
+    if (autolayout) {
+      handleReorderNodesButtonAction();
+    }
+  }, []);
 
   useEffect(() => {
     if (createNodeDescription && createNodeStageRef.current) {
@@ -1493,6 +1504,7 @@ function ExpressionTreeEditor({
 ExpressionTreeEditor.propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
+  autolayout: PropTypes.bool,
   allowedErrors: PropTypes.shape({
     loop: PropTypes.bool,
     multiEdgeOnHoleConnector: PropTypes.bool,
@@ -1699,6 +1711,7 @@ ExpressionTreeEditor.propTypes = {
 ExpressionTreeEditor.defaultProps = {
   width: null,
   height: '300px',
+  autolayout: false,
   allowedErrors: {
     loop: true,
     multiEdgeOnHoleConnector: true,

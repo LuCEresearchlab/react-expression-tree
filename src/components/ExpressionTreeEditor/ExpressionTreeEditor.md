@@ -3,6 +3,7 @@ Example with initial object state and final nodes:
 ```js
 <ExpressionTreeEditor
   height={700}
+  autolayout={true}
   isFullDisabled={false}
   showToolbar={true}
   showToolbarButtons={{
@@ -171,6 +172,7 @@ Example with initial array state:
 ```js
 <ExpressionTreeEditor
   height={700}
+  autolayout={true}
   isFullDisabled={false}
   showToolbar={true}
   showToolbarButtons={{
