@@ -411,7 +411,10 @@ function ExpressionTreeEditor({
     });
   };
 
-  const handleReorderNodesButtonAction = useCallback((nds = nodes, edgs = edges) => {
+  const handleReorderNodesButtonAction = useCallback((initialValue) => {
+    const tempNodes = initialValue && initialValue.nodes ? initialValue.nodes : nodes;
+    const tempEdges = initialValue && initialValue.edges ? initialValue.edges : edges;
+
     //TODO: Determine whether need to clone nodes before calling layout
     /*
     // Call old layout (reorder) code
@@ -421,15 +424,15 @@ function ExpressionTreeEditor({
       selectedRootNode,
     );
     */
-    const orderedNodes = nds;
+    const orderedNodes = tempNodes;
     const [diagramWidth, diagramHeight] = layout(
-      nds,
-      edgs,
+      tempNodes,
+      tempEdges,
       selectedRootNode,
     );
     //console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
 
-    const orderedEdges = computeEdgesCoordinates(edgs, orderedNodes);
+    const orderedEdges = computeEdgesCoordinates(tempEdges, orderedNodes);
     const position = { x: 0, y: 0 };
     const scale = { x: 1, y: 1 };
 
@@ -563,7 +566,7 @@ function ExpressionTreeEditor({
     });
 
     if (autolayout) {
-      handleReorderNodesButtonAction(sanitizedNodes, sanitizedEdges);
+      handleReorderNodesButtonAction({ nodes: sanitizedNodes, edges: sanitizedEdges });
     }
   };
 
