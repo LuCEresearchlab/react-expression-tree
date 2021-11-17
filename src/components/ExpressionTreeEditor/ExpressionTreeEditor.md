@@ -164,6 +164,12 @@ Example with initial object state and final nodes:
   selectedRootNode={'n0'}
   highlightedNodes={['n4', 'n5', 'does not exist', 'n6']}
   highlightedEdges={['e0', 'e1', 'e2']}
+  drawerPlaceholders={{
+    createNodeInputPlaceholder: 'Test placeholder {{}}',
+    editNodeInputPlaceholder: 'Edit this {{}}',
+    typeInputPlaceholder: 'Type',
+    valueInputPlaceholder: 'Value',
+  }}
 />
 ```
 

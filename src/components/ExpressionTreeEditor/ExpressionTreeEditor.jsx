@@ -103,6 +103,7 @@ function ExpressionTreeEditor({
   selectionRectangleStyle,
   toolbarPrimaryColor,
   toolbarSecondaryColor,
+  drawerPlaceholders
 }) {
   const containerRef = useRef();
   const containerWidth = useContainerWidthOnWindowResize(containerRef);
@@ -1223,6 +1224,7 @@ function ExpressionTreeEditor({
           nodePaddingX={nodePaddingX}
           nodePaddingY={nodePaddingY}
           nodeStyle={nodeStyle}
+          drawerPlaceholders={drawerPlaceholders}
         />
         <div>
           {/* Stage component containing the layer component */}
@@ -1739,6 +1741,12 @@ ExpressionTreeEditor.propTypes = {
   }),
   toolbarPrimaryColor: PropTypes.string,
   toolbarSecondaryColor: PropTypes.string,
+  drawerPlaceholders: PropTypes.shape({
+    createNodeInputPlaceholder: PropTypes.string,
+    editNodeInputPlaceholder: PropTypes.string,
+    typeInputPlaceholder: PropTypes.string,
+    valueInputPlaceholder: PropTypes.string,
+  }),
 };
 
 ExpressionTreeEditor.defaultProps = {
@@ -1817,6 +1825,7 @@ ExpressionTreeEditor.defaultProps = {
   selectionRectangleStyle: {},
   toolbarPrimaryColor: '#3F51B5',
   toolbarSecondaryColor: '#F44336',
+  drawerPlaceholders: {},
 };
 
 export default ExpressionTreeEditor;

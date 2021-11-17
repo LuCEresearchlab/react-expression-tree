@@ -162,6 +162,10 @@ function EditorDrawer({
   nodePaddingX,
   nodePaddingY,
   nodeStyle,
+  createNodeInputPlaceholder,
+  editNodeInputPlaceholder,
+  typeInputPlaceholder,
+  valueInputPlaceholder,
 }) {
   const classes = useStyles();
 
@@ -252,7 +256,7 @@ function EditorDrawer({
                     </InputAdornment>
                   )
                 }}
-                placeholder={`example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
+                placeholder={createNodeInputPlaceholder || `example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
                 margin="dense"
                 value={createNodeInputValue}
                 autoComplete="off"
@@ -383,7 +387,7 @@ function EditorDrawer({
                       </span>
                     </Tooltip>
                 }}
-                placeholder={`example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
+                placeholder={editNodeInputPlaceholder || `example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
                 value={updateLabelInputValue}
                 margin="dense"
                 autoComplete="off"
@@ -411,7 +415,7 @@ function EditorDrawer({
                     variant="outlined"
                     fullWidth
                     size="medium"
-                    placeholder="String"
+                    placeholder={typeInputPlaceholder}
                     margin="dense"
                     label="Type of this node"
                     InputLabelProps={{
@@ -456,7 +460,7 @@ function EditorDrawer({
                     variant="outlined"
                     fullWidth
                     size="medium"
-                    placeholder={'42, "Hello", ...'}
+                    placeholder={valueInputPlaceholder}
                     margin="dense"
                     label="Value of this node"
                     InputLabelProps={{
@@ -519,6 +523,11 @@ EditorDrawer.propTypes = {
   isDrawerOpen: PropTypes.bool,
   isCreatingNode: PropTypes.bool,
   isSelectedNodeEditable: PropTypes.bool,
+
+  createNodeInputPlaceholder: PropTypes.string,
+  editNodeInputPlaceholder: PropTypes.string,
+  typeInputPlaceholder: PropTypes.string,
+  valueInputPlaceholder: PropTypes.string,
 
   createNodeDescription: PropTypes.shape({
     height: PropTypes.number,
@@ -639,6 +648,11 @@ EditorDrawer.defaultProps = {
   nodePaddingX: 12,
   nodePaddingY: 12,
   nodeStyle: {},
+
+  createNodeInputPlaceholder: null,
+  editNodeInputPlaceholder: null,
+  typeInputPlaceholder: 'String, str, ...',
+  valueInputPlaceholder: '42, "Hello World", ...',
 };
 
 export default EditorDrawer;

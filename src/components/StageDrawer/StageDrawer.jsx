@@ -63,6 +63,7 @@ function StageDrawer({
   nodePaddingX,
   nodePaddingY,
   nodeStyle,
+  drawerPlaceholders,
 }) {
   const [isDialogConfigResetOpen, setIsDialogConfigResetOpen] = useState(false);
   const [isDialogEditorInfoOpen, setIsDialogEditorInfoOpen] = useState(false);
@@ -159,6 +160,10 @@ function StageDrawer({
               nodePaddingX={nodePaddingX}
               nodePaddingY={nodePaddingY}
               nodeStyle={nodeStyle}
+              createNodeInputPlaceholder={drawerPlaceholders.createNodeInputPlaceholder}
+              editNodeInputPlaceholder={drawerPlaceholders.editNodeInputPlaceholder}
+              typeInputPlaceholder={drawerPlaceholders.typeInputPlaceholder}
+              valueInputPlaceholder={drawerPlaceholders.valueInputPlaceholder}
             />
           )}
           <DialogConfirmReset
@@ -328,6 +333,12 @@ StageDrawer.propTypes = {
       pointerHeight: PropTypes.number,
     }),
   }),
+  drawerPlaceholders: PropTypes.shape({
+    createNodeInputPlaceholder: PropTypes.string,
+    editNodeInputPlaceholder: PropTypes.string,
+    typeInputPlaceholder: PropTypes.string,
+    valueInputPlaceholder: PropTypes.string,
+  }),
 };
 
 StageDrawer.defaultProps = {
@@ -405,6 +416,7 @@ StageDrawer.defaultProps = {
   nodePaddingX: 12,
   nodePaddingY: 12,
   nodeStyle: {},
+  drawerPlaceholders: {},
 };
 
 export default StageDrawer;
