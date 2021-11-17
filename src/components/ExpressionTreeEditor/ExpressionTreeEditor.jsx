@@ -53,6 +53,7 @@ import '@fontsource/roboto-mono/300.css';
 const ET_KEY = 'expressiontutor';
 
 function ExpressionTreeEditor({
+  reference,
   width,
   height,
   autolayout,
@@ -214,6 +215,11 @@ function ExpressionTreeEditor({
     // Undo - Redo
     undo,
     redo,
+    // Utility
+    resetEdges,
+    resetTypeLabels,
+    resetValueLabels,
+    resetRootNode,
   } = actions;
 
   const {
@@ -235,6 +241,17 @@ function ExpressionTreeEditor({
     createNodeFromPieces,
   } = utils;
 
+  useEffect(() => {
+    if (reference) {
+      reference.current = {
+        resetEdges,
+        resetTypeLabels,
+        resetValueLabels,
+        resetRootNode,
+      };
+    }
+  }, []);
+
   const computeStageWidth = () => width || containerWidth;
 
   const [robotoFontAvailable, setRobotoFontAvailable] = useState(false);
@@ -242,7 +259,7 @@ function ExpressionTreeEditor({
   useEffect(() => {
     fontFaceObserver.load().then(() => {
       setRobotoFontAvailable(true);
-    })
+    });
   }, [robotoFontAvailable]);
 
   const handleUpdateLabelPiecesChange = useCallback(() => {
@@ -1512,6 +1529,12 @@ function ExpressionTreeEditor({
 }
 
 ExpressionTreeEditor.propTypes = {
+  reference: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({
+      current: PropTypes.any,
+    }),
+  ]),
   width: PropTypes.number,
   height: PropTypes.number,
   autolayout: PropTypes.bool,
@@ -1719,6 +1742,7 @@ ExpressionTreeEditor.propTypes = {
 };
 
 ExpressionTreeEditor.defaultProps = {
+  reference: null,
   width: null,
   height: '300px',
   autolayout: false,

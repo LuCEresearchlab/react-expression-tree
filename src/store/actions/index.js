@@ -564,6 +564,31 @@ const actions = [
       type: 'redo',
     }),
   },
+  // Utility
+  {
+    name: 'resetEdges',
+    action: () => ({
+      type: 'resetEdges',
+    }),
+  },
+  {
+    name: 'resetTypeLabels',
+    action: () => ({
+      type: 'resetTypeLabels',
+    }),
+  },
+  {
+    name: 'resetValueLabels',
+    action: () => ({
+      type: 'resetValueLabels',
+    }),
+  },
+  {
+    name: 'resetRootNode',
+    action: () => ({
+      type: 'resetRootNode',
+    }),
+  },
 ];
 
 export default actions;
