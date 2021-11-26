@@ -1,8 +1,20 @@
 const reducers = {
-  resetEdges: (state) => ({
-    ...state,
-    edges: {},
-  }),
+  resetEdges: (state) => {
+    const { nodes } = state;
+    const updatedNodes = Object.entries(nodes).reduce((accumulator, [key, value]) => {
+      accumulator[key] = {
+        ...value,
+        childEdges: [],
+        parentEdges: value.piecesPosition.map(() => []),
+      };
+      return accumulator;
+    }, {});
+    return {
+      ...state,
+      nodes: updatedNodes,
+      edges: {},
+    };
+  },
 
   resetTypeLabels: (state) => {
     const { nodes } = state;
