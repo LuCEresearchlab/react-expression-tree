@@ -1107,9 +1107,9 @@ function ExpressionTreeEditor({
   useEffect(() => {
     if (isBackpasceOrDeleteKeyPressed) {
       if (selectedNode !== null && selectedNode !== undefined) {
-        if (!nodes[selectedNode].editable.delete) {
-          removeNode(selectedNode);
-        }
+        // if (nodes[selectedNode].editable.delete) {
+        //   removeNode(selectedNode);
+        // }
       } else if (selectedEdge !== null && selectedEdge !== undefined) {
         removeEdge(selectedEdge);
       }
