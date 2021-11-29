@@ -519,7 +519,7 @@ function EditorDrawer({
           && (
           <>
             <div className={classes.drawerInfo}>
-              <Typography variant="h6">Edit an existing editability:</Typography>
+              <Typography variant="h6">Edit node editability:</Typography>
             </div>
             <div className={classes.drawerField}>
               <div>

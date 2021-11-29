@@ -59,7 +59,7 @@ function NodeDeleteButton({
   const cross = (radius - 2 * strokeWidth) / Math.sqrt(2);
   return (
     <Group>
-      { !editableDelete && !isFullDisabled && isSelected && (
+      { editableDelete && !isFullDisabled && isSelected && (
         <>
           <Circle
             x={nodeWidth}
