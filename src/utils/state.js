@@ -48,11 +48,16 @@ export function createEmptyNode(id) {
     piecesPosition: [0],
     type: '',
     value: '',
-    isFinal: false,
     isSelected: false,
     isHighlighted: false,
     childEdges: [],
     parentEdges: [[]],
+    editable: {
+      label: true,
+      type: true,
+      value: true,
+      delete: true,
+    },
   };
 }
 

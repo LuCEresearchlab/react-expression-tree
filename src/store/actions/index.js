@@ -20,10 +20,10 @@ const actions = [
       height,
       type,
       value,
-      isFinal,
       isSelected,
       childEdges,
       parentEdges,
+      editable,
     }) => ({
       type: 'createNode',
       payload: {
@@ -36,10 +36,10 @@ const actions = [
         height,
         type,
         value,
-        isFinal,
         isSelected,
         childEdges,
         parentEdges,
+        editable,
       },
     }),
   },
@@ -287,6 +287,25 @@ const actions = [
       payload: {
         x,
         y,
+      },
+    }),
+  },
+  {
+    name: 'setNodeEditability',
+    action: ({
+      nodeId,
+      allowLabel,
+      allowDelete,
+      allowValue,
+      allowType,
+    }) => ({
+      type: 'setNodeEditability',
+      payload: {
+        nodeId,
+        allowLabel,
+        allowDelete,
+        allowValue,
+        allowType,
       },
     }),
   },

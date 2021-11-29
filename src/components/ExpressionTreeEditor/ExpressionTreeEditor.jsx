@@ -182,6 +182,7 @@ function ExpressionTreeEditor({
     updateChildEdge,
     updateParentEdge,
     clearDragEdge,
+    setNodeEditability,
 
     // Global
     setIsDraggingNode,
@@ -530,6 +531,58 @@ function ExpressionTreeEditor({
     } else {
       fscreen.exitFullscreen();
       toggleFullScreen();
+    }
+  });
+
+  const handleSelectedNodeEditableLabelChange = useCallback(({ target }) => {
+    const { checked } = target;
+    if (selectedNode) {
+      setNodeEditability({
+        nodeId: selectedNode,
+        allowLabel: checked,
+        allowValue: nodes[selectedNode].editable.value,
+        allowType: nodes[selectedNode].editable.type,
+        allowDelete: nodes[selectedNode].editable.delete,
+      });
+    }
+  });
+
+  const handleSelectedNodeEditableDeleteChange = useCallback(({ target }) => {
+    const { checked } = target;
+    if (selectedNode) {
+      setNodeEditability({
+        nodeId: selectedNode,
+        allowLabel: nodes[selectedNode].editable.label,
+        allowValue: nodes[selectedNode].editable.value,
+        allowType: nodes[selectedNode].editable.type,
+        allowDelete: checked,
+      });
+    }
+  });
+
+  const handleSelectedNodeEditableTypeChange = useCallback(({ target }) => {
+    const { checked } = target;
+    if (selectedNode) {
+      setNodeEditability({
+        nodeId: selectedNode,
+        allowLabel: nodes[selectedNode].editable.label,
+        allowValue: nodes[selectedNode].editable.value,
+        allowType: checked,
+        allowDelete: nodes[selectedNode].editable.delete,
+      });
+    }
+  });
+
+  const handleSelectedNodeEditableValueChange = useCallback(({ target }) => {
+    const { checked } = target;
+    if (selectedNode) {
+      setNodeEditability({
+        nodeId: selectedNode,
+        allowLabel: nodes[selectedNode].editable.label,
+        allowValue: checked,
+        allowType: nodes[selectedNode].editable.type,
+        allowDelete: nodes[selectedNode].editable.delete,
+      });
     }
   });
 
@@ -1054,10 +1107,9 @@ function ExpressionTreeEditor({
   useEffect(() => {
     if (isBackpasceOrDeleteKeyPressed) {
       if (selectedNode !== null && selectedNode !== undefined) {
-        // TODO cannot remove with delete
-        // if (!nodes[selectedNode].isFinal) {
-        //   removeNode(selectedNode);
-        // }
+        if (!nodes[selectedNode].editable.delete) {
+          removeNode(selectedNode);
+        }
       } else if (selectedEdge !== null && selectedEdge !== undefined) {
         removeEdge(selectedEdge);
       }
@@ -1218,6 +1270,10 @@ function ExpressionTreeEditor({
           handleUploadStateButtonAction={handleUploadStateButtonAction}
           handleTakeScreenshotButtonAction={handleTakeScreenshotButtonAction}
           handleFullScreenButtonAction={handleFullScreenButtonAction}
+          handleSelectedNodeEditableLabelChange={handleSelectedNodeEditableLabelChange}
+          handleSelectedNodeEditableDeleteChange={handleSelectedNodeEditableDeleteChange}
+          handleSelectedNodeEditableTypeChange={handleSelectedNodeEditableTypeChange}
+          handleSelectedNodeEditableValueChange={handleSelectedNodeEditableValueChange}
           createNodeDescription={createNodeDescription}
           nodeFontSize={fontSize}
           nodeFontFamily={fontFamily}
@@ -1355,7 +1411,10 @@ function ExpressionTreeEditor({
                   removeNode={removeNode}
                   setCursor={setCursor}
                   isDraggingSelectionRect={isDraggingSelectionRect}
-                  isFinal={nodes[id].isFinal}
+                  editableLabel={nodes[id].editable.label}
+                  editableType={nodes[id].editable.type}
+                  editableValue={nodes[id].editable.value}
+                  editableDelete={nodes[id].editable.delete}
                   isSelected={id === selectedNode}
                   isSelectedRoot={id === selectedRootNode}
                   isHighlighted={nodes[id].isHighlighted}
@@ -1463,7 +1522,6 @@ function ExpressionTreeEditor({
                 nodeHeight={createNodeDescription.height}
                 childEdges={createNodeDescription.childEdges}
                 parentEdges={createNodeDescription.parentEdges}
-                isFinal={createNodeDescription.isFinal}
                 isSelected={createNodeDescription.isSelected}
                 connectorPlaceholder={connectorPlaceholder}
                 fontSize={fontSize}
@@ -1500,7 +1558,6 @@ function ExpressionTreeEditor({
                 nodeHeight={templateNode.height}
                 childEdges={templateNode.childEdges}
                 parentEdges={templateNode.parentEdges}
-                isFinal={templateNode.isFinal}
                 isSelected={templateNode.isSelected}
                 connectorPlaceholder={connectorPlaceholder}
                 fontSize={fontSize}
@@ -1581,6 +1638,7 @@ ExpressionTreeEditor.propTypes = {
     editLabelField: PropTypes.bool,
     editValueField: PropTypes.bool,
     editTypeField: PropTypes.bool,
+    editFinalNodeField: PropTypes.bool,
   }),
   templateNodes: PropTypes.arrayOf(PropTypes.string),
   allowFreeTypeUpdate: PropTypes.bool,
@@ -1593,7 +1651,12 @@ ExpressionTreeEditor.propTypes = {
     y: PropTypes.number,
     type: PropTypes.string,
     value: PropTypes.string,
-    isFinal: PropTypes.bool,
+    editable: PropTypes.shape({
+      label: PropTypes.bool,
+      type: PropTypes.bool,
+      value: PropTypes.bool,
+      delete: PropTypes.bool,
+    }),
   })),
   selectedNode: PropTypes.number,
   edges: PropTypes.objectOf(PropTypes.shape({
@@ -1783,6 +1846,7 @@ ExpressionTreeEditor.defaultProps = {
     editLabelField: true,
     editValueField: true,
     editTypeField: true,
+    editFinalNodeField: false,
   },
   templateNodes: undefined,
   allowFreeTypeUpdate: true,

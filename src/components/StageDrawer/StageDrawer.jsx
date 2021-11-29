@@ -57,6 +57,10 @@ function StageDrawer({
   handleUploadStateButtonAction,
   handleTakeScreenshotButtonAction,
   handleFullScreenButtonAction,
+  handleSelectedNodeEditableLabelChange,
+  handleSelectedNodeEditableDeleteChange,
+  handleSelectedNodeEditableTypeChange,
+  handleSelectedNodeEditableValueChange,
   createNodeDescription,
   nodeFontSize,
   nodeFontFamily,
@@ -144,6 +148,10 @@ function StageDrawer({
               handleUpdateLabelPiecesChange={handleUpdateLabelPiecesChange}
               handleUpdateNodeTypeChange={handleUpdateNodeTypeChange}
               handleUpdateNodeValueChange={handleUpdateNodeValueChange}
+              handleSelectedNodeEditableLabelChange={handleSelectedNodeEditableLabelChange}
+              handleSelectedNodeEditableDeleteChange={handleSelectedNodeEditableDeleteChange}
+              handleSelectedNodeEditableTypeChange={handleSelectedNodeEditableTypeChange}
+              handleSelectedNodeEditableValueChange={handleSelectedNodeEditableValueChange}
               templateNodeTypesAndValues={templateNodeTypesAndValues}
               createNodeInputValue={createNodeInputValue}
               updateLabelInputValue={updateLabelInputValue}
@@ -206,6 +214,7 @@ StageDrawer.propTypes = {
     label: PropTypes.bool,
     type: PropTypes.bool,
     value: PropTypes.bool,
+    delete: PropTypes.bool,
   }),
   createNodeInputValue: PropTypes.string,
   updateLabelInputValue: PropTypes.string,
@@ -234,6 +243,7 @@ StageDrawer.propTypes = {
     editLabelField: PropTypes.bool,
     editValueField: PropTypes.bool,
     editTypeField: PropTypes.bool,
+    editFinalNodeField: PropTypes.bool,
   }),
   templateNodes: PropTypes.arrayOf(PropTypes.string),
   allowFreeTypeUpdate: PropTypes.bool,
@@ -262,6 +272,10 @@ StageDrawer.propTypes = {
   handleUploadStateButtonAction: PropTypes.func,
   handleTakeScreenshotButtonAction: PropTypes.func,
   handleFullScreenButtonAction: PropTypes.func,
+  handleSelectedNodeEditableLabelChange: PropTypes.func,
+  handleSelectedNodeEditableDeleteChange: PropTypes.func,
+  handleSelectedNodeEditableTypeChange: PropTypes.func,
+  handleSelectedNodeEditableValueChange: PropTypes.func,
   createNodeDescription: PropTypes.shape({
     height: PropTypes.number,
     width: PropTypes.number,
@@ -269,7 +283,6 @@ StageDrawer.propTypes = {
     piecesPosition: PropTypes.arrayOf(PropTypes.number),
     type: PropTypes.string,
     value: PropTypes.string,
-    isFinal: PropTypes.bool,
     isSelected: PropTypes.bool,
   }),
   nodeFontSize: PropTypes.number,
@@ -350,11 +363,7 @@ StageDrawer.defaultProps = {
   isFullDisabled: false,
   isDrawerOpen: true,
   isFullScreen: false,
-  isSelectedNodeEditable: {
-    label: false,
-    type: false,
-    value: false,
-  },
+  isSelectedNodeEditable: undefined,
   createNodeInputValue: '',
   updateLabelInputValue: '',
   updateTypeInputValue: '',
@@ -382,6 +391,7 @@ StageDrawer.defaultProps = {
     editLabelField: true,
     editValueField: true,
     editTypeField: true,
+    editFinalNodeField: false,
   },
   templateNodes: undefined,
   allowFreeTypeUpdate: true,
@@ -410,6 +420,10 @@ StageDrawer.defaultProps = {
   handleUploadStateButtonAction: () => {},
   handleTakeScreenshotButtonAction: () => {},
   handleFullScreenButtonAction: () => {},
+  handleSelectedNodeEditableLabelChange: () => {},
+  handleSelectedNodeEditableDeleteChange: () => {},
+  handleSelectedNodeEditableTypeChange: () => {},
+  handleSelectedNodeEditableValueChange: () => {},
   createNodeDescription: undefined,
   nodeFontSize: 24,
   nodeFontFamily: 'Roboto Mono, Courier',

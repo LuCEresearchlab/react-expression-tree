@@ -26,7 +26,7 @@ const reducers = {
       height,
       type,
       value,
-      isFinal,
+      editable,
       isSelected,
       childEdges,
       parentEdges,
@@ -48,7 +48,7 @@ const reducers = {
           height,
           type,
           value,
-          isFinal,
+          editable,
           isSelected,
           childEdges,
           parentEdges,
@@ -153,11 +153,7 @@ const reducers = {
         ...updatedNodes,
       },
       edges: newEdges,
-      isSelectedNodeEditable: selectedNode ? {
-        label: false,
-        type: false,
-        value: false,
-      } : isSelectedNodeEditable,
+      isSelectedNodeEditable: selectedNode ? undefined : isSelectedNodeEditable,
       updateLabelInputValue: selectedNode ? '' : updateLabelInputValue,
       updateTypeInputValue: selectedNode ? '' : updateTypeInputValue,
       updateValueInputValue: selectedNode ? '' : updateValueInputValue,
@@ -333,9 +329,10 @@ const reducers = {
     const { nodes } = state;
     const node = nodes[selectedNode];
     const isSelectedNodeEditable = {
-      label: !node.isFinal,
-      type: true,
-      value: true,
+      label: node.editable.label,
+      type: node.editable.type,
+      value: node.editable.value,
+      delete: node.editable.delete,
     };
 
     return {
@@ -352,11 +349,7 @@ const reducers = {
   clearSelectedNode: (state) => ({
     ...state,
     selectedNode: undefined,
-    isSelectedNodeEditable: {
-      label: false,
-      type: false,
-      value: false,
-    },
+    isSelectedNodeEditable: undefined,
     updateLabelInputValue: '',
     updateTypeInputValue: '',
     updateValueInputValue: '',
@@ -664,11 +657,7 @@ const reducers = {
       ...state,
       selectedEdge,
       selectedNode: undefined,
-      isSelectedNodeEditable: {
-        label: false,
-        type: false,
-        value: false,
-      },
+      isSelectedNodeEditable: undefined,
       updateLabelInputValue: '',
       updateTypeInputValue: '',
       updateValueInputValue: '',
@@ -816,9 +805,10 @@ const reducers = {
     const { nodes } = state;
     const node = nodes[nodeId];
     const isSelectedNodeEditable = {
-      label: !node.isFinal,
-      type: true,
-      value: true,
+      label: node.editable.label,
+      type: node.editable.type,
+      value: node.editable.value,
+      delete: node.editable.delete,
     };
 
     return {
@@ -830,6 +820,41 @@ const reducers = {
       updateLabelInputValue: node.pieces.join(''),
       updateTypeInputValue: node.type,
       updateValueInputValue: node.value,
+    };
+  },
+
+  setNodeEditability: (state, payload) => {
+    const {
+      nodeId,
+      allowLabel,
+      allowDelete,
+      allowValue,
+      allowType,
+    } = payload;
+
+    const { nodes, selectedNode } = state;
+    const node = nodes[nodeId];
+    const editable = {
+      label: allowLabel,
+      type: allowType,
+      value: allowValue,
+      delete: allowDelete,
+    };
+
+    const isSelectedNodeEditable = nodeId === selectedNode
+      ? editable
+      : nodes[selectedNode].editable;
+
+    return {
+      ...state,
+      isSelectedNodeEditable,
+      nodes: {
+        ...nodes,
+        [nodeId]: {
+          ...node,
+          editable,
+        },
+      },
     };
   },
 };

@@ -391,7 +391,6 @@ const createPositionUtils = (
         y,
         type,
         value,
-        isFinal,
       } = node;
 
       objectNodes[id] = {
@@ -400,7 +399,6 @@ const createPositionUtils = (
         y,
         type,
         value,
-        isFinal,
         pieces,
       };
     });

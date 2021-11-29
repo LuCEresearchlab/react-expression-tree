@@ -12,7 +12,10 @@ function NodeDeleteButton({
   nodeWidth,
   // nodeHeight,
   isSelected,
-  isFinal,
+  editableLabel,
+  editableType,
+  editableValue,
+  editableDelete,
   isFullDisabled,
   isDraggingSelectionRect,
   removeNode,
@@ -56,7 +59,7 @@ function NodeDeleteButton({
   const cross = (radius - 2 * strokeWidth) / Math.sqrt(2);
   return (
     <Group>
-      { !isFinal && !isFullDisabled && isSelected && (
+      { !editableDelete && !isFullDisabled && isSelected && (
         <>
           <Circle
             x={nodeWidth}
@@ -98,8 +101,11 @@ NodeDeleteButton.propTypes = {
   nodeId: PropTypes.number.isRequired,
   nodeWidth: PropTypes.number.isRequired,
   nodeHeight: PropTypes.number.isRequired,
+  editableLabel: PropTypes.bool,
+  editableType: PropTypes.bool,
+  editableValue: PropTypes.bool,
+  editableDelete: PropTypes.bool,
   isSelected: PropTypes.bool,
-  isFinal: PropTypes.bool,
   isFullDisabled: PropTypes.bool,
   isDraggingSelectionRect: PropTypes.bool,
   removeNode: PropTypes.func,
@@ -114,8 +120,11 @@ NodeDeleteButton.propTypes = {
 };
 
 NodeDeleteButton.defaultProps = {
+  editableLabel: false,
+  editableType: false,
+  editableValue: false,
+  editableDelete: false,
   isSelected: false,
-  isFinal: false,
   isFullDisabled: false,
   isDraggingSelectionRect: false,
   removeNode: () => {},

@@ -34,7 +34,10 @@ function Node({
   removeNode,
   setCursor,
   isDraggingSelectionRect,
-  isFinal,
+  editableLabel,
+  editableType,
+  editableValue,
+  editableDelete,
   isSelected,
   isSelectedRoot,
   isHighlighted,
@@ -168,7 +171,7 @@ function Node({
     if (isHighlighted) {
       return highlightColor;
     }
-    if (isFinal) {
+    if (!editableLabel || !editableType || !editableValue || !editableDelete) {
       return finalColor;
     }
     return defaultColor;
@@ -289,7 +292,10 @@ function Node({
         nodeWidth={nodeWidth}
         nodeHeight={nodeHeight}
         isSelected={isSelected}
-        isFinal={isFinal}
+        editableLabel={editableLabel}
+        editableType={editableType}
+        editableValue={editableValue}
+        editableDelete={editableDelete}
         isFullDisabled={isFullDisabled}
         isDraggingSelectionRect={isDraggingSelectionRect}
         removeNode={removeNode}
@@ -350,7 +356,10 @@ Node.propTypes = {
   removeNode: PropTypes.func,
   setCursor: PropTypes.func,
   isDraggingSelectionRect: PropTypes.bool,
-  isFinal: PropTypes.bool,
+  editableLabel: PropTypes.bool,
+  editableType: PropTypes.bool,
+  editableValue: PropTypes.bool,
+  editableDelete: PropTypes.bool,
   isSelected: PropTypes.bool,
   isSelectedRoot: PropTypes.bool,
   isHighlighted: PropTypes.bool,
@@ -434,7 +443,10 @@ Node.defaultProps = {
   parentEdges: [],
   currentErrorLocation: null,
   isDraggingSelectionRect: false,
-  isFinal: false,
+  editableLabel: false,
+  editableType: false,
+  editableValue: false,
+  editableDelete: false,
   isSelected: false,
   isSelectedRoot: false,
   isHighlighted: false,

@@ -17,6 +17,9 @@ import {
   AccordionActions,
   FormLabel,
   Tooltip,
+  Switch,
+  FormControlLabel,
+  FormGroup,
 } from '@material-ui/core';
 
 import {
@@ -144,6 +147,10 @@ function EditorDrawer({
   handleUpdateLabelPiecesChange,
   handleUpdateNodeTypeChange,
   handleUpdateNodeValueChange,
+  handleSelectedNodeEditableLabelChange,
+  handleSelectedNodeEditableDeleteChange,
+  handleSelectedNodeEditableTypeChange,
+  handleSelectedNodeEditableValueChange,
   allowFreeTypeUpdate,
   allowFreeValueUpdate,
   templateNodeTypesAndValues,
@@ -254,7 +261,7 @@ function EditorDrawer({
                         </span>
                       </Tooltip>
                     </InputAdornment>
-                  )
+                  ),
                 }}
                 placeholder={createNodeInputPlaceholder || `example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
                 margin="dense"
@@ -287,9 +294,12 @@ function EditorDrawer({
                       nodeHeight={createNodeDescription.height}
                       childEdges={createNodeDescription.childEdges}
                       parentEdges={createNodeDescription.parentEdges}
-                      isFinal={createNodeDescription.isFinal}
                       isSelected={createNodeDescription.isSelected}
                       connectorPlaceholder={connectorPlaceholder}
+                      editableLabel
+                      editableType
+                      editableValue
+                      editableDelete
                       fontSize={nodeFontSize}
                       fontFamily={nodeFontFamily}
                       nodePaddingX={nodePaddingX}
@@ -347,9 +357,11 @@ function EditorDrawer({
             </div>
           </div>
         )}
-        {(isSelectedNodeEditable.label
-          || isSelectedNodeEditable.type
-          || isSelectedNodeEditable.value)
+        {(isSelectedNodeEditable && (
+          isSelectedNodeEditable.label
+            || isSelectedNodeEditable.type
+            || isSelectedNodeEditable.value
+        ))
           && (showDrawerSections.editLabelField
             || showDrawerSections.editTypeField
             || showDrawerSections.editValueField) && (
@@ -357,54 +369,57 @@ function EditorDrawer({
               <Typography variant="h6">Edit an existing node:</Typography>
             </div>
         )}
-        {showDrawerSections.editLabelField && isSelectedNodeEditable.label && (
-          <>
-            <div className={classes.drawerField}>
-              <TextField
-                className={classes.textField}
-                variant="outlined"
-                fullWidth
-                size="medium"
-                label="Structure of this node"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  className: classes.input,
-                  classes: {
-                    adornedEnd: classes.endAdornment
-                  },
-                  endAdornment:
-                    <Tooltip title="Confirm change" placement="right">
-                      <span>
-                        <IconButton
-                          size="medium"
-                          color="primary"
-                          onClick={handleUpdateLabelPiecesChange}
-                        >
-                          <Check />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                }}
-                placeholder={editNodeInputPlaceholder || `example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
-                value={updateLabelInputValue}
-                margin="dense"
-                autoComplete="off"
-                onChange={(e) => setUpdateLabelInputValue(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleUpdateLabelPiecesChange(e.target.value);
-                  }
-                }}
-              />
-              <div>
-                
+        {
+          showDrawerSections.editLabelField
+            && isSelectedNodeEditable
+            && isSelectedNodeEditable.label && (
+            <>
+              <div className={classes.drawerField}>
+                <TextField
+                  className={classes.textField}
+                  variant="outlined"
+                  fullWidth
+                  size="medium"
+                  label="Structure of this node"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    className: classes.input,
+                    classes: {
+                      adornedEnd: classes.endAdornment
+                    },
+                    endAdornment:
+                      <Tooltip title="Confirm change" placement="right">
+                        <span>
+                          <IconButton
+                            size="medium"
+                            color="primary"
+                            onClick={handleUpdateLabelPiecesChange}
+                          >
+                            <Check />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                  }}
+                  placeholder={editNodeInputPlaceholder || `example: ${connectorPlaceholder} + ${connectorPlaceholder}`}
+                  value={updateLabelInputValue}
+                  margin="dense"
+                  autoComplete="off"
+                  onChange={(e) => setUpdateLabelInputValue(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleUpdateLabelPiecesChange(e.target.value);
+                    }
+                  }}
+                />
               </div>
-            </div>
-          </>
+            </>
         )}
-        {showDrawerSections.editTypeField && isSelectedNodeEditable.type && (
+        {showDrawerSections.editTypeField
+          && isSelectedNodeEditable
+          && isSelectedNodeEditable.type
+          && (
           <>
             <div className={classes.drawerField}>
               {/* <Typography variant="h6">Edit the type:</Typography> */}
@@ -449,7 +464,10 @@ function EditorDrawer({
             )}
           </>
         )}
-        {showDrawerSections.editValueField && isSelectedNodeEditable.value && (
+        {showDrawerSections.editValueField
+          && isSelectedNodeEditable
+          && isSelectedNodeEditable.value
+          && (
           <>
             <div className={classes.drawerField}>
               {/* <Typography variant="h6">Edit the type:</Typography> */}
@@ -496,6 +514,69 @@ function EditorDrawer({
             )}
           </>
         )}
+        {showDrawerSections.editFinalNodeField
+          && isSelectedNodeEditable
+          && (
+          <>
+            <div className={classes.drawerInfo}>
+              <Typography variant="h6">Edit an existing editability:</Typography>
+            </div>
+            <div className={classes.drawerField}>
+              <div>
+                <FormGroup row>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={(
+                        <Switch
+                          checked={isSelectedNodeEditable.delete}
+                          onClick={handleSelectedNodeEditableDeleteChange}
+                          name="editableDelete"
+                          color="primary"
+                        />
+                      )}
+                      label="Delete"
+                    />
+                    <FormControlLabel
+                      control={(
+                        <Switch
+                          checked={isSelectedNodeEditable.type}
+                          onClick={handleSelectedNodeEditableTypeChange}
+                          name="editableType"
+                          color="primary"
+                        />
+                      )}
+                      label="Type Label"
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={(
+                        <Switch
+                          checked={isSelectedNodeEditable.label}
+                          onClick={handleSelectedNodeEditableLabelChange}
+                          name="editableLabel"
+                          color="primary"
+                        />
+                      )}
+                      label="Structure"
+                    />
+                    <FormControlLabel
+                      control={(
+                        <Switch
+                          checked={isSelectedNodeEditable.value}
+                          onClick={handleSelectedNodeEditableValueChange}
+                          name="editableValue"
+                          color="primary"
+                        />
+                      )}
+                      label="Value Label"
+                    />
+                  </FormGroup>
+                </FormGroup>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </Drawer>
   );
@@ -514,15 +595,25 @@ EditorDrawer.propTypes = {
     editLabelField: PropTypes.bool,
     editValueField: PropTypes.bool,
     editTypeField: PropTypes.bool,
+    editFinalNodeField: PropTypes.bool,
   }),
   toggleIsCreatingNode: PropTypes.func,
   handleUpdateLabelPiecesChange: PropTypes.func,
   handleUpdateNodeTypeChange: PropTypes.func,
   handleUpdateNodeValueChange: PropTypes.func,
+  handleSelectedNodeEditableLabelChange: PropTypes.func,
+  handleSelectedNodeEditableDeleteChange: PropTypes.func,
+  handleSelectedNodeEditableTypeChange: PropTypes.func,
+  handleSelectedNodeEditableValueChange: PropTypes.func,
 
   isDrawerOpen: PropTypes.bool,
   isCreatingNode: PropTypes.bool,
-  isSelectedNodeEditable: PropTypes.bool,
+  isSelectedNodeEditable: PropTypes.shape({
+    label: PropTypes.bool,
+    type: PropTypes.bool,
+    value: PropTypes.bool,
+    delete: PropTypes.bool,
+  }),
 
   createNodeInputPlaceholder: PropTypes.string,
   editNodeInputPlaceholder: PropTypes.string,
@@ -536,7 +627,6 @@ EditorDrawer.propTypes = {
     piecesPosition: PropTypes.arrayOf(PropTypes.number),
     type: PropTypes.string,
     value: PropTypes.string,
-    isFinal: PropTypes.bool,
     isSelected: PropTypes.bool,
     childEdges: PropTypes.arrayOf(PropTypes.string),
     parentEdges: PropTypes.arrayOf(PropTypes.string),
@@ -622,19 +712,20 @@ EditorDrawer.defaultProps = {
     editLabelField: true,
     editValueField: true,
     editTypeField: true,
+    editFinalNodeField: false,
   },
+  isSelectedNodeEditable: undefined,
   handleUpdateLabelPiecesChange: () => {},
   handleUpdateNodeTypeChange: () => {},
   handleUpdateNodeValueChange: () => {},
+  handleSelectedNodeEditableLabelChange: () => {},
+  handleSelectedNodeEditableDeleteChange: () => {},
+  handleSelectedNodeEditableTypeChange: () => {},
+  handleSelectedNodeEditableValueChange: () => {},
   toggleIsCreatingNode: () => {},
 
   isDrawerOpen: true,
   isCreatingNode: false,
-  isSelectedNodeEditable: {
-    label: false,
-    type: false,
-    value: false,
-  },
   createNodeDescription: undefined,
   createNodeInputValue: '',
   updateLabelInputValue: '',

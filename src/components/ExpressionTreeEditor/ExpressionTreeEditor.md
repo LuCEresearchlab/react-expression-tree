@@ -27,6 +27,7 @@ Example with initial object state and final nodes:
     editLabelField: true,
     editTypeField: true,
     editValueField: true,
+    editFinalNodeField: true,
   }}
   allowedErrors={{
     loop: true,
@@ -55,7 +56,12 @@ Example with initial object state and final nodes:
       "y": 90,
       "type": "Number",
       "value": "10",
-      "isFinal": true,
+      "editable": {
+        "label": false,
+        "type": false,
+        "value": false,
+        "delete": false,
+      },
     },
     "n1": {
       "pieces": ["#", "-", "#"],
@@ -63,7 +69,12 @@ Example with initial object state and final nodes:
       "y": 120,
       "type": "Boolean",
       "value": "true",
-      "isFinal": false,
+      "editable": {
+        "label": true,
+        "type": false,
+        "value": false,
+        "delete": false,
+      },
     },
     "n2": {
       "pieces": ["#", "/", "#"],
@@ -71,7 +82,12 @@ Example with initial object state and final nodes:
       "y": 150,
       "type": "Object",
       "value": "",
-      "isFinal": false,
+      "editable": {
+        "label": false,
+        "type": true,
+        "value": false,
+        "delete": false,
+      },
     },
     "n3": {
       "pieces": ["1"],
@@ -79,7 +95,12 @@ Example with initial object state and final nodes:
       "y": 190,
       "type": "",
       "value": "",
-      "isFinal": false,
+      "editable": {
+        "label": false,
+        "type": false,
+        "value": true,
+        "delete": false,
+      },
     },
     "n4": {
       "pieces": ["2"],
@@ -87,7 +108,12 @@ Example with initial object state and final nodes:
       "y": 190,
       "type": "",
       "value": "",
-      "isFinal": false,
+      "editable": {
+        "label": true,
+        "type": false,
+        "value": false,
+        "delete": true,
+      },
     },
     "n5": {
       "pieces": ["3"],
@@ -95,7 +121,6 @@ Example with initial object state and final nodes:
       "y": 230,
       "type": "",
       "value": "",
-      "isFinal": false,
     },
     "n6": {
       "pieces": ["#", "+", "#"],
@@ -103,7 +128,6 @@ Example with initial object state and final nodes:
       "y": 190,
       "type": "",
       "value": "",
-      "isFinal": false,
     },
     "n7": {
       "pieces": ["5"],
@@ -165,8 +189,8 @@ Example with initial object state and final nodes:
   highlightedNodes={['n4', 'n5', 'does not exist', 'n6']}
   highlightedEdges={['e0', 'e1', 'e2']}
   drawerPlaceholders={{
-    createNodeInputPlaceholder: 'Test placeholder {{}}',
-    editNodeInputPlaceholder: 'Edit this {{}}',
+    createNodeInputPlaceholder: 'Test placeholder',
+    editNodeInputPlaceholder: 'Edit this',
     typeInputPlaceholder: 'Type',
     valueInputPlaceholder: 'Value',
   }}
@@ -232,7 +256,6 @@ Example with initial array state:
     "width": 38.40234375,
     "type": "",
     "value": "",
-    "isFinal": false
     },
     {
     "id": "_2",
@@ -242,7 +265,6 @@ Example with initial array state:
     "width": 38.40234375,
     "type": "",
     "value": "",
-    "isFinal": false
     },
     {
     "id": "_3",
@@ -252,7 +274,6 @@ Example with initial array state:
     "width": 38.40234375,
     "type": "",
     "value": "",
-    "isFinal": false
     },
     {
     "id": "_4",
@@ -262,7 +283,6 @@ Example with initial array state:
     "width": 89.60234375,
     "type": "",
     "value": "",
-    "isFinal": false
     },
     {
     "id": "_5",
@@ -272,7 +292,6 @@ Example with initial array state:
     "width": 89.60234375,
     "type": "",
     "value": "",
-    "isFinal": false
     }
   ]}
   edges={[
@@ -405,7 +424,6 @@ const reference = useRef(null);
         "y": 90,
         "type": "Number",
         "value": "10",
-        "isFinal": true,
       },
       "n1": {
         "pieces": ["#", "-", "#"],
@@ -413,7 +431,6 @@ const reference = useRef(null);
         "y": 120,
         "type": "Boolean",
         "value": "true",
-        "isFinal": false,
       },
       "n2": {
         "pieces": ["#", "/", "#"],
@@ -421,7 +438,6 @@ const reference = useRef(null);
         "y": 150,
         "type": "Object",
         "value": "",
-        "isFinal": false,
       },
       "n3": {
         "pieces": ["1"],
@@ -429,7 +445,6 @@ const reference = useRef(null);
         "y": 190,
         "type": "",
         "value": "",
-        "isFinal": false,
       },
       "n4": {
         "pieces": ["2"],
@@ -437,7 +452,6 @@ const reference = useRef(null);
         "y": 190,
         "type": "",
         "value": "",
-        "isFinal": false,
       },
       "n5": {
         "pieces": ["3"],
@@ -445,7 +459,6 @@ const reference = useRef(null);
         "y": 230,
         "type": "",
         "value": "",
-        "isFinal": false,
       },
       "n6": {
         "pieces": ["#", "+", "#"],
@@ -453,7 +466,6 @@ const reference = useRef(null);
         "y": 190,
         "type": "",
         "value": "",
-        "isFinal": false,
       },
       "n7": {
         "pieces": ["5"],
