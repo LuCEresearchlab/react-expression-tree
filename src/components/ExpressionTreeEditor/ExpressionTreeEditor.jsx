@@ -213,6 +213,7 @@ function ExpressionTreeEditor({
     updateNode,
     updateNodeType,
     updateNodeValue,
+    setStartingOrderedNodes,
     setOrderedNodes,
     // Undo - Redo
     undo,
@@ -300,10 +301,8 @@ function ExpressionTreeEditor({
     updateNodeValue(value);
   });
 
-  // const hasStateToUndo = undoState.length > 0;
-  // const hasStateToRedo = redoState.length > 0;
-  const hasStateToUndo = false;
-  const hasStateToRedo = false;
+  const hasStateToUndo = undoState.length > 0;
+  const hasStateToRedo = redoState.length > 0;
   const handleUndoButtonAction = useCallback(() => {
     undo();
   });
@@ -430,7 +429,7 @@ function ExpressionTreeEditor({
     });
   };
 
-  const handleReorderNodesButtonAction = useCallback((initialValue) => {
+  const handleReorderNodesButtonAction = useCallback((initialValue, noHistory) => {
     const tempNodes = initialValue && initialValue.nodes ? initialValue.nodes : nodes;
     const tempEdges = initialValue && initialValue.edges ? initialValue.edges : edges;
 
@@ -455,12 +454,21 @@ function ExpressionTreeEditor({
     const position = { x: 0, y: 0 };
     const scale = { x: 1, y: 1 };
 
-    setOrderedNodes({
-      nodes: orderedNodes,
-      edges: orderedEdges,
-      stagePos: position,
-      stageScale: scale,
-    });
+    if (noHistory) {
+      setStartingOrderedNodes({
+        nodes: orderedNodes,
+        edges: orderedEdges,
+        stagePos: position,
+        stageScale: scale,
+      });
+    } else {
+      setOrderedNodes({
+        nodes: orderedNodes,
+        edges: orderedEdges,
+        stagePos: position,
+        stageScale: scale,
+      });
+    }
   });
 
   const handleUploadStateButtonAction = useCallback(({
@@ -644,7 +652,7 @@ function ExpressionTreeEditor({
   useEffect(() => {
     if (autolayout) {
       const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges);
-      handleReorderNodesButtonAction({ nodes: sanitizedNodes, edges: sanitizedEdges });
+      handleReorderNodesButtonAction({ nodes: sanitizedNodes, edges: sanitizedEdges }, true);
     }
   }, [propNodes, propEdges]);
 

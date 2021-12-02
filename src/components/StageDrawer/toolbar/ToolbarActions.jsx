@@ -154,8 +154,7 @@ function ToolbarActions({
           </IconButton>
         </Tooltip>
       )}
-      {/* TODO: uncomment after fixing undo/redo */}
-      {/*showUndoButton && (
+      {showUndoButton && (
         <Tooltip title="Undo action" placement="bottom">
           <span>
             <IconButton
@@ -168,8 +167,8 @@ function ToolbarActions({
             </IconButton>
           </span>
         </Tooltip>
-      )*/}
-      {/*showRedoButton && (
+      )}
+      {showRedoButton && (
         <Tooltip title="Redo action" placement="bottom">
           <span>
             <IconButton
@@ -182,7 +181,7 @@ function ToolbarActions({
             </IconButton>
           </span>
         </Tooltip>
-      )*/}
+      )}
       {showZoomOutButton && (
         <Tooltip title="Zoom out" placement="bottom">
           <IconButton

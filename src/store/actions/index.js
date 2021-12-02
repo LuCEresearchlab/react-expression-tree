@@ -335,6 +335,23 @@ const actions = [
     }),
   },
   {
+    name: 'setStartingOrderedNodes',
+    action: ({
+      nodes,
+      edges,
+      stagePos,
+      stageScale,
+    }) => ({
+      type: 'setStartingOrderedNodes',
+      payload: {
+        nodes,
+        edges,
+        stagePos,
+        stageScale,
+      },
+    }),
+  },
+  {
     name: 'setOrderedNodes',
     action: ({
       nodes,

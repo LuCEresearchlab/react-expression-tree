@@ -92,20 +92,22 @@ const reducers = {
   undo: (state) => {
     const { undoState, redoState } = state;
 
-    const lastUndoState = undoState[undoState.length - 1];
+    const [lastUndoState, ...remainingUndoState] = undoState;
     const changedKeys = Object.keys(lastUndoState);
 
     const currentState = {};
     changedKeys.forEach((key) => {
-      currentState[key] = state[key];
+      if (key !== 'action') {
+        currentState[key] = state[key];
+      }
     });
 
     return {
       ...state,
-      undoState: undoState.slice(0, -1),
+      undoState: remainingUndoState,
       redoState: [
-        ...redoState,
         currentState,
+        ...redoState,
       ],
       ...lastUndoState,
     };
@@ -114,20 +116,22 @@ const reducers = {
   redo: (state) => {
     const { undoState, redoState } = state;
 
-    const lastRedoState = redoState[redoState.length - 1];
+    const [lastRedoState, ...remainingRedoState] = redoState;
     const changedKeys = Object.keys(lastRedoState);
 
     const currentState = {};
     changedKeys.forEach((key) => {
-      currentState[key] = state[key];
+      if (key !== 'action') {
+        currentState[key] = state[key];
+      }
     });
 
     return {
       ...state,
-      redoState: redoState.slice(0, -1),
+      redoState: remainingRedoState,
       undoState: [
-        ...undoState,
         currentState,
+        ...undoState,
       ],
       ...lastRedoState,
     };
