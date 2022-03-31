@@ -410,7 +410,7 @@ const reference = useRef(null);
     allowFreeTypeUpdate={true}
     allowFreeValueUpdate={true}
     templateNodeTypesAndValues={{
-      String: ['"Hello"', '"World!"', '" "', '"Hello World!"'],
+      String: ['"Hello"', '"World!"', '"a.toUpperCase() ==== " + a.toUpperCase()', '" "', '"Hello World!"'],
       Number: ['1', '2'],
       Boolean: ['true', 'false'],
       Object: [],

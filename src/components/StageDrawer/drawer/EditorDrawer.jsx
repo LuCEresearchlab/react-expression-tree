@@ -128,6 +128,7 @@ const useStyles = makeStyles((theme) => ({
   },
   typeField: {
     margin: '10px 10px 10px 10px',
+    overflowX: 'auto',
   },
   suggestionChip: {
     margin: theme.spacing(0.5),
