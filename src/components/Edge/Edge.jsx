@@ -153,7 +153,7 @@ function Edge({
         )}
         stroke={childConnectorStrokeColor}
         strokeWidth={childConnectorStrokeWidth}
-        draggable={!isFullDisabled}
+        // draggable={!isFullDisabled}
         // onDragStart={handleNodeConnectorDragStart}
         // onMouseOver={handleMouseOverCircle}
         // onDragMove={handleConnectorDragMove}
@@ -172,7 +172,7 @@ function Edge({
         )}
         stroke={parentConnectorStrokeColor}
         strokeWidth={parentConnectorStrokeWidth}
-        draggable={!isFullDisabled}
+        // draggable={!isFullDisabled}
         // onDragStart={handlePlaceholderConnectorDragStart}
         // onMouseOver={handleMouseOverCircle}
         // onDragMove={handleConnectorDragMove}
