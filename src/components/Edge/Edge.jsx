@@ -154,10 +154,10 @@ function Edge({
         stroke={childConnectorStrokeColor}
         strokeWidth={childConnectorStrokeWidth}
         draggable={!isFullDisabled}
-        onDragStart={handleNodeConnectorDragStart}
-        onMouseOver={handleMouseOverCircle}
-        onDragMove={handleConnectorDragMove}
-        onDragEnd={handleConnectorDragEnd}
+        // onDragStart={handleNodeConnectorDragStart}
+        // onMouseOver={handleMouseOverCircle}
+        // onDragMove={handleConnectorDragMove}
+        // onDragEnd={handleConnectorDragEnd}
       />
       <Circle
         x={parentX}
@@ -173,10 +173,10 @@ function Edge({
         stroke={parentConnectorStrokeColor}
         strokeWidth={parentConnectorStrokeWidth}
         draggable={!isFullDisabled}
-        onDragStart={handlePlaceholderConnectorDragStart}
-        onMouseOver={handleMouseOverCircle}
-        onDragMove={handleConnectorDragMove}
-        onDragEnd={handleConnectorDragEnd}
+        // onDragStart={handlePlaceholderConnectorDragStart}
+        // onMouseOver={handleMouseOverCircle}
+        // onDragMove={handleConnectorDragMove}
+        // onDragEnd={handleConnectorDragEnd}
       />
     </Group>
   );

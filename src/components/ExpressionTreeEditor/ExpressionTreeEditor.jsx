@@ -442,9 +442,13 @@ function ExpressionTreeEditor({
       selectedRootNode,
     );
     */
-    const orderedNodes = tempNodes;
+    // Structured clone is a deep clone
+    // https://developer.mozilla.org/en-US/docs/Web/API/structuredClone
+    // eslint-disable-next-line no-undef
+    const orderedNodes = structuredClone(tempNodes);
+    // const orderedNodes = tempNodes;
     const [diagramWidth, diagramHeight] = layout(
-      tempNodes,
+      orderedNodes,
       tempEdges,
       selectedRootNode,
     );
