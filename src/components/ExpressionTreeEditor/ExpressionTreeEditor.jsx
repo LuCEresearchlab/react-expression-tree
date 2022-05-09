@@ -1827,7 +1827,7 @@ ExpressionTreeEditor.propTypes = {
 ExpressionTreeEditor.defaultProps = {
   reference: null,
   width: null,
-  height: '300px',
+  height: 300,
   autolayout: false,
   allowedErrors: {
     loop: true,
