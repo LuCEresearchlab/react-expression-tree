@@ -50,6 +50,8 @@ export function createEmptyNode(id) {
     value: '',
     isSelected: false,
     isHighlighted: false,
+    isTypeLabelHighlighted: false,
+    isValueLabelHighlighted: false,
     childEdges: [],
     parentEdges: [[]],
     editable: {

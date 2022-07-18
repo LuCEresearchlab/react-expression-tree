@@ -1430,6 +1430,8 @@ function ExpressionTreeEditor({
                   isSelected={id === selectedNode}
                   isSelectedRoot={id === selectedRootNode}
                   isHighlighted={nodes[id].isHighlighted}
+                  isTypeLabelHighlighted={nodes[id].isTypeLabelHighlighted}
+                  isValueLabelHighlighted={nodes[id].isValueLabelHighlighted}
                   isFullDisabled={isFullDisabled}
                   handleNodeClick={(e) => handleNodeClick(e, id)}
                   handleNodeDblClick={(e) => handleNodeDblClick(e, id)}
@@ -1803,8 +1805,12 @@ ExpressionTreeEditor.propTypes = {
       strokeWidth: PropTypes.number,
       radius: PropTypes.number,
       padding: PropTypes.number,
-      textColor: PropTypes.string,
-      fillColor: PropTypes.string,
+      textTypeColor: PropTypes.string,
+      textValueColor: PropTypes.string,
+      fillTypeColor: PropTypes.string,
+      fillValueColor: PropTypes.string,
+      fillTypeHighlightColor: PropTypes.string,
+      fillValueHighlightColor: PropTypes.string,
       strokeColor: PropTypes.string,
       pointerDirection: PropTypes.string,
       pointerWidth: PropTypes.number,

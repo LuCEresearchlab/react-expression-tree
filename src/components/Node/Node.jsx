@@ -41,6 +41,8 @@ function Node({
   isSelected,
   isSelectedRoot,
   isHighlighted,
+  isTypeLabelHighlighted,
+  isValueLabelHighlighted,
   isFullDisabled,
   handleNodeClick,
   handleNodeDblClick,
@@ -169,7 +171,13 @@ function Node({
       return selectedColor;
     }
     if (isHighlighted) {
-      return highlightColor;
+      // isHighlighted can be either boolean or a string, if it is a boolean
+      // we return highlight color
+      if (isHighlighted === true) {
+        return highlightColor;
+      }
+      // otherwise we return itself
+      return isHighlighted;
     }
     if (!editableLabel || !editableType || !editableValue || !editableDelete) {
       return finalColor;
@@ -310,6 +318,8 @@ function Node({
       />
       <NodeTypeValue
         nodeWidth={nodeWidth}
+        isTypeLabelHighlighted={isTypeLabelHighlighted}
+        isValueLabelHighlighted={isValueLabelHighlighted}
         typeText={typeText}
         valueText={valueText}
         fontFamily={fontFamily}
@@ -317,8 +327,12 @@ function Node({
         strokeWidth={typeValueStyle.strokeWidth}
         radius={typeValueStyle.radius}
         padding={typeValueStyle.padding}
-        textColor={typeValueStyle.textColor}
-        fillColor={typeValueStyle.fillColor}
+        textTypeColor={typeValueStyle.textTypeColor}
+        textValueColor={typeValueStyle.textValueColor}
+        fillTypeColor={typeValueStyle.fillTypeColor}
+        fillValueColor={typeValueStyle.fillValueColor}
+        fillTypeHighlightColor={typeValueStyle.fillTypeHighlightColor}
+        fillValueHighlightColor={typeValueStyle.fillValueHighlightColor}
         strokeColor={typeValueStyle.strokeColor}
         pointerDirection={typeValueStyle.pointerDirection}
         pointerWidth={typeValueStyle.pointerWidth}
@@ -362,7 +376,18 @@ Node.propTypes = {
   editableDelete: PropTypes.bool,
   isSelected: PropTypes.bool,
   isSelectedRoot: PropTypes.bool,
-  isHighlighted: PropTypes.bool,
+  isHighlighted: PropTypes.oneOf(
+    PropTypes.bool,
+    PropTypes.string,
+  ),
+  isTypeLabelHighlighted: PropTypes.oneOf(
+    PropTypes.bool,
+    PropTypes.string,
+  ),
+  isValueLabelHighlighted: PropTypes.oneOf(
+    PropTypes.bool,
+    PropTypes.string,
+  ),
   isFullDisabled: PropTypes.bool,
   handleNodeClick: PropTypes.func,
   handleNodeDblClick: PropTypes.func,
@@ -427,8 +452,12 @@ Node.propTypes = {
     strokeWidth: PropTypes.number,
     radius: PropTypes.number,
     padding: PropTypes.number,
-    textColor: PropTypes.string,
-    fillColor: PropTypes.string,
+    textTypeColor: PropTypes.string,
+    textValueColor: PropTypes.string,
+    fillTypeColor: PropTypes.string,
+    fillValueColor: PropTypes.string,
+    fillTypeHighlightColor: PropTypes.string,
+    fillValueHighlightColor: PropTypes.string,
     strokeColor: PropTypes.string,
     pointerDirection: PropTypes.string,
     pointerWidth: PropTypes.number,
@@ -450,6 +479,8 @@ Node.defaultProps = {
   isSelected: false,
   isSelectedRoot: false,
   isHighlighted: false,
+  isTypeLabelHighlighted: false,
+  isValueLabelHighlighted: false,
   isFullDisabled: false,
   removeNode: () => {},
   setCursor: () => {},

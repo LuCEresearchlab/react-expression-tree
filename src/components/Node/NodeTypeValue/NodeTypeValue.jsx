@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -10,6 +10,8 @@ import Konva from 'konva';
 
 function NodeTypeValue({
   nodeWidth,
+  isTypeLabelHighlighted,
+  isValueLabelHighlighted,
   typeText,
   valueText,
   fontFamily,
@@ -21,6 +23,8 @@ function NodeTypeValue({
   textValueColor,
   fillTypeColor,
   fillValueColor,
+  fillTypeHighlightColor,
+  fillValueHighlightColor,
   strokeColor,
   pointerDirection,
   pointerWidth,
@@ -87,6 +91,20 @@ function NodeTypeValue({
     return [radius, radius, radius, radius];
   }, [typeText, valueText]);
 
+  const computeColor = useCallback((defaultColor, highlightColor, isHighlighted) => {
+    if (isHighlighted) {
+      // isHighlighted can be either boolean or a string, if it is a boolean
+      // we return highlight color
+      if (isHighlighted === true) {
+        return highlightColor;
+      }
+      // otherwise we return itself
+      return isHighlighted;
+    }
+
+    return defaultColor;
+  });
+
   return (
     <>
       {typeText !== '' || valueText !== '' ? (
@@ -109,7 +127,7 @@ function NodeTypeValue({
           y={typeY}
         >
           <Tag
-            fill={fillTypeColor}
+            fill={computeColor(fillTypeColor, fillTypeHighlightColor, isTypeLabelHighlighted)}
             stroke={strokeColor}
             strokeWidth={strokeWidth}
             cornerRadius={typeCornerRadius}
@@ -129,7 +147,7 @@ function NodeTypeValue({
           y={valueY}
         >
           <Tag
-            fill={fillValueColor}
+            fill={computeColor(fillValueColor, fillValueHighlightColor, isValueLabelHighlighted)}
             stroke={strokeColor}
             strokeWidth={strokeWidth}
             cornerRadius={valueCornerRadius}
@@ -149,6 +167,14 @@ function NodeTypeValue({
 
 NodeTypeValue.propTypes = {
   nodeWidth: PropTypes.number.isRequired,
+  isTypeLabelHighlighted: PropTypes.oneOf(
+    PropTypes.bool,
+    PropTypes.string,
+  ),
+  isValueLabelHighlighted: PropTypes.oneOf(
+    PropTypes.bool,
+    PropTypes.string,
+  ),
   typeText: PropTypes.string,
   valueText: PropTypes.string,
   fontFamily: PropTypes.string,
@@ -160,6 +186,8 @@ NodeTypeValue.propTypes = {
   textValueColor: PropTypes.string,
   fillTypeColor: PropTypes.string,
   fillValueColor: PropTypes.string,
+  fillTypeHighlightColor: PropTypes.string,
+  fillValueHighlightColor: PropTypes.string,
   strokeColor: PropTypes.string,
   pointerDirection: PropTypes.string,
   pointerWidth: PropTypes.number,
@@ -167,12 +195,16 @@ NodeTypeValue.propTypes = {
 };
 
 NodeTypeValue.defaultProps = {
+  isTypeLabelHighlighted: false,
+  isValueLabelHighlighted: false,
   typeText: '',
   valueText: '',
   fontFamily: 'Roboto Mono, Courier',
   fontSize: 12,
   fillTypeColor: '#3f51b5',
   fillValueColor: '#000000',
+  fillTypeHighlightColor: '#7f51b5',
+  fillValueHighlightColor: '#b2a3c4',
   textTypeColor: '#ffffff',
   textValueColor: '#ffffff',
   strokeColor: '#3f51b5',

@@ -377,32 +377,21 @@ const actions = [
       },
     }),
   },
-  
-  
-  
-
-
-  
-  
-  
-  
-  
-
   {
     name: 'moveNodeToEnd',
-    action: (payload) => { return { type: 'moveNodeToEnd', payload }; },
+    action: (payload) => ({ type: 'moveNodeToEnd', payload }),
   },
   {
     name: 'nodeValueChange',
-    action: (payload) => { return { type: 'nodeValueChange', payload }; },
+    action: (payload) => ({ type: 'nodeValueChange', payload }),
   },
   {
     name: 'setConnectorPlaceholder',
-    action: (payload) => { return { type: 'setConnectorPlaceholder', payload }; },
+    action: (payload) => ({ type: 'setConnectorPlaceholder', payload }),
   },
   {
     name: 'setPlaceholderWidth',
-    action: (payload) => { return { type: 'setPlaceholderWidth', payload }; },
+    action: (payload) => ({ type: 'setPlaceholderWidth', payload }),
   },
 
   // Globals
