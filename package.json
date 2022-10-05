@@ -1,6 +1,6 @@
 {
   "name": "react-expression-tree",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "Create expression trees",
   "author": {
     "name": "Tiziano Marsetti",
@@ -89,7 +89,6 @@
     "jasmine-expect": "^4.0.3",
     "jest": "^26.6.3",
     "mini-css-extract-plugin": "^0.11.0",
-    "npm-run-all": "^4.1.5",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "react": "^17.0.1",
     "react-app-polyfill": "^2.0.0",

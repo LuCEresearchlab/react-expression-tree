@@ -113,7 +113,13 @@ function Edge({
       return selectedColor;
     }
     if (isHighlighted) {
-      return highlightColor;
+      // isHighlighted can be either boolean or a string, if it is a boolean
+      // we return highlight color
+      if (isHighlighted === true) {
+        return highlightColor;
+      }
+      // otherwise we return itself
+      return isHighlighted;
     }
     return defaultColor;
   };
@@ -194,7 +200,10 @@ Edge.propTypes = {
   isDragged: PropTypes.bool,
   isFullDisabled: PropTypes.bool,
   isSelected: PropTypes.bool,
-  isHighlighted: PropTypes.bool,
+  isHighlighted: PropTypes.oneOfType(
+    PropTypes.bool,
+    PropTypes.string,
+  ),
   currentErrorLocation: PropTypes.shape({
     edge: PropTypes.string,
     edgeId: PropTypes.string,
