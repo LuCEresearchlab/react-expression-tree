@@ -52,6 +52,56 @@ const reducers = {
     ...state,
     selectedRootNode: undefined,
   }),
+
+  updateGlobalState: (state, payload) => {
+    const {
+      nodes,
+      edges,
+      selectedNode,
+      selectedEdge,
+      selectedRootNode,
+      stagePos,
+      stageScale,
+    } = payload;
+
+    const {
+      undoState,
+      nodes: currentNodes,
+      edges: currentEdges,
+      selectedNode: currentSelectedNode,
+      selectedEdge: currentSelectedEdge,
+      selectedRootNode: currentSelectedRootNode,
+      statePos: currentStagePos,
+      stageScale: currentStageScale,
+    } = state;
+
+    const newUndoState = {
+      action: 'updateGlobalState',
+      nodes: currentNodes,
+      edges: currentEdges,
+      selectedNode: currentSelectedNode,
+      selectedEdge: currentSelectedEdge,
+      selectedRootNode: currentSelectedRootNode,
+      stagePos: currentStagePos,
+      stageScale: currentStageScale,
+    };
+
+    return {
+      ...state,
+      nodes,
+      edges,
+      selectedNode,
+      selectedEdge,
+      selectedRootNode,
+      stagePos,
+      stageScale,
+      undoState: [
+        newUndoState,
+        ...undoState,
+      ],
+      redoState: [],
+    };
+  },
 };
 
 export default reducers;

@@ -614,6 +614,29 @@ const actions = [
       type: 'resetRootNode',
     }),
   },
+  {
+    name: 'updateGlobalState',
+    action: ({
+      nodes,
+      edges,
+      selectedNode,
+      selectedEdge,
+      selectedRootNode,
+      stagePos,
+      stageScale,
+    }) => ({
+      type: 'updateGlobalState',
+      payload: {
+        nodes,
+        edges,
+        selectedNode,
+        selectedEdge,
+        selectedRootNode,
+        stagePos,
+        stageScale,
+      },
+    }),
+  },
 ];
 
 export default actions;

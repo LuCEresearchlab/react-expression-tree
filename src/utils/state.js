@@ -2,6 +2,8 @@ export function exportState(state) {
   const {
     nodes,
     edges,
+    selectedNode,
+    selectedEdge,
     selectedRootNode,
     stagePos,
     stageScale,
@@ -11,6 +13,8 @@ export function exportState(state) {
   return {
     nodes,
     edges,
+    selectedNode,
+    selectedEdge,
     selectedRootNode,
     stagePos,
     stageScale,

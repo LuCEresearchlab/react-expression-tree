@@ -103,7 +103,7 @@ function ExpressionTreeEditor({
   selectionRectangleStyle,
   toolbarPrimaryColor,
   toolbarSecondaryColor,
-  drawerPlaceholders
+  drawerPlaceholders,
 }) {
   const containerRef = useRef();
   const containerWidth = useContainerWidthOnWindowResize(containerRef);
@@ -223,6 +223,7 @@ function ExpressionTreeEditor({
     resetTypeLabels,
     resetValueLabels,
     resetRootNode,
+    updateGlobalState,
   } = actions;
 
   const {
@@ -251,6 +252,7 @@ function ExpressionTreeEditor({
         resetTypeLabels,
         resetValueLabels,
         resetRootNode,
+        updateGlobalState,
       };
     }
   }, []);
@@ -747,6 +749,8 @@ function ExpressionTreeEditor({
   }, [
     nodes,
     edges,
+    selectedNode,
+    selectedEdge,
     selectedRootNode,
     stagePos,
     stageScale,

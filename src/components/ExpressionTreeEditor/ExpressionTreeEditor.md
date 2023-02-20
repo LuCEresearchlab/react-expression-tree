@@ -528,3 +528,134 @@ const reference = useRef(null);
   />
 </div>
 ```
+
+Utility function `updateGlobalState`
+
+```js
+import { useRef } from 'react';
+
+const reference = useRef(null);
+let copyState = {}
+const onStateChange = (state) => {
+  copyState = state;
+}
+
+;
+<div>
+  <button onClick={() => reference.current.updateGlobalState(copyState)}>Update Global State</button>
+  <h1>Copy from</h1>
+  <ExpressionTreeEditor
+    onStateChange={onStateChange}
+    height={700}
+    autolayout={true}
+    isFullDisabled={false}
+    showToolbar={true}
+    showToolbarButtons={{
+      showDrawerButton: true,
+      showEditorInfoButton: true,
+      showStateResetButton: true,
+      showUndoButton: true,
+      showRedoButton: true,
+      showZoomOutButton: true,
+      showZoomInButton: true,
+      showZoomToFitButton: true,
+      showReorderNodesButton: true,
+      showUploadStateButton: true,
+      showTakeScreenshotButton: true,
+      showFullScreenButton: true,
+    }} 
+    showDrawer={true}
+    showDrawerSections={{
+      addNodeField: true,
+      templateDropdown: true,
+      editLabelField: true,
+      editTypeField: true,
+      editValueField: true,
+    }}
+    allowedErrors={{
+      loop: true,
+      multiEdgeOnHoleConnector: true,
+      multiEdgeOnNodeConnector: true,
+    }}
+    connectorPlaceholder="#"
+    templateNodes={[
+      '#?#:#',
+      '#[#]',
+    ]}
+    allowFreeTypeUpdate={true}
+    allowFreeValueUpdate={true}
+    templateNodeTypesAndValues={{
+      String: ['"Hello"', '"World!"', '"a.toUpperCase() ==== " + a.toUpperCase()', '" "', '"Hello World!"'],
+      Number: ['1', '2'],
+      Boolean: ['true', 'false'],
+      Object: [],
+      Undefined: ['undefined'],
+      Null: ['null'],
+    }}
+    nodes={{}}
+    edges={{}}
+    stageScale={{x: 1.2, y: 1.2}}
+    stagePos={{x:40, y: 200}}
+    highlightedNodes={['n4', 'n5', 'does not exist', 'n6']}
+    highlightedEdges={['e0', 'e1', 'e2']}
+  />
+
+  <h1>Copy to</h1>
+
+  <ExpressionTreeEditor
+    reference={reference}
+    height={700}
+    autolayout={true}
+    isFullDisabled={false}
+    showToolbar={true}
+    showToolbarButtons={{
+      showDrawerButton: true,
+      showEditorInfoButton: true,
+      showStateResetButton: true,
+      showUndoButton: true,
+      showRedoButton: true,
+      showZoomOutButton: true,
+      showZoomInButton: true,
+      showZoomToFitButton: true,
+      showReorderNodesButton: true,
+      showUploadStateButton: true,
+      showTakeScreenshotButton: true,
+      showFullScreenButton: true,
+    }} 
+    showDrawer={true}
+    showDrawerSections={{
+      addNodeField: true,
+      templateDropdown: true,
+      editLabelField: true,
+      editTypeField: true,
+      editValueField: true,
+    }}
+    allowedErrors={{
+      loop: true,
+      multiEdgeOnHoleConnector: true,
+      multiEdgeOnNodeConnector: true,
+    }}
+    connectorPlaceholder="#"
+    templateNodes={[
+      '#?#:#',
+      '#[#]',
+    ]}
+    allowFreeTypeUpdate={true}
+    allowFreeValueUpdate={true}
+    templateNodeTypesAndValues={{
+      String: ['"Hello"', '"World!"', '"a.toUpperCase() ==== " + a.toUpperCase()', '" "', '"Hello World!"'],
+      Number: ['1', '2'],
+      Boolean: ['true', 'false'],
+      Object: [],
+      Undefined: ['undefined'],
+      Null: ['null'],
+    }}
+    nodes={{}}
+    edges={{}}
+    stageScale={{x: 1.2, y: 1.2}}
+    stagePos={{x:40, y: 200}}
+    highlightedNodes={['n4', 'n5', 'does not exist', 'n6']}
+    highlightedEdges={['e0', 'e1', 'e2']}
+  />
+</div>
+```
