@@ -428,9 +428,17 @@ const createPositionUtils = (
     return objectEdges;
   };
 
-  const sanitizeNodesAndEdges = (nodes, edges) => {
+  const sanitizeNodesAndEdges = (nodes, edges, shuffleNodes = false) => {
     if (Array.isArray(nodes)) {
       nodes = convertArrayNodesToObject(nodes);
+    }
+
+    if (shuffleNodes) {
+      const propNodesKeys = Object.keys(nodes).sort(() => 0.5 - Math.random());
+      nodes = propNodesKeys.reduce((acc, key) => ({
+        ...acc,
+        [key]: nodes[key],
+      }), {});
     }
 
     const sanitizedNodes = Object.keys(nodes).reduce((accumulator, id) => {

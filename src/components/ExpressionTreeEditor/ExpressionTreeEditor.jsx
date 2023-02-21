@@ -57,6 +57,7 @@ function ExpressionTreeEditor({
   width,
   height,
   autolayout,
+  shuffleNodes,
   allowedErrors,
   isFullDisabled,
   showToolbar,
@@ -116,6 +117,7 @@ function ExpressionTreeEditor({
   const createNodeStageRef = useRef();
 
   const [store, actions, utils] = useStore({
+    shuffleNodes,
     propNodes,
     propSelectedNode,
     propEdges,
@@ -638,7 +640,7 @@ function ExpressionTreeEditor({
   });
 
   const handleResetState = () => {
-    const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges);
+    const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges, shuffleNodes);
     stageReset({
       nodes: sanitizedNodes,
       selectedNode: propSelectedNode,
@@ -657,10 +659,10 @@ function ExpressionTreeEditor({
 
   useEffect(() => {
     if (autolayout) {
-      const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges);
+      const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges, shuffleNodes);
       handleReorderNodesButtonAction({ nodes: sanitizedNodes, edges: sanitizedEdges }, true);
     }
-  }, [propNodes, propEdges]);
+  }, [propNodes, propEdges, shuffleNodes]);
 
   useEffect(() => {
     if (createNodeDescription && createNodeStageRef.current) {
@@ -1613,6 +1615,7 @@ ExpressionTreeEditor.propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
   autolayout: PropTypes.bool,
+  shuffleNodes: PropTypes.bool,
   allowedErrors: PropTypes.shape({
     loop: PropTypes.bool,
     multiEdgeOnHoleConnector: PropTypes.bool,
@@ -1837,6 +1840,7 @@ ExpressionTreeEditor.defaultProps = {
   width: null,
   height: 300,
   autolayout: false,
+  shuffleNodes: false,
   allowedErrors: {
     loop: true,
     multiEdgeOnHoleConnector: true,

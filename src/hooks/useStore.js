@@ -7,6 +7,7 @@ import { createSanitizedUtilsProps, createInitialState } from '../store/initialS
 import createPositionUtils from '../utils/position';
 
 function useStore({
+  shuffleNodes,
   propNodes,
   propSelectedNode,
   propEdges,
@@ -67,8 +68,8 @@ function useStore({
     sanitizedNodes,
     sanitizedEdges,
   } = useMemo(() => (
-    utils.sanitizeNodesAndEdges(propNodes, propEdges)
-  ), [propNodes, propEdges, utils.sanitizeNodesAndEdges]);
+    utils.sanitizeNodesAndEdges(propNodes, propEdges, shuffleNodes)
+  ), [propNodes, propEdges, shuffleNodes, utils.sanitizeNodesAndEdges]);
 
   const templateNodesDescription = useMemo(() => {
     if (propTemplateNodes !== undefined && propTemplateNodes !== null) {
