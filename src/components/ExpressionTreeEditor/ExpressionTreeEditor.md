@@ -529,22 +529,33 @@ const reference = useRef(null);
 </div>
 ```
 
-Utility function `updateGlobalState`
+Utility function `updateGlobalState` and `getGlobalState`
 
 ```js
 import { useRef } from 'react';
 
-const reference = useRef(null);
+const sourceReference = useRef(null);
+const targetReference = useRef(null);
 let copyState = {}
 const onStateChange = (state) => {
   copyState = state;
 }
 
+const getGlobalState = () => (console.log(sourceReference.current.getGlobalState))
+const updateFromOnChange = () => targetReference.current.updateGlobalState(copyState);
+const updateFromGetGlobalState = () => {
+  const sourceState = sourceReference.current.getGlobalState();
+  targetReference.current.updateGlobalState(state);
+}
+
 ;
 <div>
-  <button onClick={() => reference.current.updateGlobalState(copyState)}>Update Global State</button>
+  <button onClick={getGlobalState}>Get Global State</button>  
+  <button onClick={updateFromOnChange}>Update Global State from onChange</button>  
+  <button onClick={updateFromGetGlobalState}>Update Global State from Get Global State</button>  
   <h1>Copy from</h1>
   <ExpressionTreeEditor
+    reference={sourceReference}
     onStateChange={onStateChange}
     height={700}
     autolayout={true}
@@ -603,7 +614,7 @@ const onStateChange = (state) => {
   <h1>Copy to</h1>
 
   <ExpressionTreeEditor
-    reference={reference}
+    reference={targetReference}
     height={700}
     autolayout={true}
     isFullDisabled={false}
@@ -659,6 +670,7 @@ const onStateChange = (state) => {
   />
 </div>
 ```
+<<<<<<< Updated upstream
 
 Shuffle example
 
@@ -799,3 +811,5 @@ const reference = useRef(null);
   />
 </div>
 ```
+=======
+>>>>>>> Stashed changes

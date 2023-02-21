@@ -255,6 +255,7 @@ function ExpressionTreeEditor({
         resetValueLabels,
         resetRootNode,
         updateGlobalState,
+        getGlobalState: useCallback(() => exportState(store) , [exportState, store]),
       };
     }
   }, []);
