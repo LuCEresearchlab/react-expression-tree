@@ -619,8 +619,6 @@ const actions = [
     action: ({
       nodes,
       edges,
-      selectedNode,
-      selectedEdge,
       selectedRootNode,
       stagePos,
       stageScale,
@@ -629,8 +627,6 @@ const actions = [
       payload: {
         nodes,
         edges,
-        selectedNode,
-        selectedEdge,
         selectedRootNode,
         stagePos,
         stageScale,

@@ -749,8 +749,6 @@ function ExpressionTreeEditor({
   }, [
     nodes,
     edges,
-    selectedNode,
-    selectedEdge,
     selectedRootNode,
     stagePos,
     stageScale,

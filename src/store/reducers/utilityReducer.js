@@ -57,8 +57,6 @@ const reducers = {
     const {
       nodes,
       edges,
-      selectedNode,
-      selectedEdge,
       selectedRootNode,
       stagePos,
       stageScale,
@@ -71,7 +69,7 @@ const reducers = {
       selectedNode: currentSelectedNode,
       selectedEdge: currentSelectedEdge,
       selectedRootNode: currentSelectedRootNode,
-      statePos: currentStagePos,
+      stagePos: currentStagePos,
       stageScale: currentStageScale,
     } = state;
 
@@ -90,8 +88,8 @@ const reducers = {
       ...state,
       nodes,
       edges,
-      selectedNode,
-      selectedEdge,
+      selectedNode: undefined,
+      selectedEdge: undefined,
       selectedRootNode,
       stagePos,
       stageScale,
