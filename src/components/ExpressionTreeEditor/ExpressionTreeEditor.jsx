@@ -397,7 +397,7 @@ function ExpressionTreeEditor({
   // then the stage will be repositioned,
   // in order to have all the nodes inside the viewport
   const handleZoomToFitButtonAction = () => {
-    const paddingLeft = isDrawerOpen ? 330 : 30;
+    const paddingLeft = isDrawerOpen && showDrawer ? 330 : 30;
     const paddingRight = 30;
     const paddingTop = 30;
     const paddingBottom = 30;
@@ -418,7 +418,7 @@ function ExpressionTreeEditor({
   };
 
   const handleZoomToActualSizeButtonAction = () => {
-    const paddingLeft = isDrawerOpen ? 330 : 30;
+    const paddingLeft = isDrawerOpen && showDrawer ? 330 : 30;
     const paddingTop = 30;
     // get the bounding box of layer contents
     const box = layerRef.current.getClientRect({
@@ -455,6 +455,8 @@ function ExpressionTreeEditor({
       orderedNodes,
       tempEdges,
       selectedRootNode,
+      isDrawerOpen && showDrawer,
+      computeStageWidth(),
     );
     //console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
 
@@ -477,7 +479,16 @@ function ExpressionTreeEditor({
         stageScale: scale,
       });
     }
-  });
+  }, [
+    nodes,
+    edges,
+    isDrawerOpen,
+    showDrawer,
+    computeEdgesCoordinates,
+    setStartingOrderedNodes,
+    setOrderedNodes,
+    computeStageWidth,
+  ]);
 
   const handleUploadStateButtonAction = useCallback(({
     nodes: uploadNodes,
