@@ -544,8 +544,9 @@ const onStateChange = (state) => {
 const getGlobalState = () => (console.log(sourceReference.current.getGlobalState))
 const updateFromOnChange = () => targetReference.current.updateGlobalState(copyState);
 const updateFromGetGlobalState = () => {
+  console.log(sourceReference.current)
   const sourceState = sourceReference.current.getGlobalState();
-  targetReference.current.updateGlobalState(state);
+  targetReference.current.updateGlobalState(sourceState);
 }
 
 ;
@@ -670,7 +671,6 @@ const updateFromGetGlobalState = () => {
   />
 </div>
 ```
-<<<<<<< Updated upstream
 
 Shuffle example
 
@@ -811,5 +811,3 @@ const reference = useRef(null);
   />
 </div>
 ```
-=======
->>>>>>> Stashed changes

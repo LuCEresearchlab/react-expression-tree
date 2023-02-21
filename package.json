@@ -1,6 +1,6 @@
 {
   "name": "react-expression-tree",
-  "version": "1.0.30",
+  "version": "1.0.32",
   "description": "Create expression trees",
   "author": {
     "name": "Tiziano Marsetti",
@@ -14,6 +14,10 @@
     {
       "name": "Tiziano Marsetti",
       "email": "tiziano.marsetti@usi.ch"
+    },
+    {
+      "name": "Joey Bevilacqua",
+      "email": "joey.bevilacqua@usi.ch"
     },
     {
       "name": "Luca Chiodini",

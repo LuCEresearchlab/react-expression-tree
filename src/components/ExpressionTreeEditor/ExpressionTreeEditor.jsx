@@ -255,10 +255,10 @@ function ExpressionTreeEditor({
         resetValueLabels,
         resetRootNode,
         updateGlobalState,
-        getGlobalState: useCallback(() => exportState(store) , [exportState, store]),
+        getGlobalState: exportState.bind(this, store),
       };
     }
-  }, []);
+  }, [store]);
 
   const computeStageWidth = () => width || containerWidth;
 
