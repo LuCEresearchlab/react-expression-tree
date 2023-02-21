@@ -197,8 +197,8 @@ function Node({
 
   return (
     /**
-     * A node is a groupd composed by:
-     *  - Reactangle: the box surrounding the node
+     * A node is a group composed by:
+     *  - Rectangle: the box surrounding the node
      *  - NodeTopConnector: the circle on the top edge, used for connect Edges
      *  - NodeLabel: the content of the node
      *  - NodeDeleteButton: the button for removing the node
