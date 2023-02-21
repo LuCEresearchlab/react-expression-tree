@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
  * @param {*} containerRef - the reference of the container component
  */
 function useContainerWidthOnWindowResize(containerRef) {
-  const [containerWidth, setContainerWidth] = useState(null);
+  const [containerWidth, setContainerWidth] = useState(document.body.offsetWidth * 0.75);
 
   useEffect(() => {
     function onResize() {
