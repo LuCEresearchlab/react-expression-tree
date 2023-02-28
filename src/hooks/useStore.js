@@ -7,6 +7,11 @@ import { createSanitizedUtilsProps, createInitialState } from '../store/initialS
 import createPositionUtils from '../utils/position';
 
 function useStore({
+  computeStageWidth,
+  autolayout,
+  autofit,
+  layerRef,
+  stageRef,
   shuffleNodes,
   propNodes,
   propSelectedNode,
@@ -67,9 +72,37 @@ function useStore({
   const {
     sanitizedNodes,
     sanitizedEdges,
+    sanitizedStagePos,
+    sanitizedStageScale,
   } = useMemo(() => (
-    utils.sanitizeNodesAndEdges(propNodes, propEdges, shuffleNodes)
-  ), [propNodes, propEdges, shuffleNodes, utils.sanitizeNodesAndEdges]);
+    utils.sanitizeNodesAndEdges(
+      propNodes,
+      propEdges,
+      propSelectedRootNode,
+      propStagePos,
+      propStageScale,
+      shuffleNodes,
+      autolayout,
+      autofit,
+      layerRef,
+      stageRef,
+      computeStageWidth,
+      true,
+      true,
+    )
+  ), [
+    propNodes,
+    propEdges,
+    propSelectedRootNode,
+    propStagePos,
+    propStageScale,
+    shuffleNodes,
+    autolayout,
+    autofit,
+    layerRef,
+    stageRef,
+    utils.sanitizeNodesAndEdges,
+  ]);
 
   const templateNodesDescription = useMemo(() => {
     if (propTemplateNodes !== undefined && propTemplateNodes !== null) {
@@ -84,8 +117,8 @@ function useStore({
     sanitizedEdges,
     propSelectedEdge,
     propSelectedRootNode,
-    propStagePos,
-    propStageScale,
+    sanitizedStagePos,
+    sanitizedStageScale,
     sanitizedConnectorPlaceholder,
     sanitizedPlaceholderWidth,
     sanitizedFontSize,
@@ -143,18 +176,6 @@ function useStore({
       storeActions.clearSelectedRootNode();
     }
   }, [storeActions, propSelectedRootNode]);
-
-  useEffect(() => {
-    if (propStagePos !== undefined && propStagePos !== null) {
-      storeActions.setStagePos(propStagePos);
-    }
-  }, [storeActions, propStagePos]);
-
-  useEffect(() => {
-    if (propStageScale !== undefined && propStageScale !== null) {
-      storeActions.setStageScale(propStageScale);
-    }
-  }, [storeActions, propStageScale]);
 
   useEffect(() => {
     if (sanitizedConnectorPlaceholder !== undefined && sanitizedConnectorPlaceholder !== null) {

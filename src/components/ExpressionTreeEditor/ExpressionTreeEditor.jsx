@@ -57,6 +57,7 @@ function ExpressionTreeEditor({
   width,
   height,
   autolayout,
+  autofit,
   shuffleNodes,
   allowedErrors,
   isFullDisabled,
@@ -108,6 +109,7 @@ function ExpressionTreeEditor({
 }) {
   const containerRef = useRef();
   const containerWidth = useContainerWidthOnWindowResize(containerRef);
+  const computeStageWidth = () => width || containerWidth;
 
   const stageRef = useRef();
   const layerRef = useRef();
@@ -117,6 +119,11 @@ function ExpressionTreeEditor({
   const createNodeStageRef = useRef();
 
   const [store, actions, utils] = useStore({
+    computeStageWidth,
+    autolayout,
+    autofit,
+    layerRef,
+    stageRef,
     shuffleNodes,
     propNodes,
     propSelectedNode,
@@ -259,8 +266,6 @@ function ExpressionTreeEditor({
       };
     }
   }, [store]);
-
-  const computeStageWidth = () => width || containerWidth;
 
   const [robotoFontAvailable, setRobotoFontAvailable] = useState(false);
   const fontFaceObserver = new FontFaceObserver('Roboto Mono');
@@ -652,29 +657,43 @@ function ExpressionTreeEditor({
   });
 
   const handleResetState = () => {
-    const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges, shuffleNodes);
+    const {
+      sanitizedNodes,
+      sanitizedEdges,
+      sanitizedStagePos,
+      sanitizedStageScale,
+    } = sanitizeNodesAndEdges(
+      propNodes,
+      propEdges,
+      propSelectedRootNode,
+      propStagePos,
+      propStageScale,
+      shuffleNodes,
+      autolayout,
+      autofit,
+      layerRef,
+      stageRef,
+      computeStageWidth,
+      isDrawerOpen,
+      showDrawer,
+    );
     stageReset({
       nodes: sanitizedNodes,
       selectedNode: propSelectedNode,
       edges: sanitizedEdges,
       selectedEdge: propSelectedEdge,
       selectedRootNode: propSelectedRootNode,
-      stagePos: propStagePos || defaultProps.stagePos,
-      stageScale: propStageScale || defaultProps.stageScale,
+      stagePos: sanitizedStagePos || defaultProps.stagePos,
+      stageScale: sanitizedStageScale || defaultProps.stageScale,
       connectorPlaceholder: propConnectorPlaceholder || defaultProps.connectorPlaceholder,
     });
-
-    if (autolayout) {
-      handleReorderNodesButtonAction({ nodes: sanitizedNodes, edges: sanitizedEdges });
-    }
   };
 
   useEffect(() => {
-    if (autolayout) {
-      const { sanitizedNodes, sanitizedEdges } = sanitizeNodesAndEdges(propNodes, propEdges, shuffleNodes);
-      handleReorderNodesButtonAction({ nodes: sanitizedNodes, edges: sanitizedEdges }, true);
+    if (autofit) {
+      handleZoomToFitButtonAction();
     }
-  }, [propNodes, propEdges, shuffleNodes]);
+  }, []);
 
   useEffect(() => {
     if (createNodeDescription && createNodeStageRef.current) {
@@ -1627,6 +1646,7 @@ ExpressionTreeEditor.propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
   autolayout: PropTypes.bool,
+  autofit: PropTypes.bool,
   shuffleNodes: PropTypes.bool,
   allowedErrors: PropTypes.shape({
     loop: PropTypes.bool,
@@ -1852,6 +1872,7 @@ ExpressionTreeEditor.defaultProps = {
   width: null,
   height: 300,
   autolayout: false,
+  autofit: false,
   shuffleNodes: false,
   allowedErrors: {
     loop: true,

@@ -3,6 +3,7 @@ Example with initial object state and final nodes:
 ```js
 <ExpressionTreeEditor
   autolayout={true}
+  autofit={true}
   isFullDisabled={false}
   showToolbar={true}
   showToolbarButtons={{

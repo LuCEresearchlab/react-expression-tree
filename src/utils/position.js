@@ -1,5 +1,6 @@
 /* eslint-disable no-loop-func */
 import Konva from 'konva';
+import { layout } from './layout';
 import { createEmptyEdge, createEmptyNode } from './state';
 
 function distance(x1, y1, x2, y2) {
@@ -428,7 +429,21 @@ const createPositionUtils = (
     return objectEdges;
   };
 
-  const sanitizeNodesAndEdges = (nodes, edges, shuffleNodes = false) => {
+  const sanitizeNodesAndEdges = (
+    nodes,
+    edges,
+    selectedRootNode,
+    stagePos,
+    stageScale,
+    shuffleNodes = false,
+    autolayout,
+    autofit,
+    layerRef,
+    stageRef,
+    computeStageWidth,
+    isDrawerOpen,
+    showDrawer,
+  ) => {
     if (Array.isArray(nodes)) {
       nodes = convertArrayNodesToObject(nodes);
     }
@@ -441,7 +456,7 @@ const createPositionUtils = (
       }), {});
     }
 
-    const sanitizedNodes = Object.keys(nodes).reduce((accumulator, id) => {
+    let sanitizedNodes = Object.keys(nodes).reduce((accumulator, id) => {
       const newNode = createEmptyNode(id);
       accumulator[id] = {
         ...newNode,
@@ -461,7 +476,7 @@ const createPositionUtils = (
       edges = convertArrayEdgesToObject(edges);
     }
 
-    const sanitizedEdges = computeEdgesCoordinates(edges, sanitizedNodes);
+    let sanitizedEdges = computeEdgesCoordinates(edges, sanitizedNodes);
 
     Object.keys(sanitizedEdges).forEach((id) => {
       const {
@@ -479,7 +494,61 @@ const createPositionUtils = (
       }
     });
 
-    return { sanitizedNodes, sanitizedEdges };
+    if (autolayout) {
+      //TODO: Determine whether need to clone nodes before calling layout
+      /*
+      // Call old layout (reorder) code
+      const orderedNodes = reorderNodes(
+        nodes,
+        edges,
+        selectedRootNode,
+      );
+      */
+      // Structured clone is a deep clone
+      // https://developer.mozilla.org/en-US/docs/Web/API/structuredClone
+      // eslint-disable-next-line no-undef
+      sanitizedNodes = structuredClone(sanitizedNodes);
+      // const orderedNodes = sanitizedNodes;
+      const [diagramWidth, diagramHeight] = layout(
+        sanitizedNodes,
+        sanitizedEdges,
+        selectedRootNode,
+        isDrawerOpen && showDrawer,
+        computeStageWidth(),
+      );
+      //console.log('node layout: diagram width: ', diagramWidth, 'diagram height: ', diagramHeight);
+
+      sanitizedEdges = computeEdgesCoordinates(sanitizedEdges, sanitizedNodes);
+      stagePos = { x: 0, y: 0 };
+      stageScale = { x: 1, y: 1 };
+    }
+
+    if (autofit && layerRef.current && stageRef.current) {
+      const paddingLeft = isDrawerOpen && showDrawer ? 330 : 30;
+      const paddingRight = 30;
+      const paddingTop = 30;
+      const paddingBottom = 30;
+      // get the bounding box of layer contents
+      const box = layerRef.current.getClientRect({
+        relativeTo: stageRef.current,
+      });
+      const scale = Math.min(
+        (stageRef.current.width() - paddingLeft - paddingRight) / box.width,
+        (stageRef.current.height() - paddingTop - paddingBottom) / box.height,
+      );
+      const x = paddingLeft - box.x * scale;
+      const y = paddingTop - box.y * scale;
+
+      stagePos = { x, y };
+      stageScale = { x: scale, y: scale };
+    }
+
+    return {
+      sanitizedNodes,
+      sanitizedEdges,
+      sanitizedStagePos: stagePos,
+      sanitizedStageScale: stageScale,
+    };
   };
 
   const updateEdgeChildCoordinates = (edgeIds, edges, childNode) => {
