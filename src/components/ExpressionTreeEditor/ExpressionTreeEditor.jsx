@@ -403,6 +403,10 @@ function ExpressionTreeEditor({
   // then the stage will be repositioned,
   // in order to have all the nodes inside the viewport
   const handleZoomToFitButtonAction = () => {
+    if (Object.keys(nodes).length === 0) {
+      return;
+    }
+
     const paddingLeft = isDrawerOpen && showDrawer ? 330 : 30;
     const paddingRight = 30;
     const paddingTop = 30;
